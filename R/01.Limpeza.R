@@ -567,6 +567,7 @@ Financeiro_Report <- Financeiro_Report %>%
 # =========================
 Financeiro_Report_Agregado <- Financeiro_Report %>%
   group_by(
+    Nome_do_pesquisador,
     Nome_Empreendedora,
     Setor_Negocio,
     Ano_Projeto,

@@ -383,19 +383,22 @@ ui <- navbarPage(
             selectInput(
               "Pesquisador",
               "Selecione o Pesquisador:",
-              choices = c("Todos")
+              choices = c("Todos", unique(Financeiro_Report_Agregado$Nome_do_pesquisador)),
+              selected = "Todos"
             ),
             
             selectInput(
               "Nome_Empreendedora",
               "Selecione a Empreendedora:",
-              choices = c("Todas")
+              choices = c("Todas", unique(Financeiro_Report_Agregado$Nome_Empreendedora)),
+              selected = "Todas"
             ),
             
             selectInput(
               "Mes",
               "Selecione o Mês:",
-              choices = c("Todos")
+              choices = c("Todos", unique(Financeiro_Report_Agregado$Periodo)),
+              selected = "Todos"
             )
           ),
           
@@ -418,17 +421,24 @@ ui <- navbarPage(
                 br(),
                 
                 fluidRow(
-                  box(width = 6, title = "Lucro por Cidade",
-                      plotlyOutput("cidade_plot")),
+                  box(width = 12, title = "Lucro por Cidade",
+                      plotlyOutput("cidade_plot"))
                   
-                  box(width = 6, title = "Lucro por Setor",
-                      plotlyOutput("sector_plot"))
+                   # box(width = 6, title = "",
+                   #    plotlyOutput("sector_plot"))
                 )
               ),
               
               # ================= SEMANAL =================
               tabPanel(
                 "Semanal",
+                div(
+                  class = "value-box-container",
+                  
+                  uiOutput("vb_crescimento_semana"),
+                  uiOutput("vb_aumento_lucro_semana"),
+                  uiOutput("vb_aumento_25_semana")
+                ),
                 
                 fluidRow(
                   box(
@@ -436,18 +446,41 @@ ui <- navbarPage(
                     title = "Desempenho Semanal",
                     plotlyOutput("grafico_financeiro")
                   )
+                ),
+                
+                fluidRow(
+                  box(
+                    width = 12,
+                    title = "",
+                    plotlyOutput("grafico_barras_semanas")
+                  )
                 )
               ),
               
               # ================= MENSAL =================
               tabPanel(
                 "Mensal",
+                div(
+                  class = "value-box-container",
+                  
+                  uiOutput("vb_crescimento_mes"),
+                  uiOutput("vb_aumento_lucro_mes"),
+                  uiOutput("vb_aumento_25_mes")
+                ),
                 
                 fluidRow(
                   box(
-                    width = 9,
+                    width = 12,
                     title = "Desempenho Mensal",
                     plotlyOutput("grafico_mensal", height = 450)
+                  )
+                ),
+                
+                fluidRow(
+                  box(
+                    width = 12,
+                    title = "",
+                    plotlyOutput("grafico_barras")
                   )
                 ),
                 
@@ -1599,19 +1632,30 @@ server <- function(input, output, session) {
     
     df <- Financeiro_Report_Agregado
     
-    if (input$Pesquisador != "Todos") {
+    # =========================
+    # FILTRO PESQUISADOR
+    # =========================
+    if (!is.null(input$Pesquisador) && input$Pesquisador != "Todos") {
       df <- df %>%
-        filter(Nome_do_Pesquisador == input$Pesquisador)
+        dplyr::filter(Nome_do_pesquisador == input$Pesquisador)
     }
     
-    if (input$Nome_Empreendedora != "Todas") {
+    # =========================
+    # FILTRO EMPREENDEDORA
+    # =========================
+    if (!is.null(input$Nome_Empreendedora) &&
+        input$Nome_Empreendedora != "Todas") {
+      
       df <- df %>%
-        filter(Nome_Empreendedora == input$Nome_Empreendedora)
+        dplyr::filter(Nome_Empreendedora == input$Nome_Empreendedora)
     }
     
-    if (input$Mes != "Todos") {
+    # =========================
+    # FILTRO MÊS (PERIODO)
+    # =========================
+    if (!is.null(input$Mes) && input$Mes != "Todos") {
       df <- df %>%
-        filter(Periodo == input$Mes)
+        dplyr::filter(Periodo == input$Mes)
     }
     
     df
@@ -1654,6 +1698,10 @@ server <- function(input, output, session) {
     )
   })
   
+  
+  
+  
+  
   output$cidade_plot <- renderPlotly({
     
     p <- df_financeiro() %>%
@@ -1668,63 +1716,519 @@ server <- function(input, output, session) {
   output$grafico_financeiro <- renderPlotly({
     
     df_plot <- df_financeiro() %>%
-      
       group_by(Semanas) %>%
       summarise(
         Lucro = sum(Lucro_Semanal, na.rm = TRUE),
         .groups = "drop"
       ) %>%
-      
       mutate(
         Semanas = factor(
           Semanas,
-          levels = c("Primeira Semana", "Segunda Semana", "Terceira Semana", "Quarta Semana", "Quinta Semana")
+          levels = c(
+            "Primeira Semana",
+            "Segunda Semana",
+            "Terceira Semana",
+            "Quarta Semana",
+            "Quinta Semana"
+          )
         )
       ) %>%
-      
       arrange(Semanas)
     
-    p <- ggplot(df_plot, aes(x = Semanas, y = Lucro, group = 1,
-                             text = paste0("Semana: ", Semanas,
-                                           "<br>Lucro: ", Lucro))) +
+    # deslocamento para texto ficar acima dos pontos
+    desloc <- max(df_plot$Lucro, na.rm = TRUE) * 0.08
+    
+    g <- ggplot(df_plot, aes(x = Semanas, y = Lucro, group = 1)) +
       
-      geom_line(color = "#8054A2", size = 1.2) +
-      geom_point(size = 3, color = "#8054A2") +
+      geom_area(fill = "#8054A2", alpha = 0.15) +
       
-      labs(
-        x = "",
-        y = "Lucro",
-        title = ""
+      geom_line(color = "#8054A2", linewidth = 1.3) +
+      
+      geom_point(
+        color = "#8054A2",
+        fill = "white",
+        shape = 21,
+        size = 4,
+        stroke = 1.2
       ) +
       
-      theme_minimal()
+      # VALORES NOS PONTOS (ACIMA)
+      geom_text(
+        aes(y = Lucro + desloc,
+            label = scales::comma(Lucro)),
+        color = "#8054A2",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      labs(x = "", y = "Lucro (MT)") +
+      
+      scale_y_continuous(
+        labels = scales::comma,
+        expand = expansion(mult = c(0.05, 0.25))
+      ) +
+      
+      theme_minimal(base_size = 14) +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(color = "#E0E0E0"),
+        
+        axis.text = element_text(color = "#333333"),
+        axis.title = element_text(face = "bold")
+      )
     
-    ggplotly(p, tooltip = "text") %>%
+    ggplotly(g, tooltip = "text") %>%
       layout(
-        paper_bgcolor = "#ffffff",
-        plot_bgcolor = "#ffffff"
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor  = "#f5f3f4"
       )
   })
   
+  output$grafico_barras_semanas <- renderPlotly({
+    
+    df_plot <- df_financeiro() %>%
+      group_by(Semanas) %>%
+      summarise(
+        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
+        Rendimento = sum(Rendimento_Total, na.rm = TRUE),
+        Custo_Operacional = sum(Custo_Operacional_Total, na.rm = TRUE),
+        Custo_Produto = sum(Custo_Produtos_Total, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Semanas = factor(
+          Semanas,
+          levels = c(
+            "Primeira Semana",
+            "Segunda Semana",
+            "Terceira Semana",
+            "Quarta Semana",
+            "Quinta Semana"
+          )
+        )
+      )
+    
+    df_long <- df_plot %>%
+      tidyr::pivot_longer(
+        cols = c(Lucro, Rendimento, Custo_Operacional, Custo_Produto),
+        names_to = "Indicador",
+        values_to = "Valor"
+      )
+    
+    dodge <- position_dodge(width = 0.8)
+    
+    p <- ggplot(df_long, aes(x = Semanas, y = Valor, fill = Indicador)) +
+      
+      geom_col(position = dodge, width = 0.7) +
+      
+      # ✔ VALORES NO MEIO DAS BARRAS
+      geom_text(
+        aes(label = scales::comma(round(Valor, 0))),
+        position = dodge,
+        vjust = 0.5,
+        color = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Lucro" = "#8054A2",
+          "Rendimento" = "#f9a825",
+          "Custo_Operacional" = "#69C7BE",
+          "Custo_Produto" = "#f77333"
+        )
+      ) +
+      
+      labs(
+        x = "",
+        y = "Valores (MT)",
+        fill = ""
+      ) +
+      
+      theme_stata(base_size = 14) +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(color = "#E0E0E0")
+      )
+    
+    ggplotly(p) %>%
+      
+      layout(
+        barmode = "group",
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor  = "#f5f3f4"
+      )
+  })
+  
+  df_semana <- reactive({
+    
+    Financeiro_Report_Agregado %>%
+      mutate(
+        Semanas = factor(
+          Semanas,
+          levels = c(
+            "Primeira Semana",
+            "Segunda Semana",
+            "Terceira Semana",
+            "Quarta Semana",
+            "Quinta Semana"
+          )
+        )
+      ) %>%
+      arrange(Semanas)
+  })
+  
+  crescimento_semana <- reactive({
+    
+    df <- df_semana()
+    
+    df2 <- df %>%
+      mutate(
+        lucro_anterior = lag(Lucro_Semanal),
+        crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
+      )
+    
+    paste0(round(mean(df2$crescimento, na.rm = TRUE) * 100, 1), "%")
+  })
+  
+  
+  aumento_lucro_semana <- reactive({
+    
+    df <- df_semana()
+    
+    sum(df$Lucro_Semanal > 0, na.rm = TRUE)
+  })
+  
+  
+  aumento_25_semana <- reactive({
+    
+    df <- df_semana()
+    
+    df2 <- df %>%
+      mutate(
+        lucro_anterior = lag(Lucro_Semanal),
+        crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
+      )
+    
+    sum(df2$crescimento > 0.25, na.rm = TRUE)
+  })
+  
+  
+  
+  
   output$grafico_mensal <- renderPlotly({
     
-    p <- df_financeiro() %>%
+    df_plot <- df_financeiro() %>%
       group_by(Periodo) %>%
-      summarise(Lucro = sum(Lucro_Mensal), .groups = "drop") %>%
+      summarise(Lucro = sum(Lucro_Mensal, na.rm = TRUE), .groups = "drop") %>%
       mutate(
         Periodo = factor(
           Periodo,
           levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
         )
       ) %>%
-      ggplot(aes(Periodo, Lucro, group = 1)) +
-      geom_line(color = "#8054A2", size = 1.2) +
-      geom_point(size = 3, color = "#8054A2") +
-      theme_minimal()
+      arrange(Periodo)
     
-    ggplotly(p)
+    desloc <- max(df_plot$Lucro, na.rm = TRUE) * 0.07
+    
+    g <- ggplot(df_plot, aes(x = Periodo, y = Lucro, group = 1)) +
+      
+      # ÁREA (igual ao semanal)
+      geom_area(fill = "#8054A2", alpha = 0.15) +
+      
+      # LINHA
+      geom_line(color = "#8054A2", linewidth = 1.3) +
+      
+      # PONTOS
+      geom_point(
+        color = "#8054A2",
+        fill = "white",
+        shape = 21,
+        size = 4,
+        stroke = 1.2
+      ) +
+      
+      # VALORES ACIMA DOS PONTOS
+      geom_text(
+        aes(y = Lucro + desloc,
+            label = scales::comma(Lucro)),
+        color = "#8054A2",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      labs(x = "", y = "Lucro (MT)") +
+      
+      scale_y_continuous(
+        labels = scales::comma,
+        expand = expansion(mult = c(0.05, 0.25))
+      ) +
+      
+      theme_minimal(base_size = 14) +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(color = "#E0E0E0")
+      )
+    
+    ggplotly(g, tooltip = "text") %>%
+      
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor  = "#f5f3f4"
+      )
   })
   
+  output$grafico_barras <- renderPlotly({
+    
+    df_plot <- df_financeiro() %>%
+      group_by(Periodo) %>%
+      summarise(
+        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
+        Rendimento = sum(Rendimento_Total, na.rm = TRUE),
+        Custo_Operacional = sum(Custo_Operacional_Total, na.rm = TRUE),
+        Custo_Produto = sum(Custo_Produtos_Total, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+        )
+      )
+    
+    df_long <- df_plot %>%
+      tidyr::pivot_longer(
+        cols = c(Lucro, Rendimento, Custo_Operacional, Custo_Produto),
+        names_to = "Indicador",
+        values_to = "Valor"
+      )
+    
+    dodge <- position_dodge(width = 0.8)
+    
+    p <- ggplot(df_long, aes(x = Periodo, y = Valor, fill = Indicador)) +
+      
+      geom_col(position = dodge, width = 0.7) +
+      
+      # ✔ VALORES CENTRADOS NAS BARRAS
+      geom_text(
+        aes(label = scales::comma(round(Valor, 0))),
+        position = dodge,
+        vjust = 0.5,
+        color = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Lucro" = "#8054A2",
+          "Rendimento" = "#f9a825",
+          "Custo_Operacional" = "#69C7BE",
+          "Custo_Produto" = "#f77333"
+        )
+      ) +
+      
+      labs(
+        x = "",
+        y = "Valores (MT)",
+        fill = ""
+      ) +
+      
+      theme_stata(base_size = 14) +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(color = "#E0E0E0")
+      )
+    
+    ggplotly(p) %>%
+      
+      layout(
+        barmode = "group",
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor  = "#f5f3f4"
+      )
+  })
+  
+  
+  # output$vb_crescimento_semana <- renderUI({
+  #   
+  #   df <- df_semana()
+  #   
+  #   df2 <- df %>%
+  #     mutate(
+  #       lucro_anterior = lag(Lucro_Semanal),
+  #       crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
+  #     )
+  #   
+  #   valor <- mean(df2$crescimento, na.rm = TRUE)
+  #   
+  #   div(
+  #     class = "value-box green",
+  #     
+  #     span(class = "value-number",
+  #          paste0(round(valor * 100, 1), "%")),
+  #     
+  #     span(class = "value-title",
+  #          "Crescimento Semanal")
+  #   )
+  # })
+  
+  output$vb_aumento_lucro_semana <- renderUI({
+    
+    df <- Financeiro_Report_Agregado %>%
+      mutate(
+        Semanas = factor(
+          Semanas,
+          levels = c(
+            "Primeira Semana",
+            "Segunda Semana",
+            "Terceira Semana",
+            "Quarta Semana",
+            "Quinta Semana"
+          )
+        )
+      ) %>%
+      arrange(Nome_Empreendedora, Semanas) %>%
+      
+      group_by(Nome_Empreendedora) %>%
+      
+      mutate(
+        lucro_anterior = lag(Lucro_Semanal),
+        aumento = Lucro_Semanal > lucro_anterior
+      ) %>%
+      
+      ungroup()
+    
+    valor <- df %>%
+      filter(!is.na(lucro_anterior)) %>%
+      summarise(total = sum(aumento, na.rm = TRUE)) %>%
+      pull(total)
+    
+    div(
+      class = "value-box blue",
+      
+      span(class = "value-number", valor),
+      span(class = "value-title", "Participantes com Aumento de Lucro")
+    )
+  })
+  
+  # output$vb_aumento_25_semana <- renderUI({
+  #   
+  #   df <- df_semana()
+  #   
+  #   df2 <- df %>%
+  #     mutate(
+  #       lucro_anterior = lag(Lucro_Semanal),
+  #       crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
+  #     )
+  #   
+  #   valor <- sum(df2$crescimento > 0.25, na.rm = TRUE)
+  #   
+  #   div(
+  #     class = "value-box orange",
+  #     
+  #     span(class = "value-number", valor),
+  #     span(class = "value-title", "Crescimento > 25%")
+  #   )
+  # })
+  
+  # output$vb_crescimento_mes <- renderUI({
+  #   
+  #   df <- df_semana() %>%
+  #     mutate(
+  #       Periodo = factor(
+  #         Periodo,
+  #         levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+  #       )
+  #     ) %>%
+  #     arrange(Periodo)
+  #   
+  #   df2 <- df %>%
+  #     mutate(
+  #       lucro_anterior = lag(Lucro_Mensal),
+  #       crescimento = (Lucro_Mensal - lucro_anterior) / (abs(lucro_anterior) + 1)
+  #     )
+  #   
+  #   valor <- mean(df2$crescimento, na.rm = TRUE)
+  #   
+  #   div(
+  #     class = "value-box green",
+  #     
+  #     span(class = "value-number",
+  #          paste0(round(valor * 100, 1), "%")),
+  #     
+  #     span(class = "value-title",
+  #          "Crescimento Mensal")
+  #   )
+  # })
+  # 
+  output$vb_aumento_lucro_mes <- renderUI({
+    
+    df <- Financeiro_Report_Agregado %>%
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+        )
+      ) %>%
+      arrange(Nome_Empreendedora, Periodo) %>%
+      
+      group_by(Nome_Empreendedora) %>%
+      
+      mutate(
+        lucro_anterior = lag(Lucro_Mensal),
+        aumento = Lucro_Mensal > lucro_anterior
+      ) %>%
+      
+      ungroup()
+    
+    valor <- df %>%
+      filter(!is.na(lucro_anterior)) %>%
+      summarise(total = sum(aumento, na.rm = TRUE)) %>%
+      pull(total)
+    
+    div(
+      class = "value-box blue",
+      
+      span(class = "value-number", valor),
+      span(class = "value-title", "Participantes com Aumento de Lucro")
+    )
+  })
+  # output$vb_aumento_25_mes <- renderUI({
+  #   
+  #   df <- df_semana() %>%
+  #     mutate(
+  #       Periodo = factor(
+  #         Periodo,
+  #         levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+  #       )
+  #     ) %>%
+  #     arrange(Periodo)
+  #   
+  #   df2 <- df %>%
+  #     mutate(
+  #       lucro_anterior = lag(Lucro_Mensal),
+  #       crescimento = (Lucro_Mensal - lucro_anterior) / (abs(lucro_anterior) + 1)
+  #     )
+  #   
+  #   valor <- sum(df2$crescimento > 0.25, na.rm = TRUE)
+  #   
+  #   div(
+  #     class = "value-box orange",
+  #     
+  #     span(class = "value-number", valor),
+  #     span(class = "value-title", "Lucro > 25%")
+  #   )
+  # })
   
   output$tabela_financeira <- renderDT({
     
