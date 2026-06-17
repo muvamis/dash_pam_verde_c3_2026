@@ -129,7 +129,7 @@ ui <- navbarPage(
   # ==========================================================
   tabPanel(
     
-    tagList(icon("chart-line"), "Indicadores_Ciclo3"),
+    tagList(icon("chart-line"), "Avaliação_Nampula_C3"),
     
     sidebarLayout(
       
@@ -182,7 +182,16 @@ ui <- navbarPage(
               column(6,
                      tags$h4("Sector dos negócios"),
                      plotlyOutput("grafico_setor"))
-              )
+              ),
+            fluidRow(
+              column(6,
+                     tags$h4("O seu negócio está formalizado?"),
+                     plotlyOutput("grafico_formalizacao")
+              ),
+              column(6,
+                     tags$h4(""),
+                     plotlyOutput("grafico_servicos_financeiros_"))
+            )
             ),
           
           
@@ -196,8 +205,8 @@ ui <- navbarPage(
             
             fluidRow(
               column(6,
-                     tags$h4("O seu negócio está formalizado?"),
-                     plotlyOutput("grafico_formalizacao")
+                     tags$h4("Retira regularmente um salário para si mesma?"),
+                     plotlyOutput("grafico_tira_salario")
               ),
               column(6,
                      tags$h4("Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"),
@@ -207,8 +216,8 @@ ui <- navbarPage(
             
               br(),
               fluidRow(
-                tags$h4("Retira regularmente um salário para si mesma?"),
-                column(6, plotlyOutput("grafico_tira_salario")),
+                tags$h4(""),
+                column(6, plotlyOutput("tira")),
                 tags$h4(""),
                 column(6, plotlyOutput("grafico_salario"))
               )
@@ -233,7 +242,18 @@ ui <- navbarPage(
           # =========================
           tabPanel(
             "Habilidades & Processos",
-            plotlyOutput("grafico_Prat_Neg")
+            fluidRow(
+              column(6, plotlyOutput("grafico_control_dinheiro")),
+              column(6, plotlyOutput("grafico_separacao_contas"))
+          ),
+          br(),
+          fluidRow(
+            tags$h4(""),
+            column(6, plotlyOutput("grafico_calcular_Lucro")),
+            tags$h4(""),
+            column(6, plotlyOutput("grafico_sal"))
+          )
+          
           ),
           
           # =========================
@@ -243,7 +263,7 @@ ui <- navbarPage(
             "Posicionamento & Mercado",
             
             fluidRow(
-              column(6, plotlyOutput("grafico_Porque_Produto")),
+              column(6, plotlyOutput("grafico_canais")),
               column(6, plotlyOutput("grafico_Parceria"))
             )
           ),
@@ -283,7 +303,7 @@ ui <- navbarPage(
   # ==========================================================
   tabPanel(
     
-    tagList(icon("clipboard-check"), "Monitoria_Ciclo3"),
+    tagList(icon("clipboard-check"), "Monitoria_Nampula_C3"),
     
     tabsetPanel(
       
@@ -499,6 +519,19 @@ ui <- navbarPage(
     )
    ),
 
+  tabPanel(
+    tagList(icon("chart-line"), "Avaliação_Beira_C1"),
+           fluidPage(
+             uiOutput("ad")
+           )
+  ),
+  
+  tabPanel(
+    tagList(icon("clipboard-check"), "Monitoria_Beira_C1"),
+    fluidPage(
+      uiOutput("adrrr")
+    )
+  ),
 
   tabPanel("ADMIN", icon = icon("tools"),
            fluidPage(
@@ -793,19 +826,15 @@ server <- function(input, output, session) {
       )
     
   })
-  # 
-  # 
-  # #   # ==========================================================
-  # #   # PÁGINA 2 - Companies situation and performance
-  # #   # ==========================================================
+  
+  
   output$grafico_formalizacao <- renderPlotly({
     
     df <- Pam_Verde_Indicadores
     
     req(input$filtro_ciclo)
-    req(input$filtro_tipo_avaliacao)
     
-    # ---- Filtros
+    # ---- Filtro ciclo
     if (!is.null(input$filtro_ciclo) &&
         input$filtro_ciclo != "Todos") {
       
@@ -813,104 +842,169 @@ server <- function(input, output, session) {
         dplyr::filter(Ciclo == input$filtro_ciclo)
     }
     
-    if (!is.null(input$filtro_tipo_avaliacao) &&
-        input$filtro_tipo_avaliacao != "Todos") {
-      
-      df <- df %>%
-        dplyr::filter(
-          Tipo_Avaliacao == input$filtro_tipo_avaliacao
-        )
-    }
-    
-    # ---- Limpeza
     df <- df %>%
-      dplyr::filter(
-        !is.na(Negocio_Formalizado),
-        !is.na(Tipo_Avaliacao)
-      ) %>%
-      dplyr::mutate(
-        Negocio_Formalizado = dplyr::recode(
-          Negocio_Formalizado,
-          "Iniciei o processo de formalização" = "Iniciei o processo de formalização",
-          "Não" = "Não",
-          "Sim" = "Sim"
-        )
-      )
+      dplyr::filter(!is.na(Negocio_Formalizado),
+                    !is.na(Tipo_Avaliacao))
     
-    # ---- Frequências
+    # ---- Frequência
     freq_data <- df %>%
-      group_by(
-        Negocio_Formalizado,
-        Tipo_Avaliacao
+      dplyr::group_by(Tipo_Avaliacao, Negocio_Formalizado) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
       ) %>%
-      summarise(
-        Frequencia = n(),
-        .groups = "drop"
-      )
-    
-    # ---- Ordem
-    freq_data$Negocio_Formalizado <- factor(
-      freq_data$Negocio_Formalizado,
-      levels = c("Não", "Iniciei o processo de formalização", "Sim")
-    )
+      dplyr::ungroup()
     
     # ---- Cores
-    cores_avaliacao <- c(
-      "Baseline" = "#5cd6c7",
-      "Endline" = "#9442d4"
+    cores <- c(
+      "Não" = "#5cd6c7",
+      "Iniciei o processo de formalização" = "#ff7f0e",
+      "Sim" = "#9442d4"
     )
     
     # ---- Gráfico
-    p <- ggplot(
+    plot_ly(
       freq_data,
-      aes(
-        x = Negocio_Formalizado,
-        y = Frequencia,
-        fill = Tipo_Avaliacao
-      )
-    ) +
-      geom_col(
-        position = position_dodge(width = 0.7),
-        width = 0.6
-      ) +
-      
-      geom_text(
-        aes(label = Frequencia),
-        position = position_dodge(width = 0.7),
-        vjust = -0.4,
-        size = 4,
-        fontface = "bold"
-      ) +
-      
-      scale_fill_manual(values = cores_avaliacao) +
-      
-      labs(
-        x = NULL,
-        y = "Número de Negócios",
-        fill = "Avaliação"
-      ) +
-      
-      theme_minimal(base_size = 11) +
-      
-      theme(
-        axis.text.x = element_text(
-          angle = 15,
-          hjust = 1,
-          face = "bold"
-        ),
-        legend.position = "top"
-      )
-    
-    ggplotly(
-      p,
-      tooltip = c("x", "y", "fill")
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~Negocio_Formalizado,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      hoverinfo = "text",
+      textfont = list(color = "#ffffff", size = 12)
     ) %>%
       layout(
+        title = "",
+        barmode = "stack",
+        yaxis = list(title = "Percentagem (%)"),
+        xaxis = list(title = ""),
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
-  
+  # 
+  # 
+  # #   # ==========================================================
+  # #   # PÁGINA 2 - Companies situation and performance
+  # #   # ==========================================================
+  # output$grafico_formalizacao <- renderPlotly({
+  #   
+  #   df <- Pam_Verde_Indicadores
+  #   
+  #   req(input$filtro_ciclo)
+  #   req(input$filtro_tipo_avaliacao)
+  #   
+  #   # ---- Filtros
+  #   if (!is.null(input$filtro_ciclo) &&
+  #       input$filtro_ciclo != "Todos") {
+  #     
+  #     df <- df %>%
+  #       dplyr::filter(Ciclo == input$filtro_ciclo)
+  #   }
+  #   
+  #   if (!is.null(input$filtro_tipo_avaliacao) &&
+  #       input$filtro_tipo_avaliacao != "Todos") {
+  #     
+  #     df <- df %>%
+  #       dplyr::filter(
+  #         Tipo_Avaliacao == input$filtro_tipo_avaliacao
+  #       )
+  #   }
+  #   
+  #   # ---- Limpeza
+  #   df <- df %>%
+  #     dplyr::filter(
+  #       !is.na(Negocio_Formalizado),
+  #       !is.na(Tipo_Avaliacao)
+  #     ) %>%
+  #     dplyr::mutate(
+  #       Negocio_Formalizado = dplyr::recode(
+  #         Negocio_Formalizado,
+  #         "Iniciei o processo de formalização" = "Iniciei o processo de formalização",
+  #         "Não" = "Não",
+  #         "Sim" = "Sim"
+  #       )
+  #     )
+  #   
+  #   # ---- Frequências
+  #   freq_data <- df %>%
+  #     group_by(
+  #       Negocio_Formalizado,
+  #       Tipo_Avaliacao
+  #     ) %>%
+  #     summarise(
+  #       Frequencia = n(),
+  #       .groups = "drop"
+  #     )
+  #   
+  #   # ---- Ordem
+  #   freq_data$Negocio_Formalizado <- factor(
+  #     freq_data$Negocio_Formalizado,
+  #     levels = c("Não", "Iniciei o processo de formalização", "Sim")
+  #   )
+  #   
+  #   # ---- Cores
+  #   cores_avaliacao <- c(
+  #     "Baseline" = "#5cd6c7",
+  #     "Endline" = "#9442d4"
+  #   )
+  #   
+  #   # ---- Gráfico
+  #   p <- ggplot(
+  #     freq_data,
+  #     aes(
+  #       x = Negocio_Formalizado,
+  #       y = Frequencia,
+  #       fill = Tipo_Avaliacao
+  #     )
+  #   ) +
+  #     geom_col(
+  #       position = position_dodge(width = 0.7),
+  #       width = 0.6
+  #     ) +
+  #     
+  #     geom_text(
+  #       aes(label = Frequencia),
+  #       position = position_dodge(width = 0.7),
+  #       vjust = -0.4,
+  #       size = 4,
+  #       fontface = "bold"
+  #     ) +
+  #     
+  #     scale_fill_manual(values = cores_avaliacao) +
+  #     
+  #     labs(
+  #       x = NULL,
+  #       y = "Número de Negócios",
+  #       fill = "Avaliação"
+  #     ) +
+  #     
+  #     theme_minimal(base_size = 11) +
+  #     
+  #     theme(
+  #       axis.text.x = element_text(
+  #         angle = 15,
+  #         hjust = 1,
+  #         face = "bold"
+  #       ),
+  #       legend.position = "top"
+  #     )
+  #   
+  #   ggplotly(
+  #     p,
+  #     tooltip = c("x", "y", "fill")
+  #   ) %>%
+  #     layout(
+  #       paper_bgcolor = "#f5f3f4",
+  #       plot_bgcolor = "#f5f3f4"
+  #     )
+  # })
+  # 
   
   ############################ USO DE SERVICOS FINANCEIROS
   
@@ -1206,6 +1300,153 @@ server <- function(input, output, session) {
       )
   })
   
+  # ##----------------------------------------------------------- 
+  # ###################                  3 PAGINA Habilidades e Processos
+  # ##-----------------------------------------------------------------------------  
+  output$grafico_control_dinheiro <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores %>%
+      count(`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`) %>%
+      mutate(
+        perc = round(n / sum(n) * 100, 1)
+      )
+    
+    plot_ly(
+      df,
+      labels = ~`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
+      values = ~n,
+      type = "pie",
+      textinfo = "label+value+percent",
+      hoverinfo = "label+value+percent",
+      marker = list(
+        colors = c("#69C7BE", "#F37238")  
+      )
+    ) %>%
+      layout(
+        title = "Controlo de receitas e despesas",
+        showlegend = TRUE,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  
+  output$grafico_separacao_contas <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores %>%
+      count(`Faz separação das contas pessoais e do negócio`) %>%
+      mutate(
+        perc = round(n / sum(n) * 100, 1)
+      )
+    
+    plot_ly(
+      df,
+      labels = ~`Faz separação das contas pessoais e do negócio`,
+      values = ~n,
+      type = "pie",
+      textinfo = "label+value+percent",
+      hoverinfo = "label+value+percent",
+      marker = list(
+        colors = c("#69C7BE", "#F37238")  
+      )
+    ) %>%
+      layout(
+        title = "Separação das contas pessoais e do negócio",
+        showlegend = TRUE,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  output$grafico_calcular_Lucro <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores %>%
+      count(`Sabe calcular o lucro do negócio  (com base no exercício prático)`) %>%
+      mutate(
+        perc = round(n / sum(n) * 100, 1)
+      )
+    
+    plot_ly(
+      df,
+      labels = ~`Sabe calcular o lucro do negócio  (com base no exercício prático)`,
+      values = ~n,
+      type = "pie",
+      textinfo = "label+value+percent",
+      hoverinfo = "label+value+percent",
+      marker = list(
+        colors = c("#69C7BE", "#F37238")  
+      )
+    ) %>%
+      layout(
+        title = "Sabe calcular o lucro do negócio",
+        showlegend = TRUE,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  
+  
+  
+  
+  library(dplyr)
+  library(tidyr)
+  library(stringr)
+  library(plotly)
+  
+  output$grafico_canais <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    # -----------------------------
+    # 1. TRATAMENTO (MULTI-RESPOSTA)
+    # -----------------------------
+    df_canais <- df %>%
+      
+      separate_rows(
+        `Onde vende actualmente os seus produtos ou serviços?`,
+        sep = ","
+      ) %>%
+      
+      mutate(
+        canal = str_trim(`Onde vende actualmente os seus produtos ou serviços?`)
+      ) %>%
+      
+      filter(!is.na(canal), canal != "")
+    
+    # -----------------------------
+    # 2. FREQUÊNCIAS + %
+    # -----------------------------
+    freq_data <- df_canais %>%
+      count(canal, sort = TRUE) %>%
+      mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(n, " (", pct, "%)")
+      )
+    
+    # -----------------------------
+    # 3. GRÁFICO (BARRAS)
+    # -----------------------------
+    plot_ly(
+      freq_data,
+      x = ~reorder(canal, n),
+      y = ~n,
+      type = "bar",
+      text = ~label,
+      textposition = "outside",
+      hoverinfo = "text"
+    ) %>%
+      
+      layout(
+        title = "Canais de Venda Utilizados",
+        xaxis = list(title = "", tickangle = -30),
+        yaxis = list(title = "Número de respostas"),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
  
   # 
   # ##########################PEGADA DE CARBONO######################
@@ -2059,29 +2300,6 @@ server <- function(input, output, session) {
   })
   
   
-  # output$vb_crescimento_semana <- renderUI({
-  #   
-  #   df <- df_semana()
-  #   
-  #   df2 <- df %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Semanal),
-  #       crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
-  #     )
-  #   
-  #   valor <- mean(df2$crescimento, na.rm = TRUE)
-  #   
-  #   div(
-  #     class = "value-box green",
-  #     
-  #     span(class = "value-number",
-  #          paste0(round(valor * 100, 1), "%")),
-  #     
-  #     span(class = "value-title",
-  #          "Crescimento Semanal")
-  #   )
-  # })
-  
   output$vb_aumento_lucro_semana <- renderUI({
     
     df <- Financeiro_Report_Agregado %>%
@@ -2121,59 +2339,117 @@ server <- function(input, output, session) {
     )
   })
   
-  # output$vb_aumento_25_semana <- renderUI({
-  #   
-  #   df <- df_semana()
-  #   
-  #   df2 <- df %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Semanal),
-  #       crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
-  #     )
-  #   
-  #   valor <- sum(df2$crescimento > 0.25, na.rm = TRUE)
-  #   
-  #   div(
-  #     class = "value-box orange",
-  #     
-  #     span(class = "value-number", valor),
-  #     span(class = "value-title", "Crescimento > 25%")
-  #   )
-  # })
+  output$vb_aumento_25_semana <- renderUI({
+    
+    df <- Financeiro_Report_Agregado %>%
+      
+      # 1. garantir nível SEMANAL por participante
+      group_by(Nome_Empreendedora, Semanas) %>%
+      summarise(
+        Lucro_Semanal = sum(Lucro_Semanal, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      
+      # 2. ordem correta das semanas
+      mutate(
+        Semanas = factor(
+          Semanas,
+          levels = c(
+            "Primeira Semana",
+            "Segunda Semana",
+            "Terceira Semana",
+            "Quarta Semana",
+            "Quinta Semana"
+          )
+        )
+      ) %>%
+      arrange(Nome_Empreendedora, Semanas) %>%
+      
+      # 3. cálculo por participante
+      group_by(Nome_Empreendedora) %>%
+      mutate(
+        lucro_anterior = lag(Lucro_Semanal),
+        
+        crescimento_pct = (Lucro_Semanal - lucro_anterior) /
+          abs(lucro_anterior) * 100,
+        
+        aumento_25 = crescimento_pct >= 25
+      ) %>%
+      ungroup()
+    
+    # 4. PARTICIPANTES ÚNICAS com pelo menos 1 aumento ≥ 25%
+    valor <- df %>%
+      filter(!is.na(aumento_25)) %>%
+      group_by(Nome_Empreendedora) %>%
+      summarise(
+        teve_aumento_25 = any(aumento_25, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      summarise(total = sum(teve_aumento_25)) %>%
+      pull(total)
+    
+    # 5. garantir valor limpo para UI
+    valor <- as.numeric(valor)
+    
+    div(
+      class = "value-box orange",
+      span(class = "value-number", format(valor, big.mark = ",")),
+      span(class = "value-title", "Participantes com aumento ≥ 25% (Semanal)")
+    )
+  })
   
-  # output$vb_crescimento_mes <- renderUI({
-  #   
-  #   df <- df_semana() %>%
-  #     mutate(
-  #       Periodo = factor(
-  #         Periodo,
-  #         levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
-  #       )
-  #     ) %>%
-  #     arrange(Periodo)
-  #   
-  #   df2 <- df %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Mensal),
-  #       crescimento = (Lucro_Mensal - lucro_anterior) / (abs(lucro_anterior) + 1)
-  #     )
-  #   
-  #   valor <- mean(df2$crescimento, na.rm = TRUE)
-  #   
-  #   div(
-  #     class = "value-box green",
-  #     
-  #     span(class = "value-number",
-  #          paste0(round(valor * 100, 1), "%")),
-  #     
-  #     span(class = "value-title",
-  #          "Crescimento Mensal")
-  #   )
-  # })
-  # 
   output$vb_aumento_lucro_mes <- renderUI({
     
     df <- Financeiro_Report_Agregado %>%
+      group_by(Nome_Empreendedora, Periodo) %>%
+      summarise(
+        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+        )
+      ) %>%
+      arrange(Nome_Empreendedora, Periodo) %>%
+      group_by(Nome_Empreendedora) %>%
+      mutate(
+        lucro_anterior = lag(Lucro_Mensal),
+        aumento = Lucro_Mensal > lucro_anterior
+      ) %>%
+      ungroup()
+    
+    valor <- df %>%
+      filter(!is.na(lucro_anterior)) %>%
+      group_by(Nome_Empreendedora) %>%
+      summarise(
+        teve_aumento = any(aumento, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      summarise(total = sum(teve_aumento)) %>%
+      pull(total)
+    
+    div(
+      class = "value-box blue",
+      span(class = "value-number", valor),
+      span(class = "value-title", "Participantes com Aumento de Lucro")
+    )
+  })
+  
+  
+  output$vb_aumento_25_mes <- renderUI({
+    
+    df <- Financeiro_Report_Agregado %>%
+      
+      # 1. garantir nível mensal (evita problema de semanas)
+      group_by(Nome_Empreendedora, Periodo) %>%
+      summarise(
+        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      
+      # 2. ordenar meses corretamente
       mutate(
         Periodo = factor(
           Periodo,
@@ -2183,52 +2459,29 @@ server <- function(input, output, session) {
       arrange(Nome_Empreendedora, Periodo) %>%
       
       group_by(Nome_Empreendedora) %>%
-      
       mutate(
         lucro_anterior = lag(Lucro_Mensal),
-        aumento = Lucro_Mensal > lucro_anterior
+        aumento_pct = (Lucro_Mensal - lucro_anterior) / lucro_anterior * 100,
+        aumento_25 = aumento_pct >= 25
       ) %>%
-      
       ungroup()
     
     valor <- df %>%
-      filter(!is.na(lucro_anterior)) %>%
-      summarise(total = sum(aumento, na.rm = TRUE)) %>%
+      filter(!is.na(aumento_25)) %>%
+      group_by(Nome_Empreendedora) %>%
+      summarise(
+        teve_aumento_25 = any(aumento_25, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      summarise(total = sum(teve_aumento_25)) %>%
       pull(total)
     
     div(
-      class = "value-box blue",
-      
+      class = "value-box orange",
       span(class = "value-number", valor),
-      span(class = "value-title", "Participantes com Aumento de Lucro")
+      span(class = "value-title", "Participantes com aumento ≥ 25%")
     )
   })
-  # output$vb_aumento_25_mes <- renderUI({
-  #   
-  #   df <- df_semana() %>%
-  #     mutate(
-  #       Periodo = factor(
-  #         Periodo,
-  #         levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
-  #       )
-  #     ) %>%
-  #     arrange(Periodo)
-  #   
-  #   df2 <- df %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Mensal),
-  #       crescimento = (Lucro_Mensal - lucro_anterior) / (abs(lucro_anterior) + 1)
-  #     )
-  #   
-  #   valor <- sum(df2$crescimento > 0.25, na.rm = TRUE)
-  #   
-  #   div(
-  #     class = "value-box orange",
-  #     
-  #     span(class = "value-number", valor),
-  #     span(class = "value-title", "Lucro > 25%")
-  #   )
-  # })
   
   output$tabela_financeira <- renderDT({
     

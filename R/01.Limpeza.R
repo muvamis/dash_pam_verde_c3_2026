@@ -67,7 +67,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
            
    )
 
- table(Pam_Verde_Indicadores$ Negociacao_Com_Agregado_Familiar)
+ table(Pam_Verde_Indicadores$`Onde vende actualmente os seus produtos ou serviços?`)
 
 
 
