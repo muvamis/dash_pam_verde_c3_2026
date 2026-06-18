@@ -128,13 +128,10 @@ ui <- navbarPage(
   # PÁGINA 1 - INDICADORES_CICLO3
   # ==========================================================
   tabPanel(
-    
     tagList(icon("chart-line"), "Avaliação_Nampula_C3"),
     
     sidebarLayout(
-      
       sidebarPanel(
-        
         selectInput(
           "filtro_ciclo",
           "Selecionar Ciclo:",
@@ -148,11 +145,9 @@ ui <- navbarPage(
           choices = c("Todos", unique(Pam_Verde_Indicadores$Tipo_Avaliacao)),
           selected = "Todos"
         )
-        
       ),
       
       mainPanel(
-        
         tabsetPanel(
           
           # =========================
@@ -164,36 +159,44 @@ ui <- navbarPage(
             fluidRow(uiOutput("kpi_boxes")),
             
             fluidRow(
-              column(6,
-                     tags$h4("Negócios liderados por mulheres"),
-                     plotlyOutput("grafico_participantes")
+              column(
+                6,
+                tags$h4("Negócios liderados por mulheres"),
+                plotlyOutput("grafico_participantes")
               ),
-              column(6,
-                     tags$h4("Faixas etárias das empreendedoras"),
-                     plotlyOutput("grafico_idade")
+              column(
+                6,
+                tags$h4("Faixas etárias das empreendedoras"),
+                plotlyOutput("grafico_idade")
               )
             ),
             
             fluidRow(
-              column(6,
-                     tags$h4("Ano de criação do negócio"),
-                     plotlyOutput("grafico_Ano_Negocio")
+              column(
+                6,
+                tags$h4("Ano de criação do negócio"),
+                plotlyOutput("grafico_Ano_Negocio")
               ),
-              column(6,
-                     tags$h4("Sector dos negócios"),
-                     plotlyOutput("grafico_setor"))
-              ),
-            fluidRow(
-              column(6,
-                     tags$h4("O seu negócio está formalizado?"),
-                     plotlyOutput("grafico_formalizacao")
-              ),
-              column(6,
-                     tags$h4(""),
-                     plotlyOutput("grafico_servicos_financeiros_"))
-            )
+              column(
+                6,
+                tags$h4("Sector dos negócios"),
+                plotlyOutput("grafico_setor")
+              )
             ),
-          
+            
+            fluidRow(
+              column(
+                6,
+                tags$h4("O seu negócio está formalizado?"),
+                plotlyOutput("grafico_formalizacao")
+              ),
+              column(
+                6,
+                tags$h4(""),
+                plotlyOutput("grafico_servicos_financeiros_")
+              )
+            )
+          ),
           
           # =========================
           # ABA 2
@@ -204,26 +207,27 @@ ui <- navbarPage(
             fluidRow(uiOutput("kpi_boxes_financas")),
             
             fluidRow(
-              column(6,
-                     tags$h4("Retira regularmente um salário para si mesma?"),
-                     plotlyOutput("grafico_tira_salario")
+              column(
+                6,
+                tags$h4("Retira regularmente um salário para si mesma?"),
+                plotlyOutput("grafico_tira_salario")
               ),
-              column(6,
-                     tags$h4("Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"),
-                     plotlyOutput("grafico_servicos_financeiros")
+              column(
+                6,
+                tags$h4("Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"),
+                plotlyOutput("grafico_servicos_financeiros")
               )
             ),
             
-              br(),
-              fluidRow(
-                tags$h4(""),
-                column(6, plotlyOutput("tira")),
-                tags$h4(""),
-                column(6, plotlyOutput("grafico_salario"))
-              )
-
-            ),
-
+            br(),
+            
+            fluidRow(
+              tags$h4(""),
+              column(6, plotlyOutput("tira")),
+              tags$h4(""),
+              column(6, plotlyOutput("grafico_salario"))
+            )
+          ),
           
           # =========================
           # ABA 3
@@ -242,18 +246,20 @@ ui <- navbarPage(
           # =========================
           tabPanel(
             "Habilidades & Processos",
+            
             fluidRow(
               column(6, plotlyOutput("grafico_control_dinheiro")),
               column(6, plotlyOutput("grafico_separacao_contas"))
-          ),
-          br(),
-          fluidRow(
-            tags$h4(""),
-            column(6, plotlyOutput("grafico_calcular_Lucro")),
-            tags$h4(""),
-            column(6, plotlyOutput("grafico_sal"))
-          )
-          
+            ),
+            
+            br(),
+            
+            fluidRow(
+              tags$h4(""),
+              column(6, plotlyOutput("grafico_calcular_Lucro")),
+              tags$h4(""),
+              column(6, plotlyOutput("grafico_sal"))
+            )
           ),
           
           # =========================
@@ -288,11 +294,10 @@ ui <- navbarPage(
             
             fluidRow(
               tags$h4("Pegada de carbono"),
-             column(6, plotlyOutput("graficoPontuacao")),
+              column(6, plotlyOutput("graficoPontuacao")),
               column(6, plotlyOutput("grafico_Classicacao_Endline"))
             )
           )
-          
         )
       )
     )
@@ -302,7 +307,6 @@ ui <- navbarPage(
   # PÁGINA 2 - MONITORIA_CICLO3
   # ==========================================================
   tabPanel(
-    
     tagList(icon("clipboard-check"), "Monitoria_Nampula_C3"),
     
     tabsetPanel(
@@ -314,7 +318,6 @@ ui <- navbarPage(
         "Resumo Geral",
         
         sidebarLayout(
-          
           sidebarPanel(
             selectInput(
               "filtro_monitoria_geral",
@@ -325,7 +328,6 @@ ui <- navbarPage(
           ),
           
           mainPanel(
-            
             br(),
             
             tags$h5(
@@ -341,50 +343,146 @@ ui <- navbarPage(
       ),
       
       # =========================
-      # ABA 2 - PRESENÇAS (OUTRO SIDEBAR)
+      # ABA 2 - PRESENÇAS
       # =========================
       tabPanel(
         "Presenças",
         
-        sidebarLayout(
+        tabsetPanel(
           
-          sidebarPanel(
+          tabPanel(
+            "Presenças Colectivas",
             
-            selectInput(
-              "filtro_monitoria_presencas",
-              "Selecione Cidade:",
-              choices = c("Todas", unique(Presencas_Colectivas$Cidade)),
-              selected = "Todas"
-            ),
-            
-            selectInput(
-              "mentora_coletiva",
-              "Selecione Pesquisador(a):",
-              choices = c("Todas", unique(Presencas_Colectivas$Pesquisadores)),
-              selected = "Todas"
+            sidebarLayout(
+              sidebarPanel(
+                selectInput(
+                  "filtro_monitoria_presencas",
+                  "Selecione Cidade:",
+                  choices = c("Todas", unique(Presencas_Colectivas$Cidade)),
+                  selected = "Todas"
+                ),
+                
+                selectInput(
+                  "mentora_coletiva",
+                  "Selecione Pesquisador(a):",
+                  choices = c("Todas", unique(Presencas_Colectivas$Pesquisadores)),
+                  selected = "Todas"
+                )
+              ),
+              
+              mainPanel(
+                div(
+                  class = "value-box-container",
+                  uiOutput("total_participantes"),
+                  uiOutput("total_sessoes"),
+                  uiOutput("taxa_presenca")
+                ),
+                
+                br(),
+                
+                fluidRow(
+                  column(
+                    12,
+                    uiOutput("texto_Pre_Col"),
+                    plotlyOutput("grafico_sessoes_col")
+                  )
+                ),
+                
+                br(),
+                
+                DTOutput("tabela_presencas_col")
+              )
             )
           ),
           
-          mainPanel(
-            div(class = "value-box-container",
-            uiOutput("total_participantes"),
-            uiOutput("total_sessoes"),
-            uiOutput("taxa_presenca")
-            ),
+          tabPanel(
+            "Webinars",
             
-            br(),
-            
-            fluidRow(
-              column(
-                12,
-                uiOutput("texto_Pre_Col"),
-                plotlyOutput("grafico_sessoes_col")
+            sidebarLayout(
+              sidebarPanel(
+                selectInput(
+                  "filtro_monitoria_webinar",
+                  "Selecione Cidade:",
+                  choices = c("Todas", unique(Webinars$Cidade)),
+                  selected = "Todas"
+                ),
+                
+                selectInput(
+                  "pesquisador_webinar",
+                  "Selecione Pesquisador(a):",
+                  choices = c("Todas", unique(Webinars$Pesquisadores)),
+                  selected = "Todas"
+                )
+              ),
+              
+              mainPanel(
+                div(
+                  class = "value-box-container",
+                  uiOutput("total_participantes_web"),
+                  uiOutput("total_sessoes_web"),
+                  uiOutput("taxa_presenca_web")
+                ),
+                
+                br(),
+                
+                fluidRow(
+                  column(
+                    12,
+                    uiOutput("texto_webinar"),
+                    plotlyOutput("grafico_webinar")
+                  )
+                ),
+                
+                br(),
+                
+                DTOutput("tabela_webinar")
               )
-            ),
+            )
+          ),
+          
+          tabPanel(
+            "Feiras",
             
-            br(),
-            
-            DTOutput("tabela_presencas_col")
+            sidebarLayout(
+              sidebarPanel(
+                selectInput(
+                  "filtro_monitoria_feira",
+                  "Selecione Cidade:",
+                  choices = c("Todas", unique(Feiras$Cidade)),
+                  selected = "Todas"
+                ),
+                
+                selectInput(
+                  "pesquisador_feira",
+                  "Selecione Pesquisador(a):",
+                  choices = c("Todas", unique(Feiras$Pesquisadores)),
+                  selected = "Todas"
+                )
+              ),
+              
+              mainPanel(
+                div(
+                  class = "value-box-container",
+                  uiOutput("total_participantes_feira"),
+                  uiOutput("total_sessoes_feira"),
+                  uiOutput("taxa_presenca_feira")
+                ),
+                
+                br(),
+                
+                fluidRow(
+                  column(
+                    12,
+                    uiOutput("texto_feira"),
+                    plotlyOutput("grafico_feira")
+                  )
+                ),
+                
+                br(),
+                
+                DTOutput("tabela_feira")
+              )
+            )
           )
         )
       ),
@@ -397,9 +495,7 @@ ui <- navbarPage(
         icon = icon("hand-holding-usd"),
         
         sidebarLayout(
-          
           sidebarPanel(
-            
             selectInput(
               "Pesquisador",
               "Selecione o Pesquisador:",
@@ -423,7 +519,6 @@ ui <- navbarPage(
           ),
           
           mainPanel(
-            
             tabsetPanel(
               
               # ================= RESUMO =================
@@ -441,20 +536,20 @@ ui <- navbarPage(
                 br(),
                 
                 fluidRow(
-                  box(width = 12, title = "Lucro por Cidade",
-                      plotlyOutput("cidade_plot"))
-                  
-                   # box(width = 6, title = "",
-                   #    plotlyOutput("sector_plot"))
+                  box(
+                    width = 12,
+                    title = "",
+                    plotlyOutput("cidade_plot")
+                  )
                 )
               ),
               
               # ================= SEMANAL =================
               tabPanel(
                 "Semanal",
+                
                 div(
                   class = "value-box-container",
-                  
                   uiOutput("vb_crescimento_semana"),
                   uiOutput("vb_aumento_lucro_semana"),
                   uiOutput("vb_aumento_25_semana")
@@ -480,9 +575,9 @@ ui <- navbarPage(
               # ================= MENSAL =================
               tabPanel(
                 "Mensal",
+                
                 div(
                   class = "value-box-container",
-                  
                   uiOutput("vb_crescimento_mes"),
                   uiOutput("vb_aumento_lucro_mes"),
                   uiOutput("vb_aumento_25_mes")
@@ -507,23 +602,23 @@ ui <- navbarPage(
                 fluidRow(
                   box(
                     width = 12,
+                    title = "",
                     DTOutput("tabela_financeira")
                   )
                 )
               )
-              
             )
           )
         )
       )
     )
-   ),
-
+  ),
+  
   tabPanel(
     tagList(icon("chart-line"), "Avaliação_Beira_C1"),
-           fluidPage(
-             uiOutput("ad")
-           )
+    fluidPage(
+      uiOutput("ad")
+    )
   ),
   
   tabPanel(
@@ -532,14 +627,14 @@ ui <- navbarPage(
       uiOutput("adrrr")
     )
   ),
-
-  tabPanel("ADMIN", icon = icon("tools"),
-           fluidPage(
-             uiOutput("admin_ui")
-           )
-  )
-)
-
+  
+  tabPanel(
+    "ADMIN",
+    icon = icon("tools"),
+    fluidPage(
+      uiOutput("admin_ui")
+    )
+  ))
 
 # ==========================================================
 # SERVER
@@ -1387,15 +1482,6 @@ server <- function(input, output, session) {
   })
   
   
-  
-  
-  
-  
-  library(dplyr)
-  library(tidyr)
-  library(stringr)
-  library(plotly)
-  
   output$grafico_canais <- renderPlotly({
     
     df <- Pam_Verde_Indicadores
@@ -1847,6 +1933,134 @@ server <- function(input, output, session) {
     datatable(df, escape = FALSE, options = list(pageLength = 10))
   })
   
+  
+  # ==========================================================
+  # WEBINARS (aba "Webinars" - Monitoria)
+  # ==========================================================
+  dados_filtrados_webinar <- reactive({
+    
+    df <- Webinars
+    
+    if (input$filtro_monitoria_webinar != "Todas") {
+      df <- df %>% filter(Cidade == input$filtro_monitoria_webinar)
+    }
+    
+    if (input$pesquisador_webinar != "Todas") {
+      df <- df %>% filter(Pesquisadores == input$pesquisador_webinar)
+    }
+    
+    df
+  })
+  
+  
+  dados_plot_webinar <- reactive({
+    
+    df <- dados_filtrados_webinar()
+    previsto <- 50
+    
+    # garantir limpeza de listas/colunas complexas
+    df <- df %>%
+      mutate(across(starts_with("Sessao_"), ~ sapply(.x, function(x) {
+        
+        if (is.null(x)) return(NA_character_)
+        if (is.list(x)) x <- unlist(x)
+        
+        paste(x, collapse = ", ")
+        
+      })))
+    
+    df_long <- df %>%
+      pivot_longer(
+        cols = starts_with("Sessao_"),
+        names_to = "Sessoes",
+        values_to = "Presenca"
+      )
+    
+    df_agg <- df_long %>%
+      filter(!is.na(Presenca) & str_detect(Presenca, "Presente")) %>%
+      group_by(Sessoes) %>%
+      summarise(Count = n(), .groups = "drop") %>%
+      mutate(
+        Previsto = previsto,
+        Percentual = (Count / Previsto) * 100
+      ) %>%
+      mutate(
+        Sessao_num = as.numeric(gsub("Sessao_", "", Sessoes))
+      ) %>%
+      arrange(Sessao_num) %>%
+      mutate(
+        Sessoes = factor(Sessoes, levels = Sessoes)
+      ) %>%
+      select(-Sessao_num)
+    
+    df_agg
+  })
+  
+  
+  output$grafico_webinar <- renderPlotly({
+    
+    df_agg <- dados_plot_webinar()
+    previsto <- unique(df_agg$Previsto)[1]
+    
+    limite_y <- max(c(df_agg$Count, previsto), na.rm = TRUE) + 7
+    
+    g <- ggplot(df_agg, aes(x = Sessoes, y = Count, fill = Sessoes)) +
+      geom_col() +
+      
+      geom_hline(
+        yintercept = previsto,
+        linetype = "dashed",
+        color = "purple",
+        linewidth = 1.1
+      ) +
+      
+      geom_text(
+        aes(
+          label = paste0(Count, "\n(", round(Percentual, 1), "%)"),
+          text = paste0(
+            "Sessão: ", Sessoes,
+            "<br>Presenças: ", Count,
+            "<br>Percentual: ", round(Percentual, 1), "%"
+          )
+        ),
+        vjust = -0.2,
+        color = "black",
+        size = 4,
+        fontface = "bold"
+      ) +
+      
+      theme_stata() +
+      scale_y_continuous(limits = c(0, limite_y)) +
+      labs(x = "", y = "Presenças", title = "Presenças por Sessão (Webinars)")
+    
+    ggplotly(g, tooltip = "text") %>%
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  # ==========================================================
+  # Tabela (Webinars)
+  # ==========================================================
+  
+  output$tabela_webinar <- renderDataTable({
+    
+    df <- dados_filtrados_webinar()
+    
+    col_sessoes <- grep("^Sessao_\\d+$", names(df), value = TRUE)
+    col_sessoes_ordenadas <- col_sessoes[order(as.numeric(gsub("Sessao_", "", col_sessoes)))]
+    
+    col_fixas <- setdiff(names(df), col_sessoes)
+    
+    df <- df[, c(col_fixas, col_sessoes_ordenadas)]
+    
+    df[col_sessoes_ordenadas] <- lapply(df[col_sessoes_ordenadas], formatar_pontos)
+    
+    datatable(df, escape = FALSE, options = list(pageLength = 10))
+  })
+  
     # # # =========================
     # # # Financeiro
     # # # =========================
@@ -1911,48 +2125,87 @@ server <- function(input, output, session) {
     )
   })
   
-  output$vb_lucro <- renderUI({
-    criar_box(
-      comma(sum(df_financeiro()$Lucro_Mensal, na.rm = TRUE)),
-      "Lucro Total",
-      "green"
-    )
-  })
-  
-  output$vb_rendimento <- renderUI({
-    criar_box(
-      comma(sum(df_financeiro()$Rendimento_Total, na.rm = TRUE)),
-      "Rendimento",
-      "yellow"
-    )
-  })
-  
-  output$vb_custos <- renderUI({
-    
-    total <- sum(df_financeiro()$Custo_Operacional_Total, na.rm = TRUE) +
-      sum(df_financeiro()$Custo_Produtos_Total, na.rm = TRUE)
-    
-    criar_box(
-      comma(total),
-      "Custos",
-      "orange"
-    )
-  })
-  
-  
-  
-  
+  # output$vb_lucro <- renderUI({
+  #   criar_box(
+  #     comma(sum(df_financeiro()$Lucro_Mensal, na.rm = TRUE)),
+  #     "Lucro Total",
+  #     "green"
+  #   )
+  # })
+  # 
+  # output$vb_rendimento <- renderUI({
+  #   criar_box(
+  #     comma(sum(df_financeiro()$Rendimento_Total, na.rm = TRUE)),
+  #     "Rendimento",
+  #     "yellow"
+  #   )
+  # })
+  # 
+  # output$vb_custos <- renderUI({
+  #   
+  #   total <- sum(df_financeiro()$Custo_Operacional_Total, na.rm = TRUE) +
+  #     sum(df_financeiro()$Custo_Produtos_Total, na.rm = TRUE)
+  #   
+  #   criar_box(
+  #     comma(total),
+  #     "Custos",
+  #     "orange"
+  #   )
+  # })
+  # 
   
   output$cidade_plot <- renderPlotly({
     
-    p <- df_financeiro() %>%
-      group_by(Cidade) %>%
-      summarise(Lucro = sum(Lucro_Mensal), .groups = "drop") %>%
-      ggplot(aes(Cidade, Lucro, fill = Cidade)) +
-      geom_col()
+    df <- df_financeiro()
     
-    ggplotly(p)
+    resumo <- data.frame(
+      Indicador = c("Lucro", "Rendimento", "Custos"),
+      Valor = c(
+        sum(df$Lucro_Mensal, na.rm = TRUE),
+        sum(df$Rendimento_Total, na.rm = TRUE),
+        sum(df$Custo_Operacional_Total, na.rm = TRUE) +
+          sum(df$Custo_Produtos_Total, na.rm = TRUE)
+      )
+    )
+    
+    g <- ggplot(resumo, aes(x = Indicador, y = Valor, fill = Indicador)) +
+      geom_col(width = 0.6) +
+      
+      # =========================
+    # CORES MANUAIS
+    # =========================
+    scale_fill_manual(values = c(
+      "Lucro" = "#8054A2",       
+      "Rendimento" = "#f9a825",   
+      "Custos" = "#69C7BE"      
+    )) +
+      
+      geom_text(
+        aes(label = comma(round(Valor, 0))),
+        vjust = -0.3,
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      theme_minimal() +
+      theme(
+        legend.position = "none"
+      ) +
+      labs(
+        x = "",
+        y = "Total",
+        title = "Resumo Financeiro"
+      )
+    
+    ggplotly(g, tooltip = c("x", "y")) %>%
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor  = "#f5f3f4"
+      )
   })
+  
+  
+  
   
   output$grafico_financeiro <- renderPlotly({
     

@@ -362,10 +362,10 @@ PERFIL_PAM_VERDE_C3_2026 <- PERFIL_PAM_VERDE_C3_2026 %>%
 
 ################################## PRESENCAS COLECTIVAS 
 
-Presencas_colectivas <- read_excel("Presencas_colectivas.xlsx")
+Presencas <- read_excel("Presencas_colectivas.xlsx")
 
 
-Presencas_colectivas <- Presencas_colectivas[, -c(4,5,9,10,12)]
+Presencas_colectivas <- Presencas[, -c(4,5,9,10,12)]
 
 
 
@@ -379,6 +379,9 @@ Presencas_colectivas <- Presencas_colectivas %>%
     Presença = Presen_a,
     Nome_Participante = Nome_Empreendedora.zc_display_value
   )
+
+Presencas_colectivas <- Presencas_colectivas %>%
+  filter(Tipo_Sessao %in% c("Bootcamp 1", "Bootcamp 2", "Bootcamp 3"))
 
 
 # Padronização de nomes das sessões
@@ -402,10 +405,10 @@ Presencas_colectivas <- Presencas_colectivas %>%
     Nome_Sessao == "Sessao16 – Reflexão de como foi o processo de testagem e Aprimoramento do protótipo" ~ "Sessao_16",
     Nome_Sessao == "Sessao17 – Eu empreendedora, agente de mudança e Revisão das ferramentas de negócios" ~ "Sessao_17",
     Nome_Sessao == "Sessao18 – Eu mulher, empreendedora moçambicana e Avaliação da Formação" ~ "Sessao_18",
-    Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_19",
-    Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_20", 
-    Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_21",
-    Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_22",
+    # Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_19",
+    # Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_20", 
+    # Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_21",
+    # Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_22",
     TRUE ~ Nome_Sessao
   ))
 
@@ -443,8 +446,79 @@ Presencas_Colectivas <- Presenca_wide %>%
     Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
     all_of(sessao_cols_ordenadas)
   )
+#################### WEBINAR
+
+Webinars <- Presencas
 
 
+Webinars <- Webinars[, -c(4,5,9,10,12)]
+
+
+
+Webinars <- Webinars %>%
+  rename(
+    Pesquisadores = Control_Facilitador,
+    ID_MUVA = Nome_Empreendedora.ID_Da_Empreendedoras,
+    Nome_Sessao = Nome_da_Sess_o.Tema_Sesao,
+    Tipo_Sessao = Control_Sessao,
+    Cidade = Control_Cidade,
+    Presença = Presen_a,
+    Nome_Participante = Nome_Empreendedora.zc_display_value
+  )
+
+Webinars <- Webinars %>%
+  filter(Tipo_Sessao == "Webinar")
+
+
+# Padronização de nomes das sessões
+Webinars <- Webinars %>%
+  mutate(Nome_Sessao = case_when(
+    Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_1",
+    Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_2", 
+    Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_3",
+    # Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_22",
+    TRUE ~ Nome_Sessao
+  ))
+
+
+Presenca_wide <- Webinars %>%
+  select(Cidade, ID_MUVA, Nome_Participante, Nome_Sessao, Presença, Pesquisadores, Tipo_Sessao) %>%
+  pivot_wider(
+    names_from = Nome_Sessao,
+    values_from = Presença
+  )
+
+# Seleciona as colunas fixas
+colunas_fixas <- c("Cidade", "Tipo_Sessao", "Pesquisadores", "ID_MUVA", "Nome_Participante")
+
+# Seleciona e ordena as colunas das sessões em ordem crescente
+colunas_sessoes <- sort(names(Presenca_wide)[grepl("^Sessao_", names(Presenca_wide))])
+
+# Reorganiza o data.frame com as colunas na ordem desejada
+Presenca_wide <- Presenca_wide %>%
+  select(all_of(c(colunas_fixas, colunas_sessoes)))
+
+Webinars <- Presenca_wide
+
+
+
+# Reordenar dinamicamente as colunas de sessão
+sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
+
+# Ordenar numericamente
+sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
+
+# Reordenar o dataframe mantendo as colunas fixas no início
+Webinars <- Presenca_wide %>%
+  select(
+    Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
+    all_of(sessao_cols_ordenadas)
+  )
+
+############### FEIRAS
+
+
+Feiras <- Presencas
 
 ################ DADOS FINANCEIROS
 
