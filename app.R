@@ -885,8 +885,7 @@ server <- function(input, output, session) {
         margin = list(l = 50, r = 50, t = 20, b = 80)
       )
   })
-  # 
-  # 
+
   # #   
   # #   ####### Gráfico de Distribuição dos Anos das Empresas
   # #   
@@ -987,127 +986,34 @@ server <- function(input, output, session) {
   # #   # ==========================================================
   # #   # PÁGINA 2 - Companies situation and performance
   # #   # ==========================================================
-  # output$grafico_formalizacao <- renderPlotly({
-  #   
-  #   df <- Pam_Verde_Indicadores
-  #   
-  #   req(input$filtro_ciclo)
-  #   req(input$filtro_tipo_avaliacao)
-  #   
-  #   # ---- Filtros
-  #   if (!is.null(input$filtro_ciclo) &&
-  #       input$filtro_ciclo != "Todos") {
-  #     
-  #     df <- df %>%
-  #       dplyr::filter(Ciclo == input$filtro_ciclo)
-  #   }
-  #   
-  #   if (!is.null(input$filtro_tipo_avaliacao) &&
-  #       input$filtro_tipo_avaliacao != "Todos") {
-  #     
-  #     df <- df %>%
-  #       dplyr::filter(
-  #         Tipo_Avaliacao == input$filtro_tipo_avaliacao
-  #       )
-  #   }
-  #   
-  #   # ---- Limpeza
-  #   df <- df %>%
-  #     dplyr::filter(
-  #       !is.na(Negocio_Formalizado),
-  #       !is.na(Tipo_Avaliacao)
-  #     ) %>%
-  #     dplyr::mutate(
-  #       Negocio_Formalizado = dplyr::recode(
-  #         Negocio_Formalizado,
-  #         "Iniciei o processo de formalização" = "Iniciei o processo de formalização",
-  #         "Não" = "Não",
-  #         "Sim" = "Sim"
-  #       )
-  #     )
-  #   
-  #   # ---- Frequências
-  #   freq_data <- df %>%
-  #     group_by(
-  #       Negocio_Formalizado,
-  #       Tipo_Avaliacao
-  #     ) %>%
-  #     summarise(
-  #       Frequencia = n(),
-  #       .groups = "drop"
-  #     )
-  #   
-  #   # ---- Ordem
-  #   freq_data$Negocio_Formalizado <- factor(
-  #     freq_data$Negocio_Formalizado,
-  #     levels = c("Não", "Iniciei o processo de formalização", "Sim")
-  #   )
-  #   
-  #   # ---- Cores
-  #   cores_avaliacao <- c(
-  #     "Baseline" = "#5cd6c7",
-  #     "Endline" = "#9442d4"
-  #   )
-  #   
-  #   # ---- Gráfico
-  #   p <- ggplot(
-  #     freq_data,
-  #     aes(
-  #       x = Negocio_Formalizado,
-  #       y = Frequencia,
-  #       fill = Tipo_Avaliacao
-  #     )
-  #   ) +
-  #     geom_col(
-  #       position = position_dodge(width = 0.7),
-  #       width = 0.6
-  #     ) +
-  #     
-  #     geom_text(
-  #       aes(label = Frequencia),
-  #       position = position_dodge(width = 0.7),
-  #       vjust = -0.4,
-  #       size = 4,
-  #       fontface = "bold"
-  #     ) +
-  #     
-  #     scale_fill_manual(values = cores_avaliacao) +
-  #     
-  #     labs(
-  #       x = NULL,
-  #       y = "Número de Negócios",
-  #       fill = "Avaliação"
-  #     ) +
-  #     
-  #     theme_minimal(base_size = 11) +
-  #     
-  #     theme(
-  #       axis.text.x = element_text(
-  #         angle = 15,
-  #         hjust = 1,
-  #         face = "bold"
-  #       ),
-  #       legend.position = "top"
-  #     )
-  #   
-  #   ggplotly(
-  #     p,
-  #     tooltip = c("x", "y", "fill")
-  #   ) %>%
-  #     layout(
-  #       paper_bgcolor = "#f5f3f4",
-  #       plot_bgcolor = "#f5f3f4"
-  #     )
-  # })
-  # 
+
   
   ############################ USO DE SERVICOS FINANCEIROS
   
   output$grafico_servicos_financeiros <- renderPlotly({
     
-    df <- Pam_Verde_Indicadores %>%
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # -----------------------------
+    # Filtro ciclo
+    # -----------------------------
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
       
-      dplyr::filter(!is.na(Uso_Servicos_Financeiros)) %>%
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # -----------------------------
+    # Preparação (multi-select)
+    # -----------------------------
+    df <- df %>%
+      dplyr::filter(
+        !is.na(Uso_Servicos_Financeiros),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
       
       tidyr::separate_rows(
         Uso_Servicos_Financeiros,
@@ -1116,153 +1022,192 @@ server <- function(input, output, session) {
       
       dplyr::mutate(
         Uso_Servicos_Financeiros = trimws(Uso_Servicos_Financeiros)
-      ) %>%
+      )
+    
+    # -----------------------------
+    # Frequência por grupo
+    # -----------------------------
+    freq_data <- df %>%
+      dplyr::group_by(Tipo_Avaliacao, Uso_Servicos_Financeiros) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
       
-      dplyr::count(Uso_Servicos_Financeiros) %>%
-      
+      dplyr::group_by(Tipo_Avaliacao) %>%
       dplyr::mutate(
-        percent = n / sum(n) * 100,
-      
-        label = paste0(n, " (", round(percent, 1), "%)")
-      )
-    
-    p <- ggplot(
-      df,
-      aes(
-        x = reorder(Uso_Servicos_Financeiros, percent),
-        y = percent,
-        fill = Uso_Servicos_Financeiros,
-        text = label
-      )
-    ) +
-      
-      geom_col() +
-      
-      coord_flip() +
-      
-      theme_minimal() +
-      
-      labs(
-        x = "",
-        y = "Percentagem (%)"
-      ) +
-      
-      theme(
-        legend.position = "none"
-      ) +
-      
-      # rótulos nas barras
-      geom_text(
-        aes(label = label),
-        hjust = 0.1,
-        size = 3
-      )
+        percent = round(n / sum(n) * 100, 1)
+      ) %>%
+      dplyr::ungroup()
     
     # -----------------------------
-    # Plotly interativo
+    # Cores fixas
     # -----------------------------
-    ggplotly(
-      p,
-      tooltip = c("text")
+    cores <- c(
+      "Nenhum destes serviços" = "#5cd6c7",  
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)" = "#f9a825", 
+      "Crédito ou empréstimo bancário para o negócio" = "#2ca02c",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)" =  "#bcbd22",
+      "Conta bancária em nome do negócio (conta empresarial)" =  "#9442d4", 
+      "Conta poupança formal ligada ao negócio" = "#ff7f0e", 
+      "Seguro (de negócio, de equipamento, de saúde...)" = "#d62728"
+    )
+    
+    # -----------------------------
+    # Gráfico
+    # -----------------------------
+    plot_ly(
+      data = freq_data,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~percent,
+      color = ~Uso_Servicos_Financeiros,
+      colors = cores,
+      type = "bar",
+      
+      text = ~percent,
+      texttemplate = "%{text}%",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
     ) %>%
+      
       layout(
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem dentro do grupo (%)",
+          range = c(0, 100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4"
       )
-    
   })
-  
   
   #### RETIRAR SALARIO PARA SI
   
   output$grafico_tira_salario <- renderPlotly({
     
-    # -----------------------------
-    # Definir ordem lógica (levels)
-    # -----------------------------
-    ordem <- c(
-      "Não, não retiro nenhum valor para mim mesma",
-      "Retiro de forma irregular, conforme o negócio tem dinheiro",
-      "Sim, retiro um valor fixo todos os meses"
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- Filtro ciclo
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    df <- df %>%
+      dplyr::filter(
+        !is.na(Tira_Salario_Para_Si),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- Frequência
+    freq_data <- df %>%
+      dplyr::group_by(Tipo_Avaliacao, Tira_Salario_Para_Si) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    # ---- Cores
+    cores <- c(
+      "Não, não retiro nenhum valor para mim mesma" = "#5cd6c7",
+      "Retiro de forma irregular, conforme o negócio tem dinheiro" = "#ff7f0e",
+      "Sim, retiro um valor fixo todos os meses" = "#9442d4"
     )
     
-    # -----------------------------
-    # Preparação dos dados
-    # -----------------------------
-    df <- Pam_Verde_Indicadores %>%
-      
-      dplyr::filter(!is.na(Tira_Salario_Para_Si)) %>%
-      
-      dplyr::mutate(
-        Tira_Salario_Para_Si = trimws(Tira_Salario_Para_Si),
-        
-        # fixa ordem categórica
-        Tira_Salario_Para_Si = factor(Tira_Salario_Para_Si, levels = ordem)
-      ) %>%
-      
-      dplyr::count(Tira_Salario_Para_Si) %>%
-      
-      dplyr::mutate(
-        percent = n / sum(n) * 100,
-        label = paste0(n, " (", round(percent, 1), "%)")
+    # ---- Gráfico
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~Tira_Salario_Para_Si,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      textfont = list(
+        color = "#ffffff",
+        size = 12
       )
-    
-    # -----------------------------
-    # Gráfico
-    # -----------------------------
-    p <- ggplot(
-      df,
-      aes(
-        x = Tira_Salario_Para_Si,
-        y = percent,
-        fill = Tira_Salario_Para_Si,
-        text = label
-      )
-    ) +
-      
-      geom_col() +
-      
-      coord_flip() +
-      
-      theme_minimal() +
-      
-      labs(
-        x = "",
-        y = "Percentagem (%)"
-      ) +
-      
-      theme(
-        legend.position = "none"
-      ) +
-      
-      geom_text(
-        aes(label = label),
-        hjust = -0.1,
-        size = 4
-      ) +
-      
-      # -----------------------------
-    # Cores personalizadas
-    # -----------------------------
-    scale_fill_manual(values = c(
-      "Não, não retiro nenhum valor para mim mesma" = "#5cd6c7",
-      "Retiro de forma irregular, conforme o negócio tem dinheiro" =  "#ff7f0e",
-      "Sim, retiro um valor fixo todos os meses" = "#9442d4"
-    ))
-    
-    # -----------------------------
-    # Plotly
-    # -----------------------------
-    ggplotly(
-      p,
-      tooltip = "text"
     ) %>%
       layout(
+        title = "",
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4"
       )
-    
   })
+  
+
+  
   
   
 
@@ -1273,39 +1218,108 @@ server <- function(input, output, session) {
   # # GRAFICO CONFIANÇA
   # #################################################
   # # Dados filtrados reativos
-  
   output$grafico_triang_empilhado <- renderPlotly({
     
     df <- dados_filtrados()
     
-    req(all(c("Estado_Civil", "Quem_Toma_Decisoes_Negocio") %in% colnames(df)))
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Quem_Toma_Decisoes_Negocio"
+    ) %in% colnames(df)))
+    
     req(nrow(df) > 0)
     
+    # -----------------------------
+    # Resumo
+    # -----------------------------
     df_resumo <- df %>%
-      group_by(Quem_Toma_Decisoes_Negocio, Estado_Civil) %>%
-      summarise(Total = n(), .groups = "drop")
+      dplyr::filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(Quem_Toma_Decisoes_Negocio)
+      ) %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        Quem_Toma_Decisoes_Negocio
+      ) %>%
+      dplyr::summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        Percentagem = round(
+          Total / sum(Total) * 100,
+          1
+        )
+      ) %>%
+      dplyr::ungroup()
     
+    # -----------------------------
+    # Cores
+    # -----------------------------
+    cores <- c(
+      "Só eu" = "#9442d4",
+      "Eu juntamente com outra pessoa" = "#ff7f0e",
+      "Outra pessoa" = "#5cd6c7"
+    )
+    
+    # -----------------------------
+    # Gráfico
+    # -----------------------------
     plot_ly(
       data = df_resumo,
-      x = ~Quem_Toma_Decisoes_Negocio,
-      y = ~Total,
-      color = ~Estado_Civil,
-      colors = c(
-        "Casada" = "#9442d4",
-        "Solteira" = "#ff7f0e"
-      ),
+      
+      x = ~Tipo_Avaliacao,
+      y = ~Percentagem,
+      
+      color = ~Quem_Toma_Decisoes_Negocio,
+      colors = cores,
+      
       type = "bar",
-      text = ~Total,
+      
+      text = ~paste0(Percentagem, "%"),
+      texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
-      textfont = list(color = "#ffffff", size = 12)
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
     ) %>%
+      
       layout(
         barmode = "stack",
-        title = "Quem costuma tomar as principais decisões sobre o seu negócio?",
-        xaxis = list(title = "Quem toma decisões no negócio"),
-        yaxis = list(title = "Número de participantes"),
-        legend = list(title = list(text = "Estado Civil")),
+        
+        xaxis = list(
+          title = ""
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
@@ -1316,38 +1330,93 @@ server <- function(input, output, session) {
     
     df <- dados_filtrados()
     
-    req("Negociacao_Com_Agregado_Familiar" %in% colnames(df))
+    req(all(c("Tipo_Avaliacao", "Negociacao_Com_Agregado_Familiar") %in% colnames(df)))
     req(nrow(df) > 0)
     
+    # -----------------------------
+    # Preparação
+    # -----------------------------
     df_resumo <- df %>%
-      group_by(Negociacao_Com_Agregado_Familiar) %>%
-      summarise(Total = n(), .groups = "drop") %>%
-      mutate(
-        Percent = round(Total / sum(Total) * 100, 1),
-        label = paste0(Total, " (", Percent, "%)"),
-        Negociacao_Com_Agregado_Familiar = factor(
-          Negociacao_Com_Agregado_Familiar,
-          levels = c(
-            "Não me sinto confiante/ não sei negociar",
-            "Depende /de certa forma",
-            "Sim, sinto-me confiantee sei defender a minha posição"
-          )
-        )
-      )
+      dplyr::filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(Negociacao_Com_Agregado_Familiar)
+      ) %>%
+      
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        Negociacao_Com_Agregado_Familiar
+      ) %>%
+      
+      dplyr::summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      dplyr::ungroup()
     
+    # -----------------------------
+    # Cores fixas
+    # -----------------------------
+    cores <- c(
+      "Não me sinto confiante/ não sei negociar" = "#5cd6c7",
+      "Depende /de certa forma" = "#ff7f0e",
+      "Sim, sinto-me confiantee sei defender a minha posição" = "#9442d4"
+    )
+    
+    # -----------------------------
+    # Gráfico
+    # -----------------------------
     plot_ly(
       data = df_resumo,
-      x = ~Negociacao_Com_Agregado_Familiar,
-      y = ~Total,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      
+      color = ~Negociacao_Com_Agregado_Familiar,
+      colors = cores,
+      
       type = "bar",
-      text = ~label,
-      textposition = "auto",
-      marker = list(color = "#9442d4")
+      
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
     ) %>%
+      
       layout(
-        title = "Negociação com Agregado Familiar",
+        barmode = "stack",
+        
         xaxis = list(title = ""),
-        yaxis = list(title = "Número de participantes"),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(l = 60, r = 20, t = 20, b = 120),
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )

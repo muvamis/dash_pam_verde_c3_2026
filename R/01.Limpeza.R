@@ -67,7 +67,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
            
    )
 
- table(Pam_Verde_Indicadores$`Onde vende actualmente os seus produtos ou serviços?`)
+ table(Pam_Verde_Indicadores$Quem_Toma_Decisoes_Negocio)
 
 
 
