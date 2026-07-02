@@ -181,22 +181,10 @@ ui <- navbarPage(
                 6,
                 tags$h4("Sector dos negócios"),
                 plotlyOutput("grafico_setor")
-              )
+              ))
             ),
             
-            fluidRow(
-              column(
-                6,
-                tags$h4("O seu negócio está formalizado?"),
-                plotlyOutput("grafico_formalizacao")
-              ),
-              column(
-                6,
-                tags$h4(""),
-                plotlyOutput("grafico_servicos_financeiros_")
-              )
-            )
-          ),
+           
           
           # =========================
           # ABA 2
@@ -209,13 +197,25 @@ ui <- navbarPage(
             fluidRow(
               column(
                 6,
-                tags$h4("Retira regularmente um salário para si mesma?"),
-                plotlyOutput("grafico_tira_salario")
+                tags$h4("O seu negócio está formalizado?"),
+                plotlyOutput("grafico_formalizacao")
               ),
               column(
                 6,
                 tags$h4("Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"),
                 plotlyOutput("grafico_servicos_financeiros")
+              )
+            ),
+            fluidRow(
+              column(
+                6,
+                tags$h4("Retira regularmente um salário para si mesma?"),
+                plotlyOutput("grafico_tira_salario")
+              ),
+              column(
+                6,
+                tags$h4("Quantos clientes regulares tem actualmente no seu negócio?"),
+                plotlyOutput("grafico_clientes_regulares")
               )
             ),
             
@@ -234,13 +234,19 @@ ui <- navbarPage(
           # =========================
           tabPanel(
             "Agência e Soft Skills",
-            
+            fluidRow(
+              tags$h4("Praticou negociação nos últimos 3 meses"),
+              column(6, plotlyOutput("grafico_negociacao_3meses")),
+              tags$h4(""),
+              column(6, plotlyOutput("grafico_control_dinheiro_"))
+          ),
+          br(),
             fluidRow(
               column(6, plotlyOutput("grafico_triang_empilhado")),
               column(6, plotlyOutput("grafico_agregado_familiar"))
             )
           ),
-          
+          # 
           # =========================
           # ABA 4
           # =========================
@@ -248,7 +254,9 @@ ui <- navbarPage(
             "Habilidades & Processos",
             
             fluidRow(
-              column(6, plotlyOutput("grafico_control_dinheiro")),
+              tags$h4("Uso de ferramentas de IA"),
+              column(6, plotlyOutput("grafico_uso_ia")),
+              tags$h4("Separação de contas pessoais/negócio"),
               column(6, plotlyOutput("grafico_separacao_contas"))
             ),
             
@@ -258,7 +266,7 @@ ui <- navbarPage(
               tags$h4(""),
               column(6, plotlyOutput("grafico_calcular_Lucro")),
               tags$h4(""),
-              column(6, plotlyOutput("grafico_sal"))
+              column(6, plotlyOutput("grafico_control_dinheiro"))
             )
           ),
           
@@ -295,13 +303,20 @@ ui <- navbarPage(
             fluidRow(
               tags$h4("Pegada de carbono"),
               column(6, plotlyOutput("graficoPontuacao")),
-              column(6, plotlyOutput("grafico_Classicacao_Endline"))
+              tags$h4("Como classificaria o seu nível de conhecimento sobre questões ambientais em geral?"),
+              column(6, plotlyOutput("grafico_conhecimento_ambiental"))
+            ),
+            fluidRow(
+              tags$h4("Em que medida tem consciência do impacto ambiental do seu negócio?"),
+              column(6, plotlyOutput("grafico_impacto_ambiental_negocio")),
+              tags$h4("Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?"),
+              column(6, plotlyOutput("grafico_praticas_sustentaveis"))
+            )
             )
           )
+          )
         )
-      )
-    )
-  ),
+      ),
   
   # ==========================================================
   # PÁGINA 2 - MONITORIA_CICLO3
@@ -614,19 +629,19 @@ ui <- navbarPage(
     )
   ),
   
-  tabPanel(
-    tagList(icon("chart-line"), "Avaliação_Beira_C1"),
-    fluidPage(
-      uiOutput("ad")
-    )
-  ),
-  
-  tabPanel(
-    tagList(icon("clipboard-check"), "Monitoria_Beira_C1"),
-    fluidPage(
-      uiOutput("adrrr")
-    )
-  ),
+  # tabPanel(
+  #   tagList(icon("chart-line"), "Avaliação_Beira_C1"),
+  #   fluidPage(
+  #     uiOutput("ad")
+  #   )
+  # ),
+  # 
+  # tabPanel(
+  #   tagList(icon("clipboard-check"), "Monitoria_Beira_C1"),
+  #   fluidPage(
+  #     uiOutput("adrrr")
+  #   )
+  # ),
   
   tabPanel(
     "ADMIN",
@@ -1207,8 +1222,82 @@ server <- function(input, output, session) {
   })
   
 
-  
-  
+  output$grafico_clientes_regulares <- renderPlotly({
+    
+    dados_cat <- Pam_Verde_Indicadores %>%
+      mutate(
+        categoria = case_when(
+          Clientes_Regulares_Negocio <= 5 ~ "0–5",
+          Clientes_Regulares_Negocio <= 10 ~ "6–10",
+          Clientes_Regulares_Negocio <= 20 ~ "11–20",
+          TRUE ~ ">20"
+        )
+      ) %>%
+      count(categoria) %>%
+      mutate(
+        Percent = round(100 * n / sum(n), 1)
+      )
+    
+    # garantir ordem lógica
+    dados_cat$categoria <- factor(
+      dados_cat$categoria,
+      levels = c("0–5", "6–10", "11–20", ">20")
+    )
+    
+    p <- ggplot(dados_cat, aes(x = categoria, y = Percent, fill = categoria)) +
+      geom_col() +
+      geom_text(aes(label = paste0(Percent, "%")), vjust = -0.3, size = 4) +
+      
+      scale_fill_manual(values = c(
+        "0–5"   = "#5cd6c7",
+        "6–10"  = "#ff7f0e",
+        "11–20" = "#F39C12",
+        ">20"   = "#9442d4"
+      )) +
+      
+      labs(
+        title = "",
+        x = "",
+        y = "Percentagem (%)"
+      ) +
+      
+      theme_minimal()
+    
+    ggplotly(p) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+    
+  })
   
 
   # ##----------------------------------------------------------- 
@@ -1421,6 +1510,8 @@ server <- function(input, output, session) {
         plot_bgcolor = "#f5f3f4"
       )
   })
+  
+  
   #################################### Negociacao_Com_Clientes
   
   output$grafico_clientes <- renderPlotly({
@@ -1467,98 +1558,429 @@ server <- function(input, output, session) {
   # ##----------------------------------------------------------- 
   # ###################                  3 PAGINA Habilidades e Processos
   # ##-----------------------------------------------------------------------------  
-  output$grafico_control_dinheiro <- renderPlotly({
+  
+  output$grafico_uso_ia <- renderPlotly({
     
-    df <- Pam_Verde_Indicadores %>%
-      count(`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`) %>%
-      mutate(
-        perc = round(n / sum(n) * 100, 1)
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- Filtro ciclo (opcional)
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- Limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(Uso_de_ferramentas_de_IA),
+        !is.na(Tipo_Avaliacao)
       )
     
+    # ---- Frequência
+    freq_data <- df %>%
+      dplyr::group_by(Tipo_Avaliacao, Uso_de_ferramentas_de_IA) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    # ---- Ordem lógica das categorias IA
+    freq_data$Uso_de_ferramentas_de_IA <- factor(
+      freq_data$Uso_de_ferramentas_de_IA,
+      levels = c(
+        "Não, nunca usei e não sei bem o que é",
+        "Ouvi falar mas nunca experimentei",
+        "Sim, usei pelo menos uma vez",
+        "Sim, uso regularmente para o negócio"
+      )
+    )
+    
+    # ---- Cores manuais
+    cores <- c(
+      "Não, nunca usei e não sei bem o que é" = "#69C7BE",
+      "Ouvi falar mas nunca experimentei" = "#f39c12",
+      "Sim, usei pelo menos uma vez" = "#ff7f0e",
+      "Sim, uso regularmente para o negócio" = "#9442d4"
+    )
+    
+    # ---- Gráfico empilhado
     plot_ly(
-      df,
-      labels = ~`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
-      values = ~n,
-      type = "pie",
-      textinfo = "label+value+percent",
-      hoverinfo = "label+value+percent",
-      marker = list(
-        colors = c("#69C7BE", "#F37238")  
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~Uso_de_ferramentas_de_IA,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      textfont = list(
+        color = "#ffffff",
+        size = 12
       )
     ) %>%
       layout(
-        title = "Controlo de receitas e despesas",
-        showlegend = TRUE,
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
   
-  
+  output$grafico_control_dinheiro <- renderPlotly({
+    
+    df <- dados_filtrados()
+    
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
+    ) %in% colnames(df)))
+    
+    req(nrow(df) > 0)
+    
+    df_resumo <- df %>%
+      filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`)
+      ) %>%
+      group_by(
+        Tipo_Avaliacao,
+        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
+      ) %>%
+      summarise(Total = n(), .groups = "drop") %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      ungroup()
+    
+    cores <- c(
+      "Sim" = "#9442d4",
+      "Não" = "#69C7BE"
+    )
+    
+    plot_ly(
+      data = df_resumo,
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      color = ~`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
+      colors = cores,
+      type = "bar",
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      textfont = list(color = "white", size = 11)
+    ) %>%
+      layout(
+        barmode = "stack",
+        xaxis = list(title = ""),
+        yaxis = list(title = "Percentagem (%)", range = c(0, 100)),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        margin = list(l = 60, r = 20, t = 20, b = 120),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+    
+  })
   
   output$grafico_separacao_contas <- renderPlotly({
     
-    df <- Pam_Verde_Indicadores %>%
-      count(`Faz separação das contas pessoais e do negócio`) %>%
+    df <- dados_filtrados()
+    
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Faz separação das contas pessoais e do negócio"
+    ) %in% colnames(df)))
+    
+    req(nrow(df) > 0)
+    
+    df_resumo <- df %>%
+      filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(`Faz separação das contas pessoais e do negócio`)
+      ) %>%
+      group_by(
+        Tipo_Avaliacao,
+        `Faz separação das contas pessoais e do negócio`
+      ) %>%
+      summarise(Total = n(), .groups = "drop") %>%
+      group_by(Tipo_Avaliacao) %>%
       mutate(
-        perc = round(n / sum(n) * 100, 1)
-      )
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      ungroup()
+    
+    cores <- c(
+      "Sim" = "#9442d4",
+      "Não" = "#69C7BE"
+    )
+    
     
     plot_ly(
-      df,
-      labels = ~`Faz separação das contas pessoais e do negócio`,
-      values = ~n,
-      type = "pie",
-      textinfo = "label+value+percent",
-      hoverinfo = "label+value+percent",
-      marker = list(
-        colors = c("#69C7BE", "#F37238")  
-      )
+      data = df_resumo,
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      color = ~`Faz separação das contas pessoais e do negócio`,
+      colors = cores,
+      type = "bar",
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      textfont = list(color = "white", size = 11)
     ) %>%
       layout(
-        title = "Separação das contas pessoais e do negócio",
-        showlegend = TRUE,
+        barmode = "stack",
+        xaxis = list(title = ""),
+        yaxis = list(title = "Percentagem (%)", range = c(0, 100)),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        margin = list(l = 60, r = 20, t = 20, b = 120),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+    
+  })
+  output$grafico_calcular_Lucro <- renderPlotly({
+    
+    df <- dados_filtrados()
+    
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Sabe calcular o lucro do negócio  (com base no exercício prático)"
+    ) %in% colnames(df)))
+    
+    req(nrow(df) > 0)
+    
+    df_resumo <- df %>%
+      filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(`Sabe calcular o lucro do negócio  (com base no exercício prático)`)
+      ) %>%
+      group_by(
+        Tipo_Avaliacao,
+        `Sabe calcular o lucro do negócio  (com base no exercício prático)`
+      ) %>%
+      summarise(Total = n(), .groups = "drop") %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      ungroup()
+    
+    cores <- c(
+      "Sim" = "#9442d4",
+      "Não" = "#69C7BE"
+    )
+    
+    plot_ly(
+      data = df_resumo,
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      color = ~`Sabe calcular o lucro do negócio  (com base no exercício prático)`,
+      colors = cores,
+      type = "bar",
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      textfont = list(color = "white", size = 11)
+    ) %>%
+      layout(
+        barmode = "stack",
+        xaxis = list(title = ""),
+        yaxis = list(title = "Percentagem (%)", range = c(0, 100)),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        margin = list(l = 60, r = 20, t = 20, b = 120),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+    
+  })
+  
+  output$grafico_negociacao_3meses <- renderPlotly({
+    
+    df <- dados_filtrados()
+    
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Praticou_negociação_nos_últimos_3meses"
+    ) %in% colnames(df)))
+    
+    req(nrow(df) > 0)
+    
+    # -----------------------------
+    # Preparação
+    # -----------------------------
+    df_resumo <- df %>%
+      dplyr::filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(Praticou_negociação_nos_últimos_3meses)
+      ) %>%
+      
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        Praticou_negociação_nos_últimos_3meses
+      ) %>%
+      
+      dplyr::summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      
+      dplyr::mutate(
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      
+      dplyr::ungroup()
+    
+    # -----------------------------
+    # Cores fixas
+    # -----------------------------
+    cores <- c(
+      "Não tive situações de negociação neste período" = "#69C7BE", 
+      "Não, aceitei as condições sem negociar" = "#F39C12",
+      "Sim, negociei, mas não consegui mudar as condições" = "#F37238",
+      "Sim, negociei e consegui um acordo favorável para o meu negócio" = "#9442d4"
+    )
+    
+    # -----------------------------
+    # Gráfico
+    # -----------------------------
+    plot_ly(
+      data = df_resumo,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      
+      color = ~Praticou_negociação_nos_últimos_3meses,
+      colors = cores,
+      
+      type = "bar",
+      
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+      
+    ) %>%
+      
+      layout(
+        barmode = "stack",
+        
+        xaxis = list(title = ""),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.35
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 170
+        ),
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
   
-  output$grafico_calcular_Lucro <- renderPlotly({
-    
-    df <- Pam_Verde_Indicadores %>%
-      count(`Sabe calcular o lucro do negócio  (com base no exercício prático)`) %>%
-      mutate(
-        perc = round(n / sum(n) * 100, 1)
-      )
-    
-    plot_ly(
-      df,
-      labels = ~`Sabe calcular o lucro do negócio  (com base no exercício prático)`,
-      values = ~n,
-      type = "pie",
-      textinfo = "label+value+percent",
-      hoverinfo = "label+value+percent",
-      marker = list(
-        colors = c("#69C7BE", "#F37238")  
-      )
-    ) %>%
-      layout(
-        title = "Sabe calcular o lucro do negócio",
-        showlegend = TRUE,
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-  })
   
   
   output$grafico_canais <- renderPlotly({
     
-    df <- Pam_Verde_Indicadores
+    df <- dados_filtrados()
     
-    # -----------------------------
-    # 1. TRATAMENTO (MULTI-RESPOSTA)
-    # -----------------------------
-    df_canais <- df %>%
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Onde vende actualmente os seus produtos ou serviços?"
+    ) %in% colnames(df)))
+    
+    req(nrow(df) > 0)
+    
+    #---------------------------------
+    # Preparação
+    #---------------------------------
+    
+    df_resumo <- df %>%
+      
+      filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(`Onde vende actualmente os seus produtos ou serviços?`)
+      ) %>%
       
       separate_rows(
         `Onde vende actualmente os seus produtos ou serviços?`,
@@ -1566,43 +1988,137 @@ server <- function(input, output, session) {
       ) %>%
       
       mutate(
-        canal = str_trim(`Onde vende actualmente os seus produtos ou serviços?`)
+        Canal = str_trim(`Onde vende actualmente os seus produtos ou serviços?`)
       ) %>%
       
-      filter(!is.na(canal), canal != "")
-    
-    # -----------------------------
-    # 2. FREQUÊNCIAS + %
-    # -----------------------------
-    freq_data <- df_canais %>%
-      count(canal, sort = TRUE) %>%
+      group_by(
+        Tipo_Avaliacao,
+        Canal
+      ) %>%
+      
+      summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      
+      group_by(Tipo_Avaliacao) %>%
+      
       mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(n, " (", pct, "%)")
-      )
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      
+      ungroup()
     
-    # -----------------------------
-    # 3. GRÁFICO (BARRAS)
-    # -----------------------------
+    #---------------------------------
+    # Gráfico
+    #---------------------------------
+    
     plot_ly(
-      freq_data,
-      x = ~reorder(canal, n),
-      y = ~n,
+      data = df_resumo,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      
+      color = ~Canal,
+      
       type = "bar",
-      text = ~label,
-      textposition = "outside",
-      hoverinfo = "text"
+      
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+      
     ) %>%
       
       layout(
-        title = "Canais de Venda Utilizados",
-        xaxis = list(title = "", tickangle = -30),
-        yaxis = list(title = "Número de respostas"),
+        
+        barmode = "stack",
+        
+        xaxis = list(title = ""),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0,100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.35
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 140
+        ),
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
+        
       )
+    
   })
- 
+  
+  # output$grafico_canais <- renderPlotly({
+  #   
+  #   df <- Pam_Verde_Indicadores
+  #   
+  #   # -----------------------------
+  #   # 1. TRATAMENTO (MULTI-RESPOSTA)
+  #   # -----------------------------
+  #   df_canais <- df %>%
+  #     
+  #     separate_rows(
+  #       `Onde vende actualmente os seus produtos ou serviços?`,
+  #       sep = ","
+  #     ) %>%
+  #     
+  #     mutate(
+  #       canal = str_trim(`Onde vende actualmente os seus produtos ou serviços?`)
+  #     ) %>%
+  #     
+  #     filter(!is.na(canal), canal != "")
+  #   
+  #   # -----------------------------
+  #   # 2. FREQUÊNCIAS + %
+  #   # -----------------------------
+  #   freq_data <- df_canais %>%
+  #     count(canal, sort = TRUE) %>%
+  #     mutate(
+  #       pct = round(n / sum(n) * 100, 1),
+  #       label = paste0(n, " (", pct, "%)")
+  #     )
+  #   
+  #   # -----------------------------
+  #   # 3. GRÁFICO (BARRAS)
+  #   # -----------------------------
+  #   plot_ly(
+  #     freq_data,
+  #     x = ~reorder(canal, n),
+  #     y = ~n,
+  #     type = "bar",
+  #     text = ~label,
+  #     textposition = "outside",
+  #     hoverinfo = "text"
+  #   ) %>%
+  #     
+  #     layout(
+  #       title = "Canais de Venda Utilizados",
+  #       xaxis = list(title = "", tickangle = -30),
+  #       yaxis = list(title = "Número de respostas"),
+  #       paper_bgcolor = "#f5f3f4",
+  #       plot_bgcolor = "#f5f3f4"
+  #     )
+  # })
+  # 
   # 
   # ##########################PEGADA DE CARBONO######################
   # 
@@ -1661,8 +2177,8 @@ server <- function(input, output, session) {
     # =========================
     cores_pegada <- c(
       "PEGADA BAIXA" = "#8054A2",
-      "PEGADA MÉDIA" = "#69C7BE",
-      "PEGADA ALTA"  = "#F37238"
+      "PEGADA MÉDIA" = "#f39c12",
+      "PEGADA ALTA"  = "#69C7BE"
     )
     
     # =========================
@@ -1729,6 +2245,328 @@ server <- function(input, output, session) {
       )
   })
   
+  
+  output$grafico_conhecimento_ambiental <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(Nível_de_conhecimento_ambiental),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(Tipo_Avaliacao, Nível_de_conhecimento_ambiental) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    # ---- ordem lógica
+    freq_data$Nível_de_conhecimento_ambiental <- factor(
+      freq_data$Nível_de_conhecimento_ambiental,
+      levels = c(
+        "Básico — já ouvi falar, mas não sei muito",
+        "Bom — estou ciente dos problemas",
+        "Muito bom — compreendo bem e tento manter-me informada"
+      )
+    )
+    
+    # ---- cores manuais (progressão lógica)
+    cores <- c(
+      "Básico — já ouvi falar, mas não sei muito" = "#69C7BE",
+      "Bom — estou ciente dos problemas" = "#f39c12",
+      "Muito bom — compreendo bem e tento manter-me informada" = "#8054A2"
+    )
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~Nível_de_conhecimento_ambiental,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  output$grafico_impacto_ambiental_negocio <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Em que medida tem consciência do impacto ambiental do seu negócio?`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Em que medida tem consciência do impacto ambiental do seu negócio?`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    # ---- ordem lógica
+    freq_data$`Em que medida tem consciência do impacto ambiental do seu negócio?` <- factor(
+      freq_data$`Em que medida tem consciência do impacto ambiental do seu negócio?`,
+      levels = c(
+        "Não conheço a relação entre a minha actividade e o impacto ambiental",
+        "Basicamente, sei que o que faço pode poluir ou ter impacto",
+        "Bom — estou ciente disso e tento reduzi-lo",
+        "Muito bom — procuro activamente formas de reduzir o meu impacto ambiental"
+      )
+    )
+    
+    # ---- cores manuais (progressão MEL)
+    cores <- c(
+      "Não conheço a relação entre a minha actividade e o impacto ambiental" = "#69C7BE",
+      "Basicamente, sei que o que faço pode poluir ou ter impacto" = "#f9a825",
+      "Bom — estou ciente disso e tento reduzi-lo" = "#F37238",
+      "Muito bom — procuro activamente formas de reduzir o meu impacto ambiental" = "#8054A2"
+    )
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Em que medida tem consciência do impacto ambiental do seu negócio?`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  output$grafico_praticas_sustentaveis <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    # ---- ordem lógica
+    freq_data$`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?` <- factor(
+      freq_data$`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`,
+      levels = c(
+        "Não, não consigo identificar nenhuma prática sustentável para o meu negócio",
+        "Sim"
+      )
+    )
+    
+    # ---- cores manuais
+    cores <- c(
+      "Não, não consigo identificar nenhuma prática sustentável para o meu negócio" = "#69C7BE",
+      "Sim" = "#8054A2"
+    )
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
   ########################## MONITORIA DAS SESSÕES PAM VERDE
   
   dados_geral <- reactive({
