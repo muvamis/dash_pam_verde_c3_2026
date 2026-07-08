@@ -270,17 +270,17 @@ ui <- navbarPage(
             )
           ),
           
-          # =========================
-          # ABA 5
-          # =========================
-          tabPanel(
-            "Posicionamento & Mercado",
-            
-            fluidRow(
-              column(6, plotlyOutput("grafico_canais")),
-              column(6, plotlyOutput("grafico_Parceria"))
-            )
-          ),
+          # # =========================
+          # # ABA 5
+          # # =========================
+          # tabPanel(
+          #   "Posicionamento & Mercado",
+          #   
+          #   fluidRow(
+          #     column(6, plotlyOutput("grafico_canais")),
+          #     column(6, plotlyOutput("grafico_Parceria"))
+          #   )
+          # ),
           
           # =========================
           # ABA 6
@@ -289,11 +289,28 @@ ui <- navbarPage(
             "Consciência de Gênero",
             
             fluidRow(
-              column(6, plotlyOutput("grafico_Dif_Baseline")),
-              column(6, plotlyOutput("grafico_Dif_Endline"))
-            )
+              tags$h4("Os homens tem mais facilidade em acessar produtos financeiros."),
+              column(6, plotlyOutput("grafico_H_Financeiros")),
+              tags$h4("Os homens são levados mais a sério como empreendedores."),
+              column(6, plotlyOutput("grafico_H_Serios"))
           ),
+          fluidRow(
+            tags$h4("Homens são mais capazes de negociar do que as mulheres"),
+            column(6, plotlyOutput("grafico_H_Capazes")),
+            tags$h4("Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens."),
+            column(6, plotlyOutput("grafico_Obrigacoes_Domesticas"))
+          ),
+          br (),
           
+          fluidRow(
+            tags$h4("Não se espera que as mulheres sejam capazes de gerir um negócio."),
+            column(6, plotlyOutput("grafico_M_Gerir")),
+            tags$h4(""),
+            column(6, plotlyOutput("grafico_sa"))
+          )
+          ),
+        
+ 
           # =========================
           # ABA 7
           # =========================
@@ -2067,58 +2084,579 @@ server <- function(input, output, session) {
     
   })
   
-  # output$grafico_canais <- renderPlotly({
-  #   
-  #   df <- Pam_Verde_Indicadores
-  #   
-  #   # -----------------------------
-  #   # 1. TRATAMENTO (MULTI-RESPOSTA)
-  #   # -----------------------------
-  #   df_canais <- df %>%
-  #     
-  #     separate_rows(
-  #       `Onde vende actualmente os seus produtos ou serviços?`,
-  #       sep = ","
-  #     ) %>%
-  #     
-  #     mutate(
-  #       canal = str_trim(`Onde vende actualmente os seus produtos ou serviços?`)
-  #     ) %>%
-  #     
-  #     filter(!is.na(canal), canal != "")
-  #   
-  #   # -----------------------------
-  #   # 2. FREQUÊNCIAS + %
-  #   # -----------------------------
-  #   freq_data <- df_canais %>%
-  #     count(canal, sort = TRUE) %>%
-  #     mutate(
-  #       pct = round(n / sum(n) * 100, 1),
-  #       label = paste0(n, " (", pct, "%)")
-  #     )
-  #   
-  #   # -----------------------------
-  #   # 3. GRÁFICO (BARRAS)
-  #   # -----------------------------
-  #   plot_ly(
-  #     freq_data,
-  #     x = ~reorder(canal, n),
-  #     y = ~n,
-  #     type = "bar",
-  #     text = ~label,
-  #     textposition = "outside",
-  #     hoverinfo = "text"
-  #   ) %>%
-  #     
-  #     layout(
-  #       title = "Canais de Venda Utilizados",
-  #       xaxis = list(title = "", tickangle = -30),
-  #       yaxis = list(title = "Número de respostas"),
-  #       paper_bgcolor = "#f5f3f4",
-  #       plot_bgcolor = "#f5f3f4"
-  #     )
-  # })
-  # 
+#################################### CONSCIENCIA
+  output$grafico_H_Financeiros <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    
+    # ---- ordem das respostas
+    freq_data$`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .` <- factor(
+      freq_data$`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`,
+      levels = c(
+        "Discordo",
+        "Depende",
+        "Concordo"
+      )
+    )
+    
+    
+    # ---- cores
+    cores <- c(
+      "Discordo" = "#F77333",
+      "Depende" = "#ffc107",
+      "Concordo" = "#69C7BE"
+    )
+    
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+      
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  output$grafico_H_Serios <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Os homens são levados mais a sério como empreendedores.`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Os homens são levados mais a sério como empreendedores.`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    
+    # ---- ordem das respostas
+    freq_data$`Os homens são levados mais a sério como empreendedores.` <- factor(
+      freq_data$`Os homens são levados mais a sério como empreendedores.`,
+      levels = c(
+        "Discordo",
+        "Depende",
+        "Concordo"
+      )
+    )
+    
+    
+    # ---- cores
+    cores <- c(
+      "Discordo" = "#F77333",
+      "Depende" = "#ffc107",
+      "Concordo" = "#69C7BE"
+    )
+    
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Os homens são levados mais a sério como empreendedores.`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+      
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  output$grafico_H_Capazes <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Homens são mais capazes de negociar do que as mulheres.`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Homens são mais capazes de negociar do que as mulheres.`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    
+    # ---- ordem das respostas
+    freq_data$`Homens são mais capazes de negociar do que as mulheres.` <- factor(
+      freq_data$`Homens são mais capazes de negociar do que as mulheres.`,
+      levels = c(
+        "Discordo",
+        "Depende",
+        "Concordo"
+      )
+    )
+    
+    
+    # ---- cores
+    cores <- c(
+      "Discordo" = "#F77333",
+      "Depende" = "#ffc107",
+      "Concordo" = "#69C7BE"
+    )
+    
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Homens são mais capazes de negociar do que as mulheres.`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+      
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  output$grafico_Obrigacoes_Domesticas <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    
+    # ---- ordem das respostas
+    freq_data$`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.` <- factor(
+      freq_data$`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`,
+      levels = c(
+        "Discordo",
+        "Depende",
+        "Concordo"
+      )
+    )
+    
+    
+    # ---- cores
+    cores <- c(
+      "Discordo" = "#F77333",
+      "Depende" = "#ffc107",
+      "Concordo" = "#69C7BE"
+    )
+    
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+      
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  output$grafico_M_Gerir <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    req(input$filtro_ciclo)
+    
+    # ---- filtro opcional
+    if (!is.null(input$filtro_ciclo) &&
+        input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ---- limpeza
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Não se espera que as mulheres sejam capazes de gerir um negócio.`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # ---- frequência + percentagem
+    freq_data <- df %>%
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Não se espera que as mulheres sejam capazes de gerir um negócio.`
+      ) %>%
+      dplyr::summarise(n = n(), .groups = "drop") %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100, 1),
+        label = paste0(pct, "%")
+      ) %>%
+      dplyr::ungroup()
+    
+    
+    # ---- ordem das respostas
+    freq_data$`Não se espera que as mulheres sejam capazes de gerir um negócio.` <- factor(
+      freq_data$`Não se espera que as mulheres sejam capazes de gerir um negócio.`,
+      levels = c(
+        "Discordo",
+        "Depende",
+        "Concordo"
+      )
+    )
+    
+    
+    # ---- cores
+    cores <- c(
+      "Discordo" = "#F77333",
+      "Depende" = "#ffc107",
+      "Concordo" = "#69C7BE"
+    )
+    
+    
+    # ---- gráfico empilhado
+    plot_ly(
+      data = freq_data,
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      color = ~`Não se espera que as mulheres sejam capazes de gerir um negócio.`,
+      colors = cores,
+      type = "bar",
+      text = ~label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      ),
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 12
+      )
+      
+    ) %>%
+      layout(
+        title = "",
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  
   # 
   # ##########################PEGADA DE CARBONO######################
   # 
