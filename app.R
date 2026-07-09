@@ -589,12 +589,12 @@ ui <- navbarPage(
               tabPanel(
                 "Semanal",
                 
-                div(
-                  class = "value-box-container",
-                  uiOutput("vb_crescimento_semana"),
-                  uiOutput("vb_aumento_lucro_semana"),
-                  uiOutput("vb_aumento_25_semana")
-                ),
+                # div(
+                #   class = "value-box-container",
+                #   uiOutput("vb_crescimento_semana"),
+                #   uiOutput("vb_aumento_lucro_semana"),
+                #   uiOutput("vb_aumento_25_semana")
+                # ),
                 
                 fluidRow(
                   box(
@@ -3983,41 +3983,41 @@ server <- function(input, output, session) {
       arrange(Semanas)
   })
   
-  crescimento_semana <- reactive({
-    
-    df <- df_semana()
-    
-    df2 <- df %>%
-      mutate(
-        lucro_anterior = lag(Lucro_Semanal),
-        crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
-      )
-    
-    paste0(round(mean(df2$crescimento, na.rm = TRUE) * 100, 1), "%")
-  })
-  
-  
-  aumento_lucro_semana <- reactive({
-    
-    df <- df_semana()
-    
-    sum(df$Lucro_Semanal > 0, na.rm = TRUE)
-  })
-  
-  
-  aumento_25_semana <- reactive({
-    
-    df <- df_semana()
-    
-    df2 <- df %>%
-      mutate(
-        lucro_anterior = lag(Lucro_Semanal),
-        crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
-      )
-    
-    sum(df2$crescimento > 0.25, na.rm = TRUE)
-  })
-  
+  # crescimento_semana <- reactive({
+  #   
+  #   df <- df_semana()
+  #   
+  #   df2 <- df %>%
+  #     mutate(
+  #       lucro_anterior = lag(Lucro_Semanal),
+  #       crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
+  #     )
+  #   
+  #   paste0(round(mean(df2$crescimento, na.rm = TRUE) * 100, 1), "%")
+  # })
+  # 
+  # 
+  # aumento_lucro_semana <- reactive({
+  #   
+  #   df <- df_semana()
+  #   
+  #   sum(df$Lucro_Semanal > 0, na.rm = TRUE)
+  # })
+  # 
+  # 
+  # aumento_25_semana <- reactive({
+  #   
+  #   df <- df_semana()
+  #   
+  #   df2 <- df %>%
+  #     mutate(
+  #       lucro_anterior = lag(Lucro_Semanal),
+  #       crescimento = (Lucro_Semanal - lucro_anterior) / (abs(lucro_anterior) + 1)
+  #     )
+  #   
+  #   sum(df2$crescimento > 0.25, na.rm = TRUE)
+  # })
+  # 
   
   
   
