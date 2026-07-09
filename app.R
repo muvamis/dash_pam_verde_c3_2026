@@ -235,17 +235,26 @@ ui <- navbarPage(
           tabPanel(
             "Agência e Soft Skills",
             fluidRow(
+              tags$h4("Quem costuma tomar as principais decisões sobre o seu negócio?"), 
+              column(6, plotlyOutput("grafico_triang_empilhado")),
               tags$h4("Praticou negociação nos últimos 3 meses"),
-              column(6, plotlyOutput("grafico_negociacao_3meses")),
-              tags$h4(""),
-              column(6, plotlyOutput("grafico_control_dinheiro_"))
+              column(6, plotlyOutput("grafico_negociacao_3meses"))
           ),
           br(),
             fluidRow(
-              column(6, plotlyOutput("grafico_triang_empilhado")),
-              column(6, plotlyOutput("grafico_agregado_familiar"))
-            )
-          ),
+              tags$h4("Negociacao_Com_Agregado_Familiar"),
+              column(6, plotlyOutput("grafico_agregado_familiar")),
+              tags$h4("Negociacao_Com_Clientes"),
+              column(6, plotlyOutput("grafico_clientes"))
+            ),
+          
+          fluidRow(
+            tags$h4("Negociacao_Pessoas_Com_Quem_Trabalha"),
+            column(6, plotlyOutput("grafico_funcionarios")),
+            tags$h4(""),
+            column(6, plotlyOutput("grafico_clientes_"))
+          )
+        ),
           # 
           # =========================
           # ABA 4
@@ -254,16 +263,16 @@ ui <- navbarPage(
             "Habilidades & Processos",
             
             fluidRow(
-              tags$h4("Uso de ferramentas de IA"),
+              tags$h4("Já utilizou alguma ferramenta de inteligência artificial"),
               column(6, plotlyOutput("grafico_uso_ia")),
-              tags$h4("Separação de contas pessoais/negócio"),
+              tags$h4("Faz separação das contas pessoais e do negócio"),
               column(6, plotlyOutput("grafico_separacao_contas"))
             ),
             
             br(),
             
             fluidRow(
-              tags$h4(""),
+              tags$h4("Sabe calcular o lucro do negócio"),
               column(6, plotlyOutput("grafico_calcular_Lucro")),
               tags$h4(""),
               column(6, plotlyOutput("grafico_control_dinheiro"))
@@ -590,7 +599,7 @@ ui <- navbarPage(
                 fluidRow(
                   box(
                     width = 12,
-                    title = "Desempenho Semanal",
+                    title = "",
                     plotlyOutput("grafico_financeiro")
                   )
                 ),
@@ -1535,43 +1544,195 @@ server <- function(input, output, session) {
     
     df <- dados_filtrados()
     
-    req("Negociacao_Com_Clientes" %in% colnames(df))
+    req(all(c("Tipo_Avaliacao", "Negociacao_Com_Clientes") %in% colnames(df)))
     req(nrow(df) > 0)
     
+    # -----------------------------
+    # Preparação
+    # -----------------------------
     df_resumo <- df %>%
-      group_by(Negociacao_Com_Clientes) %>%
-      summarise(Total = n(), .groups = "drop") %>%
-      mutate(
-        Percent = round(Total / sum(Total) * 100, 1),
-        label = paste0(Total, " (", Percent, "%)"),
-        Negociacao_Com_Clientes = factor(
-          Negociacao_Com_Clientes,
-          levels = c(
-            "Não me sinto confiante/ não sei negociar",
-            "Depende /de certa forma",
-            "Sim, sinto-me confiantee sei defender a minha posição"
-          )
-        )
-      )
+      dplyr::filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(Negociacao_Com_Clientes)
+      ) %>%
+      
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        Negociacao_Com_Clientes
+      ) %>%
+      
+      dplyr::summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      dplyr::ungroup()
     
+    # -----------------------------
+    # Cores fixas
+    # -----------------------------
+    cores <- c(
+      "Não me sinto confiante/ não sei negociar" = "#5cd6c7",
+      "Depende /de certa forma" = "#ff7f0e",
+      "Sim, sinto-me confiantee sei defender a minha posição" = "#9442d4"
+    )
+    
+    # -----------------------------
+    # Gráfico
+    # -----------------------------
     plot_ly(
       data = df_resumo,
-      x = ~Negociacao_Com_Clientes,
-      y = ~Total,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      
+      color = ~Negociacao_Com_Clientes,
+      colors = cores,
+      
       type = "bar",
-      text = ~label,
-      textposition = "auto",
-      marker = list(color = "#9442d4")
+      
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
     ) %>%
+      
       layout(
-        title = "Negociação com clientes",
+        barmode = "stack",
+        
         xaxis = list(title = ""),
-        yaxis = list(title = "Número de participantes"),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(l = 60, r = 20, t = 20, b = 120),
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
   
+  
+  
+  output$grafico_funcionarios <- renderPlotly({
+    
+    df <- dados_filtrados()
+    
+    req(all(c("Tipo_Avaliacao", "Negociacao_Pessoas_Com_Quem_Trabalha") %in% colnames(df)))
+    req(nrow(df) > 0)
+    
+    # -----------------------------
+    # Preparação
+    # -----------------------------
+    df_resumo <- df %>%
+      dplyr::filter(
+        !is.na(Tipo_Avaliacao),
+        !is.na(Negociacao_Pessoas_Com_Quem_Trabalha)
+      ) %>%
+      
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        Negociacao_Pessoas_Com_Quem_Trabalha
+      ) %>%
+      
+      dplyr::summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        Percent = round(Total / sum(Total) * 100, 1)
+      ) %>%
+      dplyr::ungroup()
+    
+    # -----------------------------
+    # Cores fixas
+    # -----------------------------
+    cores <- c(
+      "Não me sinto confiante/ não sei negociar" = "#5cd6c7",
+      "Depende /de certa forma" = "#ff7f0e",
+      "Sim, sinto-me confiantee sei defender a minha posição" = "#9442d4"
+    )
+    
+    # -----------------------------
+    # Gráfico
+    # -----------------------------
+    plot_ly(
+      data = df_resumo,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~Percent,
+      
+      color = ~Negociacao_Pessoas_Com_Quem_Trabalha,
+      colors = cores,
+      
+      type = "bar",
+      
+      text = ~paste0(Percent, "%"),
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+    ) %>%
+      
+      layout(
+        barmode = "stack",
+        
+        xaxis = list(title = ""),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100)
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(l = 60, r = 20, t = 20, b = 120),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
   # ##----------------------------------------------------------- 
   # ###################                  3 PAGINA Habilidades e Processos
   # ##-----------------------------------------------------------------------------  
@@ -2084,7 +2245,7 @@ server <- function(input, output, session) {
     
   })
   
-#################################### CONSCIENCIA
+#################################### CONSCIENCIA DE GENERO
   output$grafico_H_Financeiros <- renderPlotly({
     
     df <- Pam_Verde_Indicadores
@@ -2658,7 +2819,7 @@ server <- function(input, output, session) {
   
   
   # 
-  # ##########################PEGADA DE CARBONO######################
+  # ##########################     CONSCIENCIA AMBIENTAL ######################
   # 
   # # ####################Pontuacões##############
   # # 
@@ -2716,7 +2877,7 @@ server <- function(input, output, session) {
     cores_pegada <- c(
       "PEGADA BAIXA" = "#8054A2",
       "PEGADA MÉDIA" = "#f39c12",
-      "PEGADA ALTA"  = "#69C7BE"
+      "PEGADA ALTA"  = "#F77333"
     )
     
     # =========================

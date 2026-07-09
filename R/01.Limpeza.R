@@ -69,7 +69,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
           Nível_de_conhecimento_ambiental = `Como classificaria o seu nível de conhecimento sobre questões ambientais em geral? (poluição, catástrofes naturais, falta de recursos, impacto de actividades...)`
    )
 
-table(Pam_Verde_Indicadores$Quem_Toma_Decisoes_Negocio)
+table(Pam_Verde_Indicadores$Negociacao_Pessoas_Com_Quem_Trabalha)
  
 
 
