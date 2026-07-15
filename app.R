@@ -158,28 +158,45 @@ ui <- navbarPage(
             
             fluidRow(uiOutput("kpi_boxes")),
             
+            br(),
             fluidRow(
               column(
                 6,
-                tags$h4("Negócios liderados por mulheres"),
+                div(
+                  style = "background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_estado_civil")
+                ),
+           
                 plotlyOutput("grafico_participantes")
               ),
               column(
                 6,
-                tags$h4("Faixas etárias das empreendedoras"),
+                div(
+                  style = "background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_idade")
+                ),
+
                 plotlyOutput("grafico_idade")
               )
             ),
-            
+            br(),
             fluidRow(
               column(
                 6,
-                tags$h4("Ano de criação do negócio"),
+                div(
+                  style = "background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_ano")
+                ),
+    
                 plotlyOutput("grafico_Ano_Negocio")
               ),
               column(
                 6,
-                tags$h4("Sector dos negócios"),
+                div(
+                  style = "background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_setor")
+                ),
+               
                 plotlyOutput("grafico_setor")
               ))
             ),
@@ -197,24 +214,39 @@ ui <- navbarPage(
             fluidRow(
               column(
                 6,
-                tags$h4("O seu negócio está formalizado?"),
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_formalizacao")
+                ),
                 plotlyOutput("grafico_formalizacao")
               ),
               column(
                 6,
-                tags$h4("Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"),
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_servicos")
+                ),
                 plotlyOutput("grafico_servicos_financeiros")
               )
             ),
+            br(),
             fluidRow(
               column(
                 6,
-                tags$h4("Retira regularmente um salário para si mesma?"),
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_salario")
+                ),
+                
                 plotlyOutput("grafico_tira_salario")
               ),
               column(
                 6,
-                tags$h4("Quantos clientes regulares tem actualmente no seu negócio?"),
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_clientes")
+                ),
+                
                 plotlyOutput("grafico_clientes_regulares")
               )
             ),
@@ -234,27 +266,77 @@ ui <- navbarPage(
           # =========================
           tabPanel(
             "Agência e Soft Skills",
+            
             fluidRow(
-              tags$h4("Quem costuma tomar as principais decisões sobre o seu negócio?"), 
-              column(6, plotlyOutput("grafico_triang_empilhado")),
-              tags$h4("Praticou negociação nos últimos 3 meses"),
-              column(6, plotlyOutput("grafico_negociacao_3meses"))
-          ),
-          br(),
-            fluidRow(
-              tags$h4("Negociacao_Com_Agregado_Familiar"),
-              column(6, plotlyOutput("grafico_agregado_familiar")),
-              tags$h4("Negociacao_Com_Clientes"),
-              column(6, plotlyOutput("grafico_clientes"))
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_decisoes")
+                ),
+                plotlyOutput("grafico_triang_empilhado")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_negociacao")
+                ),
+                plotlyOutput("grafico_negociacao_3meses")
+              )
+              
             ),
-          
-          fluidRow(
-            tags$h4("Negociacao_Pessoas_Com_Quem_Trabalha"),
-            column(6, plotlyOutput("grafico_funcionarios")),
-            tags$h4(""),
-            column(6, plotlyOutput("grafico_clientes_"))
-          )
-        ),
+            
+            br(),
+            
+            fluidRow(
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_agregado")
+                ),
+                plotlyOutput("grafico_agregado_familiar")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_clientes_neg")
+                ),
+                plotlyOutput("grafico_clientes")
+              )
+              
+            ),
+            
+            br(),
+            
+            fluidRow(
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_funcionarios")
+                ),
+                plotlyOutput("grafico_funcionarios")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_canais")
+                ),
+                plotlyOutput("grafico_clientes_")
+              )
+              
+            )
+          ),
           # 
           # =========================
           # ABA 4
@@ -263,19 +345,49 @@ ui <- navbarPage(
             "Habilidades & Processos",
             
             fluidRow(
-              tags$h4("Já utilizou alguma ferramenta de inteligência artificial"),
-              column(6, plotlyOutput("grafico_uso_ia")),
-              tags$h4("Faz separação das contas pessoais e do negócio"),
-              column(6, plotlyOutput("grafico_separacao_contas"))
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_uso_ia")
+                ),
+                plotlyOutput("grafico_uso_ia")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_separacao_contas")
+                ),
+                plotlyOutput("grafico_separacao_contas")
+              )
+              
             ),
             
             br(),
             
             fluidRow(
-              tags$h4("Sabe calcular o lucro do negócio"),
-              column(6, plotlyOutput("grafico_calcular_Lucro")),
-              tags$h4(""),
-              column(6, plotlyOutput("grafico_control_dinheiro"))
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_calculo_lucro")
+                ),
+                plotlyOutput("grafico_calcular_Lucro")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_control_dinheiro")
+                ),
+                plotlyOutput("grafico_control_dinheiro")
+              )
+              
             )
           ),
           
@@ -298,25 +410,75 @@ ui <- navbarPage(
             "Consciência de Gênero",
             
             fluidRow(
-              tags$h4("Os homens tem mais facilidade em acessar produtos financeiros."),
-              column(6, plotlyOutput("grafico_H_Financeiros")),
-              tags$h4("Os homens são levados mais a sério como empreendedores."),
-              column(6, plotlyOutput("grafico_H_Serios"))
-          ),
-          fluidRow(
-            tags$h4("Homens são mais capazes de negociar do que as mulheres"),
-            column(6, plotlyOutput("grafico_H_Capazes")),
-            tags$h4("Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens."),
-            column(6, plotlyOutput("grafico_Obrigacoes_Domesticas"))
-          ),
-          br (),
-          
-          fluidRow(
-            tags$h4("Não se espera que as mulheres sejam capazes de gerir um negócio."),
-            column(6, plotlyOutput("grafico_M_Gerir")),
-            tags$h4(""),
-            column(6, plotlyOutput("grafico_sa"))
-          )
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_H_Financeiros")
+                ),
+                plotlyOutput("grafico_H_Financeiros")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_H_Serios")
+                ),
+                plotlyOutput("grafico_H_Serios")
+              )
+            ),
+            
+            
+            br(),
+            
+            
+            fluidRow(
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_H_Capazes")
+                ),
+                plotlyOutput("grafico_H_Capazes")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_Obrigacoes_Domesticas")
+                ),
+                plotlyOutput("grafico_Obrigacoes_Domesticas")
+              )
+            ),
+            
+            
+            br(),
+            
+            
+            fluidRow(
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_M_Gerir")
+                ),
+                plotlyOutput("grafico_M_Gerir")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_genero_extra")
+                ),
+                plotlyOutput("grafico_sa")
+              )
+            )
           ),
         
  
@@ -327,17 +489,46 @@ ui <- navbarPage(
             "Consciência Ambiental",
             
             fluidRow(
-              tags$h4("Pegada de carbono"),
-              column(6, plotlyOutput("graficoPontuacao")),
-              tags$h4("Como classificaria o seu nível de conhecimento sobre questões ambientais em geral?"),
-              column(6, plotlyOutput("grafico_conhecimento_ambiental"))
+              column(
+                6,
+                
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
+                  uiOutput("texto_Pegada")
+                ),
+                plotlyOutput("graficoPontuacao")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
+                  uiOutput("texto_conhecimento_ambiental")
+                ),
+                plotlyOutput("grafico_conhecimento_ambiental")
+              )
             ),
+            
+            br(),
+            
             fluidRow(
-              tags$h4("Em que medida tem consciência do impacto ambiental do seu negócio?"),
-              column(6, plotlyOutput("grafico_impacto_ambiental_negocio")),
-              tags$h4("Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?"),
-              column(6, plotlyOutput("grafico_praticas_sustentaveis"))
-            )
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
+                  uiOutput("texto_impacto_ambiental")
+                ),
+                plotlyOutput("grafico_impacto_ambiental_negocio")
+              ),
+              
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
+                  uiOutput("texto_praticas_sustentaveis")
+                ),
+                plotlyOutput("grafico_praticas_sustentaveis"))
+              )
             )
           )
           )
@@ -800,6 +991,55 @@ server <- function(input, output, session) {
         plot_bgcolor = "#f5f3f4"
       )
   })
+  
+  output$texto_estado_civil <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    req(nrow(df) > 0)
+    
+    resumo <- df %>%
+      distinct(Nome_Participante, .keep_all = TRUE) %>%
+      count(Estado_Civil) %>%
+      mutate(
+        perc = round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    total <- sum(resumo$n)
+    
+    principal <- resumo$Estado_Civil[1]
+    perc_principal <- resumo$perc[1]
+    
+    restantes <- resumo %>%
+      slice(-1) %>%
+      mutate(txt = paste0(Estado_Civil," (",perc,"%)"))
+    
+    texto_restantes <- paste(restantes$txt,
+                             collapse = ", ")
+    
+    tags$p(
+      
+      style="text-align:justify;margin:0;",
+      
+      tags$b("Estado civil das empreendedoras. "),
+      
+      "Após aplicação dos filtros, foram identificadas ",
+      
+      tags$b(total),
+      
+      " empreendedoras. A maioria é ",
+      
+      tags$b(principal),
+      
+      " (",perc_principal,"%). ",
+      
+      if(nrow(restantes)>0)
+        paste0("Os restantes estados civis distribuem-se entre ",texto_restantes,".")
+      
+    )
+    
+  })
 
   # 
   # #   # --- Gráfico 2: Distribuição por IDADE
@@ -841,6 +1081,58 @@ server <- function(input, output, session) {
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
+  })
+  
+  
+  output$texto_idade <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    df <- df %>%
+      mutate(
+        Data_nasc = as.Date(Data_Nascimento),
+        Idade = floor(interval(Data_nasc, Sys.Date())/years(1))
+      )
+    
+    resumo <- df %>%
+      mutate(
+        Grupo = ifelse(Idade<=35,"até 35 anos","mais de 35 anos")
+      ) %>%
+      count(Grupo) %>%
+      mutate(
+        perc = round(n/sum(n)*100,1)
+      )
+    
+    jovens <- resumo %>%
+      filter(Grupo=="até 35 anos")
+    
+    adultos <- resumo %>%
+      filter(Grupo=="mais de 35 anos")
+    
+    tags$p(
+      
+      style="text-align:justify;margin:0;",
+      
+      tags$b("Faixa etária. "),
+      
+      jovens$n,
+      
+      " empreendedoras (",
+      
+      jovens$perc,
+      
+      "%) possuem até 35 anos, enquanto ",
+      
+      adultos$n,
+      
+      " (",
+      
+      adultos$perc,
+      
+      "%) têm mais de 35 anos."
+      
+    )
+    
   })
   # 
   # 
@@ -927,6 +1219,45 @@ server <- function(input, output, session) {
       )
   })
 
+  
+  output$texto_setor <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    resumo <- df %>%
+      distinct(Nome_Participante,.keep_all=TRUE) %>%
+      count(Sector) %>%
+      mutate(
+        perc=round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    principal <- resumo[1,]
+    
+    tags$p(
+      
+      style="text-align:justify;margin:0;",
+      
+      tags$b("Sector de actividade. "),
+      
+      "O sector predominante é ",
+      
+      tags$b(principal$Sector),
+      
+      ", representando ",
+      
+      principal$perc,
+      
+      "% dos negócios (",
+      
+      principal$n,
+      
+      " empreendedoras)."
+      
+    )
+    
+  })
+  
   # #   
   # #   ####### Gráfico de Distribuição dos Anos das Empresas
   # #   
@@ -962,6 +1293,50 @@ server <- function(input, output, session) {
     
   })
   
+  output$texto_ano <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    resumo <- df %>%
+      count(Ano_Negocio) %>%
+      arrange(Ano_Negocio)
+    
+    primeiro <- min(resumo$Ano_Negocio)
+    
+    ultimo <- max(resumo$Ano_Negocio)
+    
+    mais_freq <- resumo %>%
+      slice_max(n,n=1)
+    
+    tags$p(
+      
+      style="text-align:justify;margin:0;",
+      
+      tags$b("Ano de criação do negócio. "),
+      
+      "Os negócios foram criados entre ",
+      
+      primeiro,
+      
+      " e ",
+      
+      ultimo,
+      
+      ". O ano com maior número de negócios é ",
+      
+      tags$b(mais_freq$Ano_Negocio),
+      
+      ", com ",
+      
+      mais_freq$n,
+      
+      " empreendimentos."
+      
+    )
+    
+  })
+  
+  ##################################### PAGINA 
   
   output$grafico_formalizacao <- renderPlotly({
     
@@ -1022,6 +1397,45 @@ server <- function(input, output, session) {
         plot_bgcolor = "#f5f3f4"
       )
   })
+  
+  output$texto_formalizacao <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    resumo <- df %>%
+      filter(!is.na(Negocio_Formalizado)) %>%
+      count(Negocio_Formalizado) %>%
+      mutate(
+        perc = round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    principal <- resumo[1,]
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Formalização dos negócios. "),
+      
+      "Após aplicação dos filtros, verificou-se que a situação predominante é ",
+      
+      tags$b(principal$Negocio_Formalizado),
+      
+      ", representando ",
+      
+      principal$perc,
+      
+      "% dos negócios (",
+      
+      principal$n,
+      
+      ")."
+      
+    )
+    
+  })
+  
   # 
   # 
   # #   # ==========================================================
@@ -1152,6 +1566,53 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_servicos <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    resumo <- df %>%
+      
+      filter(!is.na(Uso_Servicos_Financeiros)) %>%
+      
+      separate_rows(
+        Uso_Servicos_Financeiros,
+        sep=",(?=[A-Z])"
+      ) %>%
+      
+      mutate(
+        Uso_Servicos_Financeiros=trimws(Uso_Servicos_Financeiros)
+      ) %>%
+      
+      count(Uso_Servicos_Financeiros) %>%
+      
+      mutate(
+        perc=round(n/sum(n)*100,1)
+      ) %>%
+      
+      arrange(desc(n))
+    
+    principal <- resumo[1,]
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Serviços financeiros utilizados. "),
+      
+      "O serviço financeiro mais utilizado é ",
+      
+      tags$b(principal$Uso_Servicos_Financeiros),
+      
+      ", referido por ",
+      
+      principal$perc,
+      
+      "% das respostas."
+      
+    )
+    
+  })
+  
   #### RETIRAR SALARIO PARA SI
   
   output$grafico_tira_salario <- renderPlotly({
@@ -1247,6 +1708,43 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_salario <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    resumo <- df %>%
+      
+      filter(!is.na(Tira_Salario_Para_Si)) %>%
+      
+      count(Tira_Salario_Para_Si) %>%
+      
+      mutate(
+        perc=round(n/sum(n)*100,1)
+      ) %>%
+      
+      arrange(desc(n))
+    
+    principal <- resumo[1,]
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Remuneração da empreendedora. "),
+      
+      "A resposta predominante foi ",
+      
+      tags$b(principal$Tira_Salario_Para_Si),
+      
+      ", correspondendo a ",
+      
+      principal$perc,
+      
+      "% das participantes."
+      
+    )
+    
+  })
 
   output$grafico_clientes_regulares <- renderPlotly({
     
@@ -1325,7 +1823,57 @@ server <- function(input, output, session) {
     
   })
   
-
+  output$texto_clientes <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    resumo <- df %>%
+      
+      mutate(
+        
+        categoria=case_when(
+          
+          Clientes_Regulares_Negocio<=5 ~ "0–5",
+          
+          Clientes_Regulares_Negocio<=10 ~ "6–10",
+          
+          Clientes_Regulares_Negocio<=20 ~ "11–20",
+          
+          TRUE ~ ">20"
+          
+        )
+        
+      ) %>%
+      
+      count(categoria) %>%
+      
+      mutate(
+        perc=round(n/sum(n)*100,1)
+      ) %>%
+      
+      arrange(desc(n))
+    
+    principal <- resumo[1,]
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Clientes regulares. "),
+      
+      "A maior parte dos negócios possui ",
+      
+      tags$b(principal$categoria),
+      
+      " clientes regulares, representando ",
+      
+      principal$perc,
+      
+      "% das empreendedoras."
+      
+    )
+    
+  })
   # ##----------------------------------------------------------- 
   # ###################                  3 PAGINA SOFT SKILL
   # ##-----------------------------------------------------------------------------  
@@ -1440,14 +1988,57 @@ server <- function(input, output, session) {
       )
   })
   
-  #################### Negociacao_Com_Agregado_Familiar
-  output$grafico_agregado_familiar <- renderPlotly({
+  output$texto_decisoes <- renderUI({
     
     df <- dados_filtrados()
     
+    var <- "Quem_Toma_Decisoes_Negocio"
+    
+    req(var %in% names(df))
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem = round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    principal <- resumo[1,]
+    
+    tags$p(
+      style="margin:0; text-align:justify;",
+      
+      tags$b("Autonomia na tomada de decisão. "),
+      
+      "Entre as empreendedoras analisadas, a principal responsabilidade pelas decisões do negócio é atribuída a ",
+      
+      tags$b(principal[[var]]),
+      
+      ", representando ",
+      
+      principal$Percentagem,
+      
+      "% das respostas. ",
+      
+      if(principal$Percentagem >= 70){
+        "Este resultado indica um elevado nível de autonomia individual na gestão dos negócios."
+      } else {
+        "Observa-se uma distribuição das decisões entre diferentes intervenientes, indicando a existência de partilha na gestão do negócio."
+      }
+    )
+    
+  })
+  
+  # 
+  # #################### Negociacao_Com_Agregado_Familiar
+  output$grafico_agregado_familiar <- renderPlotly({
+
+    df <- dados_filtrados()
+
     req(all(c("Tipo_Avaliacao", "Negociacao_Com_Agregado_Familiar") %in% colnames(df)))
     req(nrow(df) > 0)
-    
+
     # -----------------------------
     # Preparação
     # -----------------------------
@@ -1456,23 +2047,23 @@ server <- function(input, output, session) {
         !is.na(Tipo_Avaliacao),
         !is.na(Negociacao_Com_Agregado_Familiar)
       ) %>%
-      
+
       dplyr::group_by(
         Tipo_Avaliacao,
         Negociacao_Com_Agregado_Familiar
       ) %>%
-      
+
       dplyr::summarise(
         Total = n(),
         .groups = "drop"
       ) %>%
-      
+
       dplyr::group_by(Tipo_Avaliacao) %>%
       dplyr::mutate(
         Percent = round(Total / sum(Total) * 100, 1)
       ) %>%
       dplyr::ungroup()
-    
+
     # -----------------------------
     # Cores fixas
     # -----------------------------
@@ -1481,72 +2072,152 @@ server <- function(input, output, session) {
       "Depende /de certa forma" = "#ff7f0e",
       "Sim, sinto-me confiantee sei defender a minha posição" = "#9442d4"
     )
-    
+
     # -----------------------------
     # Gráfico
     # -----------------------------
     plot_ly(
       data = df_resumo,
-      
+
       x = ~Tipo_Avaliacao,
       y = ~Percent,
-      
+
       color = ~Negociacao_Com_Agregado_Familiar,
       colors = cores,
-      
+
       type = "bar",
-      
+
       text = ~paste0(Percent, "%"),
       texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
-      
+
       textfont = list(
         color = "#ffffff",
         size = 11
       ),
-      
+
       hovertemplate = paste(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
     ) %>%
-      
+
       layout(
         barmode = "stack",
-        
+
         xaxis = list(title = ""),
-        
+
         yaxis = list(
           title = "Percentagem (%)",
           range = c(0, 100)
         ),
-        
+
         legend = list(
           orientation = "h",
           x = 0.5,
           xanchor = "center",
           y = -0.25
         ),
-        
+
         margin = list(l = 60, r = 20, t = 20, b = 120),
-        
+
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
-  
-  
-  #################################### Negociacao_Com_Clientes
-  
-  output$grafico_clientes <- renderPlotly({
+  # 
+  output$texto_agregado <- renderUI({
     
     df <- dados_filtrados()
     
+    var <- "Negociacao_Com_Agregado_Familiar"
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    
+    principal <- resumo[1,]
+    
+    
+    tags$p(
+      style="margin:0; text-align:justify;",
+      
+      tags$b("Influência no agregado familiar. "),
+      
+      "Relativamente à negociação dentro do agregado familiar, a resposta predominante foi ",
+      
+      tags$b(principal[[var]]),
+      
+      ", representando ",
+      
+      principal$Percentagem,
+      
+      "% das participantes. ",
+      
+      "Este resultado demonstra o nível de participação das empreendedoras nas decisões relacionadas com o funcionamento e crescimento do negócio."
+    )
+    
+  })
+  
+  output$texto_negociacao <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Praticou_negociação_nos_últimos_3meses"
+    
+    req(var %in% names(df))
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem = round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    
+    principal <- resumo[1,]
+    
+    
+    tags$p(
+      style="margin:0; text-align:justify;",
+      
+      tags$b("Competências de negociação. "),
+      
+      "A maioria das empreendedoras indicou como principal experiência de negociação: ",
+      
+      tags$b(principal[[var]]),
+      
+      ", correspondendo a ",
+      
+      principal$Percentagem,
+      
+      "% das respostas. ",
+      
+      "Este indicador permite avaliar a capacidade das participantes em defender condições favoráveis para os seus negócios nas relações comerciais."
+    )
+    
+  })
+  # 
+  # #################################### Negociacao_Com_Clientes
+  # 
+  output$grafico_clientes <- renderPlotly({
+
+    df <- dados_filtrados()
+
     req(all(c("Tipo_Avaliacao", "Negociacao_Com_Clientes") %in% colnames(df)))
     req(nrow(df) > 0)
-    
+
     # -----------------------------
     # Preparação
     # -----------------------------
@@ -1555,23 +2226,23 @@ server <- function(input, output, session) {
         !is.na(Tipo_Avaliacao),
         !is.na(Negociacao_Com_Clientes)
       ) %>%
-      
+
       dplyr::group_by(
         Tipo_Avaliacao,
         Negociacao_Com_Clientes
       ) %>%
-      
+
       dplyr::summarise(
         Total = n(),
         .groups = "drop"
       ) %>%
-      
+
       dplyr::group_by(Tipo_Avaliacao) %>%
       dplyr::mutate(
         Percent = round(Total / sum(Total) * 100, 1)
       ) %>%
       dplyr::ungroup()
-    
+
     # -----------------------------
     # Cores fixas
     # -----------------------------
@@ -1580,71 +2251,110 @@ server <- function(input, output, session) {
       "Depende /de certa forma" = "#ff7f0e",
       "Sim, sinto-me confiantee sei defender a minha posição" = "#9442d4"
     )
-    
+
     # -----------------------------
     # Gráfico
     # -----------------------------
     plot_ly(
       data = df_resumo,
-      
+
       x = ~Tipo_Avaliacao,
       y = ~Percent,
-      
+
       color = ~Negociacao_Com_Clientes,
       colors = cores,
-      
+
       type = "bar",
-      
+
       text = ~paste0(Percent, "%"),
       texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
-      
+
       textfont = list(
         color = "#ffffff",
         size = 11
       ),
-      
+
       hovertemplate = paste(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
     ) %>%
-      
+
       layout(
         barmode = "stack",
-        
+
         xaxis = list(title = ""),
-        
+
         yaxis = list(
           title = "Percentagem (%)",
           range = c(0, 100)
         ),
-        
+
         legend = list(
           orientation = "h",
           x = 0.5,
           xanchor = "center",
           y = -0.25
         ),
-        
+
         margin = list(l = 60, r = 20, t = 20, b = 120),
-        
+
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
-  
-  
-  
-  output$grafico_funcionarios <- renderPlotly({
+  # 
+  output$texto_clientes_neg <- renderUI({
     
     df <- dados_filtrados()
     
+    var <- "Negociacao_Com_Clientes"
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    
+    principal <- resumo[1,]
+    
+    
+    tags$p(
+      style="margin:0; text-align:justify;",
+      
+      tags$b("Negociação comercial com clientes. "),
+      
+      "A resposta mais frequente indica que ",
+      
+      tags$b(principal[[var]]),
+      
+      ", representando ",
+      
+      principal$Percentagem,
+      
+      "% das empreendedoras analisadas. ",
+      
+      "Este indicador reflete a capacidade das participantes em gerir relações comerciais e negociar melhores condições de venda."
+    )
+    
+  })
+  # 
+  output$grafico_funcionarios <- renderPlotly({
+
+    df <- dados_filtrados()
+
     req(all(c("Tipo_Avaliacao", "Negociacao_Pessoas_Com_Quem_Trabalha") %in% colnames(df)))
     req(nrow(df) > 0)
-    
+
     # -----------------------------
     # Preparação
     # -----------------------------
@@ -1653,23 +2363,23 @@ server <- function(input, output, session) {
         !is.na(Tipo_Avaliacao),
         !is.na(Negociacao_Pessoas_Com_Quem_Trabalha)
       ) %>%
-      
+
       dplyr::group_by(
         Tipo_Avaliacao,
         Negociacao_Pessoas_Com_Quem_Trabalha
       ) %>%
-      
+
       dplyr::summarise(
         Total = n(),
         .groups = "drop"
       ) %>%
-      
+
       dplyr::group_by(Tipo_Avaliacao) %>%
       dplyr::mutate(
         Percent = round(Total / sum(Total) * 100, 1)
       ) %>%
       dplyr::ungroup()
-    
+
     # -----------------------------
     # Cores fixas
     # -----------------------------
@@ -1678,61 +2388,147 @@ server <- function(input, output, session) {
       "Depende /de certa forma" = "#ff7f0e",
       "Sim, sinto-me confiantee sei defender a minha posição" = "#9442d4"
     )
-    
+
     # -----------------------------
     # Gráfico
     # -----------------------------
     plot_ly(
       data = df_resumo,
-      
+
       x = ~Tipo_Avaliacao,
       y = ~Percent,
-      
+
       color = ~Negociacao_Pessoas_Com_Quem_Trabalha,
       colors = cores,
-      
+
       type = "bar",
-      
+
       text = ~paste0(Percent, "%"),
       texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
-      
+
       textfont = list(
         color = "#ffffff",
         size = 11
       ),
-      
+
       hovertemplate = paste(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
     ) %>%
-      
+
       layout(
         barmode = "stack",
-        
+
         xaxis = list(title = ""),
-        
+
         yaxis = list(
           title = "Percentagem (%)",
           range = c(0, 100)
         ),
-        
+
         legend = list(
           orientation = "h",
           x = 0.5,
           xanchor = "center",
           y = -0.25
         ),
-        
+
         margin = list(l = 60, r = 20, t = 20, b = 120),
-        
+
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
+  # 
+  output$texto_funcionarios <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Negociacao_Pessoas_Com_Quem_Trabalha"
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    
+    principal <- resumo[1,]
+    
+    
+    tags$p(
+      style="margin:0; text-align:justify;",
+      
+      tags$b("Gestão das relações de trabalho. "),
+      
+      "Na interação com colaboradores ou pessoas envolvidas no negócio, a resposta predominante foi ",
+      
+      tags$b(principal[[var]]),
+      
+      ", representando ",
+      
+      principal$Percentagem,
+      
+      "% das participantes. ",
+      
+      "O resultado evidencia o nível de liderança e capacidade de gestão das relações internas no negócio."
+    )
+    
+  })
+  # 
+  # output$texto_canais <- renderUI({
+  #   
+  #   df <- dados_filtrados()
+  #   
+  #   var <- "Onde vende actualmente os seus produtos ou serviços?"
+  #   
+  #   req(var %in% names(df))
+  #   
+  #   
+  #   resumo <- df %>%
+  #     filter(!is.na(.data[[var]])) %>%
+  #     separate_rows(.data[[var]], sep=",") %>%
+  #     mutate(
+  #       Canal=str_trim(.data[[var]])
+  #     ) %>%
+  #     count(Canal) %>%
+  #     mutate(
+  #       Percentagem=round(n/sum(n)*100,1)
+  #     ) %>%
+  #     arrange(desc(n))
+  #   
+  #   
+  #   principal <- resumo[1,]
+  #   
+  #   
+  #   tags$p(
+  #     style="margin:0; text-align:justify;",
+  #     
+  #     tags$b("Estratégias de comercialização. "),
+  #     
+  #     "O principal canal utilizado pelas empreendedoras é ",
+  #     
+  #     tags$b(principal$Canal),
+  #     
+  #     ", representando ",
+  #     
+  #     principal$Percentagem,
+  #     
+  #     "% das respostas. ",
+  #     
+  #     "Este indicador permite compreender os mecanismos utilizados pelas participantes para alcançar clientes e gerar receitas."
+  #   )
+  #   
+  # })
   # ##----------------------------------------------------------- 
   # ###################                  3 PAGINA Habilidades e Processos
   # ##-----------------------------------------------------------------------------  
@@ -1844,6 +2640,58 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_uso_ia <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Uso_de_ferramentas_de_IA"
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    
+    principal <- resumo[1,]
+    
+    
+    tags$p(
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Utilização de ferramentas digitais e inteligência artificial. "),
+      
+      "A análise indica que a maior parte das empreendedoras encontra-se na categoria ",
+      
+      tags$b(principal[[var]]),
+      
+      ", representando ",
+      
+      principal$Percentagem,
+      
+      "% das participantes. ",
+      
+      if(grepl("uso regularmente", principal[[var]], ignore.case = TRUE)){
+        
+        "Este resultado demonstra uma integração significativa de ferramentas digitais no apoio à gestão dos negócios."
+        
+      }else{
+        
+        "Os resultados indicam oportunidade de reforço da literacia digital e sensibilização sobre o potencial da inteligência artificial para melhorar processos empresariais."
+        
+      }
+      
+    )
+    
+  })
+  
+  
+  
   output$grafico_control_dinheiro <- renderPlotly({
     
     df <- dados_filtrados()
@@ -1902,6 +2750,54 @@ server <- function(input, output, session) {
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
+    
+  })
+  
+  output$texto_control_dinheiro <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
+    
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      )
+    
+    
+    sim <- resumo %>%
+      filter(.data[[var]]=="Sim")
+    
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Controlo financeiro do negócio. "),
+      
+      "O controlo das receitas e despesas é realizado por ",
+      
+      sim$Percentagem,
+      
+      "% das empreendedoras analisadas. ",
+      
+      if(sim$Percentagem >=70){
+        
+        "Este resultado evidencia adoção de práticas financeiras que contribuem para melhor acompanhamento do desempenho do negócio."
+        
+      }else{
+        
+        "Existe espaço para fortalecimento das capacidades de registo e monitoria financeira."
+        
+      }
+      
+    )
     
   })
   
@@ -1966,6 +2862,59 @@ server <- function(input, output, session) {
       )
     
   })
+  
+  output$texto_separacao_contas <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Faz separação das contas pessoais e do negócio"
+    
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      ) %>%
+      arrange(desc(n))
+    
+    
+    sim <- resumo %>%
+      filter(.data[[var]]=="Sim")
+    
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Gestão financeira e organização empresarial. "),
+      
+      "A separação entre recursos pessoais e recursos do negócio é praticada por ",
+      
+      sim$n,
+      
+      " empreendedoras, correspondendo a ",
+      
+      sim$Percentagem,
+      
+      "% das participantes analisadas. ",
+      
+      if(sim$Percentagem >= 70){
+        
+        "Este resultado demonstra boas práticas de gestão financeira e maior controlo dos recursos empresariais."
+        
+      }else{
+        
+        "Os resultados indicam uma necessidade de reforçar práticas de organização financeira e gestão separada do negócio."
+        
+      }
+      
+    )
+    
+  })
   output$grafico_calcular_Lucro <- renderPlotly({
     
     df <- dados_filtrados()
@@ -2027,6 +2976,46 @@ server <- function(input, output, session) {
     
   })
   
+  
+  output$texto_calculo_lucro <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Sabe calcular o lucro do negócio  (com base no exercício prático)"
+    
+    
+    req(var %in% names(df))
+    
+    
+    resumo <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      )
+    
+    
+    sim <- resumo %>%
+      filter(.data[[var]]=="Sim")
+    
+    
+    tags$p(
+      
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Conhecimento sobre cálculo do lucro. "),
+      
+      "Do total de empreendedoras avaliadas, ",
+      
+      sim$Percentagem,
+      
+      "% demonstram capacidade de calcular o lucro do negócio. ",
+      
+      "Este indicador mede uma competência essencial para tomada de decisões financeiras e sustentabilidade empresarial."
+      
+    )
+    
+  })
   output$grafico_negociacao_3meses <- renderPlotly({
     
     df <- dados_filtrados()
@@ -2360,6 +3349,35 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_H_Financeiros <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados ."
+    
+    dados <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(percent = round(n/sum(n)*100,1))
+    
+    concordo <- dados %>%
+      filter(.data[[var]]=="Concordo") %>%
+      pull(percent)
+    
+    
+    tags$p(
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Acesso a oportunidades financeiras: "),
+      
+      paste0(
+        concordo,
+        "% das empreendedoras concordam que os homens possuem maior facilidade de acesso a produtos financeiros, redes ou novos mercados. ",
+        "Este resultado evidencia possíveis barreiras de género no acesso a recursos necessários para o crescimento dos negócios."
+      )
+    )
+  })
+  
   output$grafico_H_Serios <- renderPlotly({
     
     df <- Pam_Verde_Indicadores
@@ -2472,6 +3490,35 @@ server <- function(input, output, session) {
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
+  })
+  
+  output$texto_H_Serios <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Os homens são levados mais a sério como empreendedores."
+    
+    dados <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(percent=round(n/sum(n)*100,1))
+    
+    
+    conc <- dados %>%
+      filter(.data[[var]]=="Concordo") %>%
+      pull(percent)
+    
+    
+    tags$p(
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Reconhecimento social do empreendedorismo: "),
+      
+      paste0(
+        conc,
+        "% das participantes concordam que homens são mais levados a sério como empreendedores, indicando a presença de perceções sociais diferenciadas sobre credibilidade empresarial."
+      )
+    )
   })
   
   output$grafico_H_Capazes <- renderPlotly({
@@ -2588,6 +3635,37 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_H_Capazes <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Homens são mais capazes de negociar do que as mulheres."
+    
+    dados <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(percent=round(n/sum(n)*100,1))
+    
+    
+    conc <- dados %>%
+      filter(.data[[var]]=="Concordo") %>%
+      pull(percent)
+    
+    
+    tags$p(
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Perceção sobre negociação: "),
+      
+      paste0(
+        conc,
+        "% acreditam que os homens têm maior capacidade de negociação. ",
+        "O indicador permite analisar diferenças percebidas de confiança e poder de negociação no ambiente empresarial."
+      )
+    )
+  })
+  
+  
   output$grafico_Obrigacoes_Domesticas <- renderPlotly({
     
     df <- Pam_Verde_Indicadores
@@ -2700,6 +3778,36 @@ server <- function(input, output, session) {
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
+  })
+  
+  output$texto_Obrigacoes_Domesticas <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens."
+    
+    dados <- df %>%
+      filter(!is.na(.data[[var]])) %>%
+      count(.data[[var]]) %>%
+      mutate(percent=round(n/sum(n)*100,1))
+    
+    
+    conc <- dados %>%
+      filter(.data[[var]]=="Concordo") %>%
+      pull(percent)
+    
+    
+    tags$p(
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Carga doméstica e participação económica: "),
+      
+      paste0(
+        conc,
+        "% concordam que as responsabilidades domésticas reduzem o tempo disponível das mulheres para o negócio. ",
+        "Este resultado demonstra como normas familiares podem influenciar o desempenho empresarial."
+      )
+    )
   })
   
   output$grafico_M_Gerir <- renderPlotly({
@@ -2816,7 +3924,46 @@ server <- function(input, output, session) {
       )
   })
   
-  
+  output$texto_M_Gerir <- renderUI({
+    
+    df <- dados_filtrados()
+    
+    var <- "Não se espera que as mulheres sejam capazes de gerir um negócio."
+    
+    req(var %in% colnames(df))
+    
+    dados <- df %>%
+      dplyr::filter(
+        !is.na(.data[[var]])
+      ) %>%
+      dplyr::count(.data[[var]]) %>%
+      dplyr::mutate(
+        percent = round(n / sum(n) * 100, 1)
+      )
+    
+    
+    concordo <- dados %>%
+      dplyr::filter(.data[[var]] == "Concordo") %>%
+      dplyr::pull(percent)
+    
+    
+    if(length(concordo) == 0){
+      concordo <- 0
+    }
+    
+    
+    tags$p(
+      style="margin:0;text-align:justify;",
+      
+      tags$b("Perceção sobre a capacidade das mulheres para gerir negócios: "),
+      
+      paste0(
+        concordo,
+        "% das participantes concordam que existe uma perceção social de que as mulheres não são capazes de gerir um negócio. ",
+        "Este indicador permite compreender a influência das normas de género e possíveis barreiras culturais que podem limitar a confiança, autonomia e crescimento das mulheres empreendedoras."
+      )
+    )
+  })
   
   # 
   # ##########################     CONSCIENCIA AMBIENTAL ######################
@@ -2944,6 +4091,94 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_Pegada <- renderUI({
+    
+    # =========================
+    # FILTRO BASE
+    # =========================
+    df <- Pegada_Carbono
+    
+    # Filtro Cidade
+    if (!is.null(input$cidade_pegada) &&
+        input$cidade_pegada != "Todas") {
+      
+      df <- df %>%
+        filter(Cidade == input$cidade_pegada)
+    }
+    
+    
+    # Filtro Ano
+    if (!is.null(input$ano_pegada) &&
+        input$ano_pegada != "Todos") {
+      
+      df <- df %>%
+        filter(Ano_Projeto == as.character(input$ano_pegada))
+    }
+    
+    
+    # Filtro Ciclo
+    if (!is.null(input$ciclo_pegada) &&
+        input$ciclo_pegada != "Todos") {
+      
+      df <- df %>%
+        filter(Ciclo == input$ciclo_pegada)
+    }
+    
+    
+    req(nrow(df) > 0)
+    
+    
+    # =========================
+    # RESUMO
+    # =========================
+    resumo <- df %>%
+      filter(!is.na(Status_Pegada)) %>%
+      count(Status_Pegada) %>%
+      mutate(
+        Percentagem = round(n / sum(n) * 100, 1)
+      )
+    
+    
+    baixa <- resumo %>%
+      filter(Status_Pegada == "PEGADA BAIXA") %>%
+      pull(Percentagem)
+    
+    
+    media <- resumo %>%
+      filter(Status_Pegada == "PEGADA MÉDIA") %>%
+      pull(Percentagem)
+    
+    
+    alta <- resumo %>%
+      filter(Status_Pegada == "PEGADA ALTA") %>%
+      pull(Percentagem)
+    
+    
+    # Evitar erro quando uma categoria não existe
+    baixa <- ifelse(length(baixa)==0,0,baixa)
+    media <- ifelse(length(media)==0,0,media)
+    alta  <- ifelse(length(alta)==0,0,alta)
+    
+    
+    # =========================
+    # TEXTO DINÂMICO
+    # =========================
+    HTML(
+      paste0(
+        "<b>Interpretação da Pegada de Carbono:</b><br><br>",
+        
+        "A distribuição das participantes demonstra que ",
+        "<b>", baixa, "%</b>",
+        " apresentam uma <b>pegada baixa</b>, ",
+        "enquanto <b>", media, "%</b>",
+        " apresentam uma pegada média e <b>",
+        alta,
+        "%</b> apresentam uma pegada elevada.<br><br>"
+        
+      )
+    )
+  })
+  
   
   output$grafico_conhecimento_ambiental <- renderPlotly({
     
@@ -3048,6 +4283,39 @@ server <- function(input, output, session) {
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
+  })
+  output$texto_conhecimento_ambiental <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if(input$filtro_ciclo!="Todos"){
+      df <- df %>% filter(Ciclo==input$filtro_ciclo)
+    }
+    
+    resumo <- df %>%
+      filter(!is.na(Nível_de_conhecimento_ambiental)) %>%
+      count(Nível_de_conhecimento_ambiental) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      )
+    
+    
+    melhor <- resumo %>%
+      filter(
+        Nível_de_conhecimento_ambiental==
+          "Muito bom — compreendo bem e tento manter-me informada"
+      ) %>%
+      pull(Percentagem)
+    
+    
+    HTML(
+      paste0(
+        "<b>Interpretação:</b><br>",
+        melhor,
+        "% das empreendedoras demonstram um nível elevado de conhecimento ambiental, ",
+        "revelando maior consciência sobre problemas ambientais e necessidade de informação."
+      )
+    )
   })
   
   output$grafico_impacto_ambiental_negocio <- renderPlotly({
@@ -3160,6 +4428,45 @@ server <- function(input, output, session) {
       )
   })
   
+  output$texto_impacto_ambiental <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if(input$filtro_ciclo!="Todos"){
+      df <- df %>% filter(Ciclo==input$filtro_ciclo)
+    }
+    
+    
+    resumo <- df %>%
+      filter(!is.na(`Em que medida tem consciência do impacto ambiental do seu negócio?`)) %>%
+      count(`Em que medida tem consciência do impacto ambiental do seu negócio?`) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      )
+    
+    
+    consciente <- resumo %>%
+      filter(
+        grepl(
+          "Bom|Muito bom",
+          `Em que medida tem consciência do impacto ambiental do seu negócio?`
+        )
+      ) %>%
+      summarise(
+        total=sum(Percentagem)
+      ) %>%
+      pull(total)
+    
+    
+    HTML(
+      paste0(
+        "<b>Interpretação:</b><br>",
+        consciente,
+        "% das participantes demonstram consciência sobre o impacto ambiental ",
+        "das suas actividades económicas, indicando reconhecimento da relação entre negócio e ambiente."
+      )
+    )
+  })
   
   output$grafico_praticas_sustentaveis <- renderPlotly({
     
@@ -3266,6 +4573,42 @@ server <- function(input, output, session) {
         plot_bgcolor = "#f5f3f4"
       )
   })
+  
+  output$texto_praticas_sustentaveis <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if(input$filtro_ciclo!="Todos"){
+      df <- df %>% filter(Ciclo==input$filtro_ciclo)
+    }
+    
+    
+    resumo <- df %>%
+      filter(!is.na(`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`)) %>%
+      count(`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`) %>%
+      mutate(
+        Percentagem=round(n/sum(n)*100,1)
+      )
+    
+    
+    sim <- resumo %>%
+      filter(
+        `Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`
+        =="Sim"
+      ) %>%
+      pull(Percentagem)
+    
+    
+    HTML(
+      paste0(
+        "<b>Interpretação:</b><br>",
+        sim,
+        "% conseguem identificar práticas sustentáveis aplicáveis ao negócio, ",
+        "demonstrando potencial para adopção de soluções ambientais nas suas actividades."
+      )
+    )
+  })
+ 
   ########################## MONITORIA DAS SESSÕES PAM VERDE
   
   dados_geral <- reactive({
