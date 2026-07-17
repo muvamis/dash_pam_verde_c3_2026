@@ -856,9 +856,9 @@ ui <- navbarPage(
   # # PÁGINA 3 - MONITORIA_BEIRA_C3
   # # ==========================================================
   # 
-  # tabPanel(
-  #   tagList(icon("clipboard-check"), "Monitoria_Beira_C3"),
-  #   
+  tabPanel(
+    tagList(icon("clipboard-check"), "Monitoria_Beira_C3"),
+
   #   tabsetPanel(
   #     
   #     # ======================================================
@@ -1170,7 +1170,7 @@ ui <- navbarPage(
   #   )
   # )
 # )
-# ),
+),
   
   tabPanel(
     "ADMIN",
