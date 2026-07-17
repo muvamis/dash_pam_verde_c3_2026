@@ -29,7 +29,7 @@ dotenv::load_dot_env()
 
 PAM_VERDE_BASELINE_2026 <- read_excel("PAM_VERDE_2026_Baseline.xlsx")
 
-Pegada_Carbono <- read_excel("PEGADA_CARBONO_Baseline_2026.xlsx")
+Pegada_Carbono <- read_excel("Pegada_Baseline_2026.xlsx")
 
 
 
@@ -76,7 +76,6 @@ table(Pam_Verde_Indicadores$Sector)
 
 
 ############## PEGADA DE CARBONO
-
 
 # =====================================================
 # RENOMEAR VARIÁVEIS
