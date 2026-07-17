@@ -27,9 +27,9 @@ library(lubridate)
 dotenv::load_dot_env()
 
 
-PAM_VERDE_BASELINE_2026 <- read_excel("PAM_VERDE_BASELINE_2026.xlsx")
+PAM_VERDE_BASELINE_2026 <- read_excel("PAM_VERDE_2026_Baseline.xlsx")
 
-Pegada_Carbono <- read_excel("PEGADA_CARBONO_BASELINE_2026.xlsx")
+Pegada_Carbono <- read_excel("PEGADA_CARBONO_Baseline_2026.xlsx")
 
 
 
@@ -69,7 +69,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
           Nível_de_conhecimento_ambiental = `Como classificaria o seu nível de conhecimento sobre questões ambientais em geral? (poluição, catástrofes naturais, falta de recursos, impacto de actividades...)`
    )
 
-table(Pam_Verde_Indicadores$Negociacao_Pessoas_Com_Quem_Trabalha)
+table(Pam_Verde_Indicadores$Sector)
  
 
 
@@ -446,7 +446,12 @@ Presencas_Colectivas <- Presenca_wide %>%
     all_of(sessao_cols_ordenadas)
   )
 
+Presencas_Colectivas <- Presencas_Colectivas %>%
+  filter(Cidade == "Nampula")
 
+
+Presencas_Colectivas_Beira <- Presencas_Colectivas %>%
+  filter(Cidade == "Beira")
 
 #################### WEBINAR
 
