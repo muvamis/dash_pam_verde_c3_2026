@@ -823,7 +823,7 @@ ui <- navbarPage(
                 fluidRow(
                   box(
                     width = 12,
-                    title = "Desempenho Mensal",
+                    title = "",
                     plotlyOutput("grafico_mensal", height = 450)
                   )
                 ),
@@ -856,321 +856,337 @@ ui <- navbarPage(
   # # PÁGINA 3 - MONITORIA_BEIRA_C3
   # # ==========================================================
   # 
+  # ==========================================================
+  # PÁGINA 3 - MONITORIA_BEIRA_C3
+  # ==========================================================
+  
   tabPanel(
     tagList(icon("clipboard-check"), "Monitoria_Beira_C3"),
-
-  #   tabsetPanel(
-  #     
-  #     # ======================================================
-  #     # ABA 1 - RESUMO GERAL
-  #     # ======================================================
-  #     
-  #     tabPanel(
-  #       "Resumo Geral",
-  #       
-  #       sidebarLayout(
-  #         
-  #         sidebarPanel(
-  #           selectInput(
-  #             "filtro_monitoria_geral_beira",
-  #             "Distrito:",
-  #             choices = c(
-  #               "Todos",
-  #               unique(PERFIL_PAM_VERDE_BEIRA_C3_2026$Cidade)
-  #             ),
-  #             selected = "Todos"
-  #           )
-  #         ),
-  #         
-  #         mainPanel(
-  #           
-  #           br(),
-  #           
-  #           tags$h5(
-  #             "Os gráficos abaixo apresentam uma visão geral do projecto na Beira, evidenciando o total de empreendedoras seleccionadas e o seu estado no processo de formação."
-  #           ),
-  #           
-  #           fluidRow(
-  #             column(
-  #               6,
-  #               plotOutput("grafico1_beira")
-  #             ),
-  #             
-  #             column(
-  #               6,
-  #               plotOutput("grafico2_beira")
-  #             )
-  #           )
-  #         )
-  #       )
-  #     ),
-  #     
-  #     
-  #     # ======================================================
-  #     # ABA 2 - PRESENÇAS
-  #     # ======================================================
-  #     
-  #     tabPanel(
-  #       "Presenças",
-  #       
-  #       tabsetPanel(
-  #         
-  #         
-  #         # -----------------------------
-  #         # PRESENÇAS COLECTIVAS
-  #         # -----------------------------
-  #         
-  #         tabPanel(
-  #           "Presenças Colectivas",
-  #           
-  #           sidebarLayout(
-  #             
-  #             sidebarPanel(
-  #               
-  #               selectInput(
-  #                 "filtro_monitoria_presencas_beira",
-  #                 "Selecione Cidade:",
-  #                 choices = c(
-  #                   "Todas",
-  #                   unique(Presencas_Colectivas_Beira$Cidade)
-  #                 ),
-  #                 selected = "Todas"
-  #               ),
-  #               
-  #               selectInput(
-  #                 "mentora_coletiva_beira",
-  #                 "Selecione Pesquisador(a):",
-  #                 choices = c(
-  #                   "Todas",
-  #                   unique(Presencas_Colectivas_Beira$Pesquisadores)
-  #                 ),
-  #                 selected = "Todas"
-  #               )
-  #             ),
-  #             
-  #             
-  #             mainPanel(
-  #               
-  #               div(
-  #                 class = "value-box-container",
-  #                 uiOutput("total_participantes_beira"),
-  #                 uiOutput("total_sessoes_beira"),
-  #                 uiOutput("taxa_presenca_beira")
-  #               ),
-  #               
-  #               br(),
-  #               
-  #               fluidRow(
-  #                 column(
-  #                   12,
-  #                   uiOutput("texto_Pre_Col_beira"),
-  #                   plotlyOutput("grafico_sessoes_col_beira")
-  #                 )
-  #               ),
-  #               
-  #               br(),
-  #               
-  #               DTOutput("tabela_presencas_col_beira")
-  #             )
-  #           )
-  #         ),
-  #         
-  #         
-  #         # -----------------------------
-  #         # WEBINARS
-  #         # -----------------------------
-  #         
-  #         tabPanel(
-  #           "Webinars",
-  #           
-  #           sidebarLayout(
-  #             
-  #             sidebarPanel(
-  #               
-  #               selectInput(
-  #                 "filtro_monitoria_webinar_beira",
-  #                 "Selecione Cidade:",
-  #                 choices = c(
-  #                   "Todas",
-  #                   unique(Webinars_Beira$Cidade)
-  #                 )
-  #               ),
-  #               
-  #               selectInput(
-  #                 "pesquisador_webinar_beira",
-  #                 "Selecione Pesquisador(a):",
-  #                 choices = c(
-  #                   "Todas",
-  #                   unique(Webinars_Beira$Pesquisadores)
-  #                 )
-  #               )
-  #             ),
-  #             
-  #             
-  #             mainPanel(
-  #               
-  #               div(
-  #                 class="value-box-container",
-  #                 uiOutput("total_participantes_web_beira"),
-  #                 uiOutput("total_sessoes_web_beira"),
-  #                 uiOutput("taxa_presenca_web_beira")
-  #               ),
-  #               
-  #               br(),
-  #               
-  #               fluidRow(
-  #                 column(
-  #                   12,
-  #                   uiOutput("texto_webinar_beira"),
-  #                   plotlyOutput("grafico_webinar_beira")
-  #                 )
-  #               ),
-  #               
-  #               br(),
-  #               
-  #               DTOutput("tabela_webinar_beira")
-  #             )
-  #           )
-  #         ),
-  #         
-  #         
-  #         # -----------------------------
-  #         # FEIRAS
-  #         # -----------------------------
-  #         
-  #         tabPanel(
-  #           "Feiras",
-  #           
-  #           sidebarLayout(
-  #             
-  #             sidebarPanel(
-  #               
-  #               selectInput(
-  #                 "filtro_monitoria_feira_beira",
-  #                 "Selecione Cidade:",
-  #                 choices = c(
-  #                   "Todas",
-  #                   unique(Feiras_Beira$Cidade)
-  #                 )
-  #               ),
-  #               
-  #               selectInput(
-  #                 "pesquisador_feira_beira",
-  #                 "Selecione Pesquisador(a):",
-  #                 choices = c(
-  #                   "Todas",
-  #                   unique(Feiras_Beira$Pesquisadores)
-  #                 )
-  #               )
-  #             ),
-  #             
-  #             
-  #             mainPanel(
-  #               
-  #               div(
-  #                 class="value-box-container",
-  #                 uiOutput("total_participantes_feira_beira"),
-  #                 uiOutput("total_sessoes_feira_beira"),
-  #                 uiOutput("taxa_presenca_feira_beira")
-  #               ),
-  #               
-  #               br(),
-  #               
-  #               fluidRow(
-  #                 column(
-  #                   12,
-  #                   uiOutput("texto_feira_beira"),
-  #                   plotlyOutput("grafico_feira_beira")
-  #                 )
-  #               ),
-  #               
-  #               br(),
-  #               
-  #               DTOutput("tabela_feira_beira")
-  #             )
-  #           )
-  #         )
-  #       )
-  #     ),
-  #     
-  #     
-  #     # ======================================================
-  #     # ABA 3 - DADOS FINANCEIROS
-  #     # ======================================================
-  #     
-  #     tabPanel(
-  #       "Dados Financeiros",
-  #       icon = icon("hand-holding-usd"),
-  #       
-  #       sidebarLayout(
-  #         
-  #         sidebarPanel(
-  #           
-  #           selectInput(
-  #             "Pesquisador_beira",
-  #             "Selecione o Pesquisador:",
-  #             choices = c(
-  #               "Todos",
-  #               unique(Financeiro_Report_Agregado_Beira$Nome_do_pesquisador)
-  #             )
-  #           ),
-  #           
-  #           selectInput(
-  #             "Nome_Empreendedora_beira",
-  #             "Selecione a Empreendedora:",
-  #             choices = c(
-  #               "Todas",
-  #               unique(Financeiro_Report_Agregado_Beira$Nome_Empreendedora)
-  #             )
-  #           ),
-  #           
-  #           selectInput(
-  #             "Mes_beira",
-  #             "Selecione o Mês:",
-  #             choices = c(
-  #               "Todos",
-  #               unique(Financeiro_Report_Agregado_Beira$Periodo)
-  #             )
-  #           )
-  #         ),
-  #         
-  #         
-  #         mainPanel(
-  #           
-  #           tabsetPanel(
-  #             
-  #             tabPanel(
-  #               "Resumo",
-  #               
-  #               div(
-  #                 class="value-box-container",
-  #                 uiOutput("vb_emp_beira"),
-  #                 uiOutput("vb_lucro_beira"),
-  #                 uiOutput("vb_rendimento_beira"),
-  #                 uiOutput("vb_custos_beira")
-  #               ),
-  #               
-  #               plotlyOutput("cidade_plot_beira")
-  #             ),
-  #             
-  #             
-  #             tabPanel(
-  #               "Mensal",
-  #               
-  #               plotlyOutput("grafico_mensal_beira"),
-  #               
-  #               br(),
-  #               
-  #               DTOutput("tabela_controle_lucro_beira")
-  #             )
-  #           )
-  #         )
-  #       )
-  #     )
-  #   )
-  # )
-# )
-),
+    
+    tabsetPanel(
+      
+      # ======================================================
+      # ABA 1 - RESUMO GERAL
+      # ======================================================
+      
+      tabPanel(
+        "Resumo Geral",
+        
+        sidebarLayout(
+          
+          sidebarPanel(
+            
+            selectInput(
+              "filtro_monitoria_geral_beira",
+              "Distrito:",
+              choices = c(
+                "Todos",
+                unique(PERFIL_PAM_VERDE_BEIRA_C3_2026$`Provincia de residencia`)
+              ),
+              selected = "Todos"
+            )
+            
+          ),
+          
+          mainPanel(
+            
+            br(),
+            
+            tags$h5(
+              "Os gráficos abaixo apresentam uma visão geral do projecto na Beira, evidenciando o total de empreendedoras seleccionadas e o seu estado no processo de formação."
+            ),
+            
+            fluidRow(
+              column(
+                6,
+                plotOutput("grafico1_beira")
+              ),
+              
+              column(
+                6,
+                plotOutput("grafico2_beira")
+              )
+            )
+            
+          )   
+          
+        )     
+        
+      ),      
+      
+      
+      # ======================================================
+      # ABA 2 - PRESENÇAS
+      # ======================================================
+      
+      tabPanel(
+        
+        "Presenças",
+        
+        tabsetPanel(
+          
+          # -----------------------------
+          # PRESENÇAS COLECTIVAS
+          # -----------------------------
+          
+          tabPanel(
+            
+            "Presenças Colectivas",
+            
+            sidebarLayout(
+              
+              sidebarPanel(
+                
+                selectInput(
+                  "filtro_monitoria_presencas_beira",
+                  "Selecione Cidade:",
+                  choices = c(
+                    "Todas",
+                    unique(Presencas_Colectivas_Beira$Cidade)
+                  ),
+                  selected = "Todas"
+                ),
+                
+                selectInput(
+                  "mentora_coletiva_beira",
+                  "Selecione Pesquisador(a):",
+                  choices = c(
+                    "Todas",
+                    unique(Presencas_Colectivas_Beira$Pesquisadores)
+                  ),
+                  selected = "Todas"
+                )
+                
+              ),
+              
+              mainPanel(
+                
+                div(
+                  class = "value-box-container",
+                  uiOutput("total_participantes_beira"),
+                  uiOutput("total_sessoes_beira"),
+                  uiOutput("taxa_presenca_beira")
+                ),
+                
+                br(),
+                
+                fluidRow(
+                  column(
+                    12,
+                    uiOutput("texto_Pre_Col_beira"),
+                    plotlyOutput("grafico_sessoes_col_beira")
+                  )
+                ),
+                
+                br(),
+                
+                DTOutput("tabela_presencas_col_beira")
+                
+              )
+              
+            )
+            
+          )
+          
+        )
+        
+      )
+#   #         
+#   #         # -----------------------------
+#   #         # WEBINARS
+#   #         # -----------------------------
+#   #         
+#         tabPanel(
+#           "Webinars",
+# 
+#           sidebarLayout(
+# 
+#             sidebarPanel(
+# 
+#               selectInput(
+#                 "filtro_monitoria_webinar_beira",
+#                 "Selecione Cidade:",
+#                 choices = c(
+#                   "Todas",
+#                    unique(Webinars_Beira$Cidade)
+#                 )
+#               ),
+# 
+#               selectInput(
+#                 "pesquisador_webinar_beira",
+#                 "Selecione Pesquisador(a):",
+#                 choices = c(
+#                   "Todas",
+#                    unique(Webinars_Beira$Pesquisadores)
+#                 )
+#               )
+#             ),
+# 
+# 
+#             mainPanel(
+# 
+#               div(
+#                 class="value-box-container",
+#                 uiOutput("total_participantes_web_beira"),
+#                 uiOutput("total_sessoes_web_beira"),
+#                 uiOutput("taxa_presenca_web_beira")
+#               ),
+# 
+#               br(),
+# 
+#               fluidRow(
+#                 column(
+#                   12,
+#                   uiOutput("texto_webinar_beira"),
+#                   plotlyOutput("grafico_webinar_beira")
+#                 )
+#               ),
+# 
+#               br(),
+# 
+#               DTOutput("tabela_webinar_beira")
+#             )
+#           )
+#         ),
+# 
+# 
+#         # -----------------------------
+#         # FEIRAS
+#         # -----------------------------
+# 
+#         tabPanel(
+#           "Feiras",
+# 
+#           sidebarLayout(
+# 
+#             sidebarPanel(
+# 
+#               selectInput(
+#                 "filtro_monitoria_feira_beira",
+#                 "Selecione Cidade:",
+#                 choices = c(
+#                   "Todas",
+#                   unique(Feiras_Beira$Cidade)
+#                 )
+#               ),
+# 
+#               selectInput(
+#                 "pesquisador_feira_beira",
+#                 "Selecione Pesquisador(a):",
+#                 choices = c(
+#                   "Todas",
+#                   unique(Feiras_Beira$Pesquisadores)
+#                 )
+#               )
+#             ),
+# 
+# 
+#             mainPanel(
+# 
+#               div(
+#                 class="value-box-container",
+#                 uiOutput("total_participantes_feira_beira"),
+#                 uiOutput("total_sessoes_feira_beira"),
+#                 uiOutput("taxa_presenca_feira_beira")
+#               ),
+# 
+#               br(),
+# 
+#               fluidRow(
+#                 column(
+#                   12,
+#                   uiOutput("texto_feira_beira"),
+#                   plotlyOutput("grafico_feira_beira")
+#                 )
+#               ),
+# 
+#               br(),
+# 
+#               DTOutput("tabela_feira_beira")
+#             )
+#           )
+#         )
+#       )
+#     ),
+# 
+# 
+#     # ======================================================
+#     # ABA 3 - DADOS FINANCEIROS
+#     # ======================================================
+# 
+#     tabPanel(
+#       "Dados Financeiros",
+#       icon = icon("hand-holding-usd"),
+# 
+#       sidebarLayout(
+# 
+#         sidebarPanel(
+# 
+#           selectInput(
+#             "Pesquisador_beira",
+#             "Selecione o Pesquisador:",
+#             choices = c(
+#               "Todos",
+#               unique(Financeiro_Report_Agregado_Beira$Nome_do_pesquisador)
+#             )
+#           ),
+# 
+#           selectInput(
+#             "Nome_Empreendedora_beira",
+#             "Selecione a Empreendedora:",
+#             choices = c(
+#               "Todas",
+#               unique(Financeiro_Report_Agregado_Beira$Nome_Empreendedora)
+#             )
+#           ),
+# 
+#           selectInput(
+#             "Mes_beira",
+#             "Selecione o Mês:",
+#             choices = c(
+#               "Todos",
+#               unique(Financeiro_Report_Agregado_Beira$Periodo)
+#             )
+#           )
+#         ),
+# 
+# 
+#         mainPanel(
+# 
+#           tabsetPanel(
+# 
+#             tabPanel(
+#               "Resumo",
+# 
+#               div(
+#                 class="value-box-container",
+#                 uiOutput("vb_emp_beira"),
+#                 uiOutput("vb_lucro_beira"),
+#                 uiOutput("vb_rendimento_beira"),
+#                 uiOutput("vb_custos_beira")
+#               ),
+# 
+#               plotlyOutput("cidade_plot_beira")
+#             ),
+# 
+# 
+#             tabPanel(
+#               "Mensal",
+# 
+#               plotlyOutput("grafico_mensal_beira"),
+# 
+#               br(),
+# 
+#               DTOutput("tabela_controle_lucro_beira")
+#             )
+#           )
+#         )
+#       )
+#     )
+#   )
+#  )
+)
+ ),
   
   tabPanel(
     "ADMIN",
@@ -7344,6 +7360,8 @@ server <- function(input, output, session) {
     )
   })
   
+  
+  
   output$vb_aumento_25_semana <- renderUI({
     
     df <- Financeiro_Report_Agregado %>%
@@ -7403,27 +7421,50 @@ server <- function(input, output, session) {
     )
   })
   
+  
+  dados_financeiro_filtrado <- reactive({
+    
+    df <- Financeiro_Report_Agregado
+    
+    if (input$Pesquisador != "Todos") {
+      df <- df %>%
+        filter(Nome_do_pesquisador == input$Pesquisador)
+    }
+    
+    df
+  })
+  
   output$vb_aumento_lucro_mes <- renderUI({
     
-    df <- Financeiro_Report_Agregado %>%
+    df <- dados_financeiro_filtrado() %>%
+      
       group_by(Nome_Empreendedora, Periodo) %>%
       summarise(
         Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
         .groups = "drop"
       ) %>%
+      
       mutate(
         Periodo = factor(
           Periodo,
-          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
         )
       ) %>%
+      
       arrange(Nome_Empreendedora, Periodo) %>%
+      
       group_by(Nome_Empreendedora) %>%
       mutate(
         lucro_anterior = lag(Lucro_Mensal),
         aumento = Lucro_Mensal > lucro_anterior
       ) %>%
+      
       ungroup()
+    
     
     valor <- df %>%
       filter(!is.na(lucro_anterior)) %>%
@@ -7432,44 +7473,64 @@ server <- function(input, output, session) {
         teve_aumento = any(aumento, na.rm = TRUE),
         .groups = "drop"
       ) %>%
-      summarise(total = sum(teve_aumento)) %>%
+      summarise(
+        total = sum(teve_aumento)
+      ) %>%
       pull(total)
+    
     
     div(
       class = "value-box blue",
-      span(class = "value-number", valor),
-      span(class = "value-title", "Participantes com Aumento de Lucro")
+      span(
+        class = "value-number",
+        format(valor, big.mark = ",")
+      ),
+      span(
+        class = "value-title",
+        "Participantes com Aumento de Lucro"
+      )
     )
   })
   
   
   output$vb_aumento_25_mes <- renderUI({
     
-    df <- Financeiro_Report_Agregado %>%
+    df <- dados_financeiro_filtrado() %>%
       
-      # 1. garantir nível mensal (evita problema de semanas)
       group_by(Nome_Empreendedora, Periodo) %>%
       summarise(
         Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
         .groups = "drop"
       ) %>%
       
-      # 2. ordenar meses corretamente
       mutate(
         Periodo = factor(
           Periodo,
-          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
         )
       ) %>%
+      
       arrange(Nome_Empreendedora, Periodo) %>%
       
       group_by(Nome_Empreendedora) %>%
       mutate(
         lucro_anterior = lag(Lucro_Mensal),
-        aumento_pct = (Lucro_Mensal - lucro_anterior) / lucro_anterior * 100,
+        
+        aumento_pct = ifelse(
+          lucro_anterior > 0,
+          (Lucro_Mensal - lucro_anterior) / lucro_anterior * 100,
+          NA
+        ),
+        
         aumento_25 = aumento_pct >= 25
       ) %>%
+      
       ungroup()
+    
     
     valor <- df %>%
       filter(!is.na(aumento_25)) %>%
@@ -7478,13 +7539,22 @@ server <- function(input, output, session) {
         teve_aumento_25 = any(aumento_25, na.rm = TRUE),
         .groups = "drop"
       ) %>%
-      summarise(total = sum(teve_aumento_25)) %>%
+      summarise(
+        total = sum(teve_aumento_25)
+      ) %>%
       pull(total)
+    
     
     div(
       class = "value-box orange",
-      span(class = "value-number", valor),
-      span(class = "value-title", "Participantes com aumento ≥ 25%")
+      span(
+        class = "value-number",
+        format(valor, big.mark = ",")
+      ),
+      span(
+        class = "value-title",
+        "Participantes com aumento ≥ 25%"
+      )
     )
   })
   
@@ -7614,6 +7684,407 @@ server <- function(input, output, session) {
   #     )
   #   )
   # })
+  #################################### MONITORIA BEIRA
+  # ======================================================
+  # DADOS GERAIS - BEIRA C3
+  # ======================================================
+  
+  dados_geral_beira <- reactive({
+    
+    df <- PERFIL_PAM_VERDE_BEIRA_C3_2026
+    
+    if (input$filtro_monitoria_geral_beira != "Todos") {
+      df <- df %>%
+        dplyr::filter(
+          `Provincia de residencia` == input$filtro_monitoria_geral_beira
+        )
+    }
+    
+    df
+    
+  })
+  
+  
+  # ======================================================
+  # GRAFICO 1 - SELECCIONADAS VS INICIARAM FORMAÇÃO
+  # ======================================================
+  
+  output$grafico1_beira <- renderPlot({
+    
+    dados <- dados_geral_beira()
+    
+    total_selecionadas <- nrow(dados)
+    
+    total_iniciaram <- dados %>%
+      dplyr::filter(Status %in% c("Activa", "Desistente")) %>%
+      nrow()
+    
+    
+    grafico_df <- data.frame(
+      Categoria = c(
+        "Selecionadas",
+        "Iniciaram Formação"
+      ),
+      Valor = c(
+        total_selecionadas,
+        total_iniciaram
+      )
+    ) %>%
+      dplyr::mutate(
+        Percentual = Valor / total_selecionadas,
+        Label = paste0(
+          Valor,
+          "\n(",
+          scales::percent(
+            Percentual,
+            accuracy = 1
+          ),
+          ")"
+        )
+      )
+    
+    
+    grafico_df$Categoria <- factor(
+      grafico_df$Categoria,
+      levels = c(
+        "Selecionadas",
+        "Iniciaram Formação"
+      )
+    )
+    
+    
+    ggplot(
+      grafico_df,
+      aes(
+        x = Categoria,
+        y = Valor,
+        fill = Categoria
+      )
+    ) +
+      
+      geom_col(
+        width = 0.6
+      ) +
+      
+      geom_text(
+        aes(label = Label),
+        position = position_stack(vjust = 0.5),
+        color = "white",
+        size = 5
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Selecionadas" = "#ff7f0e",
+          "Iniciaram Formação" = "#8054A2"
+        )
+      ) +
+      
+      labs(
+        title = "Selecionadas vs Início da Formação - Beira",
+        x = NULL,
+        y = "Número de Empreendedoras"
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        plot.title = element_text(
+          size = 14,
+          face = "bold"
+        ),
+        legend.position = "none",
+        panel.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        ),
+        plot.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        )
+      )
+    
+  })
+  
+  
+  # ======================================================
+  # GRAFICO 2 - ACTIVAS VS DESISTENTES
+  # ======================================================
+  
+  output$grafico2_beira <- renderPlot({
+    
+    dados <- dados_geral_beira()
+    
+    
+    total_iniciaram <- dados %>%
+      dplyr::filter(Status %in% c("Activa", "Desistente")) %>%
+      nrow()
+    
+    
+    total_activas <- dados %>%
+      dplyr::filter(Status == "Activa") %>%
+      nrow()
+    
+    
+    total_desistentes <- dados %>%
+      dplyr::filter(Status == "Desistente") %>%
+      nrow()
+    
+    
+    resumo <- data.frame(
+      Categoria = c(
+        "Activas",
+        "Desistentes"
+      ),
+      Valor = c(
+        total_activas,
+        total_desistentes
+      )
+    ) %>%
+      dplyr::mutate(
+        Percentual = ifelse(
+          total_iniciaram > 0,
+          Valor / total_iniciaram,
+          0
+        ),
+        Label = paste0(
+          Valor,
+          "\n(",
+          scales::percent(
+            Percentual,
+            accuracy = 1
+          ),
+          ")"
+        )
+      )
+    
+    
+    resumo$Categoria <- factor(
+      resumo$Categoria,
+      levels = c(
+        "Activas",
+        "Desistentes"
+      )
+    )
+    
+    
+    ggplot(
+      resumo,
+      aes(
+        x = "Iniciaram Formação",
+        y = Valor,
+        fill = Categoria
+      )
+    ) +
+      
+      geom_col(
+        width = 0.5
+      ) +
+      
+      geom_text(
+        aes(label = Label),
+        position = position_stack(vjust = 0.5),
+        color = "white",
+        size = 5
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Activas" = "#8054A2",
+          "Desistentes" = "#69C7BE"
+        )
+      ) +
+      
+      labs(
+        title = "Estado das Empreendedoras que Iniciaram a Formação - Beira",
+        x = NULL,
+        y = "Número de Empreendedoras",
+        fill = "Status"
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        plot.title = element_text(
+          size = 14,
+          face = "bold"
+        ),
+        panel.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        ),
+        plot.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        )
+      )
+    
+  })
+  ########################## PRESENCAS BEIRA
+  dados_filtrados_coletiva_beira <- reactive({
+    
+    df <- Presencas_Colectivas_Beira
+    
+    if (input$filtro_monitoria_presencas_beira != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_monitoria_presencas_beira)
+    }
+    
+    if (input$mentora_coletiva_beira != "Todas") {
+      df <- df %>%
+        filter(Pesquisadores == input$mentora_coletiva_beira)
+    }
+    
+    df
+    
+  })
+  
+  dados_plot_coletivo_beira <- reactive({
+    
+    df <- dados_filtrados_coletiva_beira()
+    previsto <- 39
+    
+    df <- df %>%
+      mutate(
+        across(
+          starts_with("Sessao_"),
+          ~sapply(., function(x) {
+            if (is.null(x)) return(NA)
+            if (is.list(x)) x <- unlist(x)
+            paste0(x, collapse = ", ")
+          })
+        )
+      )
+    
+    df_long <- df %>%
+      pivot_longer(
+        cols = starts_with("Sessao_"),
+        names_to = "Sessoes",
+        values_to = "Presenca"
+      )
+    
+    df_agg <- df_long %>%
+      filter(str_detect(Presenca, "Presente")) %>%
+      group_by(Sessoes) %>%
+      summarise(
+        Count = n(),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Previsto = previsto,
+        Percentual = (Count / Previsto) * 100
+      ) %>%
+      mutate(
+        Sessoes = factor(
+          Sessoes,
+          levels = unique(Sessoes)[order(as.numeric(gsub("Sessao_", "", unique(Sessoes))))]
+        )
+      )
+    
+    df_agg
+    
+  })
+  
+  output$grafico_sessoes_col_beira <- renderPlotly({
+    
+    df_agg <- dados_plot_coletivo_beira()
+    previsto <- df_agg$Previsto[1]
+    
+    limite_y <- max(c(df_agg$Count, previsto)) + 7
+    
+    g <- ggplot(df_agg,
+                aes(x = Sessoes,
+                    y = Count,
+                    fill = Sessoes)) +
+      
+      geom_bar(stat = "identity") +
+      
+      geom_hline(
+        yintercept = previsto,
+        linetype = "dashed",
+        color = "purple",
+        linewidth = 1.2
+      ) +
+      
+      geom_text(
+        aes(
+          label = paste0(
+            Count,
+            "\n(",
+            round(Percentual, 1),
+            "%)"
+          ),
+          text = paste0(
+            "Sessão: ", Sessoes,
+            "<br>Presenças: ", Count,
+            "<br>Percentual: ", round(Percentual, 1), "%"
+          )
+        ),
+        vjust = 1.2,
+        size = 4,
+        fontface = "bold"
+      ) +
+      
+      theme_stata() +
+      scale_y_continuous(limits = c(0, limite_y)) +
+      labs(
+        x = "",
+        y = "Presenças",
+        title = "Presenças por Sessão"
+      )
+    
+    ggplotly(g, tooltip = "text") %>%
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+    
+  })
+  
+  formatar_pontos <- function(x) {
+    
+    ifelse(
+      is.na(x) | x == "",
+      '<span style="color: gray; font-size:40px;">&#9679;</span>',
+      ifelse(
+        x == "Presente",
+        '<span style="color: purple; font-size:40px;">&#9679;</span>',
+        '<span style="color:red; font-size:40px;">&#9679;</span>'
+      )
+    )
+    
+  }
+  
+  output$tabela_presencas_col_beira <- renderDataTable({
+    
+    df <- dados_filtrados_coletiva_beira()
+    
+    col_sessoes <- grep("^Sessao_\\d+$", names(df), value = TRUE)
+    
+    col_sessoes_ordenadas <- col_sessoes[
+      order(as.numeric(gsub("Sessao_", "", col_sessoes)))
+    ]
+    
+    col_fixas <- setdiff(names(df), col_sessoes)
+    
+    df <- df[, c(col_fixas, col_sessoes_ordenadas)]
+    
+    df[col_sessoes_ordenadas] <- lapply(
+      df[col_sessoes_ordenadas],
+      formatar_pontos
+    )
+    
+    datatable(
+      df,
+      escape = FALSE,
+      options = list(
+        pageLength = 10,
+        scrollX = TRUE,
+        autoWidth = TRUE
+      )
+    )
+    
+  })
     
   ########### BOTAO
   # # Painel de atualização de dados (sem login)

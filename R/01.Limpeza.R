@@ -439,17 +439,17 @@ sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
 sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
 
 # Reordenar o dataframe mantendo as colunas fixas no início
-Presencas_Colectivas <- Presenca_wide %>%
+Presencas_Colectiva <- Presenca_wide %>%
   select(
     Cidade,Pesquisadores, ID_MUVA, Nome_Participante,
     all_of(sessao_cols_ordenadas)
   )
 
-Presencas_Colectivas <- Presencas_Colectivas %>%
+Presencas_Colectivas <- Presencas_Colectiva %>%
   filter(Cidade == "Nampula")
 
 
-Presencas_Colectivas_Beira <- Presencas_Colectivas %>%
+Presencas_Colectivas_Beira <- Presencas_Colectiva %>%
   filter(Cidade == "Beira")
 
 #################### WEBINAR
@@ -727,3 +727,8 @@ Financeiro_Report_Agregado <- Financeiro_Report %>%
     .groups = "drop"
   )
 
+############################## BEIRA
+
+PERFIL_PAM_VERDE_BEIRA_C3_2026 <- read_excel("PERFIL_PAM_VERDE_BEIRA_C3_2026.xlsx")
+
+# Presencas_Colectivas_Beira <- read_excel("Presencas_Colectivas_Beira.xlsx")
