@@ -514,11 +514,20 @@ sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
 sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
 
 # Reordenar o dataframe mantendo as colunas fixas no início
-Webinars <- Presenca_wide %>%
+Webinar <- Presenca_wide %>%
   select(
     Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
     all_of(sessao_cols_ordenadas)
   )
+
+Webinars <- Webinar %>%
+  filter(Cidade == "Nampula")
+
+
+Webinars_Beira <- Webinar %>%
+  filter(Cidade == "Beira")
+
+
 
 ############### FEIRAS
 
@@ -540,8 +549,15 @@ Feiras <- Feiras %>%
     Nome_Participante = Nome_Empreendedora.zc_display_value
   )
 
-Feiras <- Feiras %>%
+Feira <- Feiras %>%
   filter(Tipo_Sessao == "Feiras")
+
+Feiras <- Feira %>%
+  filter(Cidade == "Nampula")
+
+
+Feiras_Beira <- Feira %>%
+  filter(Cidade == "Beira")
 
 
 # # Padronização de nomes das sessões
@@ -707,7 +723,7 @@ Financeiro_Report <- Financeiro_Report %>%
 # =========================
 # 8. DATASET FINAL (AGREGADO PARA DASHBOARD)
 # =========================
-Financeiro_Report_Agregado <- Financeiro_Report %>%
+Financeiro_Report_Agr <- Financeiro_Report %>%
   group_by(
     Nome_do_pesquisador,
     Nome_Empreendedora,
@@ -726,6 +742,18 @@ Financeiro_Report_Agregado <- Financeiro_Report %>%
     Custo_Produtos_Total = sum(Custo_de_produtos_Servicos, na.rm = TRUE),
     .groups = "drop"
   )
+
+
+  
+  Financeiro_Report_Agregado <- Financeiro_Report_Agr %>%
+  filter(Cidade == "NAMPULA")
+
+
+  Financeiro_Report_Agregado_Beira <- Financeiro_Report_Agr %>%
+  filter(Cidade == "Beira")
+
+
+
 
 ############################## BEIRA
 
