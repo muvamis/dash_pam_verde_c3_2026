@@ -66,10 +66,11 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
           Negociacao_Com_Agregado_Familiar = `Pessoas do agregado familiar / esfera pessoal (sobre uso de dinheiro do negócio, tempo para trabalhar)`,
           Uso_de_ferramentas_de_IA = `Já utilizou alguma ferramenta de inteligência artificial (ex: ChatGPT, Gemini ou outra) para pesquisar sobre os seus clientes ou obter informações úteis para o negócio?[`,
           Praticou_negociação_nos_últimos_3meses = `Nos últimos 3 meses, teve alguma situação em que podia negociar preços, prazos ou condições com fornecedor ou cliente para beneficiar o seu negócio?`,
-          Nível_de_conhecimento_ambiental = `Como classificaria o seu nível de conhecimento sobre questões ambientais em geral? (poluição, catástrofes naturais, falta de recursos, impacto de actividades...)`
+          Nível_de_conhecimento_ambiental = `Como classificaria o seu nível de conhecimento sobre questões ambientais em geral? (poluição, catástrofes naturais, falta de recursos, impacto de actividades...)`,
+          Onde_vende = `Onde vende actualmente os seus produtos ou serviços?`
    )
 
-table(Pam_Verde_Indicadores$Sector)
+# table(Pam_Verde_Indicadores$`Já aplica esta prática no seu negócio?`)
  
 
 
@@ -362,16 +363,18 @@ PERFIL_PAM_VERDE_C3_2026 <- PERFIL_PAM_VERDE_C3_2026 %>%
          
   )
 
+
+
 ################################## PRESENCAS COLECTIVAS 
 
-Presencas <- read_excel("Presencas_colectivas.xlsx")
+Presenca <- read_excel("Presencas_colectivas.xlsx")
 
 
-Presencas_colectivas <- Presencas[, -c(4,5,9,10,12)]
+Presencas <- Presenca[, -c(5,6,10,11,13)]
 
 
 
-Presencas_colectivas <- Presencas_colectivas %>%
+Presencas <- Presencas %>%
   rename(
     Pesquisadores = Control_Facilitador,
     ID_MUVA = Nome_Empreendedora.ID_Da_Empreendedoras,
@@ -379,10 +382,14 @@ Presencas_colectivas <- Presencas_colectivas %>%
     Tipo_Sessao = Control_Sessao,
     Cidade = Control_Cidade,
     Presença = Presen_a,
-    Nome_Participante = Nome_Empreendedora.zc_display_value
+    Nome_Participante = Nome_Empreendedora.zc_display_value,
+    Status = Nome_Empreendedora.Status
   )
 
-Presencas_colectivas <- Presencas_colectivas %>%
+Presencas <- Presencas %>%
+  filter(Status == "Activa")
+
+Presencas_colectivas <- Presencas %>%
   filter(Tipo_Sessao %in% c("Bootcamp 1", "Bootcamp 2", "Bootcamp 3"))
 
 
@@ -445,6 +452,11 @@ Presencas_Colectiva <- Presenca_wide %>%
     all_of(sessao_cols_ordenadas)
   )
 
+
+
+
+
+
 Presencas_Colectivas <- Presencas_Colectiva %>%
   filter(Cidade == "Nampula")
 
@@ -454,10 +466,10 @@ Presencas_Colectivas_Beira <- Presencas_Colectiva %>%
 
 #################### WEBINAR
 
-Webinars <- Presencas
+Webinars <- Presenca
 
 
-Webinars <- Webinars[, -c(4,5,9,10,12)]
+Webinars <- Webinars[, -c(5,6,10,11,13)]
 
 
 
@@ -469,7 +481,8 @@ Webinars <- Webinars %>%
     Tipo_Sessao = Control_Sessao,
     Cidade = Control_Cidade,
     Presença = Presen_a,
-    Nome_Participante = Nome_Empreendedora.zc_display_value
+    Nome_Participante = Nome_Empreendedora.zc_display_value,
+    Status = Nome_Empreendedora.Status
   )
 
 Webinars <- Webinars %>%
@@ -532,9 +545,9 @@ Webinars_Beira <- Webinar %>%
 ############### FEIRAS
 
 
-Feiras <- Presencas
+Feiras <- Presenca
 
-Feiras <- Feiras[, -c(4,5,9,10,12)]
+Feiras <- Feiras[, -c(5,6,10,11,13)]
 
 
 
@@ -546,7 +559,8 @@ Feiras <- Feiras %>%
     Tipo_Sessao = Control_Sessao,
     Cidade = Control_Cidade,
     Presença = Presen_a,
-    Nome_Participante = Nome_Empreendedora.zc_display_value
+    Nome_Participante = Nome_Empreendedora.zc_display_value,
+    Status = Nome_Empreendedora.Status
   )
 
 Feira <- Feiras %>%
@@ -664,7 +678,7 @@ Financeiro_Report <- read_excel("Financeiro_Report.xlsx")
 # =========================
 # 2. REMOÇÃO DE COLUNAS DESNECESSÁRIAS
 # =========================
-Financeiro_Report <- Financeiro_Report[, -c(7,8,13,14,16,26,27,28,29,34,35)]
+Financeiro_Report <- Financeiro_Report[, -c(7,8,13,15,17,27,28,29,30,35,36)]
 
 # =========================
 # 3. PADRONIZAÇÃO DE NOMES
@@ -675,8 +689,12 @@ Financeiro_Report <- Financeiro_Report %>%
     Nome_Empreendedora = Nome_empreendedoras.name_empreendedora,
     Ano_Projeto = ANO_DO_PROJECTO.Ano_do_projecto,
     Setor_Negocio = Sector_do_negocio1.SECTOR_DO_NEGOCIO,
-    Cidade = CIDADE.CIDADE
+    Cidade = CIDADE.CIDADE,
+    Status = Nome_empreendedoras.Status
   )
+
+Financeiro_Report <- Financeiro_Report %>%
+  filter(Status == "Activa")
 
 # =========================
 # 4. CONVERSÃO NUMÉRICA SEGURA
@@ -760,3 +778,4 @@ Financeiro_Report_Agr <- Financeiro_Report %>%
 PERFIL_PAM_VERDE_BEIRA_C3_2026 <- read_excel("PERFIL_PAM_VERDE_BEIRA_C3_2026.xlsx")
 
 # Presencas_Colectivas_Beira <- read_excel("Presencas_Colectivas_Beira.xlsx")
+

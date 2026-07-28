@@ -261,7 +261,12 @@ ui <- navbarPage(
             
             fluidRow(
               tags$h4(""),
-              column(6, plotlyOutput("tira")),
+              column(6,
+                     div(
+                       style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                       uiOutput("texto_local_venda")
+                     ),
+                     plotlyOutput("grafico_local_venda")),
               tags$h4(""),
               column(6, plotlyOutput("grafico_salario"))
             )
@@ -505,7 +510,6 @@ ui <- navbarPage(
             ),
             
             br(),
-            
             fluidRow(
               column(
                 6,
@@ -516,6 +520,25 @@ ui <- navbarPage(
                 plotlyOutput("grafico_praticas_sustentaveis")
               ),
               
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
+                  uiOutput("texto_aplica_praticas")
+                ),
+                plotlyOutput("grafico_aplica_praticas")
+              )
+            ),
+            fluidRow(
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
+                  uiOutput("texto_praticas_sustentaveis_")
+                ),
+                plotlyOutput("grafico_praticas_sustentaveis__")
+              ),
+
               column(
                 6,
                 div(
@@ -4434,132 +4457,405 @@ server <- function(input, output, session) {
   })
   
   
-  output$grafico_canais <- renderPlotly({
+  # ============================================================
+  # Dados filtrados para Local de Venda
+  # ============================================================
+  # ============================================================
+  # Dados filtrados
+  # ============================================================
+  
+  dados_local_venda <- reactive({
     
-    df <- dados_filtrados()
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Onde vende actualmente os seus produtos ou serviços?"
-    ) %in% colnames(df)))
-    
-    req(nrow(df) > 0)
+    dados <- Pam_Verde_Indicadores
     
     
-    df_resumo <- df %>%
+    # Filtro Cidade
+    if(input$filtro_cidade != "Todas"){
+      
+      dados <- dados %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+      
+    }
+    
+    
+    # Filtro Ciclo
+    if(input$filtro_ciclo != "Todos"){
+      
+      dados <- dados %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+      
+    }
+    
+    
+    # Filtro Tipo Avaliação
+    if(input$filtro_tipo_avaliacao != "Todos"){
+      
+      dados <- dados %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+      
+    }
+    
+    
+    dados
+    
+  })
+  
+  
+  
+  # ============================================================
+  # Função para encurtar nomes dos canais
+  # ============================================================
+  
+  padronizar_canais <- function(x){
+    
+    case_when(
+      
+      x == "Loja ou banca própria (física)" ~ 
+        "Loja/banca própria",
+      
+      x == "Venda em casa (clientes que vêm a casa)" ~
+        "Venda em casa",
+      
+      x == "Mercado ou feira" ~
+        "Mercado/feira",
+      
+      x == "Na loja ou banca de outra pessoa (consignação ou parceria)" ~
+        "Consignação/parceria",
+      
+      x == "Entrega ao domicílio (delivery)" ~
+        "Delivery",
+      
+      x == "WhatsApp / WhatsApp Business" ~
+        "WhatsApp",
+      
+      x == "Outro website ou plataforma online" ~
+        "Website/plataforma",
+      
+      TRUE ~ x
+      
+    )
+    
+  }
+  
+  
+  
+  # ============================================================
+  # Cores manuais
+  # ============================================================
+  
+  cores_local_venda <- c(
+    
+    "WhatsApp" = "#9442d4",
+    
+    "Mercado/feira" = "#F37238",
+    
+    "Delivery" = "#F39C12",
+    
+    "Loja/banca própria" = "#69C7BE",
+    
+    "Facebook" = "#1877F2",
+    
+    "Instagram" = "#007793",
+    
+    "Venda em casa" = "#b8c0ff",
+    
+    "Consignação/parceria" = "#f15bb5",
+    
+    "Website/plataforma" = "#70d6ff",
+    
+    "Outros" = "#757575"
+    
+  )
+  
+  
+  
+  # ============================================================
+  # Texto resumo + Top 5
+  # ============================================================
+  
+  output$texto_local_venda <- renderUI({
+    
+    dados <- dados_local_venda()
+    
+    
+    total <- nrow(dados)
+    
+    
+    top5 <- dados %>%
+      
       filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Onde vende actualmente os seus produtos ou serviços?`)
+        !is.na(Onde_vende),
+        Onde_vende != ""
       ) %>%
       
       separate_rows(
-        `Onde vende actualmente os seus produtos ou serviços?`,
+        Onde_vende,
         sep = ","
       ) %>%
       
       mutate(
-        Canal = stringr::str_trim(
-          `Onde vende actualmente os seus produtos ou serviços?`
-        )
+        
+        Onde_vende = trimws(Onde_vende),
+        
+        Onde_vende = padronizar_canais(Onde_vende)
+        
       ) %>%
       
-      group_by(
-        Tipo_Avaliacao,
-        Canal
+      count(
+        Onde_vende,
+        name = "Total"
       ) %>%
       
-      summarise(
-        Total = n(),
-        .groups = "drop"
+      arrange(
+        desc(Total)
       ) %>%
       
-      group_by(Tipo_Avaliacao) %>%
+      slice_head(
+        n = 5
+      )
+    
+    
+    lista_top5 <- paste0(
       
-      mutate(
-        Percent = round(Total / sum(Total) * 100,1)
-      ) %>%
+      top5$Onde_vende,
       
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # Ordem menor para maior
-    ordem_canais <- df_resumo %>%
-      group_by(Canal) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(Canal)
-    
-    
-    df_resumo$Canal <- factor(
-      df_resumo$Canal,
-      levels = ordem_canais
+      " (",
+      
+      top5$Total,
+      
+      ")"
+      
     )
     
     
+    div(
+      
+      HTML(
+        
+        paste0(
+          
+          "<b>Locais de venda dos produtos ou serviços</b><br>",
+          
+          "Total de empreendedoras analisadas: <b>",
+          total,
+          "</b><br><br>",
+          
+          "<b>Top 5 canais mais utilizados:</b><br>",
+          
+          paste(
+            lista_top5,
+            collapse = " | "
+          )
+          
+        )
+        
+      )
+      
+    )
+    
+    
+  })
+  
+  
+  
+  # ============================================================
+  # Gráfico Local de Venda
+  # ============================================================
+  
+  output$grafico_local_venda <- renderPlotly({
+    
+    
+    dados <- dados_local_venda()
+    
+    
+    
+    dados_grafico <- dados %>%
+      
+      filter(
+        
+        !is.na(Onde_vende),
+        
+        Onde_vende != ""
+        
+      ) %>%
+      
+      
+      separate_rows(
+        
+        Onde_vende,
+        
+        sep = ","
+        
+      ) %>%
+      
+      
+      mutate(
+        
+        Onde_vende = trimws(Onde_vende),
+        
+        Onde_vende = padronizar_canais(Onde_vende)
+        
+      ) %>%
+      
+      
+      count(
+        
+        Onde_vende,
+        
+        name = "Total"
+        
+      ) %>%
+      
+      
+      arrange(
+        
+        Total
+        
+      )
+    
+    
+    
+    # ============================================================
+    # Aplicar cores
+    # ============================================================
+    
+    dados_grafico <- dados_grafico %>%
+      
+      mutate(
+        
+        Cor = cores_local_venda[Onde_vende]
+        
+      )
+    
+    
+    # Cor padrão para categorias sem definição
+    
+    dados_grafico$Cor[
+      is.na(dados_grafico$Cor)
+    ] <- "#034EA2"
+    
+    
+    
+    # ============================================================
+    # Plotly
+    # ============================================================
     
     plot_ly(
-      data = df_resumo,
       
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
+      data = dados_grafico,
       
-      color = ~Canal,
+      x = ~Total,
+      
+      y = ~reorder(Onde_vende, Total),
       
       type = "bar",
       
-      text = ~paste0(Percent,"%"),
-      texttemplate = "%{text}",
+      orientation = "h",
+      
+      text = ~Total,
+      
       textposition = "inside",
       
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        
+        color = "white",
+        
+        size = 13,
+        
+        family = "Arial"
+        
+      ),
+      
+      marker = list(
+        
+        color = ~Cor
+        
+      ),
+      
       hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
+        
+        "<b>%{y}</b>",
+        
+        "<br>Número de empreendedoras: %{x}",
+        
+        "<extra></extra>"
+        
       )
       
     ) %>%
       
+      
       layout(
         
-        barmode = "stack",
+        title = "",
+        
+        paper_bgcolor = "#f5f3f4",
+        
+        plot_bgcolor = "#f5f3f4",
         
         xaxis = list(
-          title = ""
+          
+          title = "Número de empreendedoras"
+          
         ),
         
         yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.35
+          
+          title = "",
+          
+          automargin = TRUE
+          
         ),
         
         margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 150
-        ),
+          
+          l = 220,
+          
+          r = 40,
+          
+          t = 30,
+          
+          b = 50
+          
+        )
         
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+      ) %>%
+      
+      
+      config(
+        
+        displayModeBar = TRUE,
+        
+        displaylogo = FALSE,
+        
+        responsive = TRUE,
+        
+        scrollZoom = TRUE,
+        
+        toImageButtonOptions = list(
+          
+          format = "png",
+          
+          filename = "canais_de_venda",
+          
+          height = 800,
+          
+          width = 1400,
+          
+          scale = 3
+          
+        )
+        
       )
+    
     
   })
 #################################### CONSCIENCIA DE GENERO
@@ -6406,6 +6702,277 @@ server <- function(input, output, session) {
       )
     )
   })
+  
+  
+  # =====================================================
+  # GRÁFICO - Aplicação de práticas sustentáveis
+  # =====================================================
+  
+  output$grafico_aplica_praticas <- renderPlotly({
+    
+    
+    # =========================
+    # BASE COM FILTROS
+    # =========================
+    
+    df <- dados_filtrados()
+    
+    req(nrow(df) > 0)
+    
+    
+    # =========================
+    # LIMPEZA
+    # =========================
+    
+    df <- df %>%
+      dplyr::filter(
+        !is.na(`Já aplica esta prática no seu negócio?`),
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    
+    req(nrow(df) > 0)
+    
+    
+    # =========================
+    # FREQUÊNCIA E PERCENTAGEM
+    # =========================
+    
+    freq_data <- df %>%
+      
+      dplyr::group_by(
+        Tipo_Avaliacao,
+        `Já aplica esta prática no seu negócio?`
+      ) %>%
+      
+      dplyr::summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      
+      dplyr::group_by(
+        Tipo_Avaliacao
+      ) %>%
+      
+      dplyr::mutate(
+        pct = round(n / sum(n) * 100,1)
+      ) %>%
+      
+      dplyr::ungroup()
+    
+    
+    
+    # =========================
+    # ORDEM DAS CATEGORIAS
+    # =========================
+    
+    freq_data$`Já aplica esta prática no seu negócio?` <- factor(
+      
+      freq_data$`Já aplica esta prática no seu negócio?`,
+      
+      levels = c(
+        "Ainda não, mas planejo aplicar em breve",
+        "Já tentei mas encontrei obstáculos",
+        "Sim, já aplico"
+      )
+      
+    )
+    
+    
+    
+    # =========================
+    # CORES MANUAIS
+    # =========================
+    
+    cores <- c(
+      
+      "Ainda não, mas planejo aplicar em breve" = "#69C7BE",
+      
+      "Já tentei mas encontrei obstáculos" = "#F9A825",
+      
+      "Sim, já aplico" = "#8054A2"
+      
+    )
+    
+    
+    
+    # =========================
+    # GRÁFICO
+    # =========================
+    
+    plot_ly(
+      
+      data = freq_data,
+      
+      x = ~Tipo_Avaliacao,
+      
+      y = ~pct,
+      
+      color = ~`Já aplica esta prática no seu negócio?`,
+      
+      colors = cores,
+      
+      type = "bar",
+      
+      text = ~paste0(pct,"%"),
+      
+      textposition = "inside",
+      
+      insidetextanchor = "middle",
+      
+      hovertemplate = paste(
+        
+        "<b>%{x}</b><br>",
+        
+        "%{fullData.name}<br>",
+        
+        "Percentagem: %{y:.1f}%<extra></extra>"
+        
+      ),
+      
+      textfont = list(
+        color = "#FFFFFF",
+        size = 12
+      )
+      
+    ) %>%
+      
+      layout(
+        
+        title = "",
+        
+        barmode = "stack",
+        
+        uniformtext = list(
+          mode = "show",
+          minsize = 10
+        ),
+        
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0,100),
+          ticksuffix = "%"
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 20,
+          b = 120
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        
+        plot_bgcolor = "#f5f3f4"
+        
+      )
+    
+  })
+  
+  
+  
+  
+  # =====================================================
+  # TEXTO INTERPRETATIVO
+  # =====================================================
+  
+  output$texto_aplica_praticas <- renderUI({
+    
+    
+    df <- dados_filtrados()
+    
+    req(nrow(df) > 0)
+    
+    
+    resumo <- df %>%
+      
+      filter(
+        !is.na(`Já aplica esta prática no seu negócio?`)
+      ) %>%
+      
+      count(
+        `Já aplica esta prática no seu negócio?`
+      ) %>%
+      
+      mutate(
+        Percentagem = round(n / sum(n) * 100,1)
+      )
+    
+    
+    
+    aplica <- resumo %>%
+      
+      filter(
+        `Já aplica esta prática no seu negócio?`
+        == "Sim, já aplico"
+      ) %>%
+      
+      pull(Percentagem)
+    
+    
+    aplica <- ifelse(
+      length(aplica)==0,
+      0,
+      aplica
+    )
+    
+    
+    
+    nao_aplica <- resumo %>%
+      
+      filter(
+        `Já aplica esta prática no seu negócio?`
+        == "Ainda não, mas planejo aplicar em breve"
+      ) %>%
+      
+      pull(Percentagem)
+    
+    
+    nao_aplica <- ifelse(
+      length(nao_aplica)==0,
+      0,
+      nao_aplica
+    )
+    
+    
+    
+    HTML(
+      
+      paste0(
+        
+        "<b>Aplicação de práticas sustentáveis no negócio:</b><br><br>",
+        
+        "<b>", aplica, "%</b> dos participantes já aplicam ",
+        "práticas sustentáveis nos seus negócios. ",
+        
+        "<br><br>",
+        
+        "<b>", nao_aplica, "%</b> ainda não aplicam, ",
+        "mas demonstram intenção de implementar futuramente."
+        
+      )
+      
+    )
+    
+  })
+  
+  
+  
+  
+  
+  
   ########################## MONITORIA DAS SESSÕES PAM VERDE
   
   dados_geral <- reactive({
