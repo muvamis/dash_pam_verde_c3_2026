@@ -650,8 +650,325 @@ ui <- navbarPage(
         
         plotlyOutput("grafico_resultado_exercicio_4")
       )
+    ),
+    br(),
+    br(),
+   
+    # =========================================================
+    # CENÁRIO 2
+    # =========================================================
+    
+    fluidRow(
+      column(
+        12,
+        
+        div(
+          style = "background-color:#eef4fb;
+                 border-left:5px solid #8054A2;
+                 padding:15px;
+                 border-radius:6px;
+                 margin-bottom:15px;",
+          
+          tags$h4(
+            style = "margin-top:0; color:#8054A2;",
+            "Cenário 2 – Planeamento de Vendas e Relacionamento com Clientes (iPAM_RI.2.5)"
+          ),
+          
+          tags$h5(
+            style = "color:#8054A2;",
+            "CENÁRIO — O seu próprio negócio"
+          ),
+          
+          tags$p(
+            "Agora vamos fazer um exercício usando o seu próprio negócio. ",
+            "Pense no principal produto ou serviço que vende. Responda às perguntas ",
+            "com base na sua realidade."
+          ),
+          
+          tags$p(
+            "Em alguns períodos, o negócio pode ter mais movimento e, noutros, menos. ",
+            "Às vezes pode ser difícil planear vendas, preparar produto suficiente ",
+            "ou lidar com clientes insatisfeitos."
+          )
+        )
+      )
+    ),
+    
+    br(),
+    br(),
+    # =========================================================
+    # EXERCÍCIOS DO CENÁRIO 2
+    # =========================================================
+    
+    fluidRow(
+      
+      column(
+        6,
+        
+        div(
+          style = "background-color:#f5f3f4;
+                 padding:12px;
+                 border-left:5px solid #8054A2;
+                 border-radius:6px;
+                 margin-bottom:10px;",
+          
+          uiOutput("texto_resultado_exercicio_5")
+        ),
+        
+        plotlyOutput(
+          "grafico_resultado_exercicio_5",
+          height = "450px"
+        )
+      ),
+      
+      column(
+        6,
+        
+        div(
+          style = "background-color:#f5f3f4;
+                 padding:12px;
+                 border-left:5px solid #8054A2;
+                 border-radius:6px;
+                 margin-bottom:10px;",
+          
+          uiOutput("texto_resultado_exercicio_6")
+        ),
+        
+        plotlyOutput(
+          "grafico_resultado_exercicio_6",
+          height = "450px"
+        )
+      )
+    ),
+    
+    br(),  
+    br(),
+    
+    fluidRow(
+      
+      column(
+        6,
+        
+        div(
+          style = "background-color:#f5f3f4;
+                 padding:12px;
+                 border-left:5px solid #8054A2;
+                 border-radius:6px;
+                 margin-bottom:10px;",
+          
+          uiOutput("texto_resultado_exercicio_7")
+        ),
+        
+        plotlyOutput(
+          "grafico_resultado_exercicio_7",
+          height = "450px"
+        )
+      ),
+      
+      column(
+        6,
+        
+        div(
+          style = "background-color:#f5f3f4;
+                 padding:12px;
+                 border-left:5px solid #8054A2;
+                 border-radius:6px;
+                 margin-bottom:10px;",
+          
+          uiOutput("texto_resultado_exercicio_8")
+        ),
+        
+        plotlyOutput(
+          "grafico_resultado_exercicio_8",
+          height = "450px"
+        )
+      )
+    )
+  ),
+  
+  br(),  
+  br(),
+  # =========================================================
+  # CENÁRIO 3 – SITUAÇÃO DE ROLEPLAY
+  # =========================================================
+  
+  fluidRow(
+    column(
+      12,
+      
+      div(
+        style = "background-color:#eef4fb;
+           border-left:5px solid #8054A2;
+           padding:15px;
+           border-radius:6px;
+           margin-top:20px;
+           margin-bottom:15px;",
+        
+        tags$h4(
+          style = "margin-top:0; color:#8054A2;",
+          "Cenário 3 – Situação de Roleplay"
+        ),
+        
+        tags$h5(
+          style = "color:#8054A2;",
+          "Diga à participante:"
+        ),
+        
+        tags$p(
+          tags$em(
+            "'Vou fazer o papel do seu fornecedor principal. ",
+            "Imagine que está a fazer a sua encomenda habitual. ",
+            "Aja como faria numa situação real.'"
+          )
+        ),
+        
+        tags$h5(
+          style = "color:#8054A2;",
+          "Frase de abertura da inquiridora (como fornecedor):"
+        ),
+        
+        tags$p(
+          tags$em(
+            "'Olá. Antes de começarmos, preciso de lhe dizer que os preços subiram. ",
+            "A partir de hoje o preço por unidade vai aumentar 50%. ",
+            "Já avisei todos os meus clientes — é assim para toda a gente.'"
+          )
+        )
+      )
+    )
+  ),
+  
+  br(),    
+  br(),
+  
+  # =========================================================
+  # EXERCÍCIO 9
+  # =========================================================
+  
+  fluidRow(
+    
+    column(
+      6,
+      
+      div(
+        style = "background-color:#f5f3f4;
+           padding:12px;
+           border-left:5px solid #8054A2;
+           border-radius:6px;
+           margin-bottom:10px;",
+        
+        uiOutput("texto_resultado_exercicio_9")
+      ),
+      
+      plotlyOutput(
+        "grafico_resultado_exercicio_9",
+        height = "450px"
+      )
+    ),
+    
+    # =========================================================
+    # EXERCÍCIO 10
+    # =========================================================
+    
+    column(
+      6,
+      
+      div(
+        style = "background-color:#f5f3f4;
+           padding:12px;
+           border-left:5px solid #8054A2;
+           border-radius:6px;
+           margin-bottom:10px;",
+        
+        uiOutput("texto_resultado_exercicio_10")
+      ),
+      
+      plotlyOutput(
+        "grafico_resultado_exercicio_10",
+        height = "450px"
+      )
+    )
+  ),
+  
+  br(),
+  
+  # =========================================================
+  # EXERCÍCIO 11
+  # =========================================================
+  
+  fluidRow(
+    
+    column(
+      6,
+      
+      div(
+        style = "background-color:#f5f3f4;
+           padding:12px;
+           border-left:5px solid #8054A2;
+           border-radius:6px;
+           margin-bottom:10px;",
+        
+        uiOutput("texto_resultado_exercicio_11")
+      ),
+      
+      plotlyOutput(
+        "grafico_resultado_exercicio_11",
+        height = "450px"
+      )
+    ),
+    
+    # =========================================================
+    # EXERCÍCIO 12
+    # =========================================================
+    
+    column(
+      6,
+      
+      div(
+        style = "background-color:#f5f3f4;
+           padding:12px;
+           border-left:5px solid #8054A2;
+           border-radius:6px;
+           margin-bottom:10px;",
+        
+        uiOutput("texto_resultado_exercicio_12")
+      ),
+      
+      plotlyOutput(
+        "grafico_resultado_exercicio_12",
+        height = "450px"
+      )
+    )
+  ),
+  
+  br(),
+  
+  # =========================================================
+  # EXERCÍCIO 13
+  # =========================================================
+  
+  fluidRow(
+    
+    column(
+      6,
+      
+      div(
+        style = "background-color:#f5f3f4;
+           padding:12px;
+           border-left:5px solid #8054A2;
+           border-radius:6px;
+           margin-bottom:10px;",
+        
+        uiOutput("texto_resultado_exercicio_13")
+      ),
+      
+      plotlyOutput(
+        "grafico_resultado_exercicio_13",
+        height = "450px"
+      )
     )
   )
+        
         )
       )
     )
@@ -7786,6 +8103,1645 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
   )
 })
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 5
+  # A1 – Cálculo de lucro
+  # ============================================================
+  
+  dados_exercicio_5 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`A1 — Cálculo de lucro`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `A1 — Cálculo de lucro`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 5
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_5 <- renderPlotly({
+    
+    df <- dados_exercicio_5()
+    
+    # Ordem das categorias
+    ordem <- c(
+      "0.Ausente ou fora do tema",
+      "1.Vago ou parcial",
+      "2.Demonstra claramente"
+    )
+    
+    df$`A1 — Cálculo de lucro` <- factor(
+      df$`A1 — Cálculo de lucro`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `A1 — Cálculo de lucro`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(
+          vjust = 0.5
+        ),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "0.Ausente ou fora do tema" = "#69C7BE",
+          "1.Vago ou parcial" = "#f9a825",
+          "2.Demonstra claramente" = "#8054A2"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c(
+        "x",
+        "fill",
+        "y"
+      )
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 5
+  # ============================================================
+  
+  output$texto_resultado_exercicio_5 <- renderUI({
+    
+    texto <- dados_exercicio_5() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `A1 — Cálculo de lucro`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$`2.Demonstra claramente`,
+        "%</b> dos participantes demonstraram claramente a capacidade de calcular o lucro, ",
+        
+        "<b>",
+        baseline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        
+        "<b>",
+        baseline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$`2.Demonstra claramente`,
+        "%</b> demonstraram claramente a capacidade de calcular o lucro, ",
+        
+        "<b>",
+        endline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        
+        "<b>",
+        endline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema."
+      )
+    )
+  })
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 6
+  # A2 – META DE VENDAS
+  # ============================================================
+  
+  dados_exercicio_6 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`A2 — Meta de vendas`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `A2 — Meta de vendas`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 6
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_6 <- renderPlotly({
+    
+    df <- dados_exercicio_6()
+    
+    ordem <- c(
+      "0.Ausente ou fora do tema",
+      "1.Vago ou parcial",
+      "2.Demonstra claramente"
+    )
+    
+    df$`A2 — Meta de vendas` <- factor(
+      df$`A2 — Meta de vendas`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `A2 — Meta de vendas`
+      )
+    ) +
+      
+      geom_col(width = 0.65) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "0.Ausente ou fora do tema" = "#69C7BE",
+          "1.Vago ou parcial" = "#f9a825",
+          "2.Demonstra claramente" = "#8054A2"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(mult = c(0, 0.02))
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 6
+  # ============================================================
+  
+  output$texto_resultado_exercicio_6 <- renderUI({
+    
+    texto <- dados_exercicio_6() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `A2 — Meta de vendas`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        "No <b>Baseline</b>, <b>",
+        baseline$`2.Demonstra claramente`,
+        "%</b> dos participantes demonstraram claramente capacidade de definir uma meta de vendas, ",
+        "<b>",
+        baseline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        "<b>",
+        baseline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$`2.Demonstra claramente`,
+        "%</b> demonstraram claramente capacidade de definir uma meta de vendas, ",
+        "<b>",
+        endline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        "<b>",
+        endline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema."
+      )
+    )
+  })
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 7
+  # A3 – PREPARAÇÃO PARA PICO
+  # ============================================================
+  
+  dados_exercicio_7 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`A3 — Preparação para pico`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `A3 — Preparação para pico`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 7
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_7 <- renderPlotly({
+    
+    df <- dados_exercicio_7()
+    
+    ordem <- c(
+      "0.Ausente ou fora do tema",
+      "1.Vago ou parcial",
+      "2.Demonstra claramente"
+    )
+    
+    df$`A3 — Preparação para pico` <- factor(
+      df$`A3 — Preparação para pico`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `A3 — Preparação para pico`
+      )
+    ) +
+      
+      geom_col(width = 0.65) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "0.Ausente ou fora do tema" = "#69C7BE",
+          "1.Vago ou parcial" = "#f9a825",
+          "2.Demonstra claramente" = "#8054A2"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(mult = c(0, 0.02))
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 7
+  # ============================================================
+  
+  output$texto_resultado_exercicio_7 <- renderUI({
+    
+    texto <- dados_exercicio_7() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `A3 — Preparação para pico`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        "No <b>Baseline</b>, <b>",
+        baseline$`2.Demonstra claramente`,
+        "%</b> dos participantes demonstraram claramente capacidade de preparação para períodos de maior movimento, ",
+        "<b>",
+        baseline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        "<b>",
+        baseline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$`2.Demonstra claramente`,
+        "%</b> demonstraram claramente capacidade de preparação para períodos de maior movimento, ",
+        "<b>",
+        endline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        "<b>",
+        endline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema."
+      )
+    )
+  })
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 8
+  # A4 – ACOMPANHAMENTO
+  # ============================================================
+  
+  dados_exercicio_8 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`A4 — Acompanhamento`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `A4 — Acompanhamento`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 8
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_8 <- renderPlotly({
+    
+    df <- dados_exercicio_8()
+    
+    ordem <- c(
+      "0.Ausente ou fora do tema",
+      "1.Vago ou parcial",
+      "2.Demonstra claramente"
+    )
+    
+    df$`A4 — Acompanhamento` <- factor(
+      df$`A4 — Acompanhamento`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `A4 — Acompanhamento`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "0.Ausente ou fora do tema" = "#69C7BE",
+          "1.Vago ou parcial" = "#f9a825",
+          "2.Demonstra claramente" = "#8054A2"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  # ============================================================
+  # TEXTO – EXERCÍCIO 8
+  # ============================================================
+  
+  output$texto_resultado_exercicio_8 <- renderUI({
+    
+    texto <- dados_exercicio_8() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `A4 — Acompanhamento`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$`2.Demonstra claramente`,
+        "%</b> dos participantes demonstraram claramente uma forma de acompanhar as suas vendas, ",
+        
+        "<b>",
+        baseline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        
+        "<b>",
+        baseline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$`2.Demonstra claramente`,
+        "%</b> demonstraram claramente uma forma de acompanhar as suas vendas, ",
+        
+        "<b>",
+        endline$`1.Vago ou parcial`,
+        "%</b> apresentaram uma resposta vaga ou parcial e ",
+        
+        "<b>",
+        endline$`0.Ausente ou fora do tema`,
+        "%</b> apresentaram uma resposta ausente ou fora do tema."
+      )
+    )
+  })
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 9
+  # N1 – PERGUNTOU O MOTIVO DO AUMENTO
+  # ============================================================
+  
+  dados_exercicio_9 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`N1 — Perguntou o motivo do aumento (não aceitou sem questionar)`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `N1 — Perguntou o motivo do aumento (não aceitou sem questionar)`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 9
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_9 <- renderPlotly({
+    
+    df <- dados_exercicio_9()
+    
+    ordem <- c(
+      "Não",
+      "Sim"
+    )
+    
+    df$`N1 — Perguntou o motivo do aumento (não aceitou sem questionar)` <- factor(
+      df$`N1 — Perguntou o motivo do aumento (não aceitou sem questionar)`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `N1 — Perguntou o motivo do aumento (não aceitou sem questionar)`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Sim" = "#8054A2",
+          "Não" = "#69C7BE"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c(
+        "x",
+        "fill",
+        "y"
+      )
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  # ============================================================
+  # TEXTO – EXERCÍCIO 9
+  # ============================================================
+  
+  output$texto_resultado_exercicio_9 <- renderUI({
+    
+    texto <- dados_exercicio_9() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `N1 — Perguntou o motivo do aumento (não aceitou sem questionar)`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$Sim,
+        "%</b> dos participantes perguntaram o motivo do aumento de preço, ",
+        
+        "enquanto <b>",
+        baseline$Não,
+        "%</b> não questionaram o aumento. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$Sim,
+        "%</b> perguntaram o motivo do aumento de preço, ",
+        
+        "enquanto <b>",
+        endline$Não,
+        "%</b> não questionaram o aumento."
+      )
+    )
+  })
+  
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 10
+  # N2 – PROPÔS UMA ALTERNATIVA CONCRETA
+  # ============================================================
+  
+  dados_exercicio_10 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`N2 — Propôs uma alternativa concreta (ex: pagamento à vista, maior quantidade, encomenda antecipada)`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `N2 — Propôs uma alternativa concreta (ex: pagamento à vista, maior quantidade, encomenda antecipada)`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 10
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_10 <- renderPlotly({
+    
+    df <- dados_exercicio_10()
+    
+    ordem <- c(
+      "Não",
+      "Sim"
+    )
+    
+    df$`N2 — Propôs uma alternativa concreta (ex: pagamento à vista, maior quantidade, encomenda antecipada)` <- factor(
+      df$`N2 — Propôs uma alternativa concreta (ex: pagamento à vista, maior quantidade, encomenda antecipada)`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `N2 — Propôs uma alternativa concreta (ex: pagamento à vista, maior quantidade, encomenda antecipada)`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Sim" = "#8054A2",
+          "Não" = "#69C7BE"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 10
+  # ============================================================
+  
+  output$texto_resultado_exercicio_10 <- renderUI({
+    
+    texto <- dados_exercicio_10() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `N2 — Propôs uma alternativa concreta (ex: pagamento à vista, maior quantidade, encomenda antecipada)`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$Sim,
+        "%</b> dos participantes propuseram uma alternativa concreta ao fornecedor, ",
+        
+        "enquanto <b>",
+        baseline$Não,
+        "%</b> não apresentaram uma alternativa. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$Sim,
+        "%</b> propuseram uma alternativa concreta, ",
+        
+        "enquanto <b>",
+        endline$Não,
+        "%</b> não apresentaram uma alternativa."
+      )
+    )
+  })
+  
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 11
+  # N3 – PROCURAR OUTROS FORNECEDORES / COMPARAR PREÇOS
+  # ============================================================
+  
+  dados_exercicio_11 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`N3 — Referiu a possibilidade de procurar outros fornecedores ou comparar preços`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `N3 — Referiu a possibilidade de procurar outros fornecedores ou comparar preços`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 11
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_11 <- renderPlotly({
+    
+    df <- dados_exercicio_11()
+    
+    ordem <- c(
+      "Não",
+      "Sim"
+    )
+    
+    df$`N3 — Referiu a possibilidade de procurar outros fornecedores ou comparar preços` <- factor(
+      df$`N3 — Referiu a possibilidade de procurar outros fornecedores ou comparar preços`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `N3 — Referiu a possibilidade de procurar outros fornecedores ou comparar preços`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Sim" = "#8054A2",
+          "Não" = "#69C7BE"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 11
+  # ============================================================
+  
+  output$texto_resultado_exercicio_11 <- renderUI({
+    
+    texto <- dados_exercicio_11() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `N3 — Referiu a possibilidade de procurar outros fornecedores ou comparar preços`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$Sim,
+        "%</b> dos participantes referiram a possibilidade de procurar outros fornecedores ou comparar preços, ",
+        
+        "enquanto <b>",
+        baseline$Não,
+        "%</b> não referiram essa possibilidade. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$Sim,
+        "%</b> referiram a possibilidade de procurar outros fornecedores ou comparar preços, ",
+        
+        "enquanto <b>",
+        endline$Não,
+        "%</b> não referiram essa possibilidade."
+      )
+    )
+  })
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 12
+  # N4 – MANTEVE A POSIÇÃO SEM CEDER IMEDIATAMENTE
+  # ============================================================
+  
+  dados_exercicio_12 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`N4 — Manteve a sua posição sem ceder imediatamente, com tom respeitoso`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `N4 — Manteve a sua posição sem ceder imediatamente, com tom respeitoso`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 12
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_12 <- renderPlotly({
+    
+    df <- dados_exercicio_12()
+    
+    ordem <- c(
+      "Não",
+      "Sim"
+    )
+    
+    df$`N4 — Manteve a sua posição sem ceder imediatamente, com tom respeitoso` <- factor(
+      df$`N4 — Manteve a sua posição sem ceder imediatamente, com tom respeitoso`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `N4 — Manteve a sua posição sem ceder imediatamente, com tom respeitoso`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Sim" = "#8054A2",
+          "Não" = "#69C7BE"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 12
+  # ============================================================
+  
+  output$texto_resultado_exercicio_12 <- renderUI({
+    
+    texto <- dados_exercicio_12() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `N4 — Manteve a sua posição sem ceder imediatamente, com tom respeitoso`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$Sim,
+        "%</b> dos participantes mantiveram a sua posição sem ceder imediatamente, utilizando um tom respeitoso, ",
+        
+        "enquanto <b>",
+        baseline$Não,
+        "%</b> não demonstraram este comportamento. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$Sim,
+        "%</b> mantiveram a sua posição sem ceder imediatamente, utilizando um tom respeitoso, ",
+        
+        "enquanto <b>",
+        endline$Não,
+        "%</b> não demonstraram este comportamento."
+      )
+    )
+  })
+  
+  
+  # ============================================================
+  # DADOS – EXERCÍCIO 13
+  # N5 – PROPÔS UM ACORDO / SOLUÇÃO INTERMÉDIA
+  # ============================================================
+  
+  dados_exercicio_13 <- reactive({
+    
+    Pam_Verde_Indicadores %>%
+      filter(
+        !is.na(`N5 — Propôs um acordo, solução intermédia ou continuação da negociação`),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
+      count(
+        Tipo_Avaliacao,
+        `N5 — Propôs um acordo, solução intermédia ou continuação da negociação`
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        Percentagem = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+  })
+  
+  # ============================================================
+  # GRÁFICO – EXERCÍCIO 13
+  # ============================================================
+  
+  output$grafico_resultado_exercicio_13 <- renderPlotly({
+    
+    df <- dados_exercicio_13()
+    
+    ordem <- c(
+      "Não",
+      "Sim"
+    )
+    
+    df$`N5 — Propôs um acordo, solução intermédia ou continuação da negociação` <- factor(
+      df$`N5 — Propôs um acordo, solução intermédia ou continuação da negociação`,
+      levels = ordem
+    )
+    
+    g <- ggplot(
+      df,
+      aes(
+        x = Tipo_Avaliacao,
+        y = Percentagem,
+        fill = `N5 — Propôs um acordo, solução intermédia ou continuação da negociação`
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(
+          label = ifelse(
+            Percentagem > 0,
+            paste0(Percentagem, "%"),
+            ""
+          )
+        ),
+        position = position_stack(vjust = 0.5),
+        colour = "black",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Sim" = "#8054A2",
+          "Não" = "#69C7BE"
+        ),
+        drop = FALSE
+      ) +
+      
+      labs(
+        x = "",
+        y = "Percentagem (%)",
+        fill = ""
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, 100),
+        expand = expansion(
+          mult = c(0, 0.02)
+        )
+      ) +
+      
+      theme_stata() +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.title.x = element_blank()
+      )
+    
+    ggplotly(
+      g,
+      tooltip = c("x", "fill", "y")
+    ) %>%
+      layout(
+        title = "",
+        barmode = "stack",
+        height = 500,
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 12)
+        ),
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          ticksuffix = "%"
+        ),
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.2
+        ),
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 30,
+          b = 140
+        ),
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+  })
+  
+  # ============================================================
+  # TEXTO – EXERCÍCIO 13
+  # ============================================================
+  
+  output$texto_resultado_exercicio_13 <- renderUI({
+    
+    texto <- dados_exercicio_13() %>%
+      tidyr::pivot_wider(
+        id_cols = Tipo_Avaliacao,
+        names_from = `N5 — Propôs um acordo, solução intermédia ou continuação da negociação`,
+        values_from = Percentagem,
+        values_fill = 0
+      )
+    
+    baseline <- texto %>%
+      filter(Tipo_Avaliacao == "Baseline")
+    
+    endline <- texto %>%
+      filter(Tipo_Avaliacao == "Endline")
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> ",
+        
+        "No <b>Baseline</b>, <b>",
+        baseline$Sim,
+        "%</b> dos participantes propuseram um acordo, uma solução intermédia ou a continuação da negociação, ",
+        
+        "enquanto <b>",
+        baseline$Não,
+        "%</b> não apresentaram este tipo de proposta. ",
+        
+        "No <b>Endline</b>, <b>",
+        endline$Sim,
+        "%</b> propuseram um acordo, uma solução intermédia ou a continuação da negociação, ",
+        
+        "enquanto <b>",
+        endline$Não,
+        "%</b> não apresentaram este tipo de proposta."
+      )
+    )
+  })
   ########################## MONITORIA DAS SESSÕES PAM VERDE
   
   dados_geral <- reactive({

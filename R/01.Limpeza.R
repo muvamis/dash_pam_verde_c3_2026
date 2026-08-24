@@ -70,7 +70,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
           Onde_vende = `Onde vende actualmente os seus produtos ou serviços?`
    )
 
-table(Pam_Verde_Indicadores$`Indicou que passa por situações semelhantes`)
+# table(Pam_Verde_Indicadores$)
  
 
 
