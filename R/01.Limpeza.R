@@ -29,10 +29,75 @@ dotenv::load_dot_env()
 
 PAM_VERDE_BASELINE_2026 <- read_excel("PAM_VERDE_2026_Baseline.xlsx")
 
+
+
 Pegada_Carbono <- read_excel("Pegada_Baseline_2026.xlsx")
 
 
+# ===============================================================
+# NOMES DAS EMPREENDEDORAS A EXCLUIR
+# ===============================================================
 
+nomes_excluir <- c(
+  "AMELIA AFUSSA ANTONIO",
+  "AQUILAY JOAO HOVASE",
+  "DENISE ISILDA MIGUEL TOCOTA",
+  "DULQUIFAL ASSANE SIMBA",
+  "FAIZA FERNANDO HENRIQUES",
+  "FATIMA SALVADOR AMADE",
+  "GLORIA DA CONSTANCIA LOJA",
+  "IVANDRA CHALES",
+  "MADALENA CARIM MERAGE",
+  "MARIAMO DOMINGOS JAIROSSE",
+  "KADHJA AMADE SILIMO",
+  "NATANIELA DILCIA MASSANGAIE",
+  "NGAMO SUMAIL",
+  "MARIAMO HANIFA ABACAR CHALE SALIMO",
+  "SAMIRA COMBO MUHOLE ASSUMANE",
+  "SHEILA RAIMUNDO ANTUNES",
+  "SUZANA JOAQUIM VAQUINA",
+  "MARAVILHA JANUARIO CARIA",
+  "ESTEFANIA SAMUEL BOLACHA",
+  "MINDOCA NARCISO MAHLAULE"
+)
+
+
+# ===============================================================
+# PAM VERDE - BASELINE 2026
+# ===============================================================
+
+PAM_VERDE_BASELINE_2026 <- read_excel(
+  "PAM_VERDE_2026_Baseline.xlsx"
+) %>%
+  mutate(
+    `Nomes Das Empreendedoras` = toupper(
+      stringr::str_squish(
+        trimws(as.character(`Nomes Das Empreendedoras`))
+      )
+    )
+  ) %>%
+  filter(
+    !`Nomes Das Empreendedoras` %in% nomes_excluir
+  )
+
+
+# ===============================================================
+# PEGADA DE CARBONO
+# ===============================================================
+
+Pegada_Carbono <- read_excel(
+  "Pegada_Baseline_2026.xlsx"
+) %>%
+  mutate(
+    `Nomes das participantes` = toupper(
+      stringr::str_squish(
+        trimws(as.character(`Nomes das participantes`))
+      )
+    )
+  ) %>%
+  filter(
+    !`Nomes das participantes` %in% nomes_excluir
+  )
 # Pam_Verde_Indicadores <- Pam_Verde_Indicadores[, -c(95,96,97,98,99)]  
 # 
 # Pam_Verde_Indicadores <- Pam_Verde_Indicadores %>%
@@ -70,8 +135,8 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
           Onde_vende = `Onde vende actualmente os seus produtos ou serviços?`
    )
 
-# table(Pam_Verde_Indicadores$)
- 
+Pam_Verde_Indicadores <- Pam_Verde_Indicadores %>%
+  filter(Ciclo %in% c("Ciclo 3", "Ciclo 1"))
 
 
 
@@ -675,6 +740,7 @@ Feiras_Beira <- Feira %>%
 # =========================
 Financeiro_Report <- read_excel("Financeiro_Report.xlsx")
 
+
 # =========================
 # 2. REMOÇÃO DE COLUNAS DESNECESSÁRIAS
 # =========================
@@ -706,6 +772,8 @@ Financeiro_Report <- Financeiro_Report %>%
       ~ as.numeric(.)
     )
   )
+
+
 
 # =========================
 # 5. TRATAMENTO DE NA

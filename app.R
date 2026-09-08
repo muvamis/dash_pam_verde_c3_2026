@@ -536,7 +536,7 @@ ui <- navbarPage(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
                   uiOutput("texto_praticas_sustentaveis_")
                 ),
-                plotlyOutput("grafico_praticas_sustentaveis__")
+                plotlyOutput("graficoPontuacaoBeira")
               ),
 
               column(
@@ -545,7 +545,7 @@ ui <- navbarPage(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:10px;",
                   uiOutput("texto_Pegada")
                 ),
-                plotlyOutput("graficoPontuacao"))
+                plotlyOutput("graficoPontuacaoNampula"))
               )
             ),
       #     )
@@ -556,20 +556,25 @@ ui <- navbarPage(
   # =========================
   # ABA EXERCICIOS PRATICOS
   # =========================
- 
   tabPanel(
     "Resultados dos Exercícios",
+    
+    # =========================================================
+    # CENÁRIO 1
+    # =========================================================
     
     fluidRow(
       column(
         12,
         
         div(
-          style = "background-color:#eef4fb;
-               border-left:5px solid #8054A2;
-               padding:15px;
-               border-radius:6px;
-               margin-bottom:15px;",
+          style = "
+          background-color:#eef4fb;
+          border-left:5px solid #8054A2;
+          padding:15px;
+          border-radius:6px;
+          margin-bottom:25px;
+        ",
           
           tags$h4(
             style = "margin-top:0; color:#8054A2;",
@@ -584,76 +589,107 @@ ui <- navbarPage(
       )
     ),
     
+    
+    # =========================================================
+    # EXERCÍCIOS 1 E 2
+    # =========================================================
+    
     fluidRow(
       
       column(
         6,
         
         div(
-          style = "background-color:#f5f3f4;
-               padding:12px;
-               border-left:5px solid #8054A2;
-               border-radius:6px;
-               margin-bottom:10px;",
-          uiOutput("texto_resultado_exercicio_1")
-        ),
-        
-        plotlyOutput("grafico_resultado_exercicio_1", height = "450px")
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_1"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_1",
+            height = "450px"
+          )
+        )
       ),
       
       column(
         6,
         
         div(
-          style = "background-color:#f5f3f4;
-               padding:12px;
-               border-left:5px solid #8054A2;
-               border-radius:6px;
-               margin-bottom:10px;",
-          uiOutput("texto_resultado_exercicio_2")
-        ),
-        
-        plotlyOutput("grafico_resultado_exercicio_2", height = "450px")
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_2"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_2",
+            height = "450px"
+          )
+        )
       )
-      
     ),
     
     
-    br(),
-    
+    # =========================================================
+    # EXERCÍCIOS 3 E 4
+    # =========================================================
     
     fluidRow(
+      
       column(
         6,
-        div(
-          style = "background-color:#f5f3f4;
-               padding:12px;
-               border-left:5px solid #8054A2;
-               border-radius:6px;
-               margin-bottom:10px;",
-          uiOutput("texto_resultado_exercicio_3")
-        ),
         
-        plotlyOutput("grafico_resultado_exercicio_3")
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:40px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_3"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_3",
+            height = "450px"
+          )
+        )
       ),
       
       column(
         6,
-        div(
-          style = "background-color:#f5f3f4;
-               padding:12px;
-               border-left:5px solid #8054A2;
-               border-radius:6px;
-               margin-bottom:10px;",
-          uiOutput("texto_resultado_exercicio_4")
-        ),
         
-        plotlyOutput("grafico_resultado_exercicio_4")
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:40px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_4"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_4",
+            height = "450px"
+          )
+        )
       )
     ),
-    br(),
-    br(),
-   
+    
+    
     # =========================================================
     # CENÁRIO 2
     # =========================================================
@@ -663,11 +699,14 @@ ui <- navbarPage(
         12,
         
         div(
-          style = "background-color:#eef4fb;
-                 border-left:5px solid #8054A2;
-                 padding:15px;
-                 border-radius:6px;
-                 margin-bottom:15px;",
+          style = "
+          background-color:#eef4fb;
+          border-left:5px solid #8054A2;
+          padding:15px;
+          border-radius:6px;
+          margin-top:20px;
+          margin-bottom:30px;
+        ",
           
           tags$h4(
             style = "margin-top:0; color:#8054A2;",
@@ -694,10 +733,9 @@ ui <- navbarPage(
       )
     ),
     
-    br(),
-    br(),
+    
     # =========================================================
-    # EXERCÍCIOS DO CENÁRIO 2
+    # EXERCÍCIOS 5 E 6
     # =========================================================
     
     fluidRow(
@@ -706,18 +744,20 @@ ui <- navbarPage(
         6,
         
         div(
-          style = "background-color:#f5f3f4;
-                 padding:12px;
-                 border-left:5px solid #8054A2;
-                 border-radius:6px;
-                 margin-bottom:10px;",
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
           
-          uiOutput("texto_resultado_exercicio_5")
-        ),
-        
-        plotlyOutput(
-          "grafico_resultado_exercicio_5",
-          height = "450px"
+          uiOutput("texto_resultado_exercicio_5"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_5",
+            height = "450px"
+          )
         )
       ),
       
@@ -725,24 +765,28 @@ ui <- navbarPage(
         6,
         
         div(
-          style = "background-color:#f5f3f4;
-                 padding:12px;
-                 border-left:5px solid #8054A2;
-                 border-radius:6px;
-                 margin-bottom:10px;",
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
           
-          uiOutput("texto_resultado_exercicio_6")
-        ),
-        
-        plotlyOutput(
-          "grafico_resultado_exercicio_6",
-          height = "450px"
+          uiOutput("texto_resultado_exercicio_6"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_6",
+            height = "450px"
+          )
         )
       )
     ),
     
-    br(),  
-    br(),
+    
+    # =========================================================
+    # EXERCÍCIOS 7 E 8
+    # =========================================================
     
     fluidRow(
       
@@ -750,18 +794,20 @@ ui <- navbarPage(
         6,
         
         div(
-          style = "background-color:#f5f3f4;
-                 padding:12px;
-                 border-left:5px solid #8054A2;
-                 border-radius:6px;
-                 margin-bottom:10px;",
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:40px;
+        ",
           
-          uiOutput("texto_resultado_exercicio_7")
-        ),
-        
-        plotlyOutput(
-          "grafico_resultado_exercicio_7",
-          height = "450px"
+          uiOutput("texto_resultado_exercicio_7"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_7",
+            height = "450px"
+          )
         )
       ),
       
@@ -769,209 +815,209 @@ ui <- navbarPage(
         6,
         
         div(
-          style = "background-color:#f5f3f4;
-                 padding:12px;
-                 border-left:5px solid #8054A2;
-                 border-radius:6px;
-                 margin-bottom:10px;",
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:40px;
+        ",
           
-          uiOutput("texto_resultado_exercicio_8")
-        ),
-        
-        plotlyOutput(
-          "grafico_resultado_exercicio_8",
-          height = "450px"
-        )
-      )
-    )
-  ),
-  
-  br(),  
-  br(),
-  # =========================================================
-  # CENÁRIO 3 – SITUAÇÃO DE ROLEPLAY
-  # =========================================================
-  
-  fluidRow(
-    column(
-      12,
-      
-      div(
-        style = "background-color:#eef4fb;
-           border-left:5px solid #8054A2;
-           padding:15px;
-           border-radius:6px;
-           margin-top:20px;
-           margin-bottom:15px;",
-        
-        tags$h4(
-          style = "margin-top:0; color:#8054A2;",
-          "Cenário 3 – Situação de Roleplay"
-        ),
-        
-        tags$h5(
-          style = "color:#8054A2;",
-          "Diga à participante:"
-        ),
-        
-        tags$p(
-          tags$em(
-            "'Vou fazer o papel do seu fornecedor principal. ",
-            "Imagine que está a fazer a sua encomenda habitual. ",
-            "Aja como faria numa situação real.'"
-          )
-        ),
-        
-        tags$h5(
-          style = "color:#8054A2;",
-          "Frase de abertura da inquiridora (como fornecedor):"
-        ),
-        
-        tags$p(
-          tags$em(
-            "'Olá. Antes de começarmos, preciso de lhe dizer que os preços subiram. ",
-            "A partir de hoje o preço por unidade vai aumentar 50%. ",
-            "Já avisei todos os meus clientes — é assim para toda a gente.'"
+          uiOutput("texto_resultado_exercicio_8"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_8",
+            height = "450px"
           )
         )
       )
-    )
-  ),
-  
-  br(),    
-  br(),
-  
-  # =========================================================
-  # EXERCÍCIO 9
-  # =========================================================
-  
-  fluidRow(
+    ),
     
-    column(
-      6,
-      
-      div(
-        style = "background-color:#f5f3f4;
-           padding:12px;
-           border-left:5px solid #8054A2;
-           border-radius:6px;
-           margin-bottom:10px;",
+    
+    # =========================================================
+    # CENÁRIO 3 – ROLEPLAY
+    # =========================================================
+    
+    fluidRow(
+      column(
+        12,
         
-        uiOutput("texto_resultado_exercicio_9")
-      ),
-      
-      plotlyOutput(
-        "grafico_resultado_exercicio_9",
-        height = "450px"
+        div(
+          style = "
+          background-color:#eef4fb;
+          border-left:5px solid #8054A2;
+          padding:15px;
+          border-radius:6px;
+          margin-top:20px;
+          margin-bottom:30px;
+        ",
+          
+          tags$h4(
+            style = "margin-top:0; color:#8054A2;",
+            "Cenário 3 – Situação de Roleplay"
+          ),
+          
+          tags$h5(
+            style = "color:#8054A2;",
+            "Diga à participante:"
+          ),
+          
+          tags$p(
+            tags$em(
+              "'Vou fazer o papel do seu fornecedor principal. ",
+              "Imagine que está a fazer a sua encomenda habitual. ",
+              "Aja como faria numa situação real.'"
+            )
+          ),
+          
+          tags$h5(
+            style = "color:#8054A2;",
+            "Frase de abertura da inquiridora (como fornecedor):"
+          ),
+          
+          tags$p(
+            tags$em(
+              "'Olá. Antes de começarmos, preciso de lhe dizer que os preços subiram. ",
+              "A partir de hoje o preço por unidade vai aumentar 50%. ",
+              "Já avisei todos os meus clientes — é assim para toda a gente.'"
+            )
+          )
+        )
       )
     ),
     
+    
     # =========================================================
-    # EXERCÍCIO 10
+    # EXERCÍCIOS 9 E 10
     # =========================================================
     
-    column(
-      6,
+    fluidRow(
       
-      div(
-        style = "background-color:#f5f3f4;
-           padding:12px;
-           border-left:5px solid #8054A2;
-           border-radius:6px;
-           margin-bottom:10px;",
+      column(
+        6,
         
-        uiOutput("texto_resultado_exercicio_10")
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_9"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_9",
+            height = "450px"
+          )
+        )
       ),
       
-      plotlyOutput(
-        "grafico_resultado_exercicio_10",
-        height = "450px"
-      )
-    )
-  ),
-  
-  br(),
-  
-  # =========================================================
-  # EXERCÍCIO 11
-  # =========================================================
-  
-  fluidRow(
-    
-    column(
-      6,
-      
-      div(
-        style = "background-color:#f5f3f4;
-           padding:12px;
-           border-left:5px solid #8054A2;
-           border-radius:6px;
-           margin-bottom:10px;",
+      column(
+        6,
         
-        uiOutput("texto_resultado_exercicio_11")
-      ),
-      
-      plotlyOutput(
-        "grafico_resultado_exercicio_11",
-        height = "450px"
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_10"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_10",
+            height = "450px"
+          )
+        )
       )
     ),
     
+    
     # =========================================================
-    # EXERCÍCIO 12
+    # EXERCÍCIOS 11 E 12
     # =========================================================
     
-    column(
-      6,
+    fluidRow(
       
-      div(
-        style = "background-color:#f5f3f4;
-           padding:12px;
-           border-left:5px solid #8054A2;
-           border-radius:6px;
-           margin-bottom:10px;",
+      column(
+        6,
         
-        uiOutput("texto_resultado_exercicio_12")
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_11"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_11",
+            height = "450px"
+          )
+        )
       ),
       
-      plotlyOutput(
-        "grafico_resultado_exercicio_12",
-        height = "450px"
+      column(
+        6,
+        
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:30px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_12"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_12",
+            height = "450px"
+          )
+        )
       )
-    )
-  ),
-  
-  br(),
-  
-  # =========================================================
-  # EXERCÍCIO 13
-  # =========================================================
-  
-  fluidRow(
+    ),
     
-    column(
-      6,
+    
+    # =========================================================
+    # EXERCÍCIO 13
+    # =========================================================
+    
+    fluidRow(
       
-      div(
-        style = "background-color:#f5f3f4;
-           padding:12px;
-           border-left:5px solid #8054A2;
-           border-radius:6px;
-           margin-bottom:10px;",
+      column(
+        6,
         
-        uiOutput("texto_resultado_exercicio_13")
-      ),
-      
-      plotlyOutput(
-        "grafico_resultado_exercicio_13",
-        height = "450px"
+        div(
+          style = "
+          background-color:#f5f3f4;
+          padding:15px;
+          border-left:5px solid #8054A2;
+          border-radius:6px;
+          margin-bottom:40px;
+        ",
+          
+          uiOutput("texto_resultado_exercicio_13"),
+          
+          plotlyOutput(
+            "grafico_resultado_exercicio_13",
+            height = "450px"
+          )
+        )
       )
     )
   )
-        
-        )
-      )
-    )
+)
+)
+)
   ),
   # ==========================================================
   # PÁGINA 2 - MONITORIA_CICLO3
@@ -1140,16 +1186,16 @@ ui <- navbarPage(
               
               mainPanel(
                 
-                div(
-                  class = "value-box-container",
-                  
-                  uiOutput("total_participantes_feira"),
-                  uiOutput("total_sessoes_feira"),
-                  uiOutput("taxa_presenca_feira")
-                  
-                ),
-                
-                br(),
+                # div(
+                #   class = "value-box-container",
+                #   
+                #   uiOutput("total_participantes_feira"),
+                #   uiOutput("total_sessoes_feira"),
+                #   uiOutput("taxa_presenca_feira")
+                #   
+                # ),
+                # 
+                # br(),
                 
                 fluidRow(
                   
@@ -1300,11 +1346,11 @@ ui <- navbarPage(
   
 
   # ==========================================================
-  # PÁGINA 3 - MONITORIA_BEIRA_C3
+  # PÁGINA 3 - MONITORIA_BEIRA_C1
   # ==========================================================
   
   tabPanel(
-    tagList(icon("clipboard-check"), "Monitoria_Beira_C3"),
+    tagList(icon("clipboard-check"), "Monitoria_Beira_C1"),
     
     tabsetPanel(
       
@@ -1512,14 +1558,14 @@ ui <- navbarPage(
               
               mainPanel(
                 
-                div(
-                  class = "value-box-container",
-                  uiOutput("total_participantes_feira_beira"),
-                  uiOutput("total_sessoes_feira_beira"),
-                  uiOutput("taxa_presenca_feira_beira")
-                ),
-                
-                br(),
+                # div(
+                #   class = "value-box-container",
+                #   uiOutput("total_participantes_feira_beira"),
+                #   uiOutput("total_sessoes_feira_beira"),
+                #   uiOutput("taxa_presenca_feira_beira")
+                # ),
+                # 
+                # br(),
                 
                 fluidRow(
                   column(
@@ -1664,107 +1710,282 @@ ui <- navbarPage(
 
 server <- function(input, output, session) {
   
+  # ===============================================================
+  # 2️⃣ DADOS PERFIL
+  # ===============================================================
   
-  dados_filtrados <- reactive({
+  dados_perfil <- reactive({
     
     df <- Pam_Verde_Indicadores
     
-    # Cidade
+    
+    # =============================================================
+    # LIMPEZA DOS DADOS
+    # =============================================================
+    
+    df <- df %>%
+      mutate(
+        ID_Participante = trimws(as.character(ID_Participante)),
+        Cidade = trimws(as.character(Cidade)),
+        Ciclo = trimws(as.character(Ciclo)),
+        Tipo_Avaliacao = trimws(as.character(Tipo_Avaliacao))
+      ) %>%
+      filter(
+        !is.na(ID_Participante),
+        ID_Participante != ""
+      )
+    
+    
+    # =============================================================
+    # FILTRO - CIDADE
+    # =============================================================
+    
     if (input$filtro_cidade != "Todas") {
+      
       df <- df %>%
-        filter(Cidade == input$filtro_cidade)
+        filter(
+          Cidade == input$filtro_cidade
+        )
     }
     
-    # Ciclo
+    
+    # =============================================================
+    # FILTRO - CICLO
+    # =============================================================
+    
     if (input$filtro_ciclo != "Todos") {
+      
       df <- df %>%
-        filter(Ciclo == input$filtro_ciclo)
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
     }
     
-    # Tipo de Avaliação
+    
+    # =============================================================
+    # FILTRO - TIPO DE AVALIAÇÃO
+    # =============================================================
+    
     if (input$filtro_tipo_avaliacao != "Todos") {
+      
       df <- df %>%
-        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
     }
     
-    # Remove duplicados
-    df %>%
-      distinct(Nome_Participante, .keep_all = TRUE)
+    
+    # =============================================================
+    # RETORNAR DADOS
+    # =============================================================
+    
+    df
     
   })
-
-
+  
+  
   # ===============================================================
   # 3️⃣ KPI BOXES
   # ===============================================================
+  
   output$kpi_boxes <- renderUI({
     
-    df <- dados_filtrados()
+    df <- dados_perfil()
     
     
-    # ===============================================================
+    # =============================================================
+    # LIMPAR E PADRONIZAR ID
+    # =============================================================
+    
+    df <- df %>%
+      mutate(
+        ID_Participante = trimws(as.character(ID_Participante)),
+        Tipo_Avaliacao = trimws(as.character(Tipo_Avaliacao)),
+        Cidade = trimws(as.character(Cidade))
+      ) %>%
+      filter(
+        !is.na(ID_Participante),
+        ID_Participante != ""
+      )
+    
+    
+    # =============================================================
+    # TOTAL BASELINE
+    # =============================================================
+    
+    total_baseline <- df %>%
+      filter(
+        toupper(Tipo_Avaliacao) == "BASELINE"
+      ) %>%
+      distinct(
+        ID_Participante
+      ) %>%
+      nrow()
+    
+    
+    # =============================================================
+    # TOTAL ENDLINE
+    # =============================================================
+    
+    total_endline <- df %>%
+      filter(
+        toupper(Tipo_Avaliacao) == "ENDLINE"
+      ) %>%
+      distinct(
+        ID_Participante
+      ) %>%
+      nrow()
+    
+    
+    # =============================================================
     # QUANDO TODAS AS CIDADES ESTÃO SELECIONADAS
-    # ===============================================================
-    if(input$filtro_cidade == "Todas"){
+    # =============================================================
+    
+    if (input$filtro_cidade == "Todas") {
       
       
-      total_baseline <- df %>%
-        filter(Tipo_Avaliacao == "Baseline") %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
+      # ===========================================================
+      # TOTAL GERAL
+      # ===========================================================
+      
+      total_geral <- df %>%
+        distinct(
+          ID_Participante
         ) %>%
-        pull(n)
+        nrow()
       
+      
+      # ===========================================================
+      # TOTAL BEIRA
+      # ===========================================================
       
       total_beira <- df %>%
-        filter(Cidade == "Beira") %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
+        filter(
+          Cidade == "Beira"
         ) %>%
-        pull(n)
+        distinct(
+          ID_Participante
+        ) %>%
+        nrow()
       
+      
+      # ===========================================================
+      # TOTAL NAMPULA
+      # ===========================================================
       
       total_nampula <- df %>%
-        filter(Cidade == "Nampula") %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
+        filter(
+          Cidade == "Nampula"
         ) %>%
-        pull(n)
-      
-      
-      total_endline <- df %>%
-        filter(Tipo_Avaliacao == "Endline") %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
+        distinct(
+          ID_Participante
         ) %>%
-        pull(n)
+        nrow()
       
+      
+      # ===========================================================
+      # BOXES
+      # ===========================================================
       
       div(
-        class="value-box-container",
+        
+        class = "value-box-container",
+        
+        
+        # ---------------------------------------------------------
+        # TOTAL
+        # ---------------------------------------------------------
         
         div(
-          class="value-box blue",
-          span(class="value-number", total_baseline),
-          span(class="value-title","Total Baseline")
+          class = "value-box blue",
+          
+          span(
+            class = "value-number",
+            total_geral
+          ),
+          
+          span(
+            class = "value-title",
+            "Total"
+          )
         ),
         
-        div(
-          class="value-box green",
-          span(class="value-number", total_beira),
-          span(class="value-title","Total Beira")
-        ),
+        
+        # ---------------------------------------------------------
+        # BASELINE
+        # ---------------------------------------------------------
         
         div(
-          class="value-box orange",
-          span(class="value-number", total_nampula),
-          span(class="value-title","Total Nampula")
+          class = "value-box green",
+          
+          span(
+            class = "value-number",
+            total_baseline
+          ),
+          
+          span(
+            class = "value-title",
+            "Total Baseline"
+          )
         ),
         
+        
+        # ---------------------------------------------------------
+        # ENDLINE
+        # ---------------------------------------------------------
+        
         div(
-          class="value-box yellow",
-          span(class="value-number", total_endline),
-          span(class="value-title","Total Endline")
+          class = "value-box yellow",
+          
+          span(
+            class = "value-number",
+            style = "color: white;",
+            total_endline
+          ),
+          
+          span(
+            class = "value-title",
+            style = "color: white;",
+            "Total Endline"
+          )
+        ),
+        
+        
+        # ---------------------------------------------------------
+        # BEIRA
+        # ---------------------------------------------------------
+        
+        div(
+          class = "value-box green",
+          
+          span(
+            class = "value-number",
+            total_beira
+          ),
+          
+          span(
+            class = "value-title",
+            "Total Beira"
+          )
+        ),
+        
+        
+        # ---------------------------------------------------------
+        # NAMPULA
+        # ---------------------------------------------------------
+        
+        div(
+          class = "value-box orange",
+          
+          span(
+            class = "value-number",
+            total_nampula
+          ),
+          
+          span(
+            class = "value-title",
+            "Total Nampula"
+          )
         )
         
       )
@@ -1773,56 +1994,88 @@ server <- function(input, output, session) {
     } else {
       
       
-      # ===============================================================
-      # QUANDO UMA CIDADE ESPECÍFICA É SELECIONADA
-      # ===============================================================
-      
+      # ===========================================================
+      # TOTAL DA CIDADE
+      # ===========================================================
       
       total_cidade <- df %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
+        filter(
+          Cidade == input$filtro_cidade
         ) %>%
-        pull(n)
-      
-      
-      total_baseline <- df %>%
-        filter(Tipo_Avaliacao == "Baseline") %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
+        distinct(
+          ID_Participante
         ) %>%
-        pull(n)
+        nrow()
       
       
-      total_endline <- df %>%
-        filter(Tipo_Avaliacao == "Endline") %>%
-        summarise(
-          n = n_distinct(Nome_Participante)
-        ) %>%
-        pull(n)
-      
+      # ===========================================================
+      # BOXES
+      # ===========================================================
       
       div(
-        class="value-box-container",
+        
+        class = "value-box-container",
+        
+        
+        # ---------------------------------------------------------
+        # TOTAL DA CIDADE
+        # ---------------------------------------------------------
         
         div(
-          class="value-box blue",
-          span(class="value-number", total_cidade),
+          class = "value-box blue",
+          
           span(
-            class="value-title",
-            paste("Total", input$filtro_cidade)
+            class = "value-number",
+            total_cidade
+          ),
+          
+          span(
+            class = "value-title",
+            paste(
+              "Total",
+              input$filtro_cidade
+            )
           )
         ),
         
-        div(
-          class="value-box green",
-          span(class="value-number", total_baseline),
-          span(class="value-title","Baseline")
-        ),
+        
+        # ---------------------------------------------------------
+        # BASELINE
+        # ---------------------------------------------------------
         
         div(
-          class="value-box yellow",
-          span(class="value-number", total_endline),
-          span(class="value-title","Endline")
+          class = "value-box green",
+          
+          span(
+            class = "value-number",
+            total_baseline
+          ),
+          
+          span(
+            class = "value-title",
+            "Total Baseline"
+          )
+        ),
+        
+        
+        # ---------------------------------------------------------
+        # ENDLINE
+        # ---------------------------------------------------------
+        
+        div(
+          class = "value-box yellow",
+          
+          span(
+            class = "value-number",
+            style = "color: white;",
+            total_endline
+          ),
+          
+          span(
+            class = "value-title",
+            style = "color: white;",
+            "Total Endline"
+          )
         )
         
       )
@@ -1830,6 +2083,8 @@ server <- function(input, output, session) {
     }
     
   })
+  
+  
   # 
   # 
   # 
@@ -6213,27 +6468,24 @@ server <- function(input, output, session) {
   # ##########################     CONSCIENCIA AMBIENTAL ######################
   # 
   # # ####################Pontuacões##############
-  # # 
-  output$graficoPontuacao <- renderPlotly({
+  
+  
+  output$graficoPontuacaoNampula <- renderPlotly({
     
     # =========================
     # DADOS BASE
     # =========================
     df <- Pegada_Carbono
     
+    # =========================
+    # FILTRO CIDADE
+    # =========================
+    df <- df %>%
+      filter(Cidade == "Nampula")
     
     # =========================
-    # FILTROS
+    # FILTRO ANO
     # =========================
-    
-    if (!is.null(input$cidade_pegada) &&
-        input$cidade_pegada != "Todas") {
-      
-      df <- df %>%
-        filter(Cidade == input$cidade_pegada)
-    }
-    
-    
     if (!is.null(input$ano_pegada) &&
         input$ano_pegada != "Todos") {
       
@@ -6241,7 +6493,9 @@ server <- function(input, output, session) {
         filter(Ano_Projeto == as.character(input$ano_pegada))
     }
     
-    
+    # =========================
+    # FILTRO CICLO
+    # =========================
     if (!is.null(input$ciclo_pegada) &&
         input$ciclo_pegada != "Todos") {
       
@@ -6249,9 +6503,7 @@ server <- function(input, output, session) {
         filter(Ciclo == input$ciclo_pegada)
     }
     
-    
     req(nrow(df) > 0)
-    
     
     # =========================
     # RESUMO
@@ -6259,12 +6511,10 @@ server <- function(input, output, session) {
     dados_contagem <- df %>%
       filter(
         !is.na(Status_Pegada),
-        !is.na(Tipo_Avaliacao),
-        !is.na(Cidade)
+        !is.na(Tipo_Avaliacao)
       ) %>%
       
       group_by(
-        Cidade,
         Tipo_Avaliacao,
         Status_Pegada
       ) %>%
@@ -6274,10 +6524,7 @@ server <- function(input, output, session) {
         .groups = "drop"
       ) %>%
       
-      group_by(
-        Cidade,
-        Tipo_Avaliacao
-      ) %>%
+      group_by(Tipo_Avaliacao) %>%
       
       mutate(
         Percentagem = round(
@@ -6295,8 +6542,6 @@ server <- function(input, output, session) {
       
       ungroup()
     
-    
-    
     # =========================
     # ORDEM
     # =========================
@@ -6309,8 +6554,6 @@ server <- function(input, output, session) {
       )
     )
     
-    
-    
     # =========================
     # CORES
     # =========================
@@ -6320,10 +6563,8 @@ server <- function(input, output, session) {
       "PEGADA ALTA"  = "#F77333"
     )
     
-    
-    
     # =========================
-    # GRÁFICO COM FACET POR CIDADE
+    # GRÁFICO
     # =========================
     p <- ggplot(
       dados_contagem,
@@ -6332,15 +6573,15 @@ server <- function(input, output, session) {
         y = num_participantes,
         fill = Status_Pegada,
         text = paste0(
-          "<b>Cidade:</b> ",
-          Cidade,
+          "<b>Cidade:</b> Nampula",
           "<br><b>Status:</b> ",
           Status_Pegada,
           "<br><b>Participantes:</b> ",
           num_participantes,
           "<br><b>Percentagem:</b> ",
           Percentagem,
-          "%<br><b>Avaliação:</b> ",
+          "%",
+          "<br><b>Avaliação:</b> ",
           Tipo_Avaliacao
         )
       )
@@ -6358,15 +6599,17 @@ server <- function(input, output, session) {
         fontface = "bold"
       ) +
       
-      facet_grid(
-        Cidade ~ Tipo_Avaliacao
+      facet_wrap(
+        ~ Tipo_Avaliacao
       ) +
       
       scale_fill_manual(
-        values = cores_pegada
+        values = cores_pegada,
+        drop = FALSE
       ) +
       
       labs(
+        title = "Pegada de Carbono — Nampula",
         x = NULL,
         y = "Número de Participantes"
       ) +
@@ -6378,13 +6621,23 @@ server <- function(input, output, session) {
         
         panel.grid = element_blank(),
         
+        plot.title = element_text(
+          size = 16,
+          face = "bold"
+        ),
+        
         strip.text = element_text(
-          size = 12,
+          size = 13,
           face = "bold"
         ),
         
         axis.text.x = element_text(
+          size = 11,
           face = "bold"
+        ),
+        
+        axis.text.y = element_text(
+          size = 11
         ),
         
         panel.border = element_rect(
@@ -6398,7 +6651,6 @@ server <- function(input, output, session) {
           "lines"
         )
       )
-    
     
     # =========================
     # PLOTLY
@@ -6415,33 +6667,28 @@ server <- function(input, output, session) {
         margin = list(
           l = 60,
           r = 20,
-          t = 30,
+          t = 60,
           b = 80
         )
       )
-    
   })
   
-  output$texto_Pegada <- renderUI({
+  output$graficoPontuacaoBeira <- renderPlotly({
     
     # =========================
-    # BASE
+    # DADOS BASE
     # =========================
     df <- Pegada_Carbono
     
+    # =========================
+    # FILTRO CIDADE
+    # =========================
+    df <- df %>%
+      filter(Cidade == "Beira")
     
     # =========================
-    # FILTROS
+    # FILTRO ANO
     # =========================
-    
-    if (!is.null(input$cidade_pegada) &&
-        input$cidade_pegada != "Todas") {
-      
-      df <- df %>%
-        filter(Cidade == input$cidade_pegada)
-    }
-    
-    
     if (!is.null(input$ano_pegada) &&
         input$ano_pegada != "Todos") {
       
@@ -6449,7 +6696,9 @@ server <- function(input, output, session) {
         filter(Ano_Projeto == as.character(input$ano_pegada))
     }
     
-    
+    # =========================
+    # FILTRO CICLO
+    # =========================
     if (!is.null(input$ciclo_pegada) &&
         input$ciclo_pegada != "Todos") {
       
@@ -6457,113 +6706,176 @@ server <- function(input, output, session) {
         filter(Ciclo == input$ciclo_pegada)
     }
     
-    
     req(nrow(df) > 0)
     
-    
     # =========================
-    # RESUMO POR CIDADE
+    # RESUMO
     # =========================
-    
-    resumo <- df %>%
-      filter(!is.na(Status_Pegada)) %>%
+    dados_contagem <- df %>%
+      filter(
+        !is.na(Status_Pegada),
+        !is.na(Tipo_Avaliacao)
+      ) %>%
       
       group_by(
-        Cidade,
+        Tipo_Avaliacao,
         Status_Pegada
       ) %>%
       
       summarise(
-        n = n(),
+        num_participantes = n(),
         .groups = "drop"
       ) %>%
       
-      group_by(Cidade) %>%
+      group_by(Tipo_Avaliacao) %>%
       
       mutate(
         Percentagem = round(
-          n / sum(n) * 100,
+          num_participantes / sum(num_participantes) * 100,
           1
+        ),
+        
+        label = paste0(
+          num_participantes,
+          " (",
+          Percentagem,
+          "%)"
         )
       ) %>%
       
       ungroup()
     
-    
-    cidades <- unique(resumo$Cidade)
-    
-    
     # =========================
-    # TEXTO INTERPRETATIVO
+    # ORDEM
     # =========================
-    
-    textos <- lapply(cidades, function(cidade){
-      
-      dados <- resumo %>%
-        filter(Cidade == cidade)
-      
-      
-      baixa <- dados %>%
-        filter(Status_Pegada == "PEGADA BAIXA") %>%
-        pull(Percentagem)
-      
-      media <- dados %>%
-        filter(Status_Pegada == "PEGADA MÉDIA") %>%
-        pull(Percentagem)
-      
-      alta <- dados %>%
-        filter(Status_Pegada == "PEGADA ALTA") %>%
-        pull(Percentagem)
-      
-      
-      # Caso não exista alguma categoria
-      baixa <- ifelse(length(baixa) == 0, 0, baixa)
-      media <- ifelse(length(media) == 0, 0, media)
-      alta  <- ifelse(length(alta) == 0, 0, alta)
-      
-      
-      categorias <- c(
-        "Pegada baixa" = baixa,
-        "Pegada média" = media,
-        "Pegada alta" = alta
-      )
-      
-      
-      categoria_dominante <- names(which.max(categorias))
-      valor_dominante <- max(categorias)
-      
-      
-      paste0(
-        "<b>", cidade, "</b><br><br>",
-        
-        "A análise da pegada de carbono indica que ",
-        "<b>", categoria_dominante, "</b> ",
-        "é a categoria predominante, representando ",
-        "<b>", valor_dominante, "%</b> dos participantes. ",
-        
-        "A distribuição apresenta ",
-        "<b>", baixa, "%</b> de pegada baixa, ",
-        "<b>", media, "%</b> de pegada média e ",
-        "<b>", alta, "%</b> de pegada alta.",
-        
-        "<br><br>"
-      )
-      
-    })
-    
-    
-    # =========================
-    # OUTPUT HTML
-    # =========================
-    
-    HTML(
-      paste0(
-        "<b>Interpretação da Pegada de Carbono:</b><br><br>",
-        paste(textos, collapse = "")
+    dados_contagem$Status_Pegada <- factor(
+      dados_contagem$Status_Pegada,
+      levels = c(
+        "PEGADA BAIXA",
+        "PEGADA MÉDIA",
+        "PEGADA ALTA"
       )
     )
     
+    # =========================
+    # CORES
+    # =========================
+    cores_pegada <- c(
+      "PEGADA BAIXA" = "#8054A2",
+      "PEGADA MÉDIA" = "#f39c12",
+      "PEGADA ALTA"  = "#F77333"
+    )
+    
+    # =========================
+    # GRÁFICO
+    # =========================
+    p <- ggplot(
+      dados_contagem,
+      aes(
+        x = Status_Pegada,
+        y = num_participantes,
+        fill = Status_Pegada,
+        text = paste0(
+          "<b>Cidade:</b> Beira",
+          "<br><b>Status:</b> ",
+          Status_Pegada,
+          "<br><b>Participantes:</b> ",
+          num_participantes,
+          "<br><b>Percentagem:</b> ",
+          Percentagem,
+          "%",
+          "<br><b>Avaliação:</b> ",
+          Tipo_Avaliacao
+        )
+      )
+    ) +
+      
+      geom_col(
+        width = 0.65
+      ) +
+      
+      geom_text(
+        aes(label = label),
+        position = position_stack(vjust = 0.5),
+        color = "white",
+        size = 4,
+        fontface = "bold"
+      ) +
+      
+      facet_wrap(
+        ~ Tipo_Avaliacao
+      ) +
+      
+      scale_fill_manual(
+        values = cores_pegada,
+        drop = FALSE
+      ) +
+      
+      labs(
+        title = "Pegada de Carbono — Beira",
+        x = NULL,
+        y = "Número de Participantes"
+      ) +
+      
+      theme_minimal(base_size = 12) +
+      
+      theme(
+        legend.position = "none",
+        
+        panel.grid = element_blank(),
+        
+        plot.title = element_text(
+          size = 16,
+          face = "bold"
+        ),
+        
+        strip.text = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
+        axis.text.x = element_text(
+          size = 11,
+          face = "bold"
+        ),
+        
+        axis.text.y = element_text(
+          size = 11
+        ),
+        
+        panel.border = element_rect(
+          color = "black",
+          fill = NA,
+          linewidth = 0.4
+        ),
+        
+        panel.spacing = unit(
+          1,
+          "lines"
+        )
+      )
+    
+    # =========================
+    # PLOTLY
+    # =========================
+    ggplotly(
+      p,
+      tooltip = "text"
+    ) %>%
+      
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        
+        margin = list(
+          l = 60,
+          r = 20,
+          t = 60,
+          b = 80
+        )
+      )
   })
+ 
   
   output$grafico_conhecimento_ambiental <- renderPlotly({
     
@@ -9743,16 +10055,30 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
   })
   ########################## MONITORIA DAS SESSÕES PAM VERDE
+  # ===============================================================
+  # DADOS GERAIS
+  # ===============================================================
   
   dados_geral <- reactive({
+    
     df <- PERFIL_PAM_VERDE_C3_2026
     
     if (input$filtro_monitoria_geral != "Todos") {
-      df <- df %>% dplyr::filter(Cidade == input$filtro_monitoria_geral)
+      
+      df <- df %>%
+        dplyr::filter(
+          Cidade == input$filtro_monitoria_geral
+        )
     }
     
     df
   })
+  
+  
+  # ===============================================================
+  # GRÁFICO 1
+  # SELECIONADAS VS INÍCIO DA FORMAÇÃO
+  # ===============================================================
   
   output$grafico1 <- renderPlot({
     
@@ -9761,135 +10087,359 @@ output$texto_resultado_exercicio_4 <- renderUI({
     total_selecionadas <- nrow(dados)
     
     total_iniciaram <- dados %>%
-      dplyr::filter(Status %in% c("Activa", "Desistente")) %>%
+      dplyr::filter(
+        Status %in% c("Activa", "Desistente")
+      ) %>%
       nrow()
     
+    
     grafico_df <- data.frame(
-      Categoria = c("Selecionadas", "Iniciaram Formação"),
-      Valor = c(total_selecionadas, total_iniciaram)
+      Categoria = c(
+        "Selecionadas",
+        "Iniciaram Formação"
+      ),
+      Valor = c(
+        total_selecionadas,
+        total_iniciaram
+      )
     ) %>%
       dplyr::mutate(
         Percentual = Valor / total_selecionadas,
         Label = paste0(
           Valor,
           "\n(",
-          scales::percent(Percentual, accuracy = 1),
+          scales::percent(
+            Percentual,
+            accuracy = 1
+          ),
           ")"
         )
       )
     
+    
     grafico_df$Categoria <- factor(
       grafico_df$Categoria,
-      levels = c("Selecionadas", "Iniciaram Formação")
+      levels = c(
+        "Selecionadas",
+        "Iniciaram Formação"
+      )
     )
     
-    ggplot(grafico_df, aes(x = Categoria, y = Valor, fill = Categoria)) +
+    
+    ggplot(
+      grafico_df,
+      aes(
+        x = Categoria,
+        y = Percentual,
+        fill = Categoria
+      )
+    ) +
       
-      geom_bar(stat = "identity", width = 0.6) +
-      
-      geom_text(
-        aes(label = Label),
-        position = position_stack(vjust = 0.5),
-        color = "white",
-        size = 5
+      geom_bar(
+        stat = "identity",
+        width = 0.6
       ) +
       
-      scale_fill_manual(values = c(
-        "Selecionadas" = "#ff7f0e",
-        "Iniciaram Formação" = "#8054A2"
-      )) +
+      # ===========================================================
+    # VALORES NO MEIO DAS BARRAS
+    # ===========================================================
+    
+    geom_text(
+      aes(
+        label = Label
+      ),
+      position = position_stack(
+        vjust = 0.5
+      ),
+      color = "white",
+      size = 6.5,
+      fontface = "bold"
+    ) +
+      
+      scale_y_continuous(
+        labels = scales::percent_format(
+          accuracy = 1
+        ),
+        limits = c(0, 1),
+        expand = expansion(
+          mult = c(0, 0.05)
+        )
+      ) +
+      
+      scale_fill_manual(
+        values = c(
+          "Selecionadas" = "#ff7f0e",
+          "Iniciaram Formação" = "#8054A2"
+        )
+      ) +
       
       labs(
         title = "Selecionadas vs Início da Formação",
         x = NULL,
-        y = "Número de Empreendedoras"
+        y = "Percentagem"
       ) +
       
       theme_stata() +
       
       theme(
-        plot.title = element_text(size = 14, face = "bold"),
+        plot.title = element_text(
+          size = 16,
+          face = "bold"
+        ),
+        
+        axis.text.x = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
+        axis.text.y = element_text(
+          size = 12
+        ),
+        
+        axis.title.y = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
         legend.position = "none",
-        panel.background = element_rect(fill = "#f5f3f4", color = NA),
-        plot.background = element_rect(fill = "#f5f3f4", color = NA)
+        
+        panel.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        ),
+        
+        plot.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        )
       )
   })
   
-  output$baixar_dados <- downloadHandler(
-    filename = function() {
-      paste0("dados_geral_", Sys.Date(), ".xlsx")
-    },
-    content = function(file) {
-      write_xlsx(dados_geral(), path = file)
-    }
-  )
   
+
   output$grafico2 <- renderPlot({
     
     dados <- dados_geral()
     
-    total_iniciaram <- dados %>%
-      dplyr::filter(Status %in% c("Activa", "Desistente")) %>%
-      nrow()
+    # ============================================================
+    # 1. LIMPAR E PADRONIZAR STATUS
+    # ============================================================
     
-    total_activas <- dados %>%
-      dplyr::filter(Status == "Activa") %>%
-      nrow()
-    
-    total_desistentes <- dados %>%
-      dplyr::filter(Status == "Desistente") %>%
-      nrow()
-    
-    resumo <- data.frame(
-      Categoria = c("Activas", "Desistentes"),
-      Valor = c(total_activas, total_desistentes)
-    ) %>%
+    dados <- dados %>%
       dplyr::mutate(
-        Percentual = Valor / total_iniciaram,
-        Label = paste0(
-          Valor,
-          " (",
-          scales::percent(Percentual, accuracy = 1),
-          ")"
+        Status = toupper(
+          stringr::str_squish(
+            trimws(as.character(Status))
+          )
         )
       )
     
+    # ============================================================
+    # 2. IDENTIFICAR OS QUE INICIARAM A FORMAÇÃO
+    # ============================================================
+    
+    dados_iniciaram <- dados %>%
+      dplyr::filter(
+        Status %in% c(
+          "ACTIVA",
+          "ACTIVAS",
+          "ATIVA",
+          "ATIVAS",
+          "DESISTENTE",
+          "DESISTENTES"
+        )
+      )
+    
+    # ============================================================
+    # 3. TOTAL POR STATUS
+    # ============================================================
+    
+    total_activas <- dados_iniciaram %>%
+      dplyr::filter(
+        Status %in% c(
+          "ACTIVA",
+          "ACTIVAS",
+          "ATIVA",
+          "ATIVAS"
+        )
+      ) %>%
+      nrow()
+    
+    total_desistentes <- dados_iniciaram %>%
+      dplyr::filter(
+        Status %in% c(
+          "DESISTENTE",
+          "DESISTENTES"
+        )
+      ) %>%
+      nrow()
+    
+    # ============================================================
+    # 4. TOTAL DOS QUE INICIARAM
+    # ============================================================
+    
+    total_iniciaram <- total_activas + total_desistentes
+    
+    # Evitar divisão por zero
+    if (total_iniciaram == 0) {
+      return(
+        ggplot() +
+          annotate(
+            "text",
+            x = 1,
+            y = 1,
+            label = "Não existem dados de Activas ou Desistentes",
+            size = 6,
+            fontface = "bold"
+          ) +
+          theme_void()
+      )
+    }
+    
+    # ============================================================
+    # 5. BASE PARA O GRÁFICO
+    # ============================================================
+    
+    resumo <- data.frame(
+      Categoria = c(
+        "Activas",
+        "Desistentes"
+      ),
+      
+      Valor = c(
+        total_activas,
+        total_desistentes
+      )
+    ) %>%
+      dplyr::mutate(
+        
+        Percentual = Valor / total_iniciaram,
+        
+        Label = paste0(
+          Valor,
+          "\n",
+          scales::percent(
+            Percentual,
+            accuracy = 1
+          )
+        )
+      )
+    
+    # Ordem das barras
     resumo$Categoria <- factor(
       resumo$Categoria,
-      levels = c("Activas", "Desistentes")
+      levels = c(
+        "Activas",
+        "Desistentes"
+      )
     )
     
-    ggplot(resumo, aes(x = "Iniciaram Formação", y = Valor, fill = Categoria)) +
+    # ============================================================
+    # 6. GRÁFICO — BARRAS LADO A LADO
+    # ============================================================
+    
+    ggplot(
+      resumo,
+      aes(
+        x = Categoria,
+        y = Percentual,
+        fill = Categoria
+      )
+    ) +
       
-      geom_bar(stat = "identity", width = 0.5) +
-      
-      geom_text(
-        aes(label = Label),
-        position = position_stack(vjust = 0.5),
-        color = "white",
-        size = 5
+      # Barras lado a lado
+      geom_col(
+        width = 0.65
       ) +
       
-      scale_fill_manual(values = c(
-        "Activas" = "#8054A2",
-        "Desistentes" =  "#69C7BE"
-      )) +
+      # Valores no centro das barras
+      geom_text(
+        aes(
+          label = Label
+        ),
+        position = position_stack(
+          vjust = 0.5
+        ),
+        color = "white",
+        size = 6.5,
+        fontface = "bold",
+        lineheight = 0.9
+      ) +
       
+      # Eixo Y em percentagem
+      scale_y_continuous(
+        labels = scales::percent_format(
+          accuracy = 1
+        ),
+        limits = c(0, 1),
+        expand = expansion(
+          mult = c(0, 0.05)
+        )
+      ) +
+      
+      # Cores
+      scale_fill_manual(
+        values = c(
+          "Activas" = "#8054A2",
+          "Desistentes" = "#69C7BE"
+        ),
+        drop = FALSE
+      ) +
+      
+      # Títulos
       labs(
         title = "Distribuição dos que Iniciaram a Formação",
         x = NULL,
-        y = "Número de Empreendedoras",
+        y = "Percentagem",
         fill = "Status"
       ) +
       
+      # Tema
       theme_stata() +
       
       theme(
-        plot.title = element_text(size = 14, face = "bold"),
-        panel.background = element_rect(fill = "#f5f3f4", color = NA),
-        plot.background = element_rect(fill = "#f5f3f4", color = NA)
+        
+        plot.title = element_text(
+          size = 16,
+          face = "bold"
+        ),
+        
+        axis.text.x = element_text(
+          size = 14,
+          face = "bold"
+        ),
+        
+        axis.text.y = element_text(
+          size = 12
+        ),
+        
+        axis.title.y = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
+        legend.text = element_text(
+          size = 13
+        ),
+        
+        legend.title = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
+        panel.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        ),
+        
+        plot.background = element_rect(
+          fill = "#f5f3f4",
+          color = NA
+        )
       )
   })
+
+  
   
  ################### PRESENCAS NAS SESSÕES  
   
@@ -10248,95 +10798,95 @@ output$texto_resultado_exercicio_4 <- renderUI({
   # ==========================================================
   # KPI - Total Participantes
   # ==========================================================
-  
-  output$total_participantes_feira <- renderUI({
-    
-    df <- dados_filtrados_feira()
-    
-    total <- nrow(df)
-    
-    
-    valueBox(
-      value = total,
-      subtitle = "Participantes",
-      icon = icon("users"),
-      color = "purple"
-    )
-    
-  })
-  
-  
-  
-  # ==========================================================
-  # KPI - Total Sessões
-  # ==========================================================
-  
-  output$total_sessoes_feira <- renderUI({
-    
-    df <- dados_filtrados_feira()
-    
-    sessoes <- grep(
-      "^Sessao_\\d+$",
-      names(df),
-      value = TRUE
-    )
-    
-    
-    valueBox(
-      value = length(sessoes),
-      subtitle = "Sessões",
-      icon = icon("calendar"),
-      color = "blue"
-    )
-    
-  })
-  
-  
-  
-  # ==========================================================
-  # KPI - Taxa média presença
-  # ==========================================================
-  
-  output$taxa_presenca_feira <- renderUI({
-    
-    df <- dados_filtrados_feira()
-    
-    
-    sessoes <- grep(
-      "^Sessao_\\d+$",
-      names(df),
-      value = TRUE
-    )
-    
-    
-    total_presencas <- df %>%
-      select(all_of(sessoes)) %>%
-      unlist() %>%
-      as.character() %>%
-      str_detect("Presente") %>%
-      sum(
-        na.rm = TRUE
-      )
-    
-    
-    total_possivel <- nrow(df) * length(sessoes)
-    
-    
-    taxa <- round(
-      (total_presencas / total_possivel) * 100,
-      1
-    )
-    
-    
-    valueBox(
-      value = paste0(taxa,"%"),
-      subtitle = "Taxa de Presença",
-      icon = icon("percent"),
-      color = "green"
-    )
-    
-  })
-  
+  # 
+  # output$total_participantes_feira <- renderUI({
+  #   
+  #   df <- dados_filtrados_feira()
+  #   
+  #   total <- nrow(df)
+  #   
+  #   
+  #   valueBox(
+  #     value = total,
+  #     subtitle = "Participantes",
+  #     icon = icon("users"),
+  #     color = "purple"
+  #   )
+  #   
+  # })
+  # 
+  # 
+  # 
+  # # ==========================================================
+  # # KPI - Total Sessões
+  # # ==========================================================
+  # 
+  # output$total_sessoes_feira <- renderUI({
+  #   
+  #   df <- dados_filtrados_feira()
+  #   
+  #   sessoes <- grep(
+  #     "^Sessao_\\d+$",
+  #     names(df),
+  #     value = TRUE
+  #   )
+  #   
+  #   
+  #   valueBox(
+  #     value = length(sessoes),
+  #     subtitle = "Sessões",
+  #     icon = icon("calendar"),
+  #     color = "blue"
+  #   )
+  #   
+  # })
+  # 
+  # 
+  # 
+  # # ==========================================================
+  # # KPI - Taxa média presença
+  # # ==========================================================
+  # 
+  # output$taxa_presenca_feira <- renderUI({
+  #   
+  #   df <- dados_filtrados_feira()
+  #   
+  #   
+  #   sessoes <- grep(
+  #     "^Sessao_\\d+$",
+  #     names(df),
+  #     value = TRUE
+  #   )
+  #   
+  #   
+  #   total_presencas <- df %>%
+  #     select(all_of(sessoes)) %>%
+  #     unlist() %>%
+  #     as.character() %>%
+  #     str_detect("Presente") %>%
+  #     sum(
+  #       na.rm = TRUE
+  #     )
+  #   
+  #   
+  #   total_possivel <- nrow(df) * length(sessoes)
+  #   
+  #   
+  #   taxa <- round(
+  #     (total_presencas / total_possivel) * 100,
+  #     1
+  #   )
+  #   
+  #   
+  #   valueBox(
+  #     value = paste0(taxa,"%"),
+  #     subtitle = "Taxa de Presença",
+  #     icon = icon("percent"),
+  #     color = "green"
+  #   )
+  #   
+  # })
+  # 
   
   
   # ==========================================================
@@ -11413,11 +11963,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
   })
   
-  
-  # ======================================================
-  # GRAFICO 1 - SELECCIONADAS VS INICIARAM FORMAÇÃO
-  # ======================================================
-  
+
   output$grafico1_beira <- renderPlot({
     
     dados <- dados_geral_beira()
@@ -11425,22 +11971,36 @@ output$texto_resultado_exercicio_4 <- renderUI({
     total_selecionadas <- nrow(dados)
     
     total_iniciaram <- dados %>%
-      dplyr::filter(Status %in% c("Activa", "Desistente")) %>%
+      dplyr::filter(
+        Status %in% c("Activa", "Desistente")
+      ) %>%
       nrow()
     
+    
+    # =========================
+    # RESUMO
+    # =========================
     
     grafico_df <- data.frame(
       Categoria = c(
         "Selecionadas",
         "Iniciaram Formação"
       ),
+      
       Valor = c(
         total_selecionadas,
         total_iniciaram
       )
     ) %>%
       dplyr::mutate(
-        Percentual = Valor / total_selecionadas,
+        
+        # Percentagem em relação às seleccionadas
+        Percentual = ifelse(
+          total_selecionadas > 0,
+          Valor / total_selecionadas,
+          0
+        ),
+        
         Label = paste0(
           Valor,
           "\n(",
@@ -11462,11 +12022,15 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
     
     
+    # =========================
+    # GRÁFICO
+    # =========================
+    
     ggplot(
       grafico_df,
       aes(
         x = Categoria,
-        y = Valor,
+        y = Percentual,
         fill = Categoria
       )
     ) +
@@ -11475,11 +12039,26 @@ output$texto_resultado_exercicio_4 <- renderUI({
         width = 0.6
       ) +
       
+      # Valores no centro da barra
       geom_text(
         aes(label = Label),
-        position = position_stack(vjust = 0.5),
+        position = position_stack(
+          vjust = 0.5
+        ),
         color = "white",
-        size = 5
+        size = 6,
+        fontface = "bold"
+      ) +
+      
+      # Eixo Y em percentagem
+      scale_y_continuous(
+        labels = scales::percent_format(
+          accuracy = 1
+        ),
+        limits = c(0, 1),
+        expand = expansion(
+          mult = c(0, 0.05)
+        )
       ) +
       
       scale_fill_manual(
@@ -11492,21 +12071,39 @@ output$texto_resultado_exercicio_4 <- renderUI({
       labs(
         title = "Selecionadas vs Início da Formação - Beira",
         x = NULL,
-        y = "Número de Empreendedoras"
+        y = "Percentagem"
       ) +
       
       theme_stata() +
       
       theme(
+        
         plot.title = element_text(
-          size = 14,
+          size = 16,
           face = "bold"
         ),
+        
+        axis.text.x = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
+        axis.text.y = element_text(
+          size = 12
+        ),
+        
+        axis.title.y = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
         legend.position = "none",
+        
         panel.background = element_rect(
           fill = "#f5f3f4",
           color = NA
         ),
+        
         plot.background = element_rect(
           fill = "#f5f3f4",
           color = NA
@@ -11514,59 +12111,63 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
     
   })
-  
-  
-  # ======================================================
-  # GRAFICO 2 - ACTIVAS VS DESISTENTES
-  # ======================================================
+
   
   output$grafico2_beira <- renderPlot({
     
     dados <- dados_geral_beira()
     
+    # ============================================================
+    # 1. CONTAGEM
+    # ============================================================
     
-    total_iniciaram <- dados %>%
-      dplyr::filter(Status %in% c("Activa", "Desistente")) %>%
-      nrow()
+    total_activas <- sum(
+      dados$Status == "Activa",
+      na.rm = TRUE
+    )
+    
+    total_desistentes <- sum(
+      dados$Status == "Desistente",
+      na.rm = TRUE
+    )
+    
+    # Total que iniciou a formação
+    total_iniciaram <- total_activas + total_desistentes
     
     
-    total_activas <- dados %>%
-      dplyr::filter(Status == "Activa") %>%
-      nrow()
-    
-    
-    total_desistentes <- dados %>%
-      dplyr::filter(Status == "Desistente") %>%
-      nrow()
-    
+    # ============================================================
+    # 2. RESUMO
+    # ============================================================
     
     resumo <- data.frame(
       Categoria = c(
         "Activas",
         "Desistentes"
       ),
-      Valor = c(
+      
+      Total = c(
         total_activas,
         total_desistentes
       )
     ) %>%
       dplyr::mutate(
-        Percentual = ifelse(
-          total_iniciaram > 0,
-          Valor / total_iniciaram,
-          0
-        ),
+        
+        # Percentagem de cada grupo sobre o total
+        Percentagem = Total / total_iniciaram * 100,
+        
+        # Número + percentagem
         Label = paste0(
-          Valor,
-          "\n(",
-          scales::percent(
-            Percentual,
-            accuracy = 1
-          ),
-          ")"
+          Total,
+          " (",
+          round(Percentagem, 1),
+          "%)"
         )
       )
     
+    
+    # ============================================================
+    # 3. ORDEM
+    # ============================================================
     
     resumo$Categoria <- factor(
       resumo$Categoria,
@@ -11577,58 +12178,100 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
     
     
+    # ============================================================
+    # 4. GRÁFICO
+    # ============================================================
+    
     ggplot(
       resumo,
       aes(
-        x = "Iniciaram Formação",
-        y = Valor,
+        x = Categoria,
+        y = Total,
         fill = Categoria
       )
     ) +
       
       geom_col(
-        width = 0.5
+        width = 0.6
       ) +
       
-      geom_text(
-        aes(label = Label),
-        position = position_stack(vjust = 0.5),
-        color = "white",
-        size = 5
-      ) +
+      # ==========================================================
+    # NÚMERO + % NO CENTRO DA BARRA
+    # ==========================================================
+    
+    geom_text(
+      aes(
+        label = Label
+      ),
+      vjust = 0.5,
+      color = "black",
+      size = 6,
+      fontface = "bold"
+    ) +
       
-      scale_fill_manual(
-        values = c(
-          "Activas" = "#8054A2",
-          "Desistentes" = "#69C7BE"
-        )
-      ) +
+      # ==========================================================
+    # CORES
+    # ==========================================================
+    
+    scale_fill_manual(
+      values = c(
+        "Activas" = "#8054A2",
+        "Desistentes" = "#69C7BE"
+      )
+    ) +
       
       labs(
         title = "Estado das Empreendedoras que Iniciaram a Formação - Beira",
         x = NULL,
-        y = "Número de Empreendedoras",
-        fill = "Status"
+        y = "Número de Empreendedoras"
       ) +
       
       theme_stata() +
       
       theme(
         plot.title = element_text(
+          size = 16,
+          face = "bold"
+        ),
+        
+        axis.text.x = element_text(
           size = 14,
           face = "bold"
         ),
+        
+        axis.text.y = element_text(
+          size = 12,
+          face = "bold"
+        ),
+        
+        axis.title.y = element_text(
+          size = 13,
+          face = "bold"
+        ),
+        
+        legend.position = "none",
+        
         panel.background = element_rect(
           fill = "#f5f3f4",
           color = NA
         ),
+        
         plot.background = element_rect(
           fill = "#f5f3f4",
           color = NA
         )
       )
-    
   })
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
   ########################## PRESENCAS BEIRA
   dados_filtrados_coletiva_beira <- reactive({
     
