@@ -49,7 +49,7 @@ nomes_excluir <- c(
   "IVANDRA CHALES",
   "MADALENA CARIM MERAGE",
   "MARIAMO DOMINGOS JAIROSSE",
-  "KADHJA AMADE SILIMO",
+  "KHADYA AMADE SILIMO",
   "NATANIELA DILCIA MASSANGAIE",
   "NGAMO SUMAIL",
   "MARIAMO HANIFA ABACAR CHALE SALIMO",
@@ -138,7 +138,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
 Pam_Verde_Indicadores <- Pam_Verde_Indicadores %>%
   filter(Ciclo %in% c("Ciclo 3", "Ciclo 1"))
 
-
+# table(Pam_Verde_Indicadores$`B2  Aplicação no negócio`)
 
 
 ############## PEGADA DE CARBONO
@@ -557,9 +557,10 @@ Webinars <- Webinars %>%
 # Padronização de nomes das sessões
 Webinars <- Webinars %>%
   mutate(Nome_Sessao = case_when(
-    Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_1",
-    Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_2", 
-    Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_3",
+    Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_19",
+    Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_20",
+    Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_3", 
+    
     TRUE ~ Nome_Sessao
   ))
 
@@ -640,50 +641,50 @@ Feiras_Beira <- Feira %>%
 
 
 # # Padronização de nomes das sessões
-# Feiras <- Feiras %>%
-#   mutate(Nome_Sessao = case_when(
-#     # Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_1",
-#     # Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_2", 
-#     # Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_3",
-#      Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_22",
-#     TRUE ~ Nome_Sessao
-#   ))
+Feiras <- Feiras %>%
+  mutate(Nome_Sessao = case_when(
+    Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_21",
+    # Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_2",
+    # Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_3",
+     # Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_22",
+    TRUE ~ Nome_Sessao
+  ))
 # 
 # 
-# Presenca_wide <- Feiras %>%
-#   select(Cidade, ID_MUVA, Nome_Participante, Nome_Sessao, Presença, Pesquisadores, Tipo_Sessao) %>%
-#   pivot_wider(
-#     names_from = Nome_Sessao,
-#     values_from = Presença
-#   )
-# 
-# # Seleciona as colunas fixas
-# colunas_fixas <- c("Cidade", "Tipo_Sessao", "Pesquisadores", "ID_MUVA", "Nome_Participante")
-# 
-# # Seleciona e ordena as colunas das sessões em ordem crescente
-# colunas_sessoes <- sort(names(Presenca_wide)[grepl("^Sessao_", names(Presenca_wide))])
-# 
-# # Reorganiza o data.frame com as colunas na ordem desejada
-# Presenca_wide <- Presenca_wide %>%
-#   select(all_of(c(colunas_fixas, colunas_sessoes)))
-# 
-# Feiras <- Presenca_wide
-# 
-# 
-# 
-# # Reordenar dinamicamente as colunas de sessão
-# sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
-# 
-# # Ordenar numericamente
-# sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
-# 
-# # Reordenar o dataframe mantendo as colunas fixas no início
-# Feiras <- Presenca_wide %>%
-#   select(
-#     Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
-#     all_of(sessao_cols_ordenadas)
-#   )
-# 
+Presenca_wide <- Feiras %>%
+  select(Cidade, ID_MUVA, Nome_Participante, Nome_Sessao, Presença, Pesquisadores, Tipo_Sessao) %>%
+  pivot_wider(
+    names_from = Nome_Sessao,
+    values_from = Presença
+  )
+
+# Seleciona as colunas fixas
+colunas_fixas <- c("Cidade", "Tipo_Sessao", "Pesquisadores", "ID_MUVA", "Nome_Participante")
+
+# Seleciona e ordena as colunas das sessões em ordem crescente
+colunas_sessoes <- sort(names(Presenca_wide)[grepl("^Sessao_", names(Presenca_wide))])
+
+# Reorganiza o data.frame com as colunas na ordem desejada
+Presenca_wide <- Presenca_wide %>%
+  select(all_of(c(colunas_fixas, colunas_sessoes)))
+
+Feiras <- Presenca_wide
+
+
+
+# Reordenar dinamicamente as colunas de sessão
+sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
+
+# Ordenar numericamente
+sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
+
+# Reordenar o dataframe mantendo as colunas fixas no início
+Feiras <- Presenca_wide %>%
+  select(
+    Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
+    all_of(sessao_cols_ordenadas)
+  )
+
 
 
 ################ DADOS FINANCEIROS
