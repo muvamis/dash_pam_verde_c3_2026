@@ -451,8 +451,11 @@ Presencas <- Presencas %>%
     Status = Nome_Empreendedora.Status
   )
 
+# Presencas <- Presencas %>%
+#   filter(Status == "Activa")
+
 Presencas <- Presencas %>%
-  filter(Status == "Activa")
+  filter(Status %in% c("Activa", "Desistente"))
 
 Presencas_colectivas <- Presencas %>%
   filter(Tipo_Sessao %in% c("Bootcamp 1", "Bootcamp 2", "Bootcamp 3"))
