@@ -431,264 +431,382 @@ PERFIL_PAM_VERDE_C3_2026 <- PERFIL_PAM_VERDE_C3_2026 %>%
 
 
 ################################## PRESENCAS COLECTIVAS 
+Presencas_Colectivas_Nampula <- read_excel("Presencas_colectivas_Nampula.xlsx")
+
+Webinars_Nampula <- read_excel("Webinars_Nampula.xlsx")
+
+Feiras_Nampula <- read_excel("Feiras_Nampula.xlsx")
+
+
+# ============================================================
+# 1. LEITURA DAS BASES
+# ============================================================
 
 Presenca <- read_excel("Presencas_colectivas.xlsx")
 
+# Presenca_Nampula <- read_excel("Presencas_colectivas_Nampula.xlsx")
+# 
+# 
+# # ============================================================
+# # 2. PREPARAÇÃO DA BASE DE NAMPULA
+# # ============================================================
+# 
+# Presenca_Nampula <- Presenca_Nampula[, -c(6, 7, 11, 12, 14)]
+# 
+# Presenca_Nampula <- Presenca_Nampula %>%
+#   rename(
+#     Pesquisadores    = Control_Facilitador,
+#     ID_MUVA          = Nome_Empreendedora.ID_Da_Empreendedoras,
+#     Nome_Sessao      = Nome_da_Sess_o.Tema_Sesao,
+#     Tipo_Sessao      = Control_Sessao,
+#     Cidade           = Control_Cidade,
+#     Presença         = Presen_a,
+#     Nome_Participante = Nome_Empreendedora.zc_display_value,
+#     Status            = Nome_Empreendedora.Status,
+#     Ciclo             = Nome_Empreendedora.Ciclo
+#   ) %>%
+#   filter(Status %in% c("Activa", "Desistente"))
+# 
+# 
+# # ============================================================
+# # 3. PREPARAÇÃO DA BASE DA BEIRA
+# # ============================================================
 
-Presencas <- Presenca[, -c(5,6,10,11,13)]
-
-
-
-Presencas <- Presencas %>%
+Presenca_Beira <- Presenca %>%
+  select(-c(6, 7, 11, 12, 14)) %>%
   rename(
-    Pesquisadores = Control_Facilitador,
-    ID_MUVA = Nome_Empreendedora.ID_Da_Empreendedoras,
-    Nome_Sessao = Nome_da_Sess_o.Tema_Sesao,
-    Tipo_Sessao = Control_Sessao,
-    Cidade = Control_Cidade,
-    Presença = Presen_a,
+    Pesquisadores    = Control_Facilitador,
+    ID_MUVA          = Nome_Empreendedora.ID_Da_Empreendedoras,
+    Nome_Sessao      = Nome_da_Sess_o.Tema_Sesao,
+    Tipo_Sessao      = Control_Sessao,
+    Cidade           = Control_Cidade,
+    Presença         = Presen_a,
     Nome_Participante = Nome_Empreendedora.zc_display_value,
-    Status = Nome_Empreendedora.Status
-  )
-
-# Presencas <- Presencas %>%
-#   filter(Status == "Activa")
-
-Presencas <- Presencas %>%
+    Status            = Nome_Empreendedora.Status,
+    Ciclo             = Nome_Empreendedora.Ciclo
+  ) %>%
   filter(Status %in% c("Activa", "Desistente"))
 
-Presencas_colectivas <- Presencas %>%
-  filter(Tipo_Sessao %in% c("Bootcamp 1", "Bootcamp 2", "Bootcamp 3"))
+
+# ============================================================
+# 4. FUNÇÃO PARA PADRONIZAR SESSÕES COLECTIVAS
+# ============================================================
+
+padronizar_sessoes <- function(base) {
+  
+  base %>%
+    mutate(
+      Nome_Sessao = case_when(
+        
+        Nome_Sessao == "Sessao1 – Introdução à Abordagem Integrada do Projecto" ~ "Sessao_1",
+        Nome_Sessao == "Sessao2 – Modelo de Negócio" ~ "Sessao_2",
+        Nome_Sessao == "Sessao3 – Cadeia de suprimentos e Registos financeiros" ~ "Sessao_3",
+        Nome_Sessao == "Sessao4 – Poder interno" ~ "Sessao_4",
+        Nome_Sessao == "Sessao5 – Meio Ambiente e Negócios" ~ "Sessao_5",
+        Nome_Sessao == "Sessao6 – Gestão do tempo" ~ "Sessao_6",
+        Nome_Sessao == "Sessao7 – Jornada da Persona e Introdução à HCD" ~ "Sessao_7",
+        Nome_Sessao == "Sessao8 – Uso das Ferramentas do HCD e Inteligência artificial" ~ "Sessao_8",
+        Nome_Sessao == "Sessao9 – Experiência HCD e IA, Ganhos, Riscos e Uso Responsável da IA?" ~ "Sessao_9",
+        Nome_Sessao == "Sessao10 – Revisão de ferramentas e Negociação" ~ "Sessao_10",
+        Nome_Sessao == "Sessao11 – Prototipagem" ~ "Sessao_11",
+        Nome_Sessao == "Sessao12 – Precificação e Fechamento" ~ "Sessao_12",
+        Nome_Sessao == "Sessao13 – Criação 1 de protótipos (parte gráfica de logotipos e flyers) com empreendedoras e facilitadores" ~ "Sessao_13",
+        Nome_Sessao == "Sessao14 – Criação 2 de protótipos (parte gráfica de logotipos e flyers) com empreendedoras e facilitadores" ~ "Sessao_14",
+        Nome_Sessao == "Sessao15 – Criação 3 de protótipos (parte gráfica de logotipos e flyers) com empreendedoras e facilitadores" ~ "Sessao_15",
+        Nome_Sessao == "Sessao16 – Reflexão de como foi o processo de testagem e Aprimoramento do protótipo" ~ "Sessao_16",
+        Nome_Sessao == "Sessao17 – Eu empreendedora, agente de mudança e Revisão das ferramentas de negócios" ~ "Sessao_17",
+        Nome_Sessao == "Sessao18 – Eu mulher, empreendedora moçambicana e Avaliação da Formação" ~ "Sessao_18",
+        
+        TRUE ~ Nome_Sessao
+      )
+    )
+}
 
 
-# Padronização de nomes das sessões
-Presencas_colectivas <- Presencas_colectivas %>%
-  mutate(Nome_Sessao = case_when(
-    Nome_Sessao == "Sessao1 – Introdução à Abordagem Integrada do Projecto" ~ "Sessao_1",
-    Nome_Sessao == "Sessao2 – Modelo de Negócio" ~ "Sessao_2",
-    Nome_Sessao == "Sessao3 – Cadeia de suprimentos e Registos financeiros" ~ "Sessao_3",
-    Nome_Sessao == "Sessao4 – Poder interno" ~ "Sessao_4",
-    Nome_Sessao == "Sessao5 – Meio Ambiente e Negócios" ~ "Sessao_5",
-    Nome_Sessao == "Sessao6 – Gestão do tempo" ~ "Sessao_6",
-    Nome_Sessao == "Sessao7 – Jornada da Persona e Introdução à HCD" ~ "Sessao_7",
-    Nome_Sessao == "Sessao8 – Uso das Ferramentas do HCD e Inteligência artificial" ~ "Sessao_8",
-    Nome_Sessao == "Sessao9 – Experiência HCD e IA, Ganhos, Riscos e Uso Responsável da IA?" ~ "Sessao_9",
-    Nome_Sessao == "Sessao10 – Revisão de ferramentas e Negociação" ~ "Sessao_10",
-    Nome_Sessao == "Sessao11 – Prototipagem" ~ "Sessao_11",
-    Nome_Sessao == "Sessao12 – Precificação e Fechamento" ~ "Sessao_12",
-    Nome_Sessao == "Sessao13 – Criação 1 de protótipos (parte gráfica de logotipos e flyers) com empreendedoras e facilitadores" ~ "Sessao_13",
-    Nome_Sessao == "Sessao14 – Criação 2 de protótipos (parte gráfica de logotipos e flyers) com empreendedoras e facilitadores" ~ "Sessao_14",
-    Nome_Sessao == "Sessao15 – Criação 3 de protótipos (parte gráfica de logotipos e flyers) com empreendedoras e facilitadores" ~ "Sessao_15",
-    Nome_Sessao == "Sessao16 – Reflexão de como foi o processo de testagem e Aprimoramento do protótipo" ~ "Sessao_16",
-    Nome_Sessao == "Sessao17 – Eu empreendedora, agente de mudança e Revisão das ferramentas de negócios" ~ "Sessao_17",
-    Nome_Sessao == "Sessao18 – Eu mulher, empreendedora moçambicana e Avaliação da Formação" ~ "Sessao_18",
-    TRUE ~ Nome_Sessao
-  ))
+# ============================================================
+# 5. FUNÇÃO PARA TRANSFORMAR PRESENÇAS EM FORMATO WIDE
+# ============================================================
 
-
-Presenca_wide <- Presencas_colectivas %>%
-  select(Cidade, ID_MUVA, Nome_Participante, Nome_Sessao, Presença, Pesquisadores) %>%
-  pivot_wider(
-    names_from = Nome_Sessao,
-    values_from = Presença
-  )
-
-# Seleciona as colunas fixas
-colunas_fixas <- c("Cidade", "Pesquisadores", "ID_MUVA", "Nome_Participante")
-
-# Seleciona e ordena as colunas das sessões em ordem crescente
-colunas_sessoes <- sort(names(Presenca_wide)[grepl("^Sessao_", names(Presenca_wide))])
-
-# Reorganiza o data.frame com as colunas na ordem desejada
-Presenca_wide <- Presenca_wide %>%
-  select(all_of(c(colunas_fixas, colunas_sessoes)))
-
-Presencas_Colectivas <- Presenca_wide
-
-
-
-# Reordenar dinamicamente as colunas de sessão
-sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
-
-# Ordenar numericamente
-sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
-
-# Reordenar o dataframe mantendo as colunas fixas no início
-Presencas_Colectiva <- Presenca_wide %>%
-  select(
-    Cidade,Pesquisadores, ID_MUVA, Nome_Participante,
-    all_of(sessao_cols_ordenadas)
-  )
-
-
-
-
-
-
-Presencas_Colectivas <- Presencas_Colectiva %>%
-  filter(Cidade == "Nampula")
-
-
-Presencas_Colectivas_Beira <- Presencas_Colectiva %>%
-  filter(Cidade == "Beira")
-
-#################### WEBINAR
-
-Webinars <- Presenca
-
-
-Webinars <- Webinars[, -c(5,6,10,11,13)]
-
-
-
-Webinars <- Webinars %>%
-  rename(
-    Pesquisadores = Control_Facilitador,
-    ID_MUVA = Nome_Empreendedora.ID_Da_Empreendedoras,
-    Nome_Sessao = Nome_da_Sess_o.Tema_Sesao,
-    Tipo_Sessao = Control_Sessao,
-    Cidade = Control_Cidade,
-    Presença = Presen_a,
-    Nome_Participante = Nome_Empreendedora.zc_display_value,
-    Status = Nome_Empreendedora.Status
-  )
-
-Webinars <- Webinars %>%
-  filter(Tipo_Sessao == "Webinar")
-
-
-# Padronização de nomes das sessões
-Webinars <- Webinars %>%
-  mutate(Nome_Sessao = case_when(
-    Nome_Sessao == "Sessao19 – Webinar1 Processo de formalização de negócios" ~ "Sessao_19",
-    Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_20",
-    Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_3", 
+organizar_presencas <- function(base) {
+  
+  base %>%
+    select(
+      Cidade,
+      ID_MUVA,
+      Nome_Participante,
+      Nome_Sessao,
+      Presença,
+      Pesquisadores
+    ) %>%
     
-    TRUE ~ Nome_Sessao
-  ))
+    pivot_wider(
+      names_from = Nome_Sessao,
+      values_from = Presença,
+      values_fn = ~ first(.x)
+    ) %>%
+    
+    {
+      sessoes <- grep("^Sessao_\\d+$", names(.), value = TRUE)
+      
+      sessoes <- sessoes[
+        order(
+          as.numeric(
+            gsub("Sessao_", "", sessoes)
+          )
+        )
+      ]
+      
+      select(
+        .,
+        Cidade,
+        Pesquisadores,
+        ID_MUVA,
+        Nome_Participante,
+        all_of(sessoes)
+      )
+    }
+}
 
 
-Presenca_wide <- Webinars %>%
-  select(Cidade, ID_MUVA, Nome_Participante, Nome_Sessao, Presença, Pesquisadores, Tipo_Sessao) %>%
-  pivot_wider(
-    names_from = Nome_Sessao,
-    values_from = Presença
-  )
+# ============================================================
+# 6. PRESENÇAS COLECTIVAS
+# ============================================================
 
-# Seleciona as colunas fixas
-colunas_fixas <- c("Cidade", "Tipo_Sessao", "Pesquisadores", "ID_MUVA", "Nome_Participante")
+Presencas_Colectivas_Base <- bind_rows(
+  Presenca_Beira
+) %>%
+  filter(
+    Tipo_Sessao %in% c(
+      "Bootcamp 1",
+      "Bootcamp 2",
+      "Bootcamp 3"
+    )
+  ) %>%
+  padronizar_sessoes()
 
-# Seleciona e ordena as colunas das sessões em ordem crescente
-colunas_sessoes <- sort(names(Presenca_wide)[grepl("^Sessao_", names(Presenca_wide))])
-
-# Reorganiza o data.frame com as colunas na ordem desejada
-Presenca_wide <- Presenca_wide %>%
-  select(all_of(c(colunas_fixas, colunas_sessoes)))
-
-Webinars <- Presenca_wide
-
-
-
-# Reordenar dinamicamente as colunas de sessão
-sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
-
-# Ordenar numericamente
-sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
-
-# Reordenar o dataframe mantendo as colunas fixas no início
-Webinar <- Presenca_wide %>%
-  select(
-    Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
-    all_of(sessao_cols_ordenadas)
-  )
-
-Webinars <- Webinar %>%
-  filter(Cidade == "Nampula")
-
-
-Webinars_Beira <- Webinar %>%
-  filter(Cidade == "Beira")
-
-
-
-############### FEIRAS
-
-
-Feiras <- Presenca
-
-Feiras <- Feiras[, -c(5,6,10,11,13)]
-
-
-
-Feiras <- Feiras %>%
-  rename(
-    Pesquisadores = Control_Facilitador,
-    ID_MUVA = Nome_Empreendedora.ID_Da_Empreendedoras,
-    Nome_Sessao = Nome_da_Sess_o.Tema_Sesao,
-    Tipo_Sessao = Control_Sessao,
-    Cidade = Control_Cidade,
-    Presença = Presen_a,
-    Nome_Participante = Nome_Empreendedora.zc_display_value,
-    Status = Nome_Empreendedora.Status
-  )
-
-Feira <- Feiras %>%
-  filter(Tipo_Sessao == "Feiras")
-
-Feiras <- Feira %>%
-  filter(Cidade == "Nampula")
-
-
-Feiras_Beira <- Feira %>%
-  filter(Cidade == "Beira")
-
-
-# # Padronização de nomes das sessões
-Feiras <- Feiras %>%
-  mutate(Nome_Sessao = case_when(
-    Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_21",
-    # Nome_Sessao == "Sessao20 – Webinar2 Práticas sustentáveis" ~ "Sessao_2",
-    # Nome_Sessao == "Sessao21 – Webinar3 Marketing Digital" ~ "Sessao_3",
-     # Nome_Sessao == "Sessao22 – Feira empresarial" ~ "Sessao_22",
-    TRUE ~ Nome_Sessao
-  ))
 # 
+# # NAMPULA
+# Presencas_Colectivas_Nampula <- Presencas_Colectivas_Base %>%
+#   filter(Cidade == "Nampula") %>%
+#   organizar_presencas()
+
+
+# BEIRA
+Presencas_Colectivas_Beira <- Presencas_Colectivas_Base %>%
+  filter(Cidade == "Beira") %>%
+  organizar_presencas()
+
+
+# ============================================================
+# 7. WEBINARS
+# ============================================================
+
+Webinars_Base <- bind_rows(
+  Presenca_Beira
+) %>%
+  filter(Tipo_Sessao == "Webinar") %>%
+  
+  mutate(
+    Nome_Sessao = case_when(
+      
+      Nome_Sessao ==
+        "Sessao19 – Webinar1 Processo de formalização de negócios" ~
+        "Sessao_19",
+      
+      Nome_Sessao ==
+        "Sessao20 – Webinar2 Práticas sustentáveis" ~
+        "Sessao_20",
+      
+      Nome_Sessao ==
+        "Sessao21 – Webinar3 Marketing Digital" ~
+        "Sessao_21",
+      
+      TRUE ~ Nome_Sessao
+    )
+  )
+
+
+# ============================================================
+# 8. ORGANIZAR WEBINARS
+# ============================================================
+
+organizar_webinars <- function(base) {
+  
+  base %>%
+    select(
+      Cidade,
+      Tipo_Sessao,
+      Pesquisadores,
+      ID_MUVA,
+      Nome_Participante,
+      Nome_Sessao,
+      Presença
+    ) %>%
+    
+    pivot_wider(
+      names_from = Nome_Sessao,
+      values_from = Presença,
+      values_fn = ~ first(.x)
+    ) %>%
+    
+    {
+      sessoes <- grep("^Sessao_\\d+$", names(.), value = TRUE)
+      
+      sessoes <- sessoes[
+        order(
+          as.numeric(
+            gsub("Sessao_", "", sessoes)
+          )
+        )
+      ]
+      
+      select(
+        .,
+        Cidade,
+        Tipo_Sessao,
+        Pesquisadores,
+        ID_MUVA,
+        Nome_Participante,
+        all_of(sessoes)
+      )
+    }
+}
+
+
+# # NAMPULA
+# Webinars_Nampula <- Webinars_Base %>%
+#   filter(Cidade == "Nampula") %>%
+#   organizar_webinars()
+
+
+# BEIRA
+Webinars_Beira <- Webinars_Base %>%
+  filter(Cidade == "Beira") %>%
+  organizar_webinars()
+
+
+# ============================================================
+# 9. FEIRAS
+# ============================================================
+
+Feiras_Base <- bind_rows(
+  # Presenca_Nampula,
+  Presenca_Beira
+) %>%
+  filter(Tipo_Sessao == "Feiras") %>%
+  
+  mutate(
+    Nome_Sessao = case_when(
+      
+      Nome_Sessao ==
+        "Sessao22 – Feira empresarial" ~
+        "Sessao_22",
+      
+      TRUE ~ Nome_Sessao
+    )
+  )
+
+
+# ============================================================
+# 10. ORGANIZAR FEIRAS
+# ============================================================
+
+organizar_feiras <- function(base) {
+  
+  base %>%
+    select(
+      Cidade,
+      Tipo_Sessao,
+      Pesquisadores,
+      ID_MUVA,
+      Nome_Participante,
+      Nome_Sessao,
+      Presença
+    ) %>%
+    
+    pivot_wider(
+      names_from = Nome_Sessao,
+      values_from = Presença,
+      values_fn = ~ first(.x)
+    ) %>%
+    
+    {
+      sessoes <- grep("^Sessao_\\d+$", names(.), value = TRUE)
+      
+      sessoes <- sessoes[
+        order(
+          as.numeric(
+            gsub("Sessao_", "", sessoes)
+          )
+        )
+      ]
+      
+      select(
+        .,
+        Cidade,
+        Tipo_Sessao,
+        Pesquisadores,
+        ID_MUVA,
+        Nome_Participante,
+        all_of(sessoes)
+      )
+    }
+}
+
+
+# # NAMPULA
+# Feiras_Nampula <- Feiras_Base %>%
+#   filter(Cidade == "Nampula") %>%
+#   organizar_feiras()
 # 
-Presenca_wide <- Feiras %>%
-  select(Cidade, ID_MUVA, Nome_Participante, Nome_Sessao, Presença, Pesquisadores, Tipo_Sessao) %>%
-  pivot_wider(
-    names_from = Nome_Sessao,
-    values_from = Presença
+
+# BEIRA
+Feiras_Beira <- Feiras_Base %>%
+  filter(Cidade == "Beira") %>%
+  organizar_feiras()
+
+
+# ============================================================
+# 11. VERIFICAÇÃO FINAL
+# ============================================================
+
+# dim(Presencas_Colectivas_Nampula)
+dim(Presencas_Colectivas_Beira)
+
+# dim(Webinars_Nampula)
+dim(Webinars_Beira)
+
+# dim(Feiras_Nampula)
+dim(Feiras_Beira)
+
+
+# # Número de participantes por cidade
+# Presencas_Colectivas_Nampula %>%
+#   summarise(
+#     Participantes = n_distinct(ID_MUVA)
+#   )
+
+Presencas_Colectivas_Beira %>%
+  summarise(
+    Participantes = n_distinct(ID_MUVA)
   )
 
-# Seleciona as colunas fixas
-colunas_fixas <- c("Cidade", "Tipo_Sessao", "Pesquisadores", "ID_MUVA", "Nome_Participante")
-
-# Seleciona e ordena as colunas das sessões em ordem crescente
-colunas_sessoes <- sort(names(Presenca_wide)[grepl("^Sessao_", names(Presenca_wide))])
-
-# Reorganiza o data.frame com as colunas na ordem desejada
-Presenca_wide <- Presenca_wide %>%
-  select(all_of(c(colunas_fixas, colunas_sessoes)))
-
-Feiras <- Presenca_wide
-
-
-
-# Reordenar dinamicamente as colunas de sessão
-sessao_cols <- grep("^Sessao_\\d+$", names(Presenca_wide), value = TRUE)
-
-# Ordenar numericamente
-sessao_cols_ordenadas <- sessao_cols[order(as.numeric(gsub("Sessao_", "", sessao_cols)))]
-
-# Reordenar o dataframe mantendo as colunas fixas no início
-Feiras <- Presenca_wide %>%
-  select(
-    Cidade,Tipo_Sessao, Pesquisadores, ID_MUVA, Nome_Participante,
-    all_of(sessao_cols_ordenadas)
-  )
-
-
+# library(writexl)
+# 
+# write_xlsx(
+#   Presencas_Colectivas_Nampula,
+#   "Presencas_Colectivas_Nampula.xlsx"
+# )
+# 
+# write_xlsx(
+#   Feiras_Nampula,
+#   "Feiras_Nampula.xlsx"
+# )
+# 
+# write_xlsx(
+#   Webinars_Nampula,
+#   "Webinars_Nampula.xlsx"
+# )
 
 ################ DADOS FINANCEIROS
 

@@ -1493,14 +1493,14 @@ ui <- navbarPage(
                 selectInput(
                   "filtro_monitoria_presencas",
                   "Selecione Cidade:",
-                  choices = c("Todas", unique(Presencas_Colectivas$Cidade)),
+                  choices = c("Todas", unique(Presencas_Colectivas_Nampula$Cidade)),
                   selected = "Todas"
                 ),
                 
                 selectInput(
                   "mentora_coletiva",
                   "Selecione Pesquisador(a):",
-                  choices = c("Todas", unique(Presencas_Colectivas$Pesquisadores)),
+                  choices = c("Todas", unique(Presencas_Colectivas_Nampula$Pesquisadores)),
                   selected = "Todas"
                 )
               ),
@@ -1538,14 +1538,14 @@ ui <- navbarPage(
                 selectInput(
                   "filtro_monitoria_webinar",
                   "Selecione Cidade:",
-                  choices = c("Todas", unique(Webinars$Cidade)),
+                  choices = c("Todas", unique(Webinars_Nampula$Cidade)),
                   selected = "Todas"
                 ),
                 
                 selectInput(
                   "pesquisador_webinar",
                   "Selecione Pesquisador(a):",
-                  choices = c("Todas", unique(Webinars$Pesquisadores)),
+                  choices = c("Todas", unique(Webinars_Nampula$Pesquisadores)),
                   selected = "Todas"
                 )
               ),
@@ -1576,11 +1576,11 @@ ui <- navbarPage(
           ),
           
           # ==========================================================
-          # ABA FEIRAS - MONITORIA
+          # ABA Feiras_Nampula - MONITORIA
           # ==========================================================
           
           tabPanel(
-            tagList(icon("store"), "Feiras"),
+            tagList(icon("store"), "Feiras_Nampula"),
             
             sidebarLayout(
               
@@ -1949,11 +1949,11 @@ ui <- navbarPage(
           ),
           
           # ==================================================
-          # FEIRAS BEIRA
+          # Feiras_Nampula BEIRA
           # ==================================================
           
           tabPanel(
-            "Feiras",
+            "Feiras_Nampula",
             
             sidebarLayout(
               
@@ -15126,7 +15126,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   dados_filtrados_coletiva <- reactive({
     
-    df <- Presencas_Colectivas
+    df <- Presencas_Colectivas_Nampula
     
     if (input$filtro_monitoria_presencas != "Todas") {
       df <- df %>% filter(Cidade == input$filtro_monitoria_presencas)
@@ -15252,7 +15252,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   # ==========================================================
   dados_filtrados_webinar <- reactive({
     
-    df <- Webinars
+    df <- Webinars_Nampula
     
     if (input$filtro_monitoria_webinar != "Todas") {
       df <- df %>% filter(Cidade == input$filtro_monitoria_webinar)
@@ -15374,22 +15374,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
     datatable(df, escape = FALSE, options = list(pageLength = 10))
   })
   
-  # ==========================================================
-  # FEIRAS - MONITORIA
-  # ==========================================================
-  
-  # ==========================================================
-  # FEIRAS (aba "Feiras" - Monitoria)
-  # ==========================================================
-  
-  
-  # ==========================================================
-  # Atualizar cidades
-  # ==========================================================
-  
+
   observe({
     
-    cidades <- Feiras %>%
+    cidades <- Feiras_Nampula %>%
       pull(Cidade) %>%
       unique() %>%
       na.omit() %>%
@@ -15415,7 +15403,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       if (input$filtro_monitoria_feira == "Todas") {
         
-        pesquisadores <- Feiras %>%
+        pesquisadores <- Feiras_Nampula %>%
           pull(Pesquisadores) %>%
           unique() %>%
           na.omit() %>%
@@ -15423,7 +15411,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
         
       } else {
         
-        pesquisadores <- Feiras %>%
+        pesquisadores <- Feiras_Nampula %>%
           filter(
             Cidade == input$filtro_monitoria_feira
           ) %>%
@@ -15452,7 +15440,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   dados_filtrados_feira <- reactive({
     
-    df <- Feiras
+    df <- Feiras_Nampula
     
     if (input$filtro_monitoria_feira != "Todas") {
       
@@ -15676,7 +15664,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
       labs(
         x = "",
         y = "Presenças",
-        title = "Presenças por Sessão - Feiras"
+        title = "Presenças por Sessão - Feiras_Nampula"
       )
     
     
@@ -15732,7 +15720,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   
   # ==========================================================
-  # Tabela - Feiras
+  # Tabela - Feiras_Nampula
   # ==========================================================
   
   output$tabela_feira <- renderDataTable({
@@ -15921,57 +15909,93 @@ output$texto_resultado_exercicio_4 <- renderUI({
   })
   
  
-  
   output$cidade_plot <- renderPlotly({
     
     df <- df_financeiro()
     
     resumo <- data.frame(
-      Indicador = c("Lucro", "Rendimento", "Custos"),
+      
+      Indicador = c(
+        "Lucro",
+        "Rendimento",
+        "Custos"
+      ),
+      
       Valor = c(
         sum(df$Lucro_Mensal, na.rm = TRUE),
+        
         sum(df$Rendimento_Total, na.rm = TRUE),
+        
         sum(df$Custo_Operacional_Total, na.rm = TRUE) +
           sum(df$Custo_Produtos_Total, na.rm = TRUE)
       )
+      
     )
     
-    g <- ggplot(resumo, aes(x = Indicador, y = Valor, fill = Indicador)) +
-      geom_col(width = 0.6) +
+    
+    g <- ggplot(
+      resumo,
+      aes(
+        x = Indicador,
+        y = Valor,
+        fill = Indicador
+      )
+    ) +
       
-      # =========================
-    # CORES MANUAIS
-    # =========================
-    scale_fill_manual(values = c(
-      "Lucro" = "#8054A2",       
-      "Rendimento" = "#f9a825",   
-      "Custos" = "#69C7BE"      
-    )) +
+      geom_col(
+        width = 0.65
+      ) +
       
+      # Valores no centro das barras
       geom_text(
-        aes(label = comma(round(Valor, 0))),
+        aes(
+          label = scales::comma(round(Valor, 0))
+        ),
         vjust = -0.3,
         fontface = "bold",
         size = 4
       ) +
       
-      theme_minimal() +
-      theme(
-        legend.position = "none"
+      scale_fill_manual(
+        values = c(
+          "Lucro" = "#8054A2",
+          "Rendimento" = "#f9a825",
+          "Custos" = "#69C7BE"
+        )
       ) +
+      
       labs(
         x = "",
-        y = "Total",
-        title = "Resumo Financeiro"
+        y = "Valores (MT)"
+      ) +
+      
+      scale_y_continuous(
+        labels = scales::comma,
+        expand = expansion(mult = c(0.05, 0.20))
+      ) +
+      
+      theme_stata(base_size = 14) +
+      
+      theme(
+        legend.position = "none",
+        
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(color = "#E0E0E0"),
+        
+        axis.text = element_text(color = "#333333"),
+        axis.title = element_text(face = "bold")
       )
     
-    ggplotly(g, tooltip = c("x", "y")) %>%
+    
+    ggplotly(g) %>%
+      
       layout(
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4"
       )
+    
   })
-  
   
   output$grafico_financeiro <- renderPlotly({
     
@@ -17827,7 +17851,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   
   # ==========================================================
-  #                 FEIRAS BEIRA
+  #                 Feiras_Nampula BEIRA
   # ==========================================================
   
   
