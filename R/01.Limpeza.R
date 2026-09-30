@@ -856,21 +856,30 @@ Presencas_Colectivas_Beira %>%
 # Financeiro_Report no formato que seu dashboard usa
 
 
+library(readxl)
+library(dplyr)
+library(tidyr)
 
-# =========================
-# 1. LEITURA
-# =========================
+# ============================================================
+# 1. LEITURA DA BASE
+# ============================================================
+
 Financeiro_Report <- read_excel("Financeiro_Report.xlsx")
 
 
-# =========================
+# ============================================================
 # 2. REMOÇÃO DE COLUNAS DESNECESSÁRIAS
-# =========================
-Financeiro_Report <- Financeiro_Report[, -c(7,8,13,15,17,27,28,29,30,35,36)]
+# ============================================================
 
-# =========================
-# 3. PADRONIZAÇÃO DE NOMES
-# =========================
+Financeiro_Report <- Financeiro_Report[, -c(
+  7, 8, 13, 15, 17, 27, 28, 29, 30, 35, 36
+)]
+
+
+# ============================================================
+# 3. PADRONIZAÇÃO DOS NOMES
+# ============================================================
+
 Financeiro_Report <- Financeiro_Report %>%
   rename(
     Projeto = NOME_PROJECTO.PROJECTO_NAME,
@@ -881,45 +890,58 @@ Financeiro_Report <- Financeiro_Report %>%
     Status = Nome_empreendedoras.Status
   )
 
-Financeiro_Report <- Financeiro_Report %>%
-  filter(Status == "Activa")
 
-# =========================
-# 4. CONVERSÃO NUMÉRICA SEGURA
-# =========================
-Financeiro_Report <- Financeiro_Report %>%
+# ============================================================
+# 4. BASE NAMPULA
+#    Mantém TODAS as variáveis
+# ============================================================
+
+Financeiro_Nampula <- Financeiro_Report %>%
+  filter(
+    Cidade == "NAMPULA",
+    Status == "Activa"
+  )
+
+
+# ============================================================
+# 5. BASE BEIRA
+#    Mantém TODAS as variáveis
+# ============================================================
+
+Financeiro_Beira <- Financeiro_Report %>%
+  filter(
+    Cidade == "Beira",
+    Status == "Activa"
+  )
+
+
+# ============================================================
+# 6. TRATAMENTO NUMÉRICO - NAMPULA
+# ============================================================
+
+Financeiro_Nampula <- Financeiro_Nampula %>%
   mutate(
     across(
-      c(Rendimento, Custo_Operacional, Custo_de_produtos_Servicos),
+      c(
+        Rendimento,
+        Custo_Operacional,
+        Custo_de_produtos_Servicos
+      ),
       ~ as.numeric(.)
-    )
-  )
-
-
-
-# =========================
-# 5. TRATAMENTO DE NA
-# =========================
-Financeiro_Report <- Financeiro_Report %>%
-  mutate(
+    ),
+    
     Rendimento = replace_na(Rendimento, 0),
     Custo_Operacional = replace_na(Custo_Operacional, 0),
-    Custo_de_produtos_Servicos = replace_na(Custo_de_produtos_Servicos, 0)
-  )
-
-# =========================
-# 6. VARIÁVEL BASE (LUCRO SEMANAL)
-# =========================
-Financeiro_Report <- Financeiro_Report %>%
-  mutate(
-    Lucro_Semanal = Rendimento - Custo_Operacional - Custo_de_produtos_Servicos
-  )
-
-# =========================
-# 7. PADRONIZAÇÃO DE PERÍODO (ANTES DE AGREGAR)
-# =========================
-Financeiro_Report <- Financeiro_Report %>%
-  mutate(
+    Custo_de_produtos_Servicos = replace_na(
+      Custo_de_produtos_Servicos,
+      0
+    ),
+    
+    Lucro_Semanal =
+      Rendimento -
+      Custo_Operacional -
+      Custo_de_produtos_Servicos,
+    
     Periodo = case_when(
       Periodo == "Primeiro Mes de Implementação" ~ "Primeiro Mês",
       Periodo == "Segundo Mes de Implementação" ~ "Segundo Mês",
@@ -928,39 +950,41 @@ Financeiro_Report <- Financeiro_Report %>%
     )
   )
 
-# =========================
-# 8. DATASET FINAL (AGREGADO PARA DASHBOARD)
-# =========================
-Financeiro_Report_Agr <- Financeiro_Report %>%
-  group_by(
-    Nome_do_pesquisador,
-    Nome_Empreendedora,
-    Setor_Negocio,
-    Ano_Projeto,
-    Projeto,
-    Cidade,
-    Periodo,
-    Semanas
-  ) %>%
-  summarise(
-    Lucro_Semanal = sum(Lucro_Semanal, na.rm = TRUE),
-    Lucro_Mensal = sum(Lucro_Semanal, na.rm = TRUE),
-    Rendimento_Total = sum(Rendimento, na.rm = TRUE),
-    Custo_Operacional_Total = sum(Custo_Operacional, na.rm = TRUE),
-    Custo_Produtos_Total = sum(Custo_de_produtos_Servicos, na.rm = TRUE),
-    .groups = "drop"
+
+# ============================================================
+# 7. TRATAMENTO NUMÉRICO - BEIRA
+# ============================================================
+
+Financeiro_Beira <- Financeiro_Beira %>%
+  mutate(
+    across(
+      c(
+        Rendimento,
+        Custo_Operacional,
+        Custo_de_produtos_Servicos
+      ),
+      ~ as.numeric(.)
+    ),
+    
+    Rendimento = replace_na(Rendimento, 0),
+    Custo_Operacional = replace_na(Custo_Operacional, 0),
+    Custo_de_produtos_Servicos = replace_na(
+      Custo_de_produtos_Servicos,
+      0
+    ),
+    
+    Lucro_Semanal =
+      Rendimento -
+      Custo_Operacional -
+      Custo_de_produtos_Servicos,
+    
+    Periodo = case_when(
+      Periodo == "Primeiro Mes de Implementação" ~ "Primeiro Mês",
+      Periodo == "Segundo Mes de Implementação" ~ "Segundo Mês",
+      Periodo == "Terceiro Mes de Implementação" ~ "Terceiro Mês",
+      TRUE ~ Periodo
+    )
   )
-
-
-  
-  Financeiro_Report_Agregado <- Financeiro_Report_Agr %>%
-  filter(Cidade == "NAMPULA")
-
-
-  Financeiro_Report_Agregado_Beira <- Financeiro_Report_Agr %>%
-  filter(Cidade == "Beira")
-
-
 
 
 ############################## BEIRA
@@ -969,3 +993,17 @@ PERFIL_PAM_VERDE_BEIRA_C3_2026 <- read_excel("PERFIL_PAM_VERDE_BEIRA_C3_2026.xls
 
 # Presencas_Colectivas_Beira <- read_excel("Presencas_Colectivas_Beira.xlsx")
 
+
+
+# ===============================================================
+# PAM VERDE - BASE EXCLUSIVA PARA TOC | CICLO 3
+# ===============================================================
+
+PAM_VERDE_TOC_C3 <- Pam_Verde_Indicadores %>%
+  filter(Ciclo == "Ciclo 3")
+
+FINANCEIRO_TOC_NAMPULA <- Financeiro_Nampula
+
+table(FINANCEIRO_TOC_NAMPULA$Periodo, FINANCEIRO_TOC_NAMPULA$Lucro_Semanal)
+
+# table(PAM_VERDE_TOC_C3$Tipo_Avaliacao, PAM_VERDE_TOC_C3$`Não se espera que as mulheres sejam capazes de gerir um negócio.`)

@@ -1,18 +1,5 @@
-# ==========================================================
-# DASHBOARD SHINY – PROJECTO PAM_VERDE
-# ==========================================================
 
-library(shiny)
-library(dplyr)
-library(ggplot2)
-library(plotly)
-library(scales)
-library(tidyr)
-library(DT)
 
-# ==========================================================
-# INTERFACE DE USUÁRIO (UI)
-# ==========================================================
 ui <- navbarPage(
   title = "PAM_VERDE",
   
@@ -128,7 +115,7 @@ ui <- navbarPage(
   # PÁGINA 1 - INDICADORES_CICLO3
   # ==========================================================
   tabPanel(
-    tagList(icon("chart-line"), "Avaliação_Nampula_C3"),
+    tagList(icon("chart-line"), "Avaliação_Nampula_Beira"),
     
     sidebarLayout(
       sidebarPanel(
@@ -1018,10 +1005,7 @@ ui <- navbarPage(
     # =========================================================
     # EXERCÍCIOS 13 E 14
     # =========================================================
-    # =========================================================
-    # =========================================================
-    # EXERCÍCIO 4 — HCD PESQUISA DE NEGÓCIO
-    # =========================================================
+   
     
     fluidRow(
       column(
@@ -1648,21 +1632,21 @@ ui <- navbarPage(
             selectInput(
               "Pesquisador",
               "Selecione o Pesquisador:",
-              choices = c("Todos", unique(Financeiro_Report_Agregado$Nome_do_pesquisador)),
+              choices = c("Todos", unique(Financeiro_Nampula$Nome_do_pesquisador)),
               selected = "Todos"
             ),
             
             selectInput(
               "Nome_Empreendedora",
               "Selecione a Empreendedora:",
-              choices = c("Todas", unique(Financeiro_Report_Agregado$Nome_Empreendedora)),
+              choices = c("Todas", unique(Financeiro_Nampula$Nome_Empreendedora)),
               selected = "Todas"
             ),
             
             selectInput(
               "Mes",
               "Selecione o Mês:",
-              choices = c("Todos", unique(Financeiro_Report_Agregado$Periodo)),
+              choices = c("Todos", unique(Financeiro_Nampula$Periodo)),
               selected = "Todos"
             )
           ),
@@ -1696,14 +1680,6 @@ ui <- navbarPage(
               # ================= SEMANAL =================
               tabPanel(
                 "Semanal",
-                
-                # div(
-                #   class = "value-box-container",
-                #   uiOutput("vb_crescimento_semana"),
-                #   uiOutput("vb_aumento_lucro_semana"),
-                #   uiOutput("vb_aumento_25_semana")
-                # ),
-                
                 fluidRow(
                   box(
                     width = 12,
@@ -1737,6 +1713,10 @@ ui <- navbarPage(
                   box(
                     width = 12,
                     title = "",
+                    div(
+                      style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                      uiOutput("leitura_grafico_mensal")
+                    ),
                     plotlyOutput("grafico_mensal", height = 450)
                   )
                 ),
@@ -2005,8 +1985,6 @@ ui <- navbarPage(
         )
       ),
       
-      
-      
       # ======================================================
       # ABA 3 - DADOS FINANCEIROS
       # ======================================================
@@ -2024,7 +2002,7 @@ ui <- navbarPage(
               "Selecione o Pesquisador:",
               choices = c(
                 "Todos",
-                unique(Financeiro_Report_Agregado_Beira$Nome_do_pesquisador)
+                unique(Financeiro_Beira$Nome_do_pesquisador)
               )
             ),
             
@@ -2033,7 +2011,7 @@ ui <- navbarPage(
               "Selecione a Empreendedora:",
               choices = c(
                 "Todas",
-                unique(Financeiro_Report_Agregado_Beira$Nome_Empreendedora)
+                unique(Financeiro_Beira$Nome_Empreendedora)
               )
             ),
             
@@ -2042,12 +2020,11 @@ ui <- navbarPage(
               "Selecione o Mês:",
               choices = c(
                 "Todos",
-                unique(Financeiro_Report_Agregado_Beira$Periodo)
+                unique(Financeiro_Beira$Periodo)
               )
             )
             
           ),
-          
           
           mainPanel(
             
@@ -2063,9 +2040,8 @@ ui <- navbarPage(
                   uiOutput("vb_rendimento_beira"),
                   uiOutput("vb_custos_beira")
                 ),
-                
+                br(),
                 plotlyOutput("cidade_plot_beira")
-                
               ),
               
               tabPanel(
@@ -2084,19 +2060,66 @@ ui <- navbarPage(
                 div(
                   class = "value-box-container",
                   
-                  uiOutput("vb_aumento_lucro_mes_beira"),
-                  uiOutput("vb_aumento_25_mes_beira")
+                  uiOutput("vb_aumento_lucro_mes_1_2_beira"),
+                  uiOutput("vb_aumento_25_mes_1_2_beira"),
+                  uiOutput("vb_aumento_lucro_mes_2_3_beira"),
+                  uiOutput("vb_aumento_25_mes_2_3_beira")
                 ),
                 
-                plotlyOutput("grafico_mensal_beira"),
+                fluidRow(
+                  
+                  box(
+                    width = 12,
+                    title = "",
+                    
+                    div(
+                      style = "
+                        background-color:#f5f3f4;
+                        padding:12px;
+                        border-radius:6px;
+                        margin-bottom:20px;
+                      ",
+                      
+                      uiOutput(
+                        "leitura_grafico_mensal_beira"
+                      )
+                    ),
+                    
+                    plotlyOutput(
+                      "grafico_mensal_beira",
+                      height = 450
+                    )
+                  )
+                  
+                ),
+                
+                fluidRow(
+                  
+                  box(
+                    width = 12,
+                    title = "",
+                    
+                    plotlyOutput(
+                      "grafico_barras_beira"
+                    )
+                  )
+                  
+                ),
                 
                 br(),
                 
-                plotlyOutput("grafico_barras_beira"),
-                
-                br(),
-                
-                DTOutput("tabela_controle_lucro_beira")
+                fluidRow(
+                  
+                  box(
+                    width = 12,
+                    title = "Controlo de Evolução do Lucro Mensal",
+                    
+                    DTOutput(
+                      "tabela_controle_lucro_beira"
+                    )
+                  )
+                  
+                )
               )
               
             )
@@ -2104,25 +2127,56 @@ ui <- navbarPage(
         )
       )
       
-    )
+    )   
+  ),    
+
+
+# ==========================================================
+# PÁGINA 4 - TOC
+# ==========================================================
+
+tabPanel(
+  tagList(
+    icon("chart-line"),
+    "PROGRESSO DA TOC"
   ),
   
-  
-  
-  # ==========================================================
-  # ADMIN
-  # ==========================================================
-  
-  tabPanel(
-    "ADMIN",
-    icon = icon("tools"),
+  fluidPage(
     
-    fluidPage(
-      uiOutput("admin_ui")
+    fluidRow(
+      
+      box(
+        width = 12,
+        title = "Matriz de Indicadores do TOC",
+        
+        DTOutput(
+          "toc_matriz_indicadores"
+        )
+      )
+      
     )
+    
   )
+),
+
+
+# ==========================================================
+# PÁGINA 5 - ADMIN
+# ==========================================================
+
+tabPanel(
+  tagList(
+    icon("tools"),
+    "ADMIN"
+  ),
   
+  fluidPage(
+    uiOutput("admin_ui")
+  )
 )
+
+)
+
 
 # ==========================================================
 # SERVER
@@ -15803,15 +15857,14 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
     
   })
-  # # # =========================
-  # # # DADOS FINANCEIROS NAMPULA
-  # # # =========================
+  # ============================================================
+  # DADOS FINANCEIROS - NAMPULA
+  # ============================================================
   
   
-  
-    # # # =========================
-    # # # Financeiro
-    # # # =========================
+  # ============================================================
+  # VALUE BOX
+  # ============================================================
   
   criar_box <- function(valor, titulo, cor){
     
@@ -15828,34 +15881,31 @@ output$texto_resultado_exercicio_4 <- renderUI({
         titulo
       )
     )
-    
   }
   
   
-  # =====================================================
+  # ============================================================
   # ATUALIZAR EMPREENDEDORAS CONFORME PESQUISADOR
-  # =====================================================
+  # ============================================================
   
   observeEvent(input$Pesquisador, {
     
-    df <- Financeiro_Report_Agregado
+    df <- Financeiro_Nampula
     
     if (!is.null(input$Pesquisador) &&
         input$Pesquisador != "Todos") {
       
       df <- df %>%
-        dplyr::filter(
+        filter(
           Nome_do_pesquisador == input$Pesquisador
         )
     }
     
-    
     empreendedoras <- df %>%
-      dplyr::select(Nome_Empreendedora) %>%
-      dplyr::distinct() %>%
-      dplyr::arrange(Nome_Empreendedora) %>%
-      dplyr::pull(Nome_Empreendedora)
-    
+      select(Nome_Empreendedora) %>%
+      distinct() %>%
+      arrange(Nome_Empreendedora) %>%
+      pull(Nome_Empreendedora)
     
     updateSelectInput(
       session,
@@ -15866,49 +15916,81 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
   })
   
+  
+  # ============================================================
+  # FILTROS FINANCEIROS
+  # ============================================================
+  
   df_financeiro <- reactive({
     
-    df <- Financeiro_Report_Agregado
+    df <- Financeiro_Nampula
     
-    # =========================
-    # FILTRO PESQUISADOR
-    # =========================
-    if (!is.null(input$Pesquisador) && input$Pesquisador != "Todos") {
+    # -------------------------
+    # PESQUISADOR
+    # -------------------------
+    
+    if (!is.null(input$Pesquisador) &&
+        input$Pesquisador != "Todos") {
+      
       df <- df %>%
-        dplyr::filter(Nome_do_pesquisador == input$Pesquisador)
+        filter(
+          Nome_do_pesquisador == input$Pesquisador
+        )
     }
     
-    # =========================
-    # FILTRO EMPREENDEDORA
-    # =========================
+    
+    # -------------------------
+    # EMPREENDEDORA
+    # -------------------------
+    
     if (!is.null(input$Nome_Empreendedora) &&
         input$Nome_Empreendedora != "Todas") {
       
       df <- df %>%
-        dplyr::filter(Nome_Empreendedora == input$Nome_Empreendedora)
+        filter(
+          Nome_Empreendedora == input$Nome_Empreendedora
+        )
     }
     
-    # =========================
-    # FILTRO MÊS (PERIODO)
-    # =========================
-    if (!is.null(input$Mes) && input$Mes != "Todos") {
+    
+    # -------------------------
+    # PERÍODO
+    # -------------------------
+    
+    if (!is.null(input$Mes) &&
+        input$Mes != "Todos") {
+      
       df <- df %>%
-        dplyr::filter(Periodo == input$Mes)
+        filter(
+          Periodo == input$Mes
+        )
     }
     
     df
   })
   
   
+  # ============================================================
+  # BOX - EMPREENDEDORAS
+  # ============================================================
+  
   output$vb_emp <- renderUI({
+    
     criar_box(
-      n_distinct(df_financeiro()$Nome_Empreendedora),
+      n_distinct(
+        df_financeiro()$Nome_Empreendedora
+      ),
       "Empreendedoras",
       "purple"
     )
+    
   })
   
- 
+  
+  # ============================================================
+  # GRÁFICO - LUCRO, RENDIMENTO E CUSTOS
+  # ============================================================
+  
   output$cidade_plot <- renderPlotly({
     
     df <- df_financeiro()
@@ -15922,12 +16004,25 @@ output$texto_resultado_exercicio_4 <- renderUI({
       ),
       
       Valor = c(
-        sum(df$Lucro_Mensal, na.rm = TRUE),
         
-        sum(df$Rendimento_Total, na.rm = TRUE),
+        sum(
+          df$Lucro_Semanal,
+          na.rm = TRUE
+        ),
         
-        sum(df$Custo_Operacional_Total, na.rm = TRUE) +
-          sum(df$Custo_Produtos_Total, na.rm = TRUE)
+        sum(
+          df$Rendimento,
+          na.rm = TRUE
+        ),
+        
+        sum(
+          df$Custo_Operacional,
+          na.rm = TRUE
+        ) +
+          sum(
+            df$Custo_de_produtos_Servicos,
+            na.rm = TRUE
+          )
       )
       
     )
@@ -15946,10 +16041,11 @@ output$texto_resultado_exercicio_4 <- renderUI({
         width = 0.65
       ) +
       
-      # Valores no centro das barras
       geom_text(
         aes(
-          label = scales::comma(round(Valor, 0))
+          label = scales::comma(
+            round(Valor, 0)
+          )
         ),
         vjust = -0.3,
         fontface = "bold",
@@ -15971,25 +16067,32 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       scale_y_continuous(
         labels = scales::comma,
-        expand = expansion(mult = c(0.05, 0.20))
+        expand = expansion(
+          mult = c(0.05, 0.20)
+        )
       ) +
       
-      theme_stata(base_size = 14) +
+      theme_stata(
+        base_size = 14
+      ) +
       
       theme(
         legend.position = "none",
-        
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color = "#E0E0E0"),
-        
-        axis.text = element_text(color = "#333333"),
-        axis.title = element_text(face = "bold")
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        ),
+        axis.text = element_text(
+          color = "#333333"
+        ),
+        axis.title = element_text(
+          face = "bold"
+        )
       )
     
     
     ggplotly(g) %>%
-      
       layout(
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
@@ -15997,14 +16100,25 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
   })
   
+  
+  # ============================================================
+  # GRÁFICO - LUCRO POR SEMANA
+  # ============================================================
+  
   output$grafico_financeiro <- renderPlotly({
     
     df_plot <- df_financeiro() %>%
+      
       group_by(Semanas) %>%
+      
       summarise(
-        Lucro = sum(Lucro_Semanal, na.rm = TRUE),
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
+      
       mutate(
         Semanas = factor(
           Semanas,
@@ -16017,16 +16131,41 @@ output$texto_resultado_exercicio_4 <- renderUI({
           )
         )
       ) %>%
+      
       arrange(Semanas)
     
-    # deslocamento para texto ficar acima dos pontos
-    desloc <- max(df_plot$Lucro, na.rm = TRUE) * 0.08
     
-    g <- ggplot(df_plot, aes(x = Semanas, y = Lucro, group = 1)) +
+    # Evitar erro quando não houver dados
+    
+    if (nrow(df_plot) == 0) {
+      return(NULL)
+    }
+    
+    
+    desloc <- max(
+      abs(df_plot$Lucro),
+      na.rm = TRUE
+    ) * 0.08
+    
+    
+    g <- ggplot(
+      df_plot,
+      aes(
+        x = Semanas,
+        y = Lucro,
+        group = 1
+      )
+    ) +
       
-      geom_area(fill = "#8054A2", alpha = 0.15) +
+      geom_area(
+        fill = "#8054A2",
+        alpha = 0.15
+      ) +
       
-      geom_line(color = "#8054A2", linewidth = 1.3) +
+      geom_line(
+        color = "#8054A2",
+        linewidth = 1.3
+      ) +
       
       geom_point(
         color = "#8054A2",
@@ -16036,51 +16175,93 @@ output$texto_resultado_exercicio_4 <- renderUI({
         stroke = 1.2
       ) +
       
-      # VALORES NOS PONTOS (ACIMA)
       geom_text(
-        aes(y = Lucro + desloc,
-            label = scales::comma(Lucro)),
+        aes(
+          y = Lucro + desloc,
+          label = scales::comma(
+            round(Lucro, 0)
+          )
+        ),
         color = "#8054A2",
         fontface = "bold",
         size = 4
       ) +
       
-      labs(x = "", y = "Lucro (MT)") +
+      labs(
+        x = "",
+        y = "Lucro (MT)"
+      ) +
       
       scale_y_continuous(
         labels = scales::comma,
-        expand = expansion(mult = c(0.05, 0.25))
+        expand = expansion(
+          mult = c(0.05, 0.25)
+        )
       ) +
       
-      theme_minimal(base_size = 14) +
+      theme_minimal(
+        base_size = 14
+      ) +
       
       theme(
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color = "#E0E0E0"),
-        
-        axis.text = element_text(color = "#333333"),
-        axis.title = element_text(face = "bold")
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        ),
+        axis.text = element_text(
+          color = "#333333"
+        ),
+        axis.title = element_text(
+          face = "bold"
+        )
       )
     
-    ggplotly(g, tooltip = "text") %>%
+    
+    ggplotly(g) %>%
       layout(
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4"
       )
+    
   })
+  
+  
+  # ============================================================
+  # GRÁFICO - FINANCEIRO POR SEMANA
+  # ============================================================
   
   output$grafico_barras_semanas <- renderPlotly({
     
     df_plot <- df_financeiro() %>%
+      
       group_by(Semanas) %>%
+      
       summarise(
-        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
-        Rendimento = sum(Rendimento_Total, na.rm = TRUE),
-        Custo_Operacional = sum(Custo_Operacional_Total, na.rm = TRUE),
-        Custo_Produto = sum(Custo_Produtos_Total, na.rm = TRUE),
+        
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        
+        Rendimento = sum(
+          Rendimento,
+          na.rm = TRUE
+        ),
+        
+        Custo_Operacional = sum(
+          Custo_Operacional,
+          na.rm = TRUE
+        ),
+        
+        Custo_Produto = sum(
+          Custo_de_produtos_Servicos,
+          na.rm = TRUE
+        ),
+        
         .groups = "drop"
       ) %>%
+      
       mutate(
         Semanas = factor(
           Semanas,
@@ -16094,22 +16275,46 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       )
     
+    
     df_long <- df_plot %>%
+      
       tidyr::pivot_longer(
-        cols = c(Lucro, Rendimento, Custo_Operacional, Custo_Produto),
+        cols = c(
+          Lucro,
+          Rendimento,
+          Custo_Operacional,
+          Custo_Produto
+        ),
         names_to = "Indicador",
         values_to = "Valor"
       )
     
-    dodge <- position_dodge(width = 0.8)
     
-    p <- ggplot(df_long, aes(x = Semanas, y = Valor, fill = Indicador)) +
+    dodge <- position_dodge(
+      width = 0.8
+    )
+    
+    
+    p <- ggplot(
+      df_long,
+      aes(
+        x = Semanas,
+        y = Valor,
+        fill = Indicador
+      )
+    ) +
       
-      geom_col(position = dodge, width = 0.7) +
+      geom_col(
+        position = dodge,
+        width = 0.7
+      ) +
       
-      # ✔ VALORES NO MEIO DAS BARRAS
       geom_text(
-        aes(label = scales::comma(round(Valor, 0))),
+        aes(
+          label = scales::comma(
+            round(Valor, 0)
+          )
+        ),
         position = dodge,
         vjust = 0.5,
         color = "black",
@@ -16132,195 +16337,40 @@ output$texto_resultado_exercicio_4 <- renderUI({
         fill = ""
       ) +
       
-      theme_stata(base_size = 14) +
+      theme_stata(
+        base_size = 14
+      ) +
       
       theme(
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color = "#E0E0E0")
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        )
       )
     
+    
     ggplotly(p) %>%
-      
       layout(
         barmode = "group",
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4"
       )
+    
   })
   
-  df_semana <- reactive({
-    
-    Financeiro_Report_Agregado %>%
-      mutate(
-        Semanas = factor(
-          Semanas,
-          levels = c(
-            "Primeira Semana",
-            "Segunda Semana",
-            "Terceira Semana",
-            "Quarta Semana",
-            "Quinta Semana"
-          )
-        )
-      ) %>%
-      arrange(Semanas)
-  })
   
-
-  
-  
-  output$grafico_mensal <- renderPlotly({
-    
-    df_plot <- df_financeiro() %>%
-      group_by(Periodo) %>%
-      summarise(Lucro = sum(Lucro_Mensal, na.rm = TRUE), .groups = "drop") %>%
-      mutate(
-        Periodo = factor(
-          Periodo,
-          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
-        )
-      ) %>%
-      arrange(Periodo)
-    
-    desloc <- max(df_plot$Lucro, na.rm = TRUE) * 0.07
-    
-    g <- ggplot(df_plot, aes(x = Periodo, y = Lucro, group = 1)) +
-      
-      # ÁREA (igual ao semanal)
-      geom_area(fill = "#8054A2", alpha = 0.15) +
-      
-      # LINHA
-      geom_line(color = "#8054A2", linewidth = 1.3) +
-      
-      # PONTOS
-      geom_point(
-        color = "#8054A2",
-        fill = "white",
-        shape = 21,
-        size = 4,
-        stroke = 1.2
-      ) +
-      
-      # VALORES ACIMA DOS PONTOS
-      geom_text(
-        aes(y = Lucro + desloc,
-            label = scales::comma(Lucro)),
-        color = "#8054A2",
-        fontface = "bold",
-        size = 4
-      ) +
-      
-      labs(x = "", y = "Lucro (MT)") +
-      
-      scale_y_continuous(
-        labels = scales::comma,
-        expand = expansion(mult = c(0.05, 0.25))
-      ) +
-      
-      theme_minimal(base_size = 14) +
-      
-      theme(
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color = "#E0E0E0")
-      )
-    
-    ggplotly(g, tooltip = "text") %>%
-      
-      layout(
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
-      )
-  })
-  
-  output$grafico_barras <- renderPlotly({
-    
-    df_plot <- df_financeiro() %>%
-      group_by(Periodo) %>%
-      summarise(
-        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
-        Rendimento = sum(Rendimento_Total, na.rm = TRUE),
-        Custo_Operacional = sum(Custo_Operacional_Total, na.rm = TRUE),
-        Custo_Produto = sum(Custo_Produtos_Total, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      mutate(
-        Periodo = factor(
-          Periodo,
-          levels = c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
-        )
-      )
-    
-    df_long <- df_plot %>%
-      tidyr::pivot_longer(
-        cols = c(Lucro, Rendimento, Custo_Operacional, Custo_Produto),
-        names_to = "Indicador",
-        values_to = "Valor"
-      )
-    
-    dodge <- position_dodge(width = 0.8)
-    
-    p <- ggplot(df_long, aes(x = Periodo, y = Valor, fill = Indicador)) +
-      
-      geom_col(position = dodge, width = 0.7) +
-      
-      # ✔ VALORES CENTRADOS NAS BARRAS
-      geom_text(
-        aes(label = scales::comma(round(Valor, 0))),
-        position = dodge,
-        vjust = 0.5,
-        color = "black",
-        fontface = "bold",
-        size = 4
-      ) +
-      
-      scale_fill_manual(
-        values = c(
-          "Lucro" = "#8054A2",
-          "Rendimento" = "#f9a825",
-          "Custo_Operacional" = "#69C7BE",
-          "Custo_Produto" = "#f77333"
-        )
-      ) +
-      
-      labs(
-        x = "",
-        y = "Valores (MT)",
-        fill = ""
-      ) +
-      
-      theme_stata(base_size = 14) +
-      
-      theme(
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color = "#E0E0E0")
-      )
-    
-    ggplotly(p) %>%
-      
-      layout(
-        barmode = "group",
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
-      )
-  })
-  
-
   # ============================================================
-  # BOX 1
-  # AUMENTO DE LUCRO: 1.º MÊS → 2.º MÊS
-  # ============================================================
-  # ============================================================
-  # FILTRO FINANCEIRO
+  # FILTRO FINANCEIRO PARA OS INDICADORES
   # ============================================================
   
   dados_financeiro_filtrado <- reactive({
     
-    df <- Financeiro_Report_Agregado
+    df <- Financeiro_Nampula
     
-    if (input$Pesquisador != "Todos") {
+    if (!is.null(input$Pesquisador) &&
+        input$Pesquisador != "Todos") {
+      
       df <- df %>%
         filter(
           Nome_do_pesquisador == input$Pesquisador
@@ -16331,13 +16381,25 @@ output$texto_resultado_exercicio_4 <- renderUI({
   })
   
   
+  # ============================================================
+  # BOX 1
+  # AUMENTO DE LUCRO: 1.º → 2.º MÊS
+  # ============================================================
+  
   output$vb_aumento_lucro_mes_1_2 <- renderUI({
     
     df <- dados_financeiro_filtrado() %>%
       
-      group_by(Nome_Empreendedora, Periodo) %>%
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
       
@@ -16352,25 +16414,41 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       ) %>%
       
-      arrange(Nome_Empreendedora, Periodo) %>%
+      arrange(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
       
-      group_by(Nome_Empreendedora) %>%
+      group_by(
+        Nome_Empreendedora
+      ) %>%
+      
       mutate(
-        lucro_anterior = lag(Lucro_Mensal),
-        aumento = Lucro_Mensal > lucro_anterior
+        lucro_anterior = lag(
+          Lucro_Mensal
+        ),
+        
+        aumento =
+          Lucro_Mensal > lucro_anterior
       ) %>%
       
       ungroup()
     
     
     valor <- df %>%
+      
       filter(
         Periodo == "Segundo Mês",
         !is.na(lucro_anterior)
       ) %>%
+      
       summarise(
-        total = sum(aumento, na.rm = TRUE)
+        total = sum(
+          aumento,
+          na.rm = TRUE
+        )
       ) %>%
+      
       pull(total)
     
     
@@ -16379,7 +16457,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       span(
         class = "value-number",
-        format(valor, big.mark = ",")
+        format(
+          valor,
+          big.mark = ","
+        )
       ),
       
       span(
@@ -16392,16 +16473,23 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   # ============================================================
   # BOX 2
-  # AUMENTO ≥25%: 1.º MÊS → 2.º MÊS
+  # AUMENTO ≥25%: 1.º → 2.º MÊS
   # ============================================================
   
   output$vb_aumento_25_mes_1_2 <- renderUI({
     
     df <- dados_financeiro_filtrado() %>%
       
-      group_by(Nome_Empreendedora, Periodo) %>%
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
       
@@ -16416,33 +16504,53 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       ) %>%
       
-      arrange(Nome_Empreendedora, Periodo) %>%
+      arrange(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
       
-      group_by(Nome_Empreendedora) %>%
+      group_by(
+        Nome_Empreendedora
+      ) %>%
+      
       mutate(
-        lucro_anterior = lag(Lucro_Mensal),
+        
+        lucro_anterior = lag(
+          Lucro_Mensal
+        ),
         
         aumento_pct = ifelse(
           lucro_anterior > 0,
-          (Lucro_Mensal - lucro_anterior) /
+          (
+            Lucro_Mensal -
+              lucro_anterior
+          ) /
             lucro_anterior * 100,
           NA
         ),
         
-        aumento_25 = aumento_pct >= 25
+        aumento_25 =
+          aumento_pct >= 25
+        
       ) %>%
       
       ungroup()
     
     
     valor <- df %>%
+      
       filter(
         Periodo == "Segundo Mês",
         !is.na(aumento_25)
       ) %>%
+      
       summarise(
-        total = sum(aumento_25, na.rm = TRUE)
+        total = sum(
+          aumento_25,
+          na.rm = TRUE
+        )
       ) %>%
+      
       pull(total)
     
     
@@ -16451,7 +16559,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       span(
         class = "value-number",
-        format(valor, big.mark = ",")
+        format(
+          valor,
+          big.mark = ","
+        )
       ),
       
       span(
@@ -16464,16 +16575,23 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   # ============================================================
   # BOX 3
-  # AUMENTO DE LUCRO: 2.º MÊS → 3.º MÊS
+  # AUMENTO DE LUCRO: 2.º → 3.º MÊS
   # ============================================================
   
   output$vb_aumento_lucro_mes_2_3 <- renderUI({
     
     df <- dados_financeiro_filtrado() %>%
       
-      group_by(Nome_Empreendedora, Periodo) %>%
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
       
@@ -16488,25 +16606,43 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       ) %>%
       
-      arrange(Nome_Empreendedora, Periodo) %>%
+      arrange(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
       
-      group_by(Nome_Empreendedora) %>%
+      group_by(
+        Nome_Empreendedora
+      ) %>%
+      
       mutate(
-        lucro_anterior = lag(Lucro_Mensal),
-        aumento = Lucro_Mensal > lucro_anterior
+        
+        lucro_anterior = lag(
+          Lucro_Mensal
+        ),
+        
+        aumento =
+          Lucro_Mensal > lucro_anterior
+        
       ) %>%
       
       ungroup()
     
     
     valor <- df %>%
+      
       filter(
         Periodo == "Terceiro Mês",
         !is.na(lucro_anterior)
       ) %>%
+      
       summarise(
-        total = sum(aumento, na.rm = TRUE)
+        total = sum(
+          aumento,
+          na.rm = TRUE
+        )
       ) %>%
+      
       pull(total)
     
     
@@ -16515,7 +16651,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       span(
         class = "value-number",
-        format(valor, big.mark = ",")
+        format(
+          valor,
+          big.mark = ","
+        )
       ),
       
       span(
@@ -16528,16 +16667,23 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   # ============================================================
   # BOX 4
-  # AUMENTO ≥25%: 2.º MÊS → 3.º MÊS
+  # AUMENTO ≥25%: 2.º → 3.º MÊS
   # ============================================================
   
   output$vb_aumento_25_mes_2_3 <- renderUI({
     
     df <- dados_financeiro_filtrado() %>%
       
-      group_by(Nome_Empreendedora, Periodo) %>%
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
       
@@ -16552,33 +16698,53 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       ) %>%
       
-      arrange(Nome_Empreendedora, Periodo) %>%
+      arrange(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
       
-      group_by(Nome_Empreendedora) %>%
+      group_by(
+        Nome_Empreendedora
+      ) %>%
+      
       mutate(
-        lucro_anterior = lag(Lucro_Mensal),
+        
+        lucro_anterior = lag(
+          Lucro_Mensal
+        ),
         
         aumento_pct = ifelse(
           lucro_anterior > 0,
-          (Lucro_Mensal - lucro_anterior) /
+          (
+            Lucro_Mensal -
+              lucro_anterior
+          ) /
             lucro_anterior * 100,
           NA
         ),
         
-        aumento_25 = aumento_pct >= 25
+        aumento_25 =
+          aumento_pct >= 25
+        
       ) %>%
       
       ungroup()
     
     
     valor <- df %>%
+      
       filter(
         Periodo == "Terceiro Mês",
         !is.na(aumento_25)
       ) %>%
+      
       summarise(
-        total = sum(aumento_25, na.rm = TRUE)
+        total = sum(
+          aumento_25,
+          na.rm = TRUE
+        )
       ) %>%
+      
       pull(total)
     
     
@@ -16587,7 +16753,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       span(
         class = "value-number",
-        format(valor, big.mark = ",")
+        format(
+          valor,
+          big.mark = ","
+        )
       ),
       
       span(
@@ -16597,244 +16766,624 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
   })
   
+  # ============================================================
+# GRÁFICO MENSAL DE LUCRO
+# ============================================================
+  output$grafico_mensal <- renderPlotly({
+    
+    df_plot <- df_financeiro() %>%
+      
+      group_by(Periodo) %>%
+      
+      summarise(
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
+        )
+      ) %>%
+      
+      arrange(Periodo)
+    
+    
+    # Evitar erro quando não houver dados
+    
+    if (nrow(df_plot) == 0) {
+      return(NULL)
+    }
+    
+    
+    desloc <- max(
+      abs(df_plot$Lucro),
+      na.rm = TRUE
+    ) * 0.08
+    
+    
+    g <- ggplot(
+      df_plot,
+      aes(
+        x = Periodo,
+        y = Lucro,
+        group = 1
+      )
+    ) +
+      
+      geom_area(
+        fill = "#8054A2",
+        alpha = 0.15
+      ) +
+      
+      geom_line(
+        color = "#8054A2",
+        linewidth = 1.3
+      ) +
+      
+      geom_point(
+        color = "#8054A2",
+        fill = "white",
+        shape = 21,
+        size = 4,
+        stroke = 1.2
+      ) +
+      
+      geom_text(
+        aes(
+          y = Lucro + desloc,
+          label = scales::comma(
+            round(Lucro, 0)
+          )
+        ),
+        color = "#8054A2",
+        fontface = "bold",
+        size = 4
+      ) +
+      
+      labs(
+        x = "",
+        y = "Lucro (MT)"
+      ) +
+      
+      scale_y_continuous(
+        labels = scales::comma,
+        expand = expansion(
+          mult = c(0.05, 0.25)
+        )
+      ) +
+      
+      theme_minimal(
+        base_size = 14
+      ) +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        ),
+        axis.text = element_text(
+          color = "#333333"
+        ),
+        axis.title = element_text(
+          face = "bold"
+        )
+      )
+    
+    
+    ggplotly(g) %>%
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
+    
+  })
   
-  # output$vb_aumento_lucro_semana <- renderUI({
-  #   
-  #   df <- Financeiro_Report_Agregado %>%
-  #     mutate(
-  #       Semanas = factor(
-  #         Semanas,
-  #         levels = c(
-  #           "Primeira Semana",
-  #           "Segunda Semana",
-  #           "Terceira Semana",
-  #           "Quarta Semana",
-  #           "Quinta Semana"
-  #         )
-  #       )
-  #     ) %>%
-  #     arrange(Nome_Empreendedora, Semanas) %>%
-  #     
-  #     group_by(Nome_Empreendedora) %>%
-  #     
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Semanal),
-  #       aumento = Lucro_Semanal > lucro_anterior
-  #     ) %>%
-  #     
-  #     ungroup()
-  #   
-  #   valor <- df %>%
-  #     filter(!is.na(lucro_anterior)) %>%
-  #     summarise(total = sum(aumento, na.rm = TRUE)) %>%
-  #     pull(total)
-  #   
-  #   div(
-  #     class = "value-box blue",
-  #     
-  #     span(class = "value-number", valor),
-  #     span(class = "value-title", "Participantes com Aumento de Lucro")
-  #   )
-  # })
-  # 
-  # 
-  # 
-  # output$vb_aumento_25_semana <- renderUI({
-  #   
-  #   df <- Financeiro_Report_Agregado %>%
-  #     
-  #     # 1. garantir nível SEMANAL por participante
-  #     group_by(Nome_Empreendedora, Semanas) %>%
-  #     summarise(
-  #       Lucro_Semanal = sum(Lucro_Semanal, na.rm = TRUE),
-  #       .groups = "drop"
-  #     ) %>%
-  #     
-  #     # 2. ordem correta das semanas
-  #     mutate(
-  #       Semanas = factor(
-  #         Semanas,
-  #         levels = c(
-  #           "Primeira Semana",
-  #           "Segunda Semana",
-  #           "Terceira Semana",
-  #           "Quarta Semana",
-  #           "Quinta Semana"
-  #         )
-  #       )
-  #     ) %>%
-  #     arrange(Nome_Empreendedora, Semanas) %>%
-  #     
-  #     # 3. cálculo por participante
-  #     group_by(Nome_Empreendedora) %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Semanal),
-  #       
-  #       crescimento_pct = (Lucro_Semanal - lucro_anterior) /
-  #         abs(lucro_anterior) * 100,
-  #       
-  #       aumento_25 = crescimento_pct >= 25
-  #     ) %>%
-  #     ungroup()
-  #   
-  #   # 4. PARTICIPANTES ÚNICAS com pelo menos 1 aumento ≥ 25%
-  #   valor <- df %>%
-  #     filter(!is.na(aumento_25)) %>%
-  #     group_by(Nome_Empreendedora) %>%
-  #     summarise(
-  #       teve_aumento_25 = any(aumento_25, na.rm = TRUE),
-  #       .groups = "drop"
-  #     ) %>%
-  #     summarise(total = sum(teve_aumento_25)) %>%
-  #     pull(total)
-  #   
-  #   # 5. garantir valor limpo para UI
-  #   valor <- as.numeric(valor)
-  #   
-  #   div(
-  #     class = "value-box orange",
-  #     span(class = "value-number", format(valor, big.mark = ",")),
-  #     span(class = "value-title", "Participantes com aumento ≥ 25% (Semanal)")
-  #   )
-  # })
-  # 
-  # 
-  # dados_financeiro_filtrado <- reactive({
-  #   
-  #   df <- Financeiro_Report_Agregado
-  #   
-  #   if (input$Pesquisador != "Todos") {
-  #     df <- df %>%
-  #       filter(Nome_do_pesquisador == input$Pesquisador)
-  #   }
-  #   
-  #   df
-  # })
-  # 
-  # output$vb_aumento_lucro_mes <- renderUI({
-  #   
-  #   df <- dados_financeiro_filtrado() %>%
-  #     
-  #     group_by(Nome_Empreendedora, Periodo) %>%
-  #     summarise(
-  #       Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
-  #       .groups = "drop"
-  #     ) %>%
-  #     
-  #     mutate(
-  #       Periodo = factor(
-  #         Periodo,
-  #         levels = c(
-  #           "Primeiro Mês",
-  #           "Segundo Mês",
-  #           "Terceiro Mês"
-  #         )
-  #       )
-  #     ) %>%
-  #     
-  #     arrange(Nome_Empreendedora, Periodo) %>%
-  #     
-  #     group_by(Nome_Empreendedora) %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Mensal),
-  #       aumento = Lucro_Mensal > lucro_anterior
-  #     ) %>%
-  #     
-  #     ungroup()
-  #   
-  #   
-  #   valor <- df %>%
-  #     filter(!is.na(lucro_anterior)) %>%
-  #     group_by(Nome_Empreendedora) %>%
-  #     summarise(
-  #       teve_aumento = any(aumento, na.rm = TRUE),
-  #       .groups = "drop"
-  #     ) %>%
-  #     summarise(
-  #       total = sum(teve_aumento)
-  #     ) %>%
-  #     pull(total)
-  #   
-  #   
-  #   div(
-  #     class = "value-box blue",
-  #     span(
-  #       class = "value-number",
-  #       format(valor, big.mark = ",")
-  #     ),
-  #     span(
-  #       class = "value-title",
-  #       "Participantes com Aumento de Lucro"
-  #     )
-  #   )
-  # })
-  # 
-  # 
-  # output$vb_aumento_25_mes <- renderUI({
-  #   
-  #   df <- dados_financeiro_filtrado() %>%
-  #     
-  #     group_by(Nome_Empreendedora, Periodo) %>%
-  #     summarise(
-  #       Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
-  #       .groups = "drop"
-  #     ) %>%
-  #     
-  #     mutate(
-  #       Periodo = factor(
-  #         Periodo,
-  #         levels = c(
-  #           "Primeiro Mês",
-  #           "Segundo Mês",
-  #           "Terceiro Mês"
-  #         )
-  #       )
-  #     ) %>%
-  #     
-  #     arrange(Nome_Empreendedora, Periodo) %>%
-  #     
-  #     group_by(Nome_Empreendedora) %>%
-  #     mutate(
-  #       lucro_anterior = lag(Lucro_Mensal),
-  #       
-  #       aumento_pct = ifelse(
-  #         lucro_anterior > 0,
-  #         (Lucro_Mensal - lucro_anterior) / lucro_anterior * 100,
-  #         NA
-  #       ),
-  #       
-  #       aumento_25 = aumento_pct >= 25
-  #     ) %>%
-  #     
-  #     ungroup()
-  #   
-  #   
-  #   valor <- df %>%
-  #     filter(!is.na(aumento_25)) %>%
-  #     group_by(Nome_Empreendedora) %>%
-  #     summarise(
-  #       teve_aumento_25 = any(aumento_25, na.rm = TRUE),
-  #       .groups = "drop"
-  #     ) %>%
-  #     summarise(
-  #       total = sum(teve_aumento_25)
-  #     ) %>%
-  #     pull(total)
-  #   
-  #   
-  #   div(
-  #     class = "value-box orange",
-  #     span(
-  #       class = "value-number",
-  #       format(valor, big.mark = ",")
-  #     ),
-  #     span(
-  #       class = "value-title",
-  #       "Participantes com aumento ≥ 25%"
-  #     )
-  #   )
-  # })
-  # 
+  
+  
+  output$grafico_barras <- renderPlotly({
+    
+    df <- df_financeiro()
+    
+    req(nrow(df) > 0)
+    
+    # =========================
+    # AGREGAR POR MÊS
+    # =========================
+    df_plot <- df %>%
+      group_by(Periodo) %>%
+      summarise(
+        Lucro = sum(Lucro_Semanal, na.rm = TRUE),
+        Rendimento = sum(Rendimento, na.rm = TRUE),
+        Custo_Operacional = sum(Custo_Operacional, na.rm = TRUE),
+        Custo_Produtos = sum(
+          Custo_de_produtos_Servicos,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      
+      mutate(
+        Custos = Custo_Operacional + Custo_Produtos,
+        
+        Periodo = factor(
+          Periodo,
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
+        )
+      ) %>%
+      
+      arrange(Periodo) %>%
+      
+      select(
+        Periodo,
+        Lucro,
+        Rendimento,
+        Custos
+      ) %>%
+      
+      tidyr::pivot_longer(
+        cols = c(
+          Lucro,
+          Rendimento,
+          Custos
+        ),
+        names_to = "Indicador",
+        values_to = "Valor"
+      )
+    
+    
+    # =========================
+    # GRÁFICO DE BARRAS
+    # =========================
+    plot_ly(
+      df_plot,
+      x = ~Periodo,
+      y = ~Valor,
+      color = ~Indicador,
+      text = ~scales::comma(
+        round(Valor, 0)
+      ),
+      textposition = "outside",
+      type = "bar",
+      
+      colors = c(
+        "Lucro" = "#8054A2",
+        "Rendimento" = "#f9a825",
+        "Custos" = "#69C7BE"
+      ),
+      
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}: %{y:,.2f}",
+        "<extra></extra>"
+      )
+    ) %>%
+      
+      layout(
+        
+        # =========================
+        # TÍTULO
+        # =========================
+        title = list(
+          text = "",
+          x = 0.02
+        ),
+        
+        # =========================
+        # BARRAS LADO A LADO
+        # =========================
+        barmode = "group",
+        
+        # =========================
+        # EIXO X
+        # =========================
+        xaxis = list(
+          title = "",
+          showgrid = FALSE
+        ),
+        
+        # =========================
+        # EIXO Y
+        # =========================
+        yaxis = list(
+          title = "Valor",
+          separatethousands = TRUE
+        ),
+        
+        # =========================
+        # MESMO FUNDO
+        # =========================
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        
+        # =========================
+        # LEGENDA
+        # =========================
+        legend = list(
+          orientation = "h",
+          x = 0,
+          y = 1.1
+        ),
+        
+        # =========================
+        # MARGENS
+        # =========================
+        margin = list(
+          l = 70,
+          r = 30,
+          t = 90,
+          b = 60
+        )
+      )
+  })
+  
+  output$leitura_grafico_mensal <- renderUI({
+    
+    df <- df_financeiro()
+    
+    req(nrow(df) > 0)
+    
+    # ============================================================
+    # CALCULAR LUCRO TOTAL POR MÊS
+    # ============================================================
+    
+    df_mensal <- df %>%
+      group_by(Periodo) %>%
+      summarise(
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
+        )
+      ) %>%
+      arrange(Periodo)
+    
+    
+    req(nrow(df_mensal) > 0)
+    
+    
+    # ============================================================
+    # GARANTIR OS MESES
+    # ============================================================
+    
+    meses <- c(
+      "Primeiro Mês",
+      "Segundo Mês",
+      "Terceiro Mês"
+    )
+    
+    lucro <- setNames(
+      rep(NA_real_, length(meses)),
+      meses
+    )
+    
+    lucro[as.character(df_mensal$Periodo)] <- df_mensal$Lucro
+    
+    
+    m1 <- lucro["Primeiro Mês"]
+    m2 <- lucro["Segundo Mês"]
+    m3 <- lucro["Terceiro Mês"]
+    
+    
+    # ============================================================
+    # VARIAÇÕES
+    # ============================================================
+    
+    var_1_2 <- if (
+      !is.na(m1) &&
+      !is.na(m2) &&
+      m1 != 0
+    ) {
+      ((m2 - m1) / abs(m1)) * 100
+    } else {
+      NA_real_
+    }
+    
+    
+    var_2_3 <- if (
+      !is.na(m2) &&
+      !is.na(m3) &&
+      m2 != 0
+    ) {
+      ((m3 - m2) / abs(m2)) * 100
+    } else {
+      NA_real_
+    }
+    
+    
+    var_1_3 <- if (
+      !is.na(m1) &&
+      !is.na(m3) &&
+      m1 != 0
+    ) {
+      ((m3 - m1) / abs(m1)) * 100
+    } else {
+      NA_real_
+    }
+    
+    
+    # ============================================================
+    # MAIOR E MENOR LUCRO
+    # ============================================================
+    
+    df_valid <- df_mensal %>%
+      filter(!is.na(Lucro))
+    
+    
+    maior <- df_valid %>%
+      slice_max(
+        Lucro,
+        n = 1,
+        with_ties = FALSE
+      )
+    
+    
+    menor <- df_valid %>%
+      slice_min(
+        Lucro,
+        n = 1,
+        with_ties = FALSE
+      )
+    
+    
+    # ============================================================
+    # DETERMINAR TENDÊNCIA
+    # ============================================================
+    
+    tendencia <- "estável"
+    
+    if (
+      !is.na(m1) &&
+      !is.na(m2) &&
+      !is.na(m3)
+    ) {
+      
+      if (
+        m2 > m1 &&
+        m3 > m2
+      ) {
+        tendencia <- "crescimento contínuo"
+        
+      } else if (
+        m2 < m1 &&
+        m3 < m2
+      ) {
+        tendencia <- "redução contínua"
+        
+      } else if (
+        m2 > m1 &&
+        m3 < m2
+      ) {
+        tendencia <- "crescimento inicial seguido de redução"
+        
+      } else if (
+        m2 < m1 &&
+        m3 > m2
+      ) {
+        tendencia <- "redução inicial seguida de recuperação"
+      }
+    }
+    
+    
+    # ============================================================
+    # INTERPRETAÇÃO DA PRIMEIRA VARIAÇÃO
+    # ============================================================
+    
+    leitura_1_2 <- ""
+    
+    if (!is.na(var_1_2)) {
+      
+      if (var_1_2 > 0) {
+        
+        leitura_1_2 <- paste0(
+          "Entre o Primeiro e o Segundo Mês, ",
+          "o lucro aumentou ",
+          scales::number(
+            var_1_2,
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else if (var_1_2 < 0) {
+        
+        leitura_1_2 <- paste0(
+          "Entre o Primeiro e o Segundo Mês, ",
+          "o lucro reduziu ",
+          scales::number(
+            abs(var_1_2),
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else {
+        
+        leitura_1_2 <- paste0(
+          "Entre o Primeiro e o Segundo Mês, ",
+          "o lucro manteve-se estável."
+        )
+      }
+    }
+    
+    
+    # ============================================================
+    # INTERPRETAÇÃO DA SEGUNDA VARIAÇÃO
+    # ============================================================
+    
+    leitura_2_3 <- ""
+    
+    if (!is.na(var_2_3)) {
+      
+      if (var_2_3 > 0) {
+        
+        leitura_2_3 <- paste0(
+          "Do Segundo para o Terceiro Mês, ",
+          "registou-se um aumento de ",
+          scales::number(
+            var_2_3,
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else if (var_2_3 < 0) {
+        
+        leitura_2_3 <- paste0(
+          "Do Segundo para o Terceiro Mês, ",
+          "registou-se uma redução de ",
+          scales::number(
+            abs(var_2_3),
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else {
+        
+        leitura_2_3 <- paste0(
+          "Do Segundo para o Terceiro Mês, ",
+          "o lucro manteve-se estável."
+        )
+      }
+    }
+    
+    
+    # ============================================================
+    # LEITURA DA TENDÊNCIA GERAL
+    # ============================================================
+    
+    leitura_tendencia <- paste0(
+      "No período analisado, observa-se uma tendência de ",
+      tendencia,
+      "."
+    )
+    
+    
+    # ============================================================
+    # LEITURA DO MAIOR RESULTADO
+    # ============================================================
+    
+    leitura_maior <- paste0(
+      "O maior lucro foi registado no ",
+      as.character(maior$Periodo),
+      ", com ",
+      scales::comma(
+        round(maior$Lucro, 0)
+      ),
+      " MT."
+    )
+    
+    
+    # ============================================================
+    # LEITURA DA EVOLUÇÃO GLOBAL
+    # ============================================================
+    
+    leitura_global <- ""
+    
+    if (!is.na(var_1_3)) {
+      
+      if (var_1_3 > 0) {
+        
+        leitura_global <- paste0(
+          "Comparando o Primeiro com o Terceiro Mês, ",
+          "o lucro acumulou um crescimento de ",
+          scales::number(
+            var_1_3,
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else if (var_1_3 < 0) {
+        
+        leitura_global <- paste0(
+          "Comparando o Primeiro com o Terceiro Mês, ",
+          "o lucro apresentou uma redução acumulada de ",
+          scales::number(
+            abs(var_1_3),
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else {
+        
+        leitura_global <- paste0(
+          "Comparando o Primeiro com o Terceiro Mês, ",
+          "o lucro manteve o mesmo nível."
+        )
+      }
+    }
+    
+    
+    # ============================================================
+    # TEXTO FINAL
+    # ============================================================
+    
+    texto <- paste0(
+      "<strong>Dados sobre lucro:</strong> ",
+      leitura_tendencia,
+      " ",
+      leitura_1_2,
+      " ",
+      leitura_2_3,
+      " ",
+      leitura_maior,
+      " ",
+      leitura_global
+    )
+    
+    
+    # ============================================================
+    # APRESENTAÇÃO
+    # ============================================================
+    
+    div(
+      style = paste0(
+        "background-color:#f5f3f4;",
+        "border-left:5px solid #8054A2;",
+        "padding:15px 20px;",
+        "margin-top:10px;",
+        "margin-bottom:15px;",
+        "border-radius:5px;",
+        "font-size:15px;",
+        "line-height:1.6;",
+        "color:#333333;"
+      ),
+      HTML(texto)
+    )
+  })
+ 
   output$tabela_controle_lucro <- renderDT({
     
     # =========================
@@ -16846,7 +17395,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
     
     # =========================
-    # AGREGAR POR MÊS
+    # AGREGAR POR PARTICIPANTE E MÊS
     # =========================
     df <- df %>%
       group_by(
@@ -16855,7 +17404,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
         Periodo
       ) %>%
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(Lucro_Semanal, na.rm = TRUE),
         .groups = "drop"
       ) %>%
       
@@ -16891,15 +17440,33 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
     
     # =========================
-    # GARANTIR ORDEM DAS COLUNAS
+    # GARANTIR QUE TODAS AS COLUNAS EXISTEM
+    # =========================
+    for (coluna in c(
+      "Primeiro Mês",
+      "Segundo Mês",
+      "Terceiro Mês"
+    )) {
+      
+      if (!coluna %in% names(tabela)) {
+        tabela[[coluna]] <- 0
+      }
+    }
+    
+    
+    # =========================
+    # MÉDIA DE LUCRO POR PARTICIPANTE
     # =========================
     tabela <- tabela %>%
-      dplyr::select(
-        Nome_do_pesquisador,
-        Nome_Empreendedora,
-        `Primeiro Mês`,
-        `Segundo Mês`,
-        `Terceiro Mês`
+      mutate(
+        `Média por Participante` = rowMeans(
+          cbind(
+            `Primeiro Mês`,
+            `Segundo Mês`,
+            `Terceiro Mês`
+          ),
+          na.rm = TRUE
+        )
       )
     
     
@@ -16928,6 +17495,21 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       ) %>%
       
+      # =========================
+    # ORGANIZAR COLUNAS
+    # =========================
+    select(
+      Nome_do_pesquisador,
+      Nome_Empreendedora,
+      `Primeiro Mês`,
+      `Segundo Mês`,
+      `Terceiro Mês`,
+      `Média por Participante`,
+      `1º para 2º Mês`,
+      `2º para 3º Mês`,
+      Prioridade
+    ) %>%
+      
       arrange(Prioridade) %>%
       
       select(-Prioridade)
@@ -16945,54 +17527,59 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
     ) %>%
       
-      formatStyle(
-        "1º para 2º Mês",
-        backgroundColor = styleEqual(
-          c(
-            "Aumentou",
-            "Manteve",
-            "Reduziu"
-          ),
-          c(
-            "#8054A2",
-            "#f9a825",
-            "#69C7BE"
-          )
-        )
-      ) %>%
+      # =========================
+    # FORMATAR VALORES MONETÁRIOS
+    # =========================
+    formatRound(
+      columns = c(
+        "Primeiro Mês",
+        "Segundo Mês",
+        "Terceiro Mês",
+        "Média por Participante"
+      ),
+      digits = 2
+    ) %>%
       
-      formatStyle(
-        "2º para 3º Mês",
-        backgroundColor = styleEqual(
-          c(
-            "Aumentou",
-            "Manteve",
-            "Reduziu"
-          ),
-          c(
-            "#8054A2",
-            "#f9a825",
-            "#69C7BE"
-          )
+      # =========================
+    # COR 1º → 2º
+    # =========================
+    formatStyle(
+      "1º para 2º Mês",
+      backgroundColor = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#8054A2",
+          "#f9a825",
+          "#69C7BE"
         )
       )
+    ) %>%
+      
+      # =========================
+    # COR 2º → 3º
+    # =========================
+    formatStyle(
+      "2º para 3º Mês",
+      backgroundColor = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#8054A2",
+          "#f9a825",
+          "#69C7BE"
+        )
+      )
+    )
   })
   
- 
-  
-  # output$tabela_financeira <- renderDT({
-  #   
-  #   datatable(
-  #     df_financeiro(),
-  #     extensions = "Buttons",
-  #     options = list(
-  #       dom = "Bfrtip",
-  #       buttons = c("copy", "csv", "excel"),
-  #       pageLength = 15,
-  #       scrollX = TRUE
-  #     )
-  #   )
-  # })
+
   #################################### MONITORIA BEIRA
   # ======================================================
   # DADOS GERAIS - BEIRA C3
@@ -17323,15 +17910,8 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
   })
 
-  
-  
-  
-  
-  
-  
-
-  
   ########################## PRESENCAS BEIRA
+  
   dados_filtrados_coletiva_beira <- reactive({
     
     df <- Presencas_Colectivas_Beira
@@ -17501,11 +18081,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   # ==========================================================
   #                 WEBINARS BEIRA
   # ==========================================================
-  
-  
-  # -------------------------------
-  # Atualizar cidades Webinars
-  # -------------------------------
+
   
   observe({
     
@@ -17522,12 +18098,6 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
     
   })
-  
-  
-  
-  # -------------------------------
-  # Pesquisador dependente Webinars
-  # -------------------------------
   
   observeEvent(
     input$filtro_monitoria_webinar_beira,
@@ -17600,9 +18170,6 @@ output$texto_resultado_exercicio_4 <- renderUI({
     df
     
   })
-  
-  
-  
   
   # ==========================================================
   # KPIs WEBINARS
@@ -17846,10 +18413,6 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   
   
-  
-  
-  
-  
   # ==========================================================
   #                 Feiras_Nampula BEIRA
   # ==========================================================
@@ -18071,54 +18634,41 @@ output$texto_resultado_exercicio_4 <- renderUI({
   # ==========================================================
   # FINANCEIRO BEIRA
   # ==========================================================
-  
-  
-  # ==========================================================
-  # FUNÇÃO VALUE BOX
-  # ==========================================================
-  
-  criar_box_beira <- function(valor, titulo, cor){
-    
-    div(
-      class = paste("value-box", cor),
-      
-      div(
-        class = "value-number",
-        valor
-      ),
-      
-      div(
-        class = "value-title",
-        titulo
-      )
-    )
-    
-  }
-  
-  
-  
-  # ==========================================================
-  # ATUALIZAR EMPREENDEDORAS PELO PESQUISADOR
-  # ==========================================================
+
   
   observeEvent(
     input$Pesquisador_beira,
     {
       
-      df <- Financeiro_Report_Agregado_Beira
+      df <- Financeiro_Beira
       
+      # --------------------------------------------------------
+      # FILTRAR PELO PESQUISADOR
+      # --------------------------------------------------------
       
-      if(input$Pesquisador_beira != "Todos"){
+      if (
+        !is.null(input$Pesquisador_beira) &&
+        input$Pesquisador_beira != "Todos"
+      ) {
         
         df <- df %>%
           filter(
-            Nome_do_pesquisador == input$Pesquisador_beira
+            Nome_do_pesquisador ==
+              input$Pesquisador_beira
           )
         
       }
       
       
+      # --------------------------------------------------------
+      # LISTA DE EMPREENDEDORAS
+      # --------------------------------------------------------
+      
       empreendedoras <- df %>%
+        filter(
+          !is.na(Nome_Empreendedora),
+          Nome_Empreendedora != ""
+        ) %>%
         distinct(
           Nome_Empreendedora
         ) %>%
@@ -18130,13 +18680,19 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       
       
+      # --------------------------------------------------------
+      # ATUALIZAR SELECT
+      # --------------------------------------------------------
+      
       updateSelectInput(
         session,
         "Nome_Empreendedora_beira",
+        
         choices = c(
           "Todas",
           empreendedoras
         ),
+        
         selected = "Todas"
       )
       
@@ -18146,18 +18702,22 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   
   # ==========================================================
-  # BASE FILTRADA
+  # BASE FINANCEIRA FILTRADA - BEIRA
   # ==========================================================
   
   df_financeiro_beira <- reactive({
     
-    df <- Financeiro_Report_Agregado_Beira
+    df <- Financeiro_Beira
     
     
-    if(
+    # --------------------------------------------------------
+    # FILTRO PESQUISADOR
+    # --------------------------------------------------------
+    
+    if (
       !is.null(input$Pesquisador_beira) &&
       input$Pesquisador_beira != "Todos"
-    ){
+    ) {
       
       df <- df %>%
         filter(
@@ -18168,10 +18728,14 @@ output$texto_resultado_exercicio_4 <- renderUI({
     }
     
     
-    if(
+    # --------------------------------------------------------
+    # FILTRO EMPREENDEDORA
+    # --------------------------------------------------------
+    
+    if (
       !is.null(input$Nome_Empreendedora_beira) &&
       input$Nome_Empreendedora_beira != "Todas"
-    ){
+    ) {
       
       df <- df %>%
         filter(
@@ -18182,10 +18746,14 @@ output$texto_resultado_exercicio_4 <- renderUI({
     }
     
     
-    if(
+    # --------------------------------------------------------
+    # FILTRO PERÍODO
+    # --------------------------------------------------------
+    
+    if (
       !is.null(input$Mes_beira) &&
       input$Mes_beira != "Todos"
-    ){
+    ) {
       
       df <- df %>%
         filter(
@@ -18203,118 +18771,231 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   
   # ==========================================================
-  # VALUE BOXES
+  # VALUE BOX 1 - EMPREENDEDORAS
   # ==========================================================
-  
   
   output$vb_emp_beira <- renderUI({
     
-    criar_box_beira(
-      n_distinct(
-        df_financeiro_beira()$Nome_Empreendedora
-      ),
-      "Empreendedoras",
-      "purple"
-    )
-    
-  })
-  
-  
-  
-  output$vb_lucro_beira <- renderUI({
-    
-    criar_box_beira(
-      
-      scales::comma(
-        round(
-          sum(
-            df_financeiro_beira()$Lucro_Mensal,
-            na.rm = TRUE
-          )
-        )
-      ),
-      
-      "Lucro",
-      "blue"
-    )
-    
-  })
-  
-  
-  
-  output$vb_rendimento_beira <- renderUI({
-    
-    criar_box_beira(
-      
-      scales::comma(
-        round(
-          sum(
-            df_financeiro_beira()$Rendimento_Total,
-            na.rm = TRUE
-          )
-        )
-      ),
-      
-      "Rendimento",
-      "green"
-    )
-    
-  })
-  
-  
-  
-  output$vb_custos_beira <- renderUI({
-    
-    criar_box_beira(
-      
-      scales::comma(
-        round(
-          sum(
-            df_financeiro_beira()$Custo_Operacional_Total,
-            na.rm = TRUE
-          ) +
-            sum(
-              df_financeiro_beira()$Custo_Produtos_Total,
-              na.rm = TRUE
-            )
-        )
-      ),
-      
-      "Custos",
-      "orange"
-    )
-    
-  })
-  
-  
-  
-  # ==========================================================
-  # RESUMO FINANCEIRO
-  # ==========================================================
-  output$cidade_plot_beira <- renderPlotly({
-    
     df <- df_financeiro_beira()
     
-    resumo <- data.frame(
+    total_emp <- df %>%
+      filter(
+        !is.na(Nome_Empreendedora),
+        Nome_Empreendedora != ""
+      ) %>%
+      summarise(
+        total = n_distinct(
+          Nome_Empreendedora
+        )
+      ) %>%
+      pull(total)
+    
+    
+    div(
+      class = "value-box purple",
       
-      Indicador = c(
-        "Lucro",
-        "Rendimento",
-        "Custos"
+      div(
+        class = "value-number",
+        
+        scales::comma(
+          total_emp
+        )
+        
       ),
       
-      Valor = c(
-        sum(df$Lucro_Mensal, na.rm = TRUE),
-        
-        sum(df$Rendimento_Total, na.rm = TRUE),
-        
-        sum(df$Custo_Operacional_Total, na.rm = TRUE) +
-          sum(df$Custo_Produtos_Total, na.rm = TRUE)
+      div(
+        class = "value-title",
+        "Empreendedoras"
       )
       
     )
     
+  })
+  
+  
+  
+  # ==========================================================
+  # VALUE BOX 2 - LUCRO
+  # ==========================================================
+  
+  output$vb_lucro_beira <- renderUI({
     
+    df <- df_financeiro_beira()
+    
+    lucro <- sum(
+      df$Lucro_Semanal,
+      na.rm = TRUE
+    )
+    
+    
+    div(
+      class = "value-box blue",
+      
+      div(
+        class = "value-number",
+        
+        scales::comma(
+          round(
+            lucro,
+            0
+          )
+        )
+        
+      ),
+      
+      div(
+        class = "value-title",
+        "Lucro (MT)"
+      )
+      
+    )
+    
+  })
+  
+  
+  
+  # ==========================================================
+  # VALUE BOX 3 - RENDIMENTO
+  # ==========================================================
+  
+  output$vb_rendimento_beira <- renderUI({
+    
+    df <- df_financeiro_beira()
+    
+    rendimento <- sum(
+      df$Rendimento,
+      na.rm = TRUE
+    )
+    
+    
+    div(
+      class = "value-box green",
+      
+      div(
+        class = "value-number",
+        
+        scales::comma(
+          round(
+            rendimento,
+            0
+          )
+        )
+        
+      ),
+      
+      div(
+        class = "value-title",
+        "Rendimento (MT)"
+      )
+      
+    )
+    
+  })
+  
+  
+  
+  # ==========================================================
+  # VALUE BOX 4 - CUSTOS
+  # ==========================================================
+  
+  output$vb_custos_beira <- renderUI({
+    
+    df <- df_financeiro_beira()
+    
+    
+    custo_operacional <- sum(
+      df$Custo_Operacional,
+      na.rm = TRUE
+    )
+    
+    
+    custo_produtos <- sum(
+      df$Custo_de_produtos_Servicos,
+      na.rm = TRUE
+    )
+    
+    
+    custos <- custo_operacional +
+      custo_produtos
+    
+    
+    div(
+      class = "value-box orange",
+      
+      div(
+        class = "value-number",
+        
+        scales::comma(
+          round(
+            custos,
+            0
+          )
+        )
+        
+      ),
+      
+      div(
+        class = "value-title",
+        "Custos (MT)"
+      )
+      
+    )
+    
+  })
+  
+  # ==========================================================
+  # GRÁFICO - RESUMO FINANCEIRO BEIRA
+  # ==========================================================
+  
+  output$cidade_plot_beira <- renderPlotly({
+    
+    df <- df_financeiro_beira()
+    
+    
+    # ========================================================
+    # RESUMO
+    # ========================================================
+    
+    resumo <- data.frame(
+      
+      Indicador = as.character(
+        c(
+          "Lucro",
+          "Rendimento",
+          "Custos"
+        )
+      ),
+      
+      Valor = as.numeric(
+        c(
+          
+          sum(
+            df$Lucro_Semanal,
+            na.rm = TRUE
+          ),
+          
+          sum(
+            df$Rendimento,
+            na.rm = TRUE
+          ),
+          
+          sum(
+            df$Custo_Operacional,
+            na.rm = TRUE
+          ) +
+            
+            sum(
+              df$Custo_de_produtos_Servicos,
+              na.rm = TRUE
+            )
+          
+        )
+      ),
+      
+      stringsAsFactors = FALSE
+      
+    )
+
     g <- ggplot(
       resumo,
       aes(
@@ -18328,10 +19009,14 @@ output$texto_resultado_exercicio_4 <- renderUI({
         width = 0.65
       ) +
       
-      # Valores no centro das barras
       geom_text(
         aes(
-          label = scales::comma(round(Valor,0))
+          label = scales::comma(
+            round(
+              Valor,
+              0
+            )
+          )
         ),
         vjust = -0.3,
         fontface = "bold",
@@ -18353,75 +19038,128 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       scale_y_continuous(
         labels = scales::comma,
-        expand = expansion(mult = c(0.05,0.20))
+        expand = expansion(
+          mult = c(
+            0.05,
+            0.20
+          )
+        )
       ) +
       
-      theme_stata(base_size = 14) +
+      theme_stata(
+        base_size = 14
+      ) +
       
       theme(
         legend.position = "none",
         
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color="#E0E0E0"),
+        panel.grid.major.x =
+          element_blank(),
         
-        axis.text = element_text(color="#333333"),
-        axis.title = element_text(face="bold")
+        panel.grid.minor =
+          element_blank(),
+        
+        panel.grid.major.y =
+          element_line(
+            color = "#E0E0E0"
+          ),
+        
+        axis.text =
+          element_text(
+            color = "#333333"
+          ),
+        
+        axis.title =
+          element_text(
+            face = "bold"
+          )
       )
     
     
-    ggplotly(g) %>%
+    # ========================================================
+    # PLOTLY
+    # ========================================================
+    
+    ggplotly(
+      g,
+      tooltip = c(
+        "x",
+        "y"
+      )
+    ) %>%
       
       layout(
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor  = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4"
       )
     
   })
   
+  
   ####################### ABA SEMANAL
+
   # ============================================================
-  # Dados semanais - Beira
-  # ============================================================
-  # ============================================================
-  # Dados Financeiros Beira com filtros
+  # FILTROS FINANCEIROS - BEIRA
   # ============================================================
   
   df_financeiro_beira <- reactive({
     
-    dados <- Financeiro_Report_Agregado_Beira
+    dados <- Financeiro_Beira
     
+    # ----------------------------------------------------------
     # Filtro Pesquisador
-    if(input$Pesquisador_beira != "Todos"){
+    # ----------------------------------------------------------
+    
+    if (!is.null(input$Pesquisador_beira) &&
+        input$Pesquisador_beira != "Todos") {
+      
       dados <- dados %>%
         filter(
           Nome_do_pesquisador == input$Pesquisador_beira
         )
     }
     
+    
+    # ----------------------------------------------------------
     # Filtro Empreendedora
-    if(input$Nome_Empreendedora_beira != "Todas"){
+    # ----------------------------------------------------------
+    
+    if (!is.null(input$Nome_Empreendedora_beira) &&
+        input$Nome_Empreendedora_beira != "Todas") {
+      
       dados <- dados %>%
         filter(
           Nome_Empreendedora == input$Nome_Empreendedora_beira
         )
     }
     
+    
+    # ----------------------------------------------------------
     # Filtro Mês
-    if(input$Mes_beira != "Todos"){
+    # ----------------------------------------------------------
+    
+    if (!is.null(input$Mes_beira) &&
+        input$Mes_beira != "Todos") {
+      
       dados <- dados %>%
         filter(
           Periodo == input$Mes_beira
         )
     }
     
+    
     dados
   })
   
   
+  # ============================================================
+  # BASE SEMANAL - BEIRA
+  # ============================================================
+  
   df_semana_beira <- reactive({
     
     df_financeiro_beira() %>%
+      
       mutate(
         Semanas = factor(
           Semanas,
@@ -18434,28 +19172,65 @@ output$texto_resultado_exercicio_4 <- renderUI({
           )
         )
       ) %>%
+      
       arrange(Semanas)
   })
   
   
   # ============================================================
-  # Gráfico evolução semanal do lucro - Beira
+  # GRÁFICO EVOLUÇÃO SEMANAL DO LUCRO - BEIRA
   # ============================================================
   
   output$grafico_financeiro_beira <- renderPlotly({
     
     df_plot <- df_semana_beira() %>%
-      group_by(Semanas) %>%
-      summarise(
-        Lucro = sum(Lucro_Semanal, na.rm = TRUE),
-        .groups = "drop"
-      )
-    
-    desloc <- max(df_plot$Lucro, na.rm = TRUE) * 0.08
-    
-    g <- ggplot(df_plot, aes(x = Semanas, y = Lucro, group = 1)) +
       
-      geom_area(fill = "#8054A2", alpha = 0.15) +
+      group_by(Semanas) %>%
+      
+      summarise(
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      
+      filter(!is.na(Semanas))
+    
+    
+    # Evitar erro sem dados
+    
+    if (nrow(df_plot) == 0) {
+      return(NULL)
+    }
+    
+    
+    desloc <- max(
+      abs(df_plot$Lucro),
+      na.rm = TRUE
+    ) * 0.08
+    
+    
+    # Evitar deslocamento igual a zero
+    
+    if (is.na(desloc) || desloc == 0) {
+      desloc <- 1
+    }
+    
+    
+    g <- ggplot(
+      df_plot,
+      aes(
+        x = Semanas,
+        y = Lucro,
+        group = 1
+      )
+    ) +
+      
+      geom_area(
+        fill = "#8054A2",
+        alpha = 0.15
+      ) +
       
       geom_line(
         color = "#8054A2",
@@ -18473,7 +19248,9 @@ output$texto_resultado_exercicio_4 <- renderUI({
       geom_text(
         aes(
           y = Lucro + desloc,
-          label = scales::comma(Lucro)
+          label = scales::comma(
+            round(Lucro, 0)
+          )
         ),
         color = "#8054A2",
         fontface = "bold",
@@ -18487,46 +19264,86 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       scale_y_continuous(
         labels = scales::comma,
-        expand = expansion(mult = c(0.05,0.25))
+        expand = expansion(
+          mult = c(0.05, 0.25)
+        )
       ) +
       
-      theme_minimal(base_size = 14) +
+      theme_minimal(
+        base_size = 14
+      ) +
       
       theme(
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color="#E0E0E0"),
-        axis.text = element_text(color="#333333"),
-        axis.title = element_text(face="bold")
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        ),
+        axis.text = element_text(
+          color = "#333333"
+        ),
+        axis.title = element_text(
+          face = "bold"
+        )
       )
     
     
     ggplotly(g) %>%
       layout(
-        paper_bgcolor="#f5f3f4",
-        plot_bgcolor="#f5f3f4"
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
       )
   })
   
   
   # ============================================================
-  # Gráfico barras semanais - Beira
+  # GRÁFICO BARRAS SEMANAIS - BEIRA
   # ============================================================
   
   output$grafico_barras_semanas_beira <- renderPlotly({
     
     df_plot <- df_semana_beira() %>%
+      
       group_by(Semanas) %>%
+      
       summarise(
-        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
-        Rendimento = sum(Rendimento_Total, na.rm = TRUE),
-        Custo_Operacional = sum(Custo_Operacional_Total, na.rm = TRUE),
-        Custo_Produto = sum(Custo_Produtos_Total, na.rm = TRUE),
+        
+        # Lucro = Rendimento - custos
+        
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        
+        # Rendimento bruto
+        
+        Rendimento = sum(
+          Rendimento,
+          na.rm = TRUE
+        ),
+        
+        # Custo operacional
+        
+        Custo_Operacional = sum(
+          Custo_Operacional,
+          na.rm = TRUE
+        ),
+        
+        # Custo dos produtos/serviços
+        
+        Custo_Produto = sum(
+          Custo_de_produtos_Servicos,
+          na.rm = TRUE
+        ),
+        
         .groups = "drop"
-      )
+      ) %>%
+      
+      filter(!is.na(Semanas))
     
     
     df_long <- df_plot %>%
+      
       tidyr::pivot_longer(
         cols = c(
           Lucro,
@@ -18539,7 +19356,9 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
     
     
-    dodge <- position_dodge(width = 0.8)
+    dodge <- position_dodge(
+      width = 0.8
+    )
     
     
     p <- ggplot(
@@ -18558,62 +19377,72 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       geom_text(
         aes(
-          label = scales::comma(round(Valor,0))
+          label = scales::comma(
+            round(Valor, 0)
+          )
         ),
         position = dodge,
-        vjust = 0.5,
-        color="black",
-        fontface="bold",
-        size=4
+        vjust = -0.3,
+        color = "black",
+        fontface = "bold",
+        size = 4
       ) +
       
       scale_fill_manual(
-        values=c(
-          "Lucro"="#8054A2",
-          "Rendimento"="#f9a825",
-          "Custo_Operacional"="#69C7BE",
-          "Custo_Produto"="#f77333"
+        values = c(
+          "Lucro" = "#8054A2",
+          "Rendimento" = "#f9a825",
+          "Custo_Operacional" = "#69C7BE",
+          "Custo_Produto" = "#f77333"
         )
       ) +
       
       labs(
-        x="",
-        y="Valores (MT)",
-        fill=""
+        x = "",
+        y = "Valores (MT)",
+        fill = ""
       ) +
       
-      theme_stata(base_size=14) +
+      theme_stata(
+        base_size = 14
+      ) +
       
       theme(
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color="#E0E0E0")
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        )
       )
     
     
     ggplotly(p) %>%
       layout(
-        barmode="group",
-        paper_bgcolor="#f5f3f4",
-        plot_bgcolor="#f5f3f4"
+        barmode = "group",
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
       )
   })
   
   
-  
-  # ==========================================================
-  # GRÁFICO MENSAL
-  # ==========================================================
-  
+  # ============================================================
+  # GRÁFICO MENSAL - BEIRA
+  # ============================================================
   
   output$grafico_mensal_beira <- renderPlotly({
     
     df_plot <- df_financeiro_beira() %>%
+      
       group_by(Periodo) %>%
+      
       summarise(
-        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
+      
       mutate(
         Periodo = factor(
           Periodo,
@@ -18624,13 +19453,41 @@ output$texto_resultado_exercicio_4 <- renderUI({
           )
         )
       ) %>%
-      arrange(Periodo)
-    
-    desloc <- max(df_plot$Lucro, na.rm = TRUE) * 0.07
-    
-    g <- ggplot(df_plot, aes(x = Periodo, y = Lucro, group = 1)) +
       
-      geom_area(fill = "#8054A2", alpha = 0.15) +
+      arrange(Periodo) %>%
+      
+      filter(!is.na(Periodo))
+    
+    
+    if (nrow(df_plot) == 0) {
+      return(NULL)
+    }
+    
+    
+    desloc <- max(
+      abs(df_plot$Lucro),
+      na.rm = TRUE
+    ) * 0.08
+    
+    
+    if (is.na(desloc) || desloc == 0) {
+      desloc <- 1
+    }
+    
+    
+    g <- ggplot(
+      df_plot,
+      aes(
+        x = Periodo,
+        y = Lucro,
+        group = 1
+      )
+    ) +
+      
+      geom_area(
+        fill = "#8054A2",
+        alpha = 0.15
+      ) +
       
       geom_line(
         color = "#8054A2",
@@ -18648,7 +19505,9 @@ output$texto_resultado_exercicio_4 <- renderUI({
       geom_text(
         aes(
           y = Lucro + desloc,
-          label = scales::comma(Lucro)
+          label = scales::comma(
+            round(Lucro, 0)
+          )
         ),
         color = "#8054A2",
         fontface = "bold",
@@ -18662,34 +19521,54 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       scale_y_continuous(
         labels = scales::comma,
-        expand = expansion(mult = c(0.05,0.25))
+        expand = expansion(
+          mult = c(0.05, 0.25)
+        )
       ) +
       
-      theme_minimal(base_size = 14) +
+      theme_minimal(
+        base_size = 14
+      ) +
       
       theme(
         panel.grid.major.x = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.grid.major.y = element_line(color="#E0E0E0")
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        ),
+        axis.text = element_text(
+          color = "#333333"
+        ),
+        axis.title = element_text(
+          face = "bold"
+        )
       )
+    
     
     ggplotly(g) %>%
       layout(
-        paper_bgcolor="#f5f3f4",
-        plot_bgcolor="#f5f3f4"
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
       )
   })
   
-  
-  output$grafico_barras_beira <- renderPlotly({
+  output$leitura_grafico_mensal_beira <- renderUI({
     
-    df_plot <- df_financeiro_beira() %>%
+    df <- df_financeiro_beira()
+    
+    req(nrow(df) > 0)
+    
+    # ============================================================
+    # CALCULAR LUCRO TOTAL POR MÊS
+    # ============================================================
+    
+    df_mensal <- df %>%
       group_by(Periodo) %>%
       summarise(
-        Lucro = sum(Lucro_Mensal, na.rm = TRUE),
-        Rendimento = sum(Rendimento_Total, na.rm = TRUE),
-        Custo_Operacional = sum(Custo_Operacional_Total, na.rm = TRUE),
-        Custo_Produto = sum(Custo_Produtos_Total, na.rm = TRUE),
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
       mutate(
@@ -18701,9 +19580,413 @@ output$texto_resultado_exercicio_4 <- renderUI({
             "Terceiro Mês"
           )
         )
+      ) %>%
+      arrange(Periodo)
+    
+    
+    req(nrow(df_mensal) > 0)
+    
+    
+    # ============================================================
+    # GARANTIR OS MESES
+    # ============================================================
+    
+    meses <- c(
+      "Primeiro Mês",
+      "Segundo Mês",
+      "Terceiro Mês"
+    )
+    
+    lucro <- setNames(
+      rep(NA_real_, length(meses)),
+      meses
+    )
+    
+    lucro[as.character(df_mensal$Periodo)] <- df_mensal$Lucro
+    
+    m1 <- lucro["Primeiro Mês"]
+    m2 <- lucro["Segundo Mês"]
+    m3 <- lucro["Terceiro Mês"]
+    
+    
+    # ============================================================
+    # VARIAÇÕES
+    # ============================================================
+    
+    var_1_2 <- if (
+      !is.na(m1) &&
+      !is.na(m2) &&
+      m1 != 0
+    ) {
+      ((m2 - m1) / abs(m1)) * 100
+    } else {
+      NA_real_
+    }
+    
+    
+    var_2_3 <- if (
+      !is.na(m2) &&
+      !is.na(m3) &&
+      m2 != 0
+    ) {
+      ((m3 - m2) / abs(m2)) * 100
+    } else {
+      NA_real_
+    }
+    
+    
+    var_1_3 <- if (
+      !is.na(m1) &&
+      !is.na(m3) &&
+      m1 != 0
+    ) {
+      ((m3 - m1) / abs(m1)) * 100
+    } else {
+      NA_real_
+    }
+    
+    
+    # ============================================================
+    # MAIOR E MENOR LUCRO
+    # ============================================================
+    
+    df_valid <- df_mensal %>%
+      filter(!is.na(Lucro))
+    
+    
+    maior <- df_valid %>%
+      slice_max(
+        Lucro,
+        n = 1,
+        with_ties = FALSE
       )
     
+    
+    menor <- df_valid %>%
+      slice_min(
+        Lucro,
+        n = 1,
+        with_ties = FALSE
+      )
+    
+    
+    # ============================================================
+    # DETERMINAR TENDÊNCIA
+    # ============================================================
+    
+    tendencia <- "estável"
+    
+    if (
+      !is.na(m1) &&
+      !is.na(m2) &&
+      !is.na(m3)
+    ) {
+      
+      if (
+        m2 > m1 &&
+        m3 > m2
+      ) {
+        
+        tendencia <- "crescimento contínuo"
+        
+      } else if (
+        m2 < m1 &&
+        m3 < m2
+      ) {
+        
+        tendencia <- "redução contínua"
+        
+      } else if (
+        m2 > m1 &&
+        m3 < m2
+      ) {
+        
+        tendencia <- "crescimento inicial seguido de redução"
+        
+      } else if (
+        m2 < m1 &&
+        m3 > m2
+      ) {
+        
+        tendencia <- "redução inicial seguida de recuperação"
+      }
+    }
+    
+    
+    # ============================================================
+    # INTERPRETAÇÃO DA PRIMEIRA VARIAÇÃO
+    # ============================================================
+    
+    leitura_1_2 <- ""
+    
+    if (!is.na(var_1_2)) {
+      
+      if (var_1_2 > 0) {
+        
+        leitura_1_2 <- paste0(
+          "Entre o Primeiro e o Segundo Mês, ",
+          "o lucro aumentou ",
+          scales::number(
+            var_1_2,
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else if (var_1_2 < 0) {
+        
+        leitura_1_2 <- paste0(
+          "Entre o Primeiro e o Segundo Mês, ",
+          "o lucro reduziu ",
+          scales::number(
+            abs(var_1_2),
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else {
+        
+        leitura_1_2 <- paste0(
+          "Entre o Primeiro e o Segundo Mês, ",
+          "o lucro manteve-se estável."
+        )
+      }
+    }
+    
+    
+    # ============================================================
+    # INTERPRETAÇÃO DA SEGUNDA VARIAÇÃO
+    # ============================================================
+    
+    leitura_2_3 <- ""
+    
+    if (!is.na(var_2_3)) {
+      
+      if (var_2_3 > 0) {
+        
+        leitura_2_3 <- paste0(
+          "Do Segundo para o Terceiro Mês, ",
+          "registou-se um aumento de ",
+          scales::number(
+            var_2_3,
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else if (var_2_3 < 0) {
+        
+        leitura_2_3 <- paste0(
+          "Do Segundo para o Terceiro Mês, ",
+          "registou-se uma redução de ",
+          scales::number(
+            abs(var_2_3),
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else {
+        
+        leitura_2_3 <- paste0(
+          "Do Segundo para o Terceiro Mês, ",
+          "o lucro manteve-se estável."
+        )
+      }
+    }
+    
+    
+    # ============================================================
+    # LEITURA DA TENDÊNCIA GERAL
+    # ============================================================
+    
+    leitura_tendencia <- paste0(
+      "No período analisado, observa-se uma tendência de ",
+      tendencia,
+      "."
+    )
+    
+    
+    # ============================================================
+    # LEITURA DO MAIOR RESULTADO
+    # ============================================================
+    
+    leitura_maior <- paste0(
+      "O maior lucro foi registado no ",
+      as.character(maior$Periodo),
+      ", com ",
+      scales::comma(
+        round(maior$Lucro, 0)
+      ),
+      " MT."
+    )
+    
+    
+    # ============================================================
+    # LEITURA DO MENOR RESULTADO
+    # ============================================================
+    
+    leitura_menor <- paste0(
+      "O menor lucro foi registado no ",
+      as.character(menor$Periodo),
+      ", com ",
+      scales::comma(
+        round(menor$Lucro, 0)
+      ),
+      " MT."
+    )
+    
+    
+    # ============================================================
+    # LEITURA DA EVOLUÇÃO GLOBAL
+    # ============================================================
+    
+    leitura_global <- ""
+    
+    if (!is.na(var_1_3)) {
+      
+      if (var_1_3 > 0) {
+        
+        leitura_global <- paste0(
+          "Comparando o Primeiro com o Terceiro Mês, ",
+          "o lucro acumulou um crescimento de ",
+          scales::number(
+            var_1_3,
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else if (var_1_3 < 0) {
+        
+        leitura_global <- paste0(
+          "Comparando o Primeiro com o Terceiro Mês, ",
+          "o lucro apresentou uma redução acumulada de ",
+          scales::number(
+            abs(var_1_3),
+            accuracy = 0.1,
+            decimal.mark = ","
+          ),
+          "%."
+        )
+        
+      } else {
+        
+        leitura_global <- paste0(
+          "Comparando o Primeiro com o Terceiro Mês, ",
+          "o lucro manteve o mesmo nível."
+        )
+      }
+    }
+    
+    
+    # ============================================================
+    # TEXTO FINAL
+    # ============================================================
+    
+    texto <- paste0(
+      
+      "<strong>Dados sobre lucro:</strong> ",
+      
+      leitura_tendencia,
+      " ",
+      
+      leitura_1_2,
+      " ",
+      
+      leitura_2_3,
+      " ",
+      
+      leitura_maior,
+      " ",
+      
+      leitura_menor,
+      " ",
+      
+      leitura_global
+    )
+    
+    
+    # ============================================================
+    # APRESENTAÇÃO
+    # ============================================================
+    
+    div(
+      
+      style = paste0(
+        "background-color:#f5f3f4;",
+        "border-left:5px solid #8054A2;",
+        "padding:15px 20px;",
+        "margin-top:10px;",
+        "margin-bottom:15px;",
+        "border-radius:5px;",
+        "font-size:15px;",
+        "line-height:1.6;",
+        "color:#333333;"
+      ),
+      
+      HTML(texto)
+    )
+  })
+  
+  # ============================================================
+  # GRÁFICO MENSAL:
+  # RENDIMENTO, CUSTOS E LUCRO - BEIRA
+  # ============================================================
+  
+  output$grafico_barras_beira <- renderPlotly({
+    
+    df_plot <- df_financeiro_beira() %>%
+      
+      group_by(Periodo) %>%
+      
+      summarise(
+        
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        
+        Rendimento = sum(
+          Rendimento,
+          na.rm = TRUE
+        ),
+        
+        Custo_Operacional = sum(
+          Custo_Operacional,
+          na.rm = TRUE
+        ),
+        
+        Custo_Produto = sum(
+          Custo_de_produtos_Servicos,
+          na.rm = TRUE
+        ),
+        
+        .groups = "drop"
+      ) %>%
+      
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
+        )
+      ) %>%
+      
+      arrange(Periodo)
+    
+    
     df_long <- df_plot %>%
+      
       tidyr::pivot_longer(
         cols = c(
           Lucro,
@@ -18715,7 +19998,11 @@ output$texto_resultado_exercicio_4 <- renderUI({
         values_to = "Valor"
       )
     
-    dodge <- position_dodge(width = 0.8)
+    
+    dodge <- position_dodge(
+      width = 0.8
+    )
+    
     
     p <- ggplot(
       df_long,
@@ -18733,73 +20020,92 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       geom_text(
         aes(
-          label = scales::comma(round(Valor,0))
+          label = scales::comma(
+            round(Valor, 0)
+          )
         ),
         position = dodge,
-        vjust = 0.5,
-        color="black",
-        fontface="bold",
-        size=4
+        vjust = -0.3,
+        color = "black",
+        fontface = "bold",
+        size = 4
       ) +
       
       scale_fill_manual(
         values = c(
-          "Lucro"="#8054A2",
-          "Rendimento"="#f9a825",
-          "Custo_Operacional"="#69C7BE",
-          "Custo_Produto"="#f77333"
+          "Lucro" = "#8054A2",
+          "Rendimento" = "#f9a825",
+          "Custo_Operacional" = "#69C7BE",
+          "Custo_Produto" = "#f77333"
         )
       ) +
       
       labs(
-        x="",
-        y="Valores (MT)",
-        fill=""
+        x = "",
+        y = "Valores (MT)",
+        fill = ""
       ) +
       
-      theme_stata(base_size=14)
+      theme_stata(
+        base_size = 14
+      ) +
+      
+      theme(
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major.y = element_line(
+          color = "#E0E0E0"
+        )
+      )
     
     
     ggplotly(p) %>%
       layout(
-        barmode="group",
-        paper_bgcolor="#f5f3f4",
-        plot_bgcolor="#f5f3f4"
+        barmode = "group",
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
       )
   })
   
-  # ==========================================================
-  # TABELA CONTROLE LUCRO
-  # ==========================================================
+  
+  # ============================================================
+  # TABELA CONTROLE DO LUCRO - BEIRA
+  # ============================================================
+  
   output$tabela_controle_lucro_beira <- renderDT({
     
-    # =========================
-    # BASE COM FILTROS BEIRA
-    # =========================
     df <- df_financeiro_beira()
     
     req(nrow(df) > 0)
     
     
-    # =========================
-    # AGREGAR POR MÊS
-    # =========================
+    # ----------------------------------------------------------
+    # Agregar lucro por empreendedora e mês
+    # ----------------------------------------------------------
+    
     df <- df %>%
+      
       group_by(
         Nome_do_pesquisador,
         Nome_Empreendedora,
         Periodo
       ) %>%
+      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       )
     
     
-    # =========================
-    # TRANSFORMAR MESES EM COLUNAS
-    # =========================
+    # ----------------------------------------------------------
+    # Transformar meses em colunas
+    # ----------------------------------------------------------
+    
     tabela <- df %>%
+      
       mutate(
         Periodo = factor(
           Periodo,
@@ -18814,20 +20120,51 @@ output$texto_resultado_exercicio_4 <- renderUI({
       tidyr::pivot_wider(
         names_from = Periodo,
         values_from = Lucro_Mensal,
-        values_fill = list(Lucro_Mensal = 0)
+        values_fill = 0
       )
     
     
-    # Garantir colunas
-    tabela$`Primeiro Mês` <- tabela$`Primeiro Mês` %||% 0
-    tabela$`Segundo Mês`  <- tabela$`Segundo Mês` %||% 0
-    tabela$`Terceiro Mês` <- tabela$`Terceiro Mês` %||% 0
+    # ----------------------------------------------------------
+    # Garantir existência das colunas
+    # ----------------------------------------------------------
+    
+    if (!"Primeiro Mês" %in% names(tabela)) {
+      tabela$`Primeiro Mês` <- 0
+    }
+    
+    if (!"Segundo Mês" %in% names(tabela)) {
+      tabela$`Segundo Mês` <- 0
+    }
+    
+    if (!"Terceiro Mês" %in% names(tabela)) {
+      tabela$`Terceiro Mês` <- 0
+    }
     
     
-    # =========================
-    # COMPARAÇÃO
-    # =========================
+    # ----------------------------------------------------------
+    # Média dos três meses
+    # ----------------------------------------------------------
+    
     tabela <- tabela %>%
+      
+      mutate(
+        `Média por Participante` = rowMeans(
+          cbind(
+            `Primeiro Mês`,
+            `Segundo Mês`,
+            `Terceiro Mês`
+          ),
+          na.rm = TRUE
+        )
+      )
+    
+    
+    # ----------------------------------------------------------
+    # Comparações
+    # ----------------------------------------------------------
+    
+    tabela <- tabela %>%
+      
       mutate(
         
         `1º para 2º Mês` = case_when(
@@ -18849,12 +20186,17 @@ output$texto_resultado_exercicio_4 <- renderUI({
         )
       ) %>%
       
-      arrange(Prioridade)
+      arrange(Prioridade) %>%
+      
+      select(
+        -Prioridade
+      )
     
     
-    # =========================
-    # TABELA
-    # =========================
+    # ----------------------------------------------------------
+    # Tabela
+    # ----------------------------------------------------------
+    
     datatable(
       tabela,
       rownames = FALSE,
@@ -18864,37 +20206,73 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
     ) %>%
       
+      formatRound(
+        columns = c(
+          "Primeiro Mês",
+          "Segundo Mês",
+          "Terceiro Mês",
+          "Média por Participante"
+        ),
+        digits = 2
+      ) %>%
+      
       formatStyle(
         "1º para 2º Mês",
         backgroundColor = styleEqual(
-          c("Aumentou","Manteve","Reduziu"),
-          c("#8054A2","#f9a825","#69C7BE")
-        )
+          c(
+            "Aumentou",
+            "Manteve",
+            "Reduziu"
+          ),
+          c(
+            "#8054A2",
+            "#f9a825",
+            "#69C7BE"
+          )
+        ),
+        color = "white",
+        fontWeight = "bold"
       ) %>%
       
       formatStyle(
         "2º para 3º Mês",
         backgroundColor = styleEqual(
-          c("Aumentou","Manteve","Reduziu"),
-          c("#8054A2","#f9a825","#69C7BE")
-        )
+          c(
+            "Aumentou",
+            "Manteve",
+            "Reduziu"
+          ),
+          c(
+            "#8054A2",
+            "#f9a825",
+            "#69C7BE"
+          )
+        ),
+        color = "white",
+        fontWeight = "bold"
       )
   })
   
-  output$vb_aumento_lucro_mes_beira <- renderUI({
+  
+  # ============================================================
+  # VALUE BOX:
+  # PARTICIPANTES COM AUMENTO DE LUCRO
+  # ============================================================
+  
+  output$vb_aumento_lucro_mes_1_2_beira <- renderUI({
     
     df <- df_financeiro_beira() %>%
-      
       group_by(
         Nome_Empreendedora,
         Periodo
       ) %>%
-      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
-      
       mutate(
         Periodo = factor(
           Periodo,
@@ -18905,64 +20283,57 @@ output$texto_resultado_exercicio_4 <- renderUI({
           )
         )
       ) %>%
-      
-      arrange(
-        Nome_Empreendedora,
-        Periodo
-      ) %>%
-      
-      group_by(Nome_Empreendedora) %>%
-      
-      mutate(
-        lucro_anterior = lag(Lucro_Mensal),
-        aumento = Lucro_Mensal > lucro_anterior
-      ) %>%
-      
-      ungroup()
+      tidyr::pivot_wider(
+        names_from = Periodo,
+        values_from = Lucro_Mensal,
+        values_fill = 0
+      )
     
+    if (!"Primeiro Mês" %in% names(df)) {
+      df$`Primeiro Mês` <- 0
+    }
     
-    valor <- df %>%
-      filter(!is.na(lucro_anterior)) %>%
-      group_by(Nome_Empreendedora) %>%
-      summarise(
-        teve_aumento = any(aumento, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      summarise(
-        total = sum(teve_aumento)
-      ) %>%
-      pull(total)
+    if (!"Segundo Mês" %in% names(df)) {
+      df$`Segundo Mês` <- 0
+    }
     
+    valor <- sum(
+      df$`Segundo Mês` > df$`Primeiro Mês`,
+      na.rm = TRUE
+    )
     
     div(
       class = "value-box blue",
       
       span(
         class = "value-number",
-        format(valor, big.mark = ",")
+        format(
+          valor,
+          big.mark = ","
+        )
       ),
       
       span(
         class = "value-title",
-        "Participantes com Aumento de Lucro"
+        "Aumentaram o Lucro: 1º → 2º Mês"
       )
     )
   })
   
-  output$vb_aumento_25_mes_beira <- renderUI({
+  output$vb_aumento_25_mes_1_2_beira <- renderUI({
     
     df <- df_financeiro_beira() %>%
-      
       group_by(
         Nome_Empreendedora,
         Periodo
       ) %>%
-      
       summarise(
-        Lucro_Mensal = sum(Lucro_Mensal, na.rm = TRUE),
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
         .groups = "drop"
       ) %>%
-      
       mutate(
         Periodo = factor(
           Periodo,
@@ -18973,61 +20344,1160 @@ output$texto_resultado_exercicio_4 <- renderUI({
           )
         )
       ) %>%
-      
-      arrange(
-        Nome_Empreendedora,
-        Periodo
-      ) %>%
-      
-      group_by(Nome_Empreendedora) %>%
-      
+      tidyr::pivot_wider(
+        names_from = Periodo,
+        values_from = Lucro_Mensal,
+        values_fill = 0
+      )
+    
+    if (!"Primeiro Mês" %in% names(df)) {
+      df$`Primeiro Mês` <- 0
+    }
+    
+    if (!"Segundo Mês" %in% names(df)) {
+      df$`Segundo Mês` <- 0
+    }
+    
+    df <- df %>%
       mutate(
-        lucro_anterior = lag(Lucro_Mensal),
-        
-        aumento_pct = ifelse(
-          lucro_anterior > 0,
-          (Lucro_Mensal - lucro_anterior) /
-            lucro_anterior * 100,
-          NA
-        ),
-        
-        aumento_25 = aumento_pct >= 25
-      ) %>%
-      
-      ungroup()
+        aumento_pct = case_when(
+          `Primeiro Mês` > 0 ~
+            (`Segundo Mês` - `Primeiro Mês`) /
+            `Primeiro Mês` * 100,
+          TRUE ~ NA_real_
+        )
+      )
     
-    
-    valor <- df %>%
-      filter(!is.na(aumento_25)) %>%
-      group_by(Nome_Empreendedora) %>%
-      summarise(
-        teve_aumento_25 = any(aumento_25, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      summarise(
-        total = sum(teve_aumento_25)
-      ) %>%
-      pull(total)
-    
+    valor <- sum(
+      df$aumento_pct >= 25,
+      na.rm = TRUE
+    )
     
     div(
       class = "value-box orange",
       
       span(
         class = "value-number",
-        format(valor, big.mark = ",")
+        format(
+          valor,
+          big.mark = ","
+        )
       ),
       
       span(
         class = "value-title",
-        "Participantes com aumento ≥ 25%"
+        "Aumento ≥25%: 1º → 2º Mês"
       )
     )
   })
   
+  output$vb_aumento_lucro_mes_2_3_beira <- renderUI({
     
+    df <- df_financeiro_beira() %>%
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      summarise(
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
+        )
+      ) %>%
+      tidyr::pivot_wider(
+        names_from = Periodo,
+        values_from = Lucro_Mensal,
+        values_fill = 0
+      )
+    
+    if (!"Segundo Mês" %in% names(df)) {
+      df$`Segundo Mês` <- 0
+    }
+    
+    if (!"Terceiro Mês" %in% names(df)) {
+      df$`Terceiro Mês` <- 0
+    }
+    
+    valor <- sum(
+      df$`Terceiro Mês` > df$`Segundo Mês`,
+      na.rm = TRUE
+    )
+    
+    div(
+      class = "value-box blue",
+      
+      span(
+        class = "value-number",
+        format(
+          valor,
+          big.mark = ","
+        )
+      ),
+      
+      span(
+        class = "value-title",
+        "Aumentaram o Lucro: 2º → 3º Mês"
+      )
+    )
+  })
+  
+  output$vb_aumento_25_mes_2_3_beira <- renderUI({
+    
+    df <- df_financeiro_beira() %>%
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      summarise(
+        Lucro_Mensal = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Periodo = factor(
+          Periodo,
+          levels = c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          )
+        )
+      ) %>%
+      tidyr::pivot_wider(
+        names_from = Periodo,
+        values_from = Lucro_Mensal,
+        values_fill = 0
+      )
+    
+    if (!"Segundo Mês" %in% names(df)) {
+      df$`Segundo Mês` <- 0
+    }
+    
+    if (!"Terceiro Mês" %in% names(df)) {
+      df$`Terceiro Mês` <- 0
+    }
+    
+    df <- df %>%
+      mutate(
+        aumento_pct = case_when(
+          `Segundo Mês` > 0 ~
+            (`Terceiro Mês` - `Segundo Mês`) /
+            `Segundo Mês` * 100,
+          TRUE ~ NA_real_
+        )
+      )
+    
+    valor <- sum(
+      df$aumento_pct >= 25,
+      na.rm = TRUE
+    )
+    
+    div(
+      class = "value-box orange",
+      
+      span(
+        class = "value-number",
+        format(
+          valor,
+          big.mark = ","
+        )
+      ),
+      
+      span(
+        class = "value-title",
+        "Aumento ≥25%: 2º → 3º Mês"
+      )
+    )
+  })
+  ################### MATRIZ DOS INDICADORES
+  
+  # ============================================================
+  # MATRIZ DE INDICADORES DA TOC
+  # PAM VERDE - C3 + FINANCEIRO NAMPULA
+  # ============================================================
+  
+  output$toc_matriz_indicadores <- renderDT({
+    
+    
+    # ==========================================================
+    # 1. FORMALIZAÇÃO DO NEGÓCIO
+    # ==========================================================
+    
+    formalizacao <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(Negocio_Formalizado),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        N = sum(
+          Negocio_Formalizado ==
+            "Iniciei o processo de formalização",
+          na.rm = TRUE
+        ),
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    formalizacao_BL <- formalizacao %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(formalizacao_BL) == 0)
+      formalizacao_BL <- NA_real_
+    
+    formalizacao_EL <- formalizacao %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(formalizacao_EL) == 0)
+      formalizacao_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 2. SALÁRIO MENSAL
+    # Apenas entre as que retiram dinheiro do negócio
+    # ==========================================================
+    
+    salario <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(Tira_Salario_Para_Si),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        
+        Total_Que_Retiram = sum(
+          Tira_Salario_Para_Si !=
+            "Não, não retiro nenhum valor para mim mesma",
+          na.rm = TRUE
+        ),
+        
+        N_Fixo = sum(
+          Tira_Salario_Para_Si ==
+            "Sim, retiro um valor fixo todos os meses",
+          na.rm = TRUE
+        ),
+        
+        Percentagem = case_when(
+          Total_Que_Retiram > 0 ~
+            (N_Fixo / Total_Que_Retiram) * 100,
+          TRUE ~ NA_real_
+        ),
+        
+        .groups = "drop"
+      )
+    
+    salario_BL <- salario %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(salario_BL) == 0)
+      salario_BL <- NA_real_
+    
+    salario_EL <- salario %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(salario_EL) == 0)
+      salario_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 3. AUTONOMIA NAS DECISÕES
+    # ==========================================================
+    
+    decisao <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(Quem_Toma_Decisoes_Negocio),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        N = sum(
+          Quem_Toma_Decisoes_Negocio == "Só eu",
+          na.rm = TRUE
+        ),
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    decisao_BL <- decisao %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(decisao_BL) == 0)
+      decisao_BL <- NA_real_
+    
+    decisao_EL <- decisao %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(decisao_EL) == 0)
+      decisao_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 4. CONFIANÇA PARA NEGOCIAR COM CLIENTES
+    # ==========================================================
+    
+    negociacao_clientes <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(Negociacao_Com_Clientes),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        N = sum(
+          Negociacao_Com_Clientes ==
+            "Sim, sinto-me confiante e sei defender a minha posição",
+          na.rm = TRUE
+        ),
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    negociacao_clientes_BL <- negociacao_clientes %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(negociacao_clientes_BL) == 0)
+      negociacao_clientes_BL <- NA_real_
+    
+    negociacao_clientes_EL <- negociacao_clientes %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(negociacao_clientes_EL) == 0)
+      negociacao_clientes_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 5. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
+    # ==========================================================
+    
+    pratica_negociacao <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(Praticou_negociação_nos_últimos_3meses),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        N = sum(
+          Praticou_negociação_nos_últimos_3meses ==
+            "Sim, negociei e consegui um acordo favorável para o meu negócio",
+          na.rm = TRUE
+        ),
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    pratica_negociacao_BL <- pratica_negociacao %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(pratica_negociacao_BL) == 0)
+      pratica_negociacao_BL <- NA_real_
+    
+    pratica_negociacao_EL <- pratica_negociacao %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(pratica_negociacao_EL) == 0)
+      pratica_negociacao_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 6. UTILIZAÇÃO DE IA
+    # ==========================================================
+    
+    uso_ia <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(Uso_de_ferramentas_de_IA),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        
+        N = sum(
+          Uso_de_ferramentas_de_IA %in%
+            c(
+              "Sim, usei pelo menos uma vez",
+              "Sim, uso regularmente para o negócio"
+            ),
+          na.rm = TRUE
+        ),
+        
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    uso_ia_BL <- uso_ia %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(uso_ia_BL) == 0)
+      uso_ia_BL <- NA_real_
+    
+    uso_ia_EL <- uso_ia %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(uso_ia_EL) == 0)
+      uso_ia_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 7. SEPARAÇÃO DAS CONTAS
+    # ==========================================================
+    
+    separacao_contas <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(
+          `Faz separação das contas pessoais e do negócio`
+        ),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        
+        N = sum(
+          `Faz separação das contas pessoais e do negócio` == "Sim",
+          na.rm = TRUE
+        ),
+        
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    separacao_contas_BL <- separacao_contas %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(separacao_contas_BL) == 0)
+      separacao_contas_BL <- NA_real_
+    
+    separacao_contas_EL <- separacao_contas %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(separacao_contas_EL) == 0)
+      separacao_contas_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 8. SABE CALCULAR O LUCRO
+    # ==========================================================
+    
+    calcula_lucro <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(
+          `Sabe calcular o lucro do negócio  (com base no exercício prático)`
+        ),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        
+        N = sum(
+          `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
+            "Sim",
+          na.rm = TRUE
+        ),
+        
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    calcula_lucro_BL <- calcula_lucro %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(calcula_lucro_BL) == 0)
+      calcula_lucro_BL <- NA_real_
+    
+    calcula_lucro_EL <- calcula_lucro %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(calcula_lucro_EL) == 0)
+      calcula_lucro_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 9. CONTROLO DE RECEITAS E DESPESAS
+    # ==========================================================
+    
+    controlo_dinheiro <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(
+          `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
+        ),
+        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        Total = n(),
+        
+        N = sum(
+          `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
+            "Sim",
+          na.rm = TRUE
+        ),
+        
+        Percentagem = (N / Total) * 100,
+        .groups = "drop"
+      )
+    
+    controlo_dinheiro_BL <- controlo_dinheiro %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(Percentagem)
+    
+    if(length(controlo_dinheiro_BL) == 0)
+      controlo_dinheiro_BL <- NA_real_
+    
+    controlo_dinheiro_EL <- controlo_dinheiro %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(Percentagem)
+    
+    if(length(controlo_dinheiro_EL) == 0)
+      controlo_dinheiro_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 10. ACTIVIDADES DE GÉNERO
+    # ENDLINE ONLY
+    # META = 100%
+    # ==========================================================
+    
+    genero_compreensao <- PAM_VERDE_TOC_C3 %>%
+      filter(
+        !is.na(
+          `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?`
+        ),
+        Tipo_Avaliacao == "Endline"
+      ) %>%
+      summarise(
+        Total = n(),
+        
+        N = sum(
+          `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?` ==
+            "Ajudaram bastante / mudaram a minha compreensão",
+          na.rm = TRUE
+        ),
+        
+        Percentagem = (N / Total) * 100
+      ) %>%
+      pull(Percentagem)
+    
+    if(length(genero_compreensao) == 0)
+      genero_compreensao <- NA_real_
+    
+    
+    # ==========================================================
+    # 11. BASE FINANCEIRA
+    # EVOLUÇÃO DO LUCRO POR EMPREENDEDORA
+    # ==========================================================
+    
+    lucro_evolucao <- FINANCEIRO_TOC_NAMPULA %>%
+      
+      filter(
+        Periodo %in% c(
+          "Primeiro Mês",
+          "Segundo Mês",
+          "Terceiro Mês"
+        ),
+        !is.na(Nome_Empreendedora),
+        !is.na(Lucro_Semanal)
+      ) %>%
+      
+      group_by(
+        Nome_Empreendedora,
+        Periodo
+      ) %>%
+      
+      summarise(
+        Lucro = sum(
+          Lucro_Semanal,
+          na.rm = TRUE
+        ),
+        .groups = "drop"
+      ) %>%
+      
+      tidyr::pivot_wider(
+        names_from = Periodo,
+        values_from = Lucro
+      )
+    
+    
+    # ==========================================================
+    # 12. CALCULAR VARIAÇÃO DO LUCRO
+    # ==========================================================
+    
+    lucro_evolucao <- lucro_evolucao %>%
+      
+      mutate(
+        
+        Aumento_Lucro = case_when(
+          !is.na(`Primeiro Mês`) &
+            !is.na(`Terceiro Mês`) ~
+            `Terceiro Mês` - `Primeiro Mês`,
+          TRUE ~ NA_real_
+        ),
+        
+        Percentual_Aumento = case_when(
+          
+          !is.na(`Primeiro Mês`) &
+            !is.na(`Terceiro Mês`) &
+            `Primeiro Mês` > 0 ~
+            (
+              (`Terceiro Mês` - `Primeiro Mês`) /
+                `Primeiro Mês`
+            ) * 100,
+          
+          TRUE ~ NA_real_
+        )
+      )
+    
+    
+    # ==========================================================
+    # 13. INDICADOR:
+    # % QUE AUMENTARAM OS LUCROS
+    # ==========================================================
+    
+    indicador_aumento_lucro <- lucro_evolucao %>%
+      
+      filter(
+        !is.na(Percentual_Aumento)
+      ) %>%
+      
+      summarise(
+        
+        Total = n(),
+        
+        N = sum(
+          Percentual_Aumento > 0,
+          na.rm = TRUE
+        ),
+        
+        Percentagem = case_when(
+          Total > 0 ~
+            (N / Total) * 100,
+          TRUE ~ NA_real_
+        )
+      )
+    
+    aumento_lucro_EL <- indicador_aumento_lucro$Percentagem
+    
+    if(length(aumento_lucro_EL) == 0)
+      aumento_lucro_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 14. INDICADOR:
+    # % QUE AUMENTARAM O LUCRO > 25%
+    # ==========================================================
+    
+    indicador_aumento_25 <- lucro_evolucao %>%
+      
+      filter(
+        !is.na(Percentual_Aumento)
+      ) %>%
+      
+      summarise(
+        
+        Total = n(),
+        
+        N = sum(
+          Percentual_Aumento > 25,
+          na.rm = TRUE
+        ),
+        
+        Percentagem = case_when(
+          Total > 0 ~
+            (N / Total) * 100,
+          TRUE ~ NA_real_
+        )
+      )
+    
+    aumento_25_EL <- indicador_aumento_25$Percentagem
+    
+    if(length(aumento_25_EL) == 0)
+      aumento_25_EL <- NA_real_
+    
+    
+    # ==========================================================
+    # 15. INDICADOR:
+    # AUMENTO MÉDIO DO LUCRO POR EMPREENDEDORA
+    # ==========================================================
+    
+    aumento_medio_lucro <- lucro_evolucao %>%
+      
+      summarise(
+        Valor = mean(
+          Aumento_Lucro,
+          na.rm = TRUE
+        )
+      ) %>%
+      
+      pull(Valor)
+    
+    if(length(aumento_medio_lucro) == 0 ||
+       is.nan(aumento_medio_lucro)) {
+      aumento_medio_lucro <- NA_real_
+    }
+    
+    
+    # ==========================================================
+    # 16. SALDO LÍQUIDO DO VALOR ADICIONADO
+    # ==========================================================
+    
+    saldo_valor_adicionado <- lucro_evolucao %>%
+      
+      summarise(
+        Valor = sum(
+          Aumento_Lucro,
+          na.rm = TRUE
+        )
+      ) %>%
+      
+      pull(Valor)
+    
+    if(length(saldo_valor_adicionado) == 0 ||
+       is.nan(saldo_valor_adicionado)) {
+      saldo_valor_adicionado <- NA_real_
+    }
+    
+    
+    # ==========================================================
+    # 17. CONSTRUIR MATRIZ DA TOC
+    # ==========================================================
+    
+    toc <- data.frame(
+      
+      Indicador = c(
+        
+        "% de empreendedoras que iniciam o processo de formalização",
+        
+        "% de empreendedoras que definem um salário mensal para si mesmas",
+        
+        "% de empreendedoras que tomam sozinhas as principais decisões do negócio",
+        
+        "% de empreendedoras que se sentem confiantes e sabem defender a sua posição na negociação com clientes",
+        
+        "% de empreendedoras que, nos últimos 3 meses, negociaram e conseguiram um acordo favorável para o seu negócio",
+        
+        "% de empreendedoras que sabem utilizar ferramentas de IA para aprimorar o negócio",
+        
+        "% de empreendedoras que fazem separação das contas pessoais e do negócio",
+        
+        "% de empreendedoras que sabem calcular o lucro do negócio",
+        
+        "% de empreendedoras que fazem controlo do dinheiro que entra e que sai (receitas e despesas)",
+        
+        "% de empreendedoras que consideram que as actividades de género ajudaram bastante/mudaram a compreensão das desigualdades",
+        
+        "% de empreendedoras que aumentaram os seus lucros durante os 3 meses de implementação",
+        
+        "% de empreendedoras que aumentaram os seus lucros em mais de 25% durante os 3 meses",
+        
+        "Valor médio de aumento do lucro por empreendedora",
+        
+        "Saldo líquido do valor adicionado ao final dos 3 meses"
+      ),
+      
+      
+      # ========================================================
+      # BASELINE
+      # ========================================================
+      
+      Baseline = c(
+        
+        formalizacao_BL,
+        salario_BL,
+        decisao_BL,
+        negociacao_clientes_BL,
+        pratica_negociacao_BL,
+        uso_ia_BL,
+        separacao_contas_BL,
+        calcula_lucro_BL,
+        controlo_dinheiro_BL,
+        NA_real_,
+        
+        NA_real_,
+        NA_real_,
+        NA_real_,
+        NA_real_
+      ),
+      
+      
+      # ========================================================
+      # ENDLINE / RESULTADO
+      # ========================================================
+      
+      Endline = c(
+        
+        formalizacao_EL,
+        salario_EL,
+        decisao_EL,
+        negociacao_clientes_EL,
+        pratica_negociacao_EL,
+        uso_ia_EL,
+        separacao_contas_EL,
+        calcula_lucro_EL,
+        controlo_dinheiro_EL,
+        genero_compreensao,
+        
+        aumento_lucro_EL,
+        aumento_25_EL,
+        aumento_medio_lucro,
+        saldo_valor_adicionado
+      ),
+      
+      
+      # ========================================================
+      # METAS 2026
+      # ========================================================
+      
+      Meta_2026 = c(
+        
+        10,     # Formalização
+        
+        50,     # Salário mensal
+        
+        100,    # Decisão
+        
+        70,     # Confiança negociação
+        
+        70,     # Negociação favorável
+        
+        80,     # IA
+        
+        80,     # Separação contas
+        
+        85,     # Saber calcular lucro
+        
+        80,     # Controlo receitas/despesas
+        
+        100,    # Género
+        
+        80,     # Aumento de lucro
+        
+        50,     # Aumento >25%
+        
+        2500,   # Aumento médio do lucro - MT
+        
+        70000   # Saldo líquido - MT
+      ),
+      
+      stringsAsFactors = FALSE
+    )
+    
+    
+    # ==========================================================
+    # 18. TIPO DE INDICADOR
+    # ==========================================================
+    
+    toc <- toc %>%
+      mutate(
+        
+        Tipo_Indicador = case_when(
+          
+          grepl(
+            "Valor médio|Saldo líquido",
+            Indicador
+          ) ~ "MT",
+          
+          TRUE ~ "%"
+        )
+      )
+    
+    
+    # ==========================================================
+    # 19. ALCANCE DA META
+    # ==========================================================
+    
+    toc <- toc %>%
+      mutate(
+        
+        Alcance_Numerico = case_when(
+          
+          !is.na(Endline) &
+            !is.na(Meta_2026) &
+            Meta_2026 > 0 ~
+            (Endline / Meta_2026) * 100,
+          
+          TRUE ~ NA_real_
+        ),
+        
+        Alcance_Barra = case_when(
+          
+          is.na(Alcance_Numerico) ~
+            NA_real_,
+          
+          TRUE ~
+            pmin(Alcance_Numerico, 100)
+        ),
+        
+        Estado = case_when(
+          
+          is.na(Alcance_Numerico) ~
+            "⚪ Sem dados",
+          
+          Alcance_Numerico >= 100 ~
+            "🟢 Meta atingida",
+          
+          Alcance_Numerico >= 80 ~
+            "🟡 Próximo da meta",
+          
+          Alcance_Numerico >= 50 ~
+            "🟠 Em progresso",
+          
+          TRUE ~
+            "🔴 Abaixo da meta"
+        )
+      )
+    
+    
+    # ==========================================================
+    # 20. BARRA DE PROGRESSO
+    # ==========================================================
+    
+    toc <- toc %>%
+      mutate(
+        
+        Alcance_Meta = case_when(
+          
+          is.na(Alcance_Barra) ~
+            '<span style="color:#777;font-size:12px;">Sem dados</span>',
+          
+          TRUE ~ paste0(
+            
+            '<div style="
+            width:160px;
+            height:22px;
+            background:#e9ecef;
+            border-radius:6px;
+            position:relative;
+            overflow:hidden;
+          ">',
+            
+            '<div style="
+            width:',
+            round(Alcance_Barra, 1),
+            '%;
+            height:22px;
+            background:#9442d4;
+            border-radius:6px;
+          "></div>',
+            
+            '<div style="
+            position:absolute;
+            top:0;
+            left:0;
+            width:100%;
+            height:22px;
+            line-height:22px;
+            text-align:center;
+            font-size:11px;
+            font-weight:bold;
+            color:#333;
+          ">',
+            
+            round(Alcance_Barra, 1),
+            '%</div>',
+            
+            '</div>'
+          )
+        )
+      )
+    
+    
+    # ==========================================================
+    # 21. FORMATAR BASELINE / ENDLINE / META
+    # ==========================================================
+    
+    toc <- toc %>%
+      mutate(
+        
+        Baseline = case_when(
+          
+          is.na(Baseline) ~ "—",
+          
+          Tipo_Indicador == "%" ~
+            paste0(round(Baseline, 1), "%"),
+          
+          TRUE ~
+            paste0(
+              scales::comma(
+                round(Baseline, 0)
+              ),
+              " MT"
+            )
+        ),
+        
+        
+        Endline = case_when(
+          
+          is.na(Endline) ~ "—",
+          
+          Tipo_Indicador == "%" ~
+            paste0(round(Endline, 1), "%"),
+          
+          TRUE ~
+            paste0(
+              scales::comma(
+                round(Endline, 0)
+              ),
+              " MT"
+            )
+        ),
+        
+        
+        Meta_2026 = case_when(
+          
+          is.na(Meta_2026) ~ "—",
+          
+          Tipo_Indicador == "%" ~
+            paste0(round(Meta_2026, 1), "%"),
+          
+          TRUE ~
+            paste0(
+              scales::comma(
+                round(Meta_2026, 0)
+              ),
+              " MT"
+            )
+        )
+      )
+    
+    
+    # ==========================================================
+    # 22. FORMATAR INDICADOR
+    # ==========================================================
+    
+    toc$Indicador <- paste0(
+      '<div style="
+      white-space:normal;
+      overflow-wrap:break-word;
+      line-height:1.25;
+      font-size:13px;
+      text-align:left;
+      padding:3px 0;
+    ">',
+      toc$Indicador,
+      '</div>'
+    )
+    
+    
+    # ==========================================================
+    # 23. COLUNAS FINAIS
+    # ==========================================================
+    
+    toc <- toc %>%
+      select(
+        Indicador,
+        Baseline,
+        Endline,
+        Meta_2026,
+        Alcance_Meta,
+        Estado
+      )
+    
+    
+    # ==========================================================
+    # 24. TABELA DATATABLE
+    # ==========================================================
+    
+    datatable(
+      
+      toc,
+      
+      rownames = FALSE,
+      
+      escape = FALSE,
+      
+      colnames = c(
+        "Indicador",
+        "Baseline",
+        "Endline",
+        "Meta 2026",
+        "Alcance da Meta",
+        "Estado"
+      ),
+      
+      options = list(
+        
+        pageLength = 15,
+        
+        autoWidth = FALSE,
+        
+        scrollX = TRUE,
+        
+        dom = "tip",
+        
+        columnDefs = list(
+          
+          list(
+            targets = 0,
+            width = "360px"
+          ),
+          
+          list(
+            targets = 1,
+            width = "95px",
+            className = "dt-center"
+          ),
+          
+          list(
+            targets = 2,
+            width = "95px",
+            className = "dt-center"
+          ),
+          
+          list(
+            targets = 3,
+            width = "100px",
+            className = "dt-center"
+          ),
+          
+          list(
+            targets = 4,
+            width = "175px",
+            className = "dt-center"
+          ),
+          
+          list(
+            targets = 5,
+            width = "135px",
+            className = "dt-center"
+          )
+        )
+      )
+    )
+  })
   ########### BOTAO
-  # # Painel de atualização de dados (sem login)
+  
   output$admin_ui <- renderUI({
     sidebarLayout(
       sidebarPanel(
