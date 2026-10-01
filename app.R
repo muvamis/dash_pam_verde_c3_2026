@@ -148,7 +148,52 @@ ui <- navbarPage(
           # =========================
           tabPanel(
             "Visão Geral",
-            
+            fluidRow(
+              column(
+                12,
+                div(
+                  style = "
+              background-color:#f5f3f4;
+              padding:18px 22px;
+              border-radius:8px;
+              margin-bottom:20px;
+              border-left:5px solid #9442d4;
+            ",
+                  
+                  h4(
+                    "Avaliação das Empreendedoras – Nampula e Beira",
+                    style = "color:#9442d4; margin-top:0;"
+                  ),
+                  
+                  p(
+                    "A avaliação contempla as empreendedoras participantes do programa 
+              nas cidades de Nampula e Beira, considerando os dados recolhidos 
+              no Baseline e no Endline."
+                  ),
+                  
+                  p(
+                    "No Baseline, participaram 49 empreendedoras em Nampula e 36 
+              em Beira. No Endline, participaram 30 empreendedoras em Nampula 
+              e na Beira a formação ainda esta a decorrer."
+                  ),
+                  
+                  p(
+                    "Para a análise da evolução das empreendedoras ao longo do programa, 
+              estamos a considerar aquelas que realizaram tanto o Baseline como 
+              o Endline. Desta forma, a análise permite comparar os resultados 
+              das mesmas participantes nos dois momentos de avaliação."
+                  ),
+                  
+                  p(
+                    strong("Nota: "),
+                    "os resultados apresentados nas análises comparativas consideram 
+              apenas as empreendedoras que possuem informação nos dois momentos 
+              de avaliação."
+                  )
+                )
+              )
+            ),
+            br(),
             fluidRow(uiOutput("kpi_boxes")),
             
             br(),
@@ -253,7 +298,10 @@ ui <- navbarPage(
                        style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
                        uiOutput("texto_local_venda")
                      ),
-                     plotlyOutput("grafico_local_venda")),
+                     div(
+                       style = "background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                       DTOutput("tabela_local_venda")
+                     )),
               tags$h4(""),
               column(6, plotlyOutput("grafico_salario"))
             )
@@ -280,7 +328,7 @@ ui <- navbarPage(
                 6,
                 div(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_negociacao")
+                  uiOutput("texto_negociacao_3meses")
                 ),
                 plotlyOutput("grafico_negociacao_3meses")
               )
@@ -405,7 +453,7 @@ ui <- navbarPage(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
                   uiOutput("texto_H_Financeiros")
                 ),
-                plotlyOutput("grafico_H_Financeiros")
+                plotlyOutput("grafico_H_Financeiro_Faci")
               ),
               
               column(
@@ -2136,6 +2184,7 @@ ui <- navbarPage(
 # ==========================================================
 
 tabPanel(
+  
   tagList(
     icon("chart-line"),
     "PROGRESSO DA TOC"
@@ -2143,15 +2192,136 @@ tabPanel(
   
   fluidPage(
     
+    # ==========================================================
+    # LEGENDA DOS ESTADOS
+    # ==========================================================
+    
     fluidRow(
       
       box(
         width = 12,
         title = "Matriz de Indicadores do TOC",
         
+        div(
+          style = "
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            gap:18px;
+            padding:5px 5px 15px 5px;
+            font-size:14px;
+          ",
+          
+          # Meta atingida
+          div(
+            style = "display:flex; align-items:center;",
+            
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#28a745;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            
+            tags$span(
+              "Meta atingida"
+            )
+          ),
+          
+          # Próximo da meta
+          div(
+            style = "display:flex; align-items:center;",
+            
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#ffc107;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            
+            tags$span(
+              "Próximo da meta"
+            )
+          ),
+          
+          # Em progresso
+          div(
+            style = "display:flex; align-items:center;",
+            
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#F77333;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            
+            tags$span(
+              "Em progresso"
+            )
+          ),
+          
+          # Abaixo da meta
+          div(
+            style = "display:flex; align-items:center;",
+            
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#dc3545;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            
+            tags$span(
+              "Abaixo da meta"
+            )
+          ),
+          
+          # Sem dados
+          div(
+            style = "display:flex; align-items:center;",
+            
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#adb5bd;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            
+            tags$span(
+              "Sem dados"
+            )
+          )
+        ),
+        
+        
+        # ======================================================
+        # TABELA
+        # ======================================================
+        
         DTOutput(
           "toc_matriz_indicadores"
         )
+        
       )
       
     )
@@ -2557,21 +2727,10 @@ server <- function(input, output, session) {
     }
     
   })
-  
-  
-  # 
-  # 
+
   # 
   # # =================================GRÁFICO 1 — PARTICIPANTES POR SEXO==============================
-  # 
-  # 
-  # ===============================================================
-  # DADOS FILTRADOS
-  # ===============================================================
-  # ============================================================
-  # FILTRO DE CIDADE
-  # ============================================================
-  
+
   observe({
     
     cidades <- Pam_Verde_Indicadores %>%
@@ -2592,7 +2751,6 @@ server <- function(input, output, session) {
       )
     )
   })
-  
   
   # ============================================================
   # CICLO DEPENDENTE DA CIDADE
@@ -2775,10 +2933,19 @@ server <- function(input, output, session) {
     req("Estado_Civil" %in% names(df))
     
     df_resumo <- df %>%
-      filter(!is.na(Estado_Civil), Estado_Civil != "") %>%
+      filter(
+        !is.na(Estado_Civil),
+        Estado_Civil != ""
+      ) %>%
       count(Estado_Civil, name = "Total") %>%
       mutate(
-        Percentagem = round(Total / sum(Total) * 100, 1)
+        Percentagem = round(Total / sum(Total) * 100, 1),
+        Texto = paste0(
+          Total,
+          " (",
+          Percentagem,
+          "%)"
+        )
       )
     
     plot_ly(
@@ -2787,18 +2954,41 @@ server <- function(input, output, session) {
       values = ~Total,
       type = "pie",
       hole = 0.55,
-      textinfo = "percent",
+      
+      # Mostrar n + %
+      text = ~Texto,
+      textinfo = "text",
+      textposition = "inside",
       insidetextorientation = "radial",
+      
       marker = list(
-        colors = c("#9442d4", "#ff7f0e", "#5cd6c7", "#f9a825", "#d62728"),
-        line = list(color = "white", width = 2)
+        colors = c(
+          "#9442d4",
+          "#ff7f0e",
+          "#5cd6c7",
+          "#f9a825",
+          "#d62728"
+        ),
+        line = list(
+          color = "white",
+          width = 2
+        )
+      ),
+      
+      hovertemplate = paste(
+        "<b>%{label}</b><br>",
+        "Total: %{value}<br>",
+        "Percentagem: %{percent}<extra></extra>"
       )
     ) %>%
       layout(
         title = "",
         showlegend = TRUE,
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4",
+        legend = list(
+          orientation = "v"
+        )
       )
     
   })
@@ -2839,7 +3029,7 @@ server <- function(input, output, session) {
       
       style = "text-align:justify;margin:0;",
       
-      tags$b("Estado civil das empreendedoras. "),
+      tags$b("Selecione o Seu Estado Civil. "),
       
       "Após a aplicação dos filtros, foram identificadas ",
       
@@ -2857,48 +3047,104 @@ server <- function(input, output, session) {
     )
     
   })
-  # 
+   
   # #   # --- Gráfico 2: Distribuição por IDADE
   output$grafico_idade <- renderPlotly({
-
+    
     df <- dados_filtrados()
-
+    
     req("Data_Nascimento" %in% colnames(df))
-
+    
     df <- df %>%
       mutate(
         Data_nasc = as.Date(`Data_Nascimento`, format = "%Y-%m-%d"),
         Idade = floor(interval(Data_nasc, Sys.Date()) / years(1))
       ) %>%
       filter(!is.na(Idade))
-
+    
     df_resumo <- df %>%
-      mutate(Grupo_Idade = ifelse(Idade <= 35, "<= 35 Anos", "> 35 Anos")) %>%
+      mutate(
+        Grupo_Idade = ifelse(
+          Idade <= 35,
+          "<= 35 Anos",
+          "> 35 Anos"
+        )
+      ) %>%
       group_by(Grupo_Idade) %>%
-      summarise(Total = n(), .groups = "drop") %>%
-      mutate(Percentagem = round(Total / sum(Total) * 100, 1))
-
+      summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Percentagem = round(
+          Total / sum(Total) * 100,
+          1
+        ),
+        
+        # Texto apresentado dentro do gráfico
+        Texto = paste0(
+          Total,
+          " (",
+          Percentagem,
+          "%)"
+        ),
+        
+        # Texto para a legenda
+        Grupo_Idade_Label = paste0(
+          Grupo_Idade,
+          " – ",
+          Total,
+          " (",
+          Percentagem,
+          "%)"
+        )
+      )
+    
     plot_ly(
       data = df_resumo,
-      labels = ~Grupo_Idade,
+      
+      # Categoria + n + %
+      labels = ~Grupo_Idade_Label,
       values = ~Total,
-      type = 'pie',
-      textinfo = 'percent',
-      insidetextorientation = 'radial',
+      
+      type = "pie",
       hole = 0.55,
+      
+      # Mostrar n + % dentro da fatia
+      text = ~Texto,
+      textinfo = "text",
+      textposition = "inside",
+      insidetextorientation = "radial",
+      
       marker = list(
-        colors = c('#9442d4', '#f77333'),
-        line = list(color = '#FFFFFF', width = 2)
+        colors = c(
+          "#9442d4",
+          "#f77333"
+        ),
+        line = list(
+          color = "#FFFFFF",
+          width = 2
+        )
+      ),
+      
+      # Informação ao passar o rato
+      hovertemplate = paste(
+        "<b>%{label}</b><br>",
+        "Total: %{value}<br>",
+        "Percentagem: %{percent}<extra></extra>"
       )
+      
     ) %>%
       layout(
         title = "",
         showlegend = TRUE,
         paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+        plot_bgcolor = "#f5f3f4",
+        legend = list(
+          orientation = "v"
+        )
       )
   })
-  
   
   output$texto_idade <- renderUI({
     
@@ -2929,7 +3175,7 @@ server <- function(input, output, session) {
       
       style="text-align:justify;margin:0;",
       
-      tags$b("Faixa etária. "),
+      tags$b("Data de Nascimento:"),
       
       jovens$n,
       
@@ -3178,7 +3424,7 @@ server <- function(input, output, session) {
       
       style="text-align:justify;margin:0;",
       
-      tags$b("Sector de actividade. "),
+      tags$b("Selecione o Sector de actividade. "),
       
       "O sector predominante é ",
       
@@ -3252,7 +3498,7 @@ server <- function(input, output, session) {
       
       style="text-align:justify;margin:0;",
       
-      tags$b("Ano de criação do negócio. "),
+      tags$b("Ano de criação do negócio."),
       
       "Os negócios foram criados entre ",
       
@@ -3287,9 +3533,34 @@ server <- function(input, output, session) {
   
   output$grafico_formalizacao <- renderPlotly({
     
-    df <- dados_filtrados()
+    # =========================================================
+    # BASE ORIGINAL
+    # =========================================================
+    df <- Pam_Verde_Indicadores
     
     
+    # =========================================================
+    # FILTROS
+    # =========================================================
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      df <- df %>%
+        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
+    }
+    
+    
+    # =========================================================
+    # REMOVER DADOS VAZIOS
+    # =========================================================
     df <- df %>%
       filter(
         !is.na(Negocio_Formalizado),
@@ -3297,38 +3568,65 @@ server <- function(input, output, session) {
       )
     
     
-    if(nrow(df) == 0){
+    if (nrow(df) == 0) {
       return(plotly_empty())
     }
     
     
-    # Frequência
+    # =========================================================
+    # FREQUÊNCIA
+    # =========================================================
     freq_data <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Negocio_Formalizado
       ) %>%
+      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
+      
       group_by(Tipo_Avaliacao) %>%
+      
       mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct, "%")
+        pct = round(
+          n / sum(n) * 100,
+          1
+        ),
+        
+        # Texto dentro da barra
+        label = paste0(
+          n,
+          " (",
+          pct,
+          "%)"
+        )
       ) %>%
+      
       ungroup()
     
     
-    # Ordenação menor para maior
+    # =========================================================
+    # ORDENAÇÃO
+    # =========================================================
     ordem_formalizacao <- freq_data %>%
-      group_by(Negocio_Formalizado) %>%
+      
+      group_by(
+        Negocio_Formalizado
+      ) %>%
+      
       summarise(
         total = sum(pct),
         .groups = "drop"
       ) %>%
+      
       arrange(total) %>%
-      pull(Negocio_Formalizado)
+      
+      pull(
+        Negocio_Formalizado
+      )
     
     
     freq_data$Negocio_Formalizado <- factor(
@@ -3337,7 +3635,9 @@ server <- function(input, output, session) {
     )
     
     
-    # Cores
+    # =========================================================
+    # CORES
+    # =========================================================
     cores <- c(
       "Não" = "#5cd6c7",
       "Iniciei o processo de formalização" = "#ff7f0e",
@@ -3345,8 +3645,11 @@ server <- function(input, output, session) {
     )
     
     
-    # Gráfico
+    # =========================================================
+    # GRÁFICO
+    # =========================================================
     plot_ly(
+      
       data = freq_data,
       
       x = ~Tipo_Avaliacao,
@@ -3357,8 +3660,14 @@ server <- function(input, output, session) {
       
       type = "bar",
       
+      
+      # =======================================================
+      # MOSTRAR n + %
+      # =======================================================
       text = ~label,
+      
       textposition = "inside",
+      
       insidetextanchor = "middle",
       
       textfont = list(
@@ -3366,11 +3675,17 @@ server <- function(input, output, session) {
         size = 12
       ),
       
+      # =======================================================
+      # HOVER
+      # =======================================================
       hovertemplate = paste(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
+        "Número: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
-      )
+      ),
+      
+      customdata = ~n
       
     ) %>%
       
@@ -3378,16 +3693,28 @@ server <- function(input, output, session) {
         
         barmode = "stack",
         
+        
+        # =====================================================
+        # EIXO Y
+        # =====================================================
         yaxis = list(
           title = "Percentagem (%)",
-          range = c(0,100),
+          range = c(0, 100),
           ticksuffix = "%"
         ),
         
+        
+        # =====================================================
+        # EIXO X
+        # =====================================================
         xaxis = list(
           title = ""
         ),
         
+        
+        # =====================================================
+        # LEGENDA
+        # =====================================================
         legend = list(
           orientation = "h",
           x = 0.5,
@@ -3395,6 +3722,10 @@ server <- function(input, output, session) {
           y = -0.25
         ),
         
+        
+        # =====================================================
+        # MARGENS
+        # =====================================================
         margin = list(
           l = 60,
           r = 20,
@@ -3402,14 +3733,66 @@ server <- function(input, output, session) {
           b = 120
         ),
         
+        
+        # =====================================================
+        # FUNDO
+        # =====================================================
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
   
+  # ============================================================
+  # TEXTO DINÂMICO – FORMALIZAÇÃO DO NEGÓCIO
+  # BASE ORIGINAL: Pam_Verde_Indicadores
+  # ============================================================
+  
   output$texto_formalizacao <- renderUI({
     
-    df <- dados_filtrados()
+    # ==========================================================
+    # 1. BASE ORIGINAL
+    # ==========================================================
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # ==========================================================
+    # 2. APLICAR FILTROS
+    # ==========================================================
+    
+    # Filtro por cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro por ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    # Filtro por tipo de avaliação
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # ==========================================================
+    # 3. REMOVER DADOS VAZIOS
+    # ==========================================================
     
     df <- df %>%
       filter(
@@ -3417,121 +3800,218 @@ server <- function(input, output, session) {
         !is.na(Tipo_Avaliacao)
       )
     
-    if(nrow(df) == 0){
+    
+    # ==========================================================
+    # 4. VERIFICAR SE EXISTEM DADOS
+    # ==========================================================
+    
+    if (
+      nrow(df) == 0
+    ) {
+      
       return(NULL)
     }
     
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
+    
+    # ==========================================================
+    # 5. CALCULAR FREQUÊNCIAS E PERCENTAGENS
+    # ==========================================================
     
     resumo <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Negocio_Formalizado
       ) %>%
+      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
+      
+      group_by(
+        Tipo_Avaliacao
+      ) %>%
+      
       mutate(
         perc = n / sum(n) * 100
       ) %>%
+      
       ungroup()
     
     
-    # ============================================================
-    # CATEGORIAS
-    # ============================================================
-    
-    categorias <- unique(resumo$Negocio_Formalizado)
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
+    # ==========================================================
+    # 6. BASELINE
+    # ==========================================================
     
     baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
+      
+      filter(
+        Tipo_Avaliacao == "Baseline"
+      ) %>%
+      
       select(
         Negocio_Formalizado,
         perc_baseline = perc
       )
     
     
-    # ============================================================
-    # ENDLINE
-    # ============================================================
+    # ==========================================================
+    # 7. ENDLINE
+    # ==========================================================
     
     endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
+      
+      filter(
+        Tipo_Avaliacao == "Endline"
+      ) %>%
+      
       select(
         Negocio_Formalizado,
         perc_endline = perc
       )
     
     
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
+    # ==========================================================
+    # 8. COMPARAÇÃO BASELINE × ENDLINE
+    # ==========================================================
     
     comparacao <- full_join(
+      
       baseline,
       endline,
-      by = "Negocio_Formalizado"
+      
+      by =
+        "Negocio_Formalizado"
+      
     ) %>%
+      
       mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
+        
+        perc_baseline =
+          replace_na(
+            perc_baseline,
+            0
+          ),
+        
+        perc_endline =
+          replace_na(
+            perc_endline,
+            0
+          ),
+        
+        variacao =
+          perc_endline -
+          perc_baseline
       )
     
     
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
+    # ==========================================================
+    # 9. TEXTO DINÂMICO
+    # ==========================================================
     
     texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
+      
+      seq_len(
+        nrow(comparacao)
+      ),
+      
+      function(i) {
         
-        categoria <- comparacao$Negocio_Formalizado[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
+        categoria <-
+          comparacao$Negocio_Formalizado[i]
         
-        if(variacao > 0){
+        base <-
+          round(
+            comparacao$perc_baseline[i],
+            1
+          )
+        
+        end <-
+          round(
+            comparacao$perc_endline[i],
+            1
+          )
+        
+        variacao <-
+          round(
+            comparacao$variacao[i],
+            1
+          )
+        
+        
+        # ------------------------------------------------------
+        # AUMENTO
+        # ------------------------------------------------------
+        
+        if (
+          variacao > 0
+        ) {
           
           paste0(
+            
             categoria,
+            
             " aumentou de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (+",
+            
             variacao,
+            
             " p.p.)"
           )
-          
-        } else if(variacao < 0){
+        }
+        
+        
+        # ------------------------------------------------------
+        # REDUÇÃO
+        # ------------------------------------------------------
+        
+        else if (
+          variacao < 0
+        ) {
           
           paste0(
+            
             categoria,
+            
             " reduziu de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (",
+            
             variacao,
+            
             " p.p.)"
           )
-          
-        } else {
+        }
+        
+        
+        # ------------------------------------------------------
+        # SEM ALTERAÇÃO
+        # ------------------------------------------------------
+        
+        else {
           
           paste0(
+            
             categoria,
+            
             " manteve-se em ",
+            
             end,
+            
             "% entre o Baseline e o Endline"
           )
         }
@@ -3539,13 +4019,24 @@ server <- function(input, output, session) {
     )
     
     
+    # ==========================================================
+    # 10. TEXTO FINAL
+    # ==========================================================
+    
     tags$p(
       
-      style = "margin:0;text-align:justify;",
+      style =
+        "margin:0;text-align:justify;",
       
-      tags$b("Formalização dos negócios. "),
+      tags$b(
+        "O seu negócio está formalizado? "
+      ),
       
-      "A comparação entre o Baseline e o Endline permite observar a evolução da situação de formalização dos negócios. ",
+      "(registado oficialmente e com Certificado de Registo Comercial). ",
+      
+      "A comparação entre o Baseline e o Endline permite observar ",
+      
+      "a evolução da situação de formalização dos negócios. ",
       
       paste(
         texto_categorias,
@@ -3559,88 +4050,201 @@ server <- function(input, output, session) {
   
   output$grafico_servicos_financeiros <- renderPlotly({
     
-    df <- dados_filtrados()
+    # =========================================================
+    # BASE ORIGINAL
+    # =========================================================
+    df <- Pam_Verde_Indicadores
     
     
+    # =========================================================
+    # FILTROS
+    # =========================================================
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # =========================================================
+    # FILTRAR DADOS VÁLIDOS
+    # =========================================================
     df <- df %>%
       filter(
         !is.na(Uso_Servicos_Financeiros),
         !is.na(Tipo_Avaliacao)
       ) %>%
-      separate_rows(
-        Uso_Servicos_Financeiros,
-        sep = ",(?=[A-Z])"
-      ) %>%
+      
+      # =======================================================
+    # SEPARAR RESPOSTAS MÚLTIPLAS
+    # =======================================================
+    separate_rows(
+      Uso_Servicos_Financeiros,
+      sep = ",(?=[A-Z])"
+    ) %>%
+      
       mutate(
         Uso_Servicos_Financeiros =
-          trimws(Uso_Servicos_Financeiros)
+          trimws(
+            Uso_Servicos_Financeiros
+          )
       )
     
     
-    if(nrow(df) == 0){
-      return(plotly_empty())
+    # =========================================================
+    # VERIFICAR SE EXISTEM DADOS
+    # =========================================================
+    if (nrow(df) == 0) {
+      return(
+        plotly_empty()
+      )
     }
     
     
+    # =========================================================
+    # FREQUÊNCIA
+    # =========================================================
     freq_data <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Uso_Servicos_Financeiros
       ) %>%
+      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        percent = round(n / sum(n) * 100,1),
-        label = paste0(percent,"%")
+      
+      group_by(
+        Tipo_Avaliacao
       ) %>%
+      
+      mutate(
+        
+        # Percentagem
+        percent = round(
+          n /
+            sum(n) *
+            100,
+          1
+        ),
+        
+        # Texto dentro da barra
+        label = paste0(
+          n,
+          " (",
+          percent,
+          "%)"
+        )
+      ) %>%
+      
       ungroup()
     
     
-    # Ordenar menor para maior
+    # =========================================================
+    # ORDENAR SERVIÇOS
+    # =========================================================
     ordem_servicos <- freq_data %>%
-      group_by(Uso_Servicos_Financeiros) %>%
+      
+      group_by(
+        Uso_Servicos_Financeiros
+      ) %>%
+      
       summarise(
-        total = sum(percent),
+        total =
+          sum(
+            percent,
+            na.rm = TRUE
+          ),
+        
         .groups = "drop"
       ) %>%
-      arrange(total) %>%
-      pull(Uso_Servicos_Financeiros)
+      
+      arrange(
+        total
+      ) %>%
+      
+      pull(
+        Uso_Servicos_Financeiros
+      )
     
     
-    freq_data$Uso_Servicos_Financeiros <- factor(
-      freq_data$Uso_Servicos_Financeiros,
-      levels = ordem_servicos
-    )
+    freq_data$Uso_Servicos_Financeiros <-
+      factor(
+        freq_data$Uso_Servicos_Financeiros,
+        levels = ordem_servicos
+      )
     
     
-    # Cores
+    # =========================================================
+    # CORES
+    # =========================================================
     cores <- c(
-      "Nenhum destes serviços" = "#5cd6c7",
-      "Carteira móvel (M-Pesa, e-Mola, Mkesh)" = "#f9a825",
-      "Crédito ou empréstimo bancário para o negócio" = "#2ca02c",
-      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)" = "#bcbd22",
-      "Conta bancária em nome do negócio (conta empresarial)" = "#9442d4",
-      "Conta poupança formal ligada ao negócio" = "#ff7f0e",
-      "Seguro (de negócio, de equipamento, de saúde...)" = "#d62728"
+      
+      "Nenhum destes serviços" =
+        "#5cd6c7",
+      
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)" =
+        "#f9a825",
+      
+      "Crédito ou empréstimo bancário para o negócio" =
+        "#2ca02c",
+      
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)" =
+        "#bcbd22",
+      
+      "Conta bancária em nome do negócio (conta empresarial)" =
+        "#9442d4",
+      
+      "Conta poupança formal ligada ao negócio" =
+        "#ff7f0e",
+      
+      "Seguro (de negócio, de equipamento, de saúde...)" =
+        "#d62728"
     )
     
     
+    # =========================================================
+    # GRÁFICO
+    # =========================================================
     plot_ly(
+      
       data = freq_data,
       
       x = ~Tipo_Avaliacao,
+      
       y = ~percent,
       
       color = ~Uso_Servicos_Financeiros,
+      
       colors = cores,
       
       type = "bar",
       
+      
+      # =======================================================
+      # LABEL: n + %
+      # =======================================================
       text = ~label,
+      
       textposition = "inside",
+      
       insidetextanchor = "middle",
       
       textfont = list(
@@ -3648,9 +4252,16 @@ server <- function(input, output, session) {
         size = 11
       ),
       
+      
+      # =======================================================
+      # HOVER
+      # =======================================================
+      customdata = ~n,
+      
       hovertemplate = paste(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
+        "Número: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
       
@@ -3658,192 +4269,370 @@ server <- function(input, output, session) {
       
       layout(
         
+        # =====================================================
+        # BARRAS EMPILHADAS
+        # =====================================================
         barmode = "stack",
         
+        
+        # =====================================================
+        # EIXO Y
+        # =====================================================
         yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
+          
+          title =
+            "Percentagem (%)",
+          
+          range =
+            c(
+              0,
+              100
+            ),
+          
+          ticksuffix =
+            "%"
         ),
         
+        
+        # =====================================================
+        # EIXO X
+        # =====================================================
         xaxis = list(
           title = ""
         ),
         
+        
+        # =====================================================
+        # LEGENDA
+        # =====================================================
         legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
+          
+          orientation =
+            "h",
+          
+          x =
+            0.5,
+          
+          xanchor =
+            "center",
+          
+          y =
+            -0.25
         ),
         
+        
+        # =====================================================
+        # MARGENS
+        # =====================================================
         margin = list(
+          
           l = 60,
+          
           r = 20,
+          
           t = 20,
+          
           b = 150
         ),
         
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+        
+        # =====================================================
+        # FUNDO
+        # =====================================================
+        paper_bgcolor =
+          "#f5f3f4",
+        
+        plot_bgcolor =
+          "#f5f3f4"
       )
   })
   
+  # ============================================================
+  # TEXTO DINÂMICO – SERVIÇOS FINANCEIROS
+  # BASE ORIGINAL: Pam_Verde_Indicadores
+  # ============================================================
+  
   output$texto_servicos <- renderUI({
     
-    df <- dados_filtrados()
+    # ==========================================================
+    # 1. BASE ORIGINAL
+    # ==========================================================
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # ==========================================================
+    # 2. APLICAR FILTROS
+    # ==========================================================
+    
+    # Filtro por cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro por ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    # Filtro por tipo de avaliação
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # ==========================================================
+    # 3. PREPARAR DADOS
+    # ==========================================================
     
     df <- df %>%
       filter(
         !is.na(Uso_Servicos_Financeiros),
         !is.na(Tipo_Avaliacao)
       ) %>%
+      
+      # Separar respostas múltiplas
       separate_rows(
         Uso_Servicos_Financeiros,
         sep = ",(?=[A-Z])"
       ) %>%
+      
       mutate(
-        Uso_Servicos_Financeiros = trimws(
-          Uso_Servicos_Financeiros
-        )
+        Uso_Servicos_Financeiros =
+          trimws(
+            Uso_Servicos_Financeiros
+          )
       )
     
     
-    if(nrow(df) == 0){
+    # ==========================================================
+    # 4. VERIFICAR SE EXISTEM DADOS
+    # ==========================================================
+    
+    if (
+      nrow(df) == 0
+    ) {
+      
       return(NULL)
     }
     
     
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
+    # ==========================================================
+    # 5. CALCULAR FREQUÊNCIAS E PERCENTAGENS
+    # ==========================================================
     
     resumo <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Uso_Servicos_Financeiros
       ) %>%
+      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
+      
+      group_by(
+        Tipo_Avaliacao
       ) %>%
+      
+      mutate(
+        perc =
+          n /
+          sum(n) *
+          100
+      ) %>%
+      
       ungroup()
     
     
-    # ============================================================
-    # BASELINE
-    # ============================================================
+    # ==========================================================
+    # 6. BASELINE
+    # ==========================================================
     
     baseline <- resumo %>%
+      
       filter(
         Tipo_Avaliacao == "Baseline"
       ) %>%
+      
       select(
         Uso_Servicos_Financeiros,
         perc_baseline = perc
       )
     
     
-    # ============================================================
-    # ENDLINE
-    # ============================================================
+    # ==========================================================
+    # 7. ENDLINE
+    # ==========================================================
     
     endline <- resumo %>%
+      
       filter(
         Tipo_Avaliacao == "Endline"
       ) %>%
+      
       select(
         Uso_Servicos_Financeiros,
         perc_endline = perc
       )
     
     
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
+    # ==========================================================
+    # 8. COMPARAÇÃO BASELINE × ENDLINE
+    # ==========================================================
     
     comparacao <- full_join(
+      
       baseline,
       endline,
-      by = "Uso_Servicos_Financeiros"
+      
+      by =
+        "Uso_Servicos_Financeiros"
+      
     ) %>%
+      
       mutate(
-        perc_baseline = tidyr::replace_na(
-          perc_baseline,
-          0
-        ),
         
-        perc_endline = tidyr::replace_na(
-          perc_endline,
-          0
-        ),
+        perc_baseline =
+          tidyr::replace_na(
+            perc_baseline,
+            0
+          ),
         
-        variacao = perc_endline - perc_baseline
+        perc_endline =
+          tidyr::replace_na(
+            perc_endline,
+            0
+          ),
+        
+        variacao =
+          perc_endline -
+          perc_baseline
       )
     
     
-    # ============================================================
-    # TEXTO DE CADA SERVIÇO
-    # ============================================================
+    # ==========================================================
+    # 9. TEXTO DE CADA SERVIÇO
+    # ==========================================================
     
     texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
+      
+      seq_len(
+        nrow(comparacao)
+      ),
+      
+      function(i) {
         
-        categoria <- comparacao$Uso_Servicos_Financeiros[i]
+        categoria <-
+          comparacao$Uso_Servicos_Financeiros[i]
         
-        base <- round(
-          comparacao$perc_baseline[i],
-          1
-        )
+        base <-
+          round(
+            comparacao$perc_baseline[i],
+            1
+          )
         
-        end <- round(
-          comparacao$perc_endline[i],
-          1
-        )
+        end <-
+          round(
+            comparacao$perc_endline[i],
+            1
+          )
         
-        variacao <- round(
-          comparacao$variacao[i],
-          1
-        )
+        variacao <-
+          round(
+            comparacao$variacao[i],
+            1
+          )
         
         
-        if(variacao > 0){
+        # ------------------------------------------------------
+        # AUMENTO
+        # ------------------------------------------------------
+        
+        if (
+          variacao > 0
+        ) {
           
           paste0(
+            
             categoria,
+            
             " aumentou de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (+",
+            
             variacao,
+            
             " p.p.)"
           )
-          
-        } else if(variacao < 0){
+        }
+        
+        
+        # ------------------------------------------------------
+        # REDUÇÃO
+        # ------------------------------------------------------
+        
+        else if (
+          variacao < 0
+        ) {
           
           paste0(
+            
             categoria,
+            
             " reduziu de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (",
+            
             variacao,
+            
             " p.p.)"
           )
-          
-        } else {
+        }
+        
+        
+        # ------------------------------------------------------
+        # SEM ALTERAÇÃO
+        # ------------------------------------------------------
+        
+        else {
           
           paste0(
+            
             categoria,
+            
             " manteve-se em ",
+            
             end,
+            
             "% entre o Baseline e o Endline"
           )
         }
@@ -3851,19 +4640,20 @@ server <- function(input, output, session) {
     )
     
     
-    # ============================================================
-    # TEXTO FINAL
-    # ============================================================
+    # ==========================================================
+    # 10. TEXTO FINAL
+    # ==========================================================
     
     tags$p(
       
-      style = "margin:0;text-align:justify;",
+      style =
+        "margin:0;text-align:justify;",
       
       tags$b(
-        "Uso de serviços financeiros. "
+        "Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"
       ),
       
-      "Comparação entre o Baseline e o Endline: ",
+      " A comparação entre o Baseline e o Endline permite observar a evolução do uso dos serviços financeiros. ",
       
       paste(
         texto_categorias,
@@ -3878,15 +4668,40 @@ server <- function(input, output, session) {
   
   output$grafico_tira_salario <- renderPlotly({
     
-    # =============================
-    # Dados com todos os filtros
-    # =============================
-    df <- dados_filtrados()
+    # =========================================================
+    # BASE ORIGINAL
+    # =========================================================
+    df <- Pam_Verde_Indicadores
     
     
-    # =============================
-    # Preparação
-    # =============================
+    # =========================================================
+    # FILTROS
+    # =========================================================
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # =========================================================
+    # PREPARAÇÃO
+    # =========================================================
     df <- df %>%
       filter(
         !is.na(Tira_Salario_Para_Si),
@@ -3894,128 +4709,294 @@ server <- function(input, output, session) {
       )
     
     
-    if(nrow(df) == 0){
-      return(plotly_empty())
+    # =========================================================
+    # VERIFICAR SE EXISTEM DADOS
+    # =========================================================
+    if (nrow(df) == 0) {
+      return(
+        plotly_empty()
+      )
     }
     
     
-    # =============================
-    # Frequência e percentagem
-    # =============================
+    # =========================================================
+    # FREQUÊNCIA E PERCENTAGEM
+    # =========================================================
     freq_data <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Tira_Salario_Para_Si
       ) %>%
+      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct, "%")
+      
+      group_by(
+        Tipo_Avaliacao
       ) %>%
+      
+      mutate(
+        
+        pct = round(
+          n /
+            sum(n) *
+            100,
+          1
+        ),
+        
+        # Mostrar n + %
+        label = paste0(
+          n,
+          " (",
+          pct,
+          "%)"
+        )
+      ) %>%
+      
       ungroup()
     
     
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
+    # =========================================================
+    # ORDENAR MENOR PARA MAIOR %
+    # =========================================================
     ordem_salario <- freq_data %>%
-      group_by(Tira_Salario_Para_Si) %>%
+      
+      group_by(
+        Tira_Salario_Para_Si
+      ) %>%
+      
       summarise(
-        total = sum(pct),
+        total =
+          sum(
+            pct,
+            na.rm = TRUE
+          ),
+        
         .groups = "drop"
       ) %>%
-      arrange(total) %>%
-      pull(Tira_Salario_Para_Si)
+      
+      arrange(
+        total
+      ) %>%
+      
+      pull(
+        Tira_Salario_Para_Si
+      )
     
     
-    freq_data$Tira_Salario_Para_Si <- factor(
-      freq_data$Tira_Salario_Para_Si,
-      levels = ordem_salario
-    )
+    freq_data$Tira_Salario_Para_Si <-
+      factor(
+        freq_data$Tira_Salario_Para_Si,
+        levels = ordem_salario
+      )
     
     
-    # =============================
-    # Cores
-    # =============================
+    # =========================================================
+    # CORES
+    # =========================================================
     cores <- c(
-      "Não, não retiro nenhum valor para mim mesma" = "#5cd6c7",
-      "Retiro de forma irregular, conforme o negócio tem dinheiro" = "#ff7f0e",
-      "Sim, retiro um valor fixo todos os meses" = "#9442d4"
+      
+      "Não, não retiro nenhum valor para mim mesma" =
+        "#5cd6c7",
+      
+      "Retiro de forma irregular, conforme o negócio tem dinheiro" =
+        "#ff7f0e",
+      
+      "Sim, retiro um valor fixo todos os meses" =
+        "#9442d4"
     )
     
     
-    # =============================
-    # Gráfico
-    # =============================
+    # =========================================================
+    # GRÁFICO
+    # =========================================================
     plot_ly(
+      
       data = freq_data,
       
       x = ~Tipo_Avaliacao,
+      
       y = ~pct,
       
       color = ~Tira_Salario_Para_Si,
+      
       colors = cores,
       
       type = "bar",
       
-      text = ~label,
-      textposition = "inside",
-      insidetextanchor = "middle",
       
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      ),
+      # =======================================================
+      # n + %
+      # =======================================================
+      text = ~label,
+      
+      textposition = "inside",
+      
+      insidetextanchor = "middle",
       
       textfont = list(
         color = "#ffffff",
         size = 12
+      ),
+      
+      
+      # =======================================================
+      # HOVER
+      # =======================================================
+      customdata = ~n,
+      
+      hovertemplate = paste(
+        
+        "<b>%{x}</b><br>",
+        
+        "%{fullData.name}<br>",
+        
+        "Número: %{customdata}<br>",
+        
+        "Percentagem: %{y:.1f}%<extra></extra>"
       )
       
     ) %>%
       
       layout(
         
+        # =====================================================
+        # BARRAS EMPILHADAS
+        # =====================================================
         barmode = "stack",
         
+        
+        # =====================================================
+        # EIXO X
+        # =====================================================
         xaxis = list(
+          
           title = "",
-          tickfont = list(size = 12)
+          
+          tickfont = list(
+            size = 12
+          )
         ),
         
+        
+        # =====================================================
+        # EIXO Y
+        # =====================================================
         yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
+          
+          title =
+            "Percentagem (%)",
+          
+          range =
+            c(
+              0,
+              100
+            ),
+          
+          ticksuffix =
+            "%"
         ),
         
+        
+        # =====================================================
+        # LEGENDA
+        # =====================================================
         legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
+          
+          orientation =
+            "h",
+          
+          x =
+            0.5,
+          
+          xanchor =
+            "center",
+          
+          y =
+            -0.25
         ),
         
+        
+        # =====================================================
+        # MARGENS
+        # =====================================================
         margin = list(
+          
           l = 60,
+          
           r = 20,
+          
           t = 20,
+          
           b = 130
         ),
         
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+        
+        # =====================================================
+        # FUNDO
+        # =====================================================
+        paper_bgcolor =
+          "#f5f3f4",
+        
+        plot_bgcolor =
+          "#f5f3f4"
       )
   })
   
+  # ============================================================
+  # TEXTO DINÂMICO – RETIRADA DE SALÁRIO
+  # BASE ORIGINAL: Pam_Verde_Indicadores
+  # ============================================================
+  
   output$texto_salario <- renderUI({
     
-    df <- dados_filtrados()
+    # ==========================================================
+    # 1. BASE ORIGINAL
+    # ==========================================================
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # ==========================================================
+    # 2. APLICAR FILTROS
+    # ==========================================================
+    
+    # Filtro por cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro por ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    # Filtro por tipo de avaliação
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # ==========================================================
+    # 3. REMOVER DADOS VAZIOS
+    # ==========================================================
     
     df <- df %>%
       filter(
@@ -4023,140 +5004,221 @@ server <- function(input, output, session) {
         !is.na(Tipo_Avaliacao)
       )
     
-    if(nrow(df) == 0){
+    
+    # ==========================================================
+    # 4. VERIFICAR SE EXISTEM DADOS
+    # ==========================================================
+    
+    if (
+      nrow(df) == 0
+    ) {
+      
       return(NULL)
     }
     
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
+    
+    # ==========================================================
+    # 5. CALCULAR FREQUÊNCIAS E PERCENTAGENS
+    # ==========================================================
     
     resumo <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Tira_Salario_Para_Si
       ) %>%
+      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
+      
+      group_by(
+        Tipo_Avaliacao
       ) %>%
+      
+      mutate(
+        perc =
+          n /
+          sum(n) *
+          100
+      ) %>%
+      
       ungroup()
     
     
-    # ============================================================
-    # BASELINE
-    # ============================================================
+    # ==========================================================
+    # 6. BASELINE
+    # ==========================================================
     
     baseline <- resumo %>%
+      
       filter(
         Tipo_Avaliacao == "Baseline"
       ) %>%
+      
       select(
         Tira_Salario_Para_Si,
         perc_baseline = perc
       )
     
     
-    # ============================================================
-    # ENDLINE
-    # ============================================================
+    # ==========================================================
+    # 7. ENDLINE
+    # ==========================================================
     
     endline <- resumo %>%
+      
       filter(
         Tipo_Avaliacao == "Endline"
       ) %>%
+      
       select(
         Tira_Salario_Para_Si,
         perc_endline = perc
       )
     
     
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
+    # ==========================================================
+    # 8. COMPARAÇÃO BASELINE × ENDLINE
+    # ==========================================================
     
     comparacao <- full_join(
+      
       baseline,
       endline,
-      by = "Tira_Salario_Para_Si"
+      
+      by =
+        "Tira_Salario_Para_Si"
+      
     ) %>%
+      
       mutate(
-        perc_baseline = tidyr::replace_na(
-          perc_baseline,
-          0
-        ),
         
-        perc_endline = tidyr::replace_na(
-          perc_endline,
-          0
-        ),
+        perc_baseline =
+          tidyr::replace_na(
+            perc_baseline,
+            0
+          ),
         
-        variacao = perc_endline - perc_baseline
+        perc_endline =
+          tidyr::replace_na(
+            perc_endline,
+            0
+          ),
+        
+        variacao =
+          perc_endline -
+          perc_baseline
       )
     
     
-    # ============================================================
-    # TEXTO DE CADA CATEGORIA
-    # ============================================================
+    # ==========================================================
+    # 9. TEXTO DE CADA CATEGORIA
+    # ==========================================================
     
     texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
+      
+      seq_len(
+        nrow(comparacao)
+      ),
+      
+      function(i) {
         
-        categoria <- comparacao$Tira_Salario_Para_Si[i]
+        categoria <-
+          comparacao$Tira_Salario_Para_Si[i]
         
-        base <- round(
-          comparacao$perc_baseline[i],
-          1
-        )
+        base <-
+          round(
+            comparacao$perc_baseline[i],
+            1
+          )
         
-        end <- round(
-          comparacao$perc_endline[i],
-          1
-        )
+        end <-
+          round(
+            comparacao$perc_endline[i],
+            1
+          )
         
-        variacao <- round(
-          comparacao$variacao[i],
-          1
-        )
+        variacao <-
+          round(
+            comparacao$variacao[i],
+            1
+          )
         
         
-        if(variacao > 0){
+        # ------------------------------------------------------
+        # AUMENTO
+        # ------------------------------------------------------
+        
+        if (
+          variacao > 0
+        ) {
           
           paste0(
+            
             categoria,
+            
             " aumentou de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (+",
+            
             variacao,
+            
             " p.p.)"
           )
-          
-        } else if(variacao < 0){
+        }
+        
+        
+        # ------------------------------------------------------
+        # REDUÇÃO
+        # ------------------------------------------------------
+        
+        else if (
+          variacao < 0
+        ) {
           
           paste0(
+            
             categoria,
+            
             " reduziu de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (",
+            
             variacao,
+            
             " p.p.)"
           )
-          
-        } else {
+        }
+        
+        
+        # ------------------------------------------------------
+        # SEM ALTERAÇÃO
+        # ------------------------------------------------------
+        
+        else {
           
           paste0(
+            
             categoria,
+            
             " manteve-se em ",
+            
             end,
+            
             "% entre o Baseline e o Endline"
           )
         }
@@ -4164,19 +5226,20 @@ server <- function(input, output, session) {
     )
     
     
-    # ============================================================
-    # TEXTO FINAL
-    # ============================================================
+    # ==========================================================
+    # 10. TEXTO FINAL
+    # ==========================================================
     
     tags$p(
       
-      style = "margin:0;text-align:justify;",
+      style =
+        "margin:0;text-align:justify;",
       
       tags$b(
-        "Remuneração da empreendedora. "
+        "Retira regularmente um salário para si mesma?"
       ),
       
-      "",
+      " A comparação entre o Baseline e o Endline permite observar a evolução da prática de retirar um salário do negócio para si própria. ",
       
       paste(
         texto_categorias,
@@ -4186,51 +5249,160 @@ server <- function(input, output, session) {
       "."
     )
   })
-
+  
+  
   output$grafico_clientes_regulares <- renderPlotly({
     
-    # =============================
-    # Dados com todos os filtros
-    # =============================
-    df <- dados_filtrados() %>%
+    # =========================================================
+    # BASE ORIGINAL
+    # =========================================================
+    df <- Pam_Verde_Indicadores
+    
+    
+    # =========================================================
+    # FILTROS
+    # =========================================================
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # =========================================================
+    # PREPARAÇÃO
+    # =========================================================
+    df <- df %>%
       filter(
         !is.na(Clientes_Regulares_Negocio),
         !is.na(Tipo_Avaliacao)
       )
     
-    if(nrow(df) == 0){
-      return(plotly_empty())
+    
+    # =========================================================
+    # VERIFICAR SE EXISTEM DADOS
+    # =========================================================
+    if (nrow(df) == 0) {
+      return(
+        plotly_empty()
+      )
     }
     
     
-    # =============================
-    # Criar categorias
-    # =============================
+    # =========================================================
+    # CRIAR CATEGORIAS
+    # =========================================================
     dados_cat <- df %>%
+      
       mutate(
+        
         categoria = case_when(
-          Clientes_Regulares_Negocio <= 5  ~ "0–5",
-          Clientes_Regulares_Negocio <= 10 ~ "6–10",
-          Clientes_Regulares_Negocio <= 20 ~ "11–20",
-          TRUE ~ ">20"
+          
+          Clientes_Regulares_Negocio <= 5 ~
+            "0–5",
+          
+          Clientes_Regulares_Negocio <= 10 ~
+            "6–10",
+          
+          Clientes_Regulares_Negocio <= 20 ~
+            "11–20",
+          
+          TRUE ~
+            ">20"
         )
       ) %>%
-      count(Tipo_Avaliacao, categoria) %>%
-      group_by(Tipo_Avaliacao) %>%
+      
+      
+      # =======================================================
+    # FREQUÊNCIA
+    # =======================================================
+    count(
+      Tipo_Avaliacao,
+      categoria,
+      name = "n"
+    ) %>%
+      
+      
+      # =======================================================
+    # PERCENTAGEM
+    # =======================================================
+    group_by(
+      Tipo_Avaliacao
+    ) %>%
+      
       mutate(
-        Percent = round(100 * n / sum(n), 1)
+        
+        Percent = round(
+          100 * n / sum(n),
+          1
+        ),
+        
+        
+        # =====================================================
+        # TEXTO n + %
+        # =====================================================
+        label = paste0(
+          n,
+          " (",
+          Percent,
+          "%)"
+        ),
+        
+        
+        # =====================================================
+        # TOOLTIP
+        # =====================================================
+        tooltip = paste0(
+          
+          "<b>",
+          categoria,
+          "</b><br>",
+          
+          "<b>Avaliação:</b> ",
+          Tipo_Avaliacao,
+          "<br>",
+          
+          "<b>Número:</b> ",
+          n,
+          "<br>",
+          
+          "<b>Percentagem:</b> ",
+          Percent,
+          "%"
+        )
       ) %>%
+      
       ungroup()
     
     
-    # =============================
-    # Ordem dos factores
-    # =============================
+    # =========================================================
+    # ORDEM DOS FACTORES
+    # =========================================================
     dados_cat <- dados_cat %>%
+      
       mutate(
+        
         Tipo_Avaliacao = factor(
           Tipo_Avaliacao,
-          levels = c("Baseline", "Endline")
+          levels = c(
+            "Baseline",
+            "Endline"
+          )
         ),
         
         categoria = factor(
@@ -4245,787 +5417,362 @@ server <- function(input, output, session) {
       )
     
     
-    # =============================
-    # Cores
-    # =============================
+    # =========================================================
+    # CORES
+    # =========================================================
     cores <- c(
-      "0–5"   = "#5cd6c7",
-      "6–10"  = "#ff7f0e",
-      "11–20" = "#F39C12",
-      ">20"   = "#9442d4"
+      
+      "0–5" =
+        "#5cd6c7",
+      
+      "6–10" =
+        "#ff7f0e",
+      
+      "11–20" =
+        "#F39C12",
+      
+      ">20" =
+        "#9442d4"
     )
     
     
-    # =============================
-    # Gráfico
-    # =============================
+    # =========================================================
+    # GRÁFICO GGPLOT
+    # =========================================================
     p <- ggplot(
+      
       dados_cat,
+      
       aes(
+        
         x = categoria,
+        
         y = Percent,
+        
         fill = categoria,
-        text = paste0(
-          "<b>", categoria, "</b><br>",
-          "Percentagem: ", Percent, "%"
-        )
+        
+        text = tooltip
       )
     ) +
       
-      geom_col(
-        width = 0.7
-      ) +
       
-      geom_text(
-        aes(
-          label = paste0(Percent, "%")
-        ),
-        vjust = -0.3,
-        size = 4,
-        fontface = "bold"
-      ) +
+      # =======================================================
+    # BARRAS
+    # =======================================================
+    geom_col(
+      width = 0.7
+    ) +
       
-      facet_wrap(
-        ~ Tipo_Avaliacao,
-        nrow = 1
-      ) +
       
-      scale_fill_manual(
-        values = cores
-      ) +
+      # =======================================================
+    # LABEL n + %
+    # =======================================================
+    geom_text(
       
-      scale_y_continuous(
-        limits = c(0, 100),
-        expand = expansion(mult = c(0, 0.08))
-      ) +
+      aes(
+        label = label
+      ),
       
-      labs(
-        title = "",
-        x = "",
-        y = ""
-      ) +
+      vjust = -0.3,
       
-      theme_stata() +
+      size = 4,
+      
+      fontface = "bold"
+    ) +
+      
+      
+      # =======================================================
+    # BASELINE / ENDLINE
+    # =======================================================
+    facet_wrap(
+      
+      ~Tipo_Avaliacao,
+      
+      nrow = 1
+    ) +
+      
+      
+      # =======================================================
+    # CORES
+    # =======================================================
+    scale_fill_manual(
+      
+      values = cores
+    ) +
+      
+      
+      # =======================================================
+    # EIXO Y
+    # =======================================================
+    scale_y_continuous(
+      
+      limits = c(
+        0,
+        100
+      ),
+      
+      expand =
+        expansion(
+          mult =
+            c(
+              0,
+              0.08
+            )
+        )
+    ) +
+      
+      
+      # =======================================================
+    # LABELS
+    # =======================================================
+    labs(
+      
+      title = "",
+      
+      x = "",
+      
+      y = ""
+    ) +
+      
+      
+      # =======================================================
+    # TEMA
+    # =======================================================
+    theme_stata() +
       
       theme(
-        legend.position = "none",
         
-        strip.text = element_text(
-          size = 13,
-          face = "bold"
-        ),
+        legend.position =
+          "none",
         
-        plot.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
+        strip.text =
+          element_text(
+            size = 13,
+            face = "bold"
+          ),
         
-        panel.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
+        plot.background =
+          element_rect(
+            fill = "#f5f3f4",
+            color = NA
+          ),
         
-        strip.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        )
+        panel.background =
+          element_rect(
+            fill = "#f5f3f4",
+            color = NA
+          ),
+        
+        strip.background =
+          element_rect(
+            fill = "#f5f3f4",
+            color = NA
+          )
       )
     
     
-    # =============================
-    # Plotly
-    # =============================
+    # =========================================================
+    # CONVERTER PARA PLOTLY
+    # =========================================================
     ggplotly(
+      
       p,
+      
       tooltip = "text"
+      
     ) %>%
+      
       layout(
         
         title = "",
         
+        
+        # =====================================================
+        # EIXO X
+        # =====================================================
         xaxis = list(
+          
           title = "",
-          tickfont = list(size = 12)
+          
+          tickfont =
+            list(
+              size = 12
+            )
         ),
         
+        
+        # =====================================================
+        # EIXO Y
+        # =====================================================
         yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0, 100),
-          ticksuffix = "%"
+          
+          title =
+            "Percentagem (%)",
+          
+          range =
+            c(
+              0,
+              100
+            ),
+          
+          ticksuffix =
+            "%"
         ),
         
+        
+        # =====================================================
+        # MARGENS
+        # =====================================================
         margin = list(
+          
           l = 60,
+          
           r = 20,
+          
           t = 30,
+          
           b = 80
         ),
         
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+        
+        # =====================================================
+        # FUNDO
+        # =====================================================
+        paper_bgcolor =
+          "#f5f3f4",
+        
+        plot_bgcolor =
+          "#f5f3f4"
       )
   })
   
-  
-  # ============================================================
-  # LEITURA COMPARATIVA BASELINE VS ENDLINE
-  # ============================================================
+   
   
   output$texto_clientes <- renderUI({
     
-    df <- dados_filtrados() %>%
+    # ==========================================================
+    # 1. BASE ORIGINAL
+    # ==========================================================
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # ==========================================================
+    # 2. APLICAR FILTROS
+    # ==========================================================
+    
+    # Filtro por cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro por ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    # Filtro por tipo de avaliação
+    if (input$filtro_tipo_avaliacao != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
+    }
+    
+    
+    # ==========================================================
+    # 3. REMOVER DADOS VAZIOS
+    # ==========================================================
+    
+    df <- df %>%
       filter(
         !is.na(Clientes_Regulares_Negocio),
         !is.na(Tipo_Avaliacao)
       )
     
-    if(nrow(df) == 0){
+    
+    # ==========================================================
+    # 4. VERIFICAR SE EXISTEM DADOS
+    # ==========================================================
+    
+    if (
+      nrow(df) == 0
+    ) {
+      
       return(
         tags$p(
-          style = "margin:0;text-align:justify;",
+          style =
+            "margin:0;text-align:justify;",
+          
           "Não existem dados disponíveis para apresentar esta análise."
         )
       )
     }
     
     
-    # =============================
-    # Criar categorias
-    # =============================
+    # ==========================================================
+    # 5. CRIAR CATEGORIAS
+    # ==========================================================
+    
     resumo <- df %>%
+      
       mutate(
-        categoria = case_when(
-          Clientes_Regulares_Negocio <= 5  ~ "0–5",
-          Clientes_Regulares_Negocio <= 10 ~ "6–10",
-          Clientes_Regulares_Negocio <= 20 ~ "11–20",
-          TRUE ~ ">20"
-        )
+        
+        categoria =
+          case_when(
+            
+            Clientes_Regulares_Negocio <= 5 ~
+              "0–5",
+            
+            Clientes_Regulares_Negocio <= 10 ~
+              "6–10",
+            
+            Clientes_Regulares_Negocio <= 20 ~
+              "11–20",
+            
+            TRUE ~
+              ">20"
+          )
       ) %>%
-      count(Tipo_Avaliacao, categoria) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = round(n / sum(n) * 100, 1)
-      ) %>%
-      ungroup()
-    
-    
-    # =============================
-    # Baseline
-    # =============================
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
+      
+      count(
+        Tipo_Avaliacao,
         categoria,
-        perc_baseline = perc
-      )
-    
-    
-    # =============================
-    # Endline
-    # =============================
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        categoria,
-        perc_endline = perc
-      )
-    
-    
-    # =============================
-    # Comparação
-    # =============================
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "categoria"
-    ) %>%
-      mutate(
-        perc_baseline = tidyr::replace_na(perc_baseline, 0),
-        perc_endline = tidyr::replace_na(perc_endline, 0),
-        variacao = round(
-          perc_endline - perc_baseline,
-          1
-        )
-      )
-    
-    
-    # =============================
-    # Criar frases
-    # =============================
-    frases <- apply(
-      comparacao,
-      1,
-      function(x){
-        
-        categoria <- x["categoria"]
-        base <- as.numeric(x["perc_baseline"])
-        end <- as.numeric(x["perc_endline"])
-        var <- as.numeric(x["variacao"])
-        
-        if(var > 0){
-          
-          paste0(
-            "A categoria ",
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            var,
-            " p.p.)."
-          )
-          
-        } else if(var < 0){
-          
-          paste0(
-            "A categoria ",
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            var,
-            " p.p.)."
-          )
-          
-        } else {
-          
-          paste0(
-            "A categoria ",
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline."
-          )
-        }
-      }
-    )
-    
-    
-    # =============================
-    # Texto final
-    # =============================
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Clientes regulares. "),
-      
-      "A comparação entre o Baseline e o Endline mostra a evolução da distribuição dos negócios segundo o número de clientes regulares. ",
-      
-      paste(
-        frases,
-        collapse = " "
-      )
-    )
-  })
-  
-  # ============================================================
-  # Dados filtrados para Local de Venda
-  # ============================================================
-  
-  dados_local_venda <- reactive({
-    
-    dados <- Pam_Verde_Indicadores
-    
-    # Filtro Cidade
-    if(input$filtro_cidade != "Todas"){
-      dados <- dados %>%
-        filter(Cidade == input$filtro_cidade)
-    }
-    
-    # Filtro Ciclo
-    if(input$filtro_ciclo != "Todos"){
-      dados <- dados %>%
-        filter(Ciclo == input$filtro_ciclo)
-    }
-    
-    # Filtro Tipo Avaliação
-    if(input$filtro_tipo_avaliacao != "Todos"){
-      dados <- dados %>%
-        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
-    }
-    
-    dados
-  })
-  
-  
-  # ============================================================
-  # Padronizar canais
-  # ============================================================
-  
-  padronizar_canais <- function(x){
-    
-    case_when(
-      
-      x == "Loja ou banca própria (física)" ~ 
-        "Loja/banca própria",
-      
-      x == "Venda em casa (clientes que vêm a casa)" ~
-        "Venda em casa",
-      
-      x == "Mercado ou feira" ~
-        "Mercado/feira",
-      
-      x == "Na loja ou banca de outra pessoa (consignação ou parceria)" ~
-        "Consignação/parceria",
-      
-      x == "Entrega ao domicílio (delivery)" ~
-        "Delivery",
-      
-      x == "WhatsApp / WhatsApp Business" ~
-        "WhatsApp",
-      
-      x == "Outro website ou plataforma online" ~
-        "Website/plataforma",
-      
-      TRUE ~ x
-      
-    )
-  }
-  
-  
-  # ============================================================
-  # Cores
-  # ============================================================
-  
-  cores_local_venda <- c(
-    
-    "WhatsApp" = "#9442d4",
-    "Mercado/feira" = "#F37238",
-    "Delivery" = "#F39C12",
-    "Loja/banca própria" = "#69C7BE",
-    "Facebook" = "#1877F2",
-    "Instagram" = "#007793",
-    "Venda em casa" = "#b8c0ff",
-    "Consignação/parceria" = "#f15bb5",
-    "Website/plataforma" = "#70d6ff",
-    "Outros" = "#757575"
-    
-  )
-  
-  
-  # ============================================================
-  # PARTICIPANTES PRESENTES NO BASELINE E ENDLINE
-  # ============================================================
-  
-  participantes_pareados <- reactive({
-    
-    dados <- dados_local_venda()
-    
-    dados %>%
-      filter(
-        Tipo_Avaliacao %in% c("Baseline", "Endline"),
-        !is.na(Nome_Participante),
-        Nome_Participante != ""
-      ) %>%
-      distinct(
-        Nome_Participante,
-        Tipo_Avaliacao
-      ) %>%
-      count(
-        Nome_Participante,
-        name = "n_avaliacoes"
-      ) %>%
-      filter(
-        n_avaliacoes == 2
-      ) %>%
-      select(
-        Nome_Participante
-      )
-  })
-  
-  
-  # ============================================================
-  # GRÁFICO — BASELINE VS ENDLINE
-  # Apenas participantes presentes nos dois momentos
-  # ============================================================
-  
-  output$grafico_local_venda <- renderPlotly({
-    
-    dados <- dados_local_venda()
-    
-    ids_pareados <- participantes_pareados()
-    
-    
-    # ------------------------------------------------------------
-    # Filtrar apenas participantes presentes nos dois momentos
-    # ------------------------------------------------------------
-    
-    dados_grafico <- dados %>%
-      filter(
-        Nome_Participante %in% ids_pareados$Nome_Participante,
-        Tipo_Avaliacao %in% c("Baseline", "Endline"),
-        !is.na(Onde_vende),
-        Onde_vende != ""
-      ) %>%
-      
-      separate_rows(
-        Onde_vende,
-        sep = ","
-      ) %>%
-      
-      mutate(
-        Onde_vende = trimws(Onde_vende),
-        Onde_vende = padronizar_canais(Onde_vende),
-        Tipo_Avaliacao = factor(
-          Tipo_Avaliacao,
-          levels = c("Baseline", "Endline")
-        )
-      ) %>%
-      
-      distinct(
-        Nome_Participante,
-        Tipo_Avaliacao,
-        Onde_vende
-      )
-    
-    
-    if(nrow(dados_grafico) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    # ------------------------------------------------------------
-    # Total de participantes pareados em cada avaliação
-    # ------------------------------------------------------------
-    
-    total_pareados <- length(
-      unique(ids_pareados$Nome_Participante)
-    )
-    
-    
-    # ------------------------------------------------------------
-    # Número de participantes por canal
-    # ------------------------------------------------------------
-    
-    dados_grafico <- dados_grafico %>%
-      
-      count(
-        Tipo_Avaliacao,
-        Onde_vende,
-        name = "Total"
-      ) %>%
-      
-      mutate(
-        Percent = round(
-          Total / total_pareados * 100,
-          1
-        )
-      )
-    
-    
-    # ------------------------------------------------------------
-    # Garantir as mesmas categorias nos dois facets
-    # ------------------------------------------------------------
-    
-    categorias <- unique(
-      dados_grafico$Onde_vende
-    )
-    
-    
-    dados_grafico <- dados_grafico %>%
-      
-      tidyr::complete(
-        Tipo_Avaliacao = factor(
-          c("Baseline", "Endline"),
-          levels = c("Baseline", "Endline")
-        ),
-        Onde_vende = categorias,
-        fill = list(
-          Total = 0,
-          Percent = 0
-        )
-      )
-    
-    
-    # ------------------------------------------------------------
-    # Ordem dos canais
-    # ------------------------------------------------------------
-    
-    ordem_canais <- dados_grafico %>%
-      
-      group_by(Onde_vende) %>%
-      
-      summarise(
-        Total_geral = sum(Total),
-        .groups = "drop"
-      ) %>%
-      
-      arrange(
-        Total_geral
-      ) %>%
-      
-      pull(Onde_vende)
-    
-    
-    dados_grafico <- dados_grafico %>%
-      
-      mutate(
-        Onde_vende = factor(
-          Onde_vende,
-          levels = ordem_canais
-        )
-      )
-    
-    
-    # ------------------------------------------------------------
-    # Cores
-    # ------------------------------------------------------------
-    
-    dados_grafico <- dados_grafico %>%
-      
-      mutate(
-        Cor = cores_local_venda[
-          as.character(Onde_vende)
-        ]
-      )
-    
-    
-    dados_grafico$Cor[
-      is.na(dados_grafico$Cor)
-    ] <- "#034EA2"
-    
-    
-    # ============================================================
-    # GRÁFICO
-    # ============================================================
-    
-    p <- ggplot(
-      dados_grafico,
-      aes(
-        x = Percent,
-        y = Onde_vende,
-        fill = Onde_vende,
-        text = paste0(
-          "<b>",
-          Onde_vende,
-          "</b><br>",
-          "Participantes: ",
-          Total,
-          "<br>",
-          "Percentagem: ",
-          Percent,
-          "%"
-        )
-      )
-    ) +
-      
-      geom_col(
-        width = 0.7
-      ) +
-      
-      geom_text(
-        aes(
-          label = ifelse(
-            Percent > 0,
-            paste0(Percent, "%"),
-            ""
-          )
-        ),
-        hjust = -0.15,
-        size = 3.5,
-        fontface = "bold"
-      ) +
-      
-      facet_wrap(
-        ~ Tipo_Avaliacao,
-        nrow = 1
-      ) +
-      
-      scale_fill_manual(
-        values = cores_local_venda,
-        drop = FALSE
-      ) +
-      
-      scale_x_continuous(
-        limits = c(0, 100),
-        breaks = seq(0, 100, 20),
-        labels = function(x) paste0(x, "%"),
-        expand = expansion(
-          mult = c(0, 0.08)
-        )
-      ) +
-      
-      labs(
-        title = "",
-        x = "Percentagem de participantes",
-        y = ""
-      ) +
-      
-      theme_minimal() +
-      
-      theme(
-        
-        legend.position = "none",
-        
-        strip.text = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        plot.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        panel.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        strip.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        axis.text.y = element_text(
-          size = 10
-        )
-        
-      )
-    
-    
-    # ============================================================
-    # Plotly
-    # ============================================================
-    
-    ggplotly(
-      p,
-      tooltip = "text"
-    ) %>%
-      
-      layout(
-        
-        title = "",
-        
-        xaxis = list(
-          title = "Percentagem de participantes",
-          range = c(0, 100),
-          ticksuffix = "%"
-        ),
-        
-        yaxis = list(
-          title = "",
-          automargin = TRUE
-        ),
-        
-        margin = list(
-          l = 180,
-          r = 50,
-          t = 40,
-          b = 60
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-        
-      ) %>%
-      
-      config(
-        displayModeBar = TRUE,
-        displaylogo = FALSE,
-        responsive = TRUE,
-        scrollZoom = TRUE,
-        toImageButtonOptions = list(
-          format = "png",
-          filename = "canais_de_venda_baseline_endline_pareados",
-          height = 900,
-          width = 1600,
-          scale = 3
-        )
-      )
-  })
-  
-  
-  # ============================================================
-  # LEITURA COMPARATIVA
-  # Apenas participantes presentes no Baseline E Endline
-  # ============================================================
-  
-  output$texto_local_venda <- renderUI({
-    
-    dados <- dados_local_venda()
-    
-    ids_pareados <- participantes_pareados()
-    
-    
-    # ------------------------------------------------------------
-    # Filtrar participantes pareados
-    # ------------------------------------------------------------
-    
-    dados <- dados %>%
-      
-      filter(
-        Nome_Participante %in% ids_pareados$Nome_Participante,
-        Tipo_Avaliacao %in% c("Baseline", "Endline"),
-        !is.na(Onde_vende),
-        Onde_vende != ""
-      ) %>%
-      
-      separate_rows(
-        Onde_vende,
-        sep = ","
-      ) %>%
-      
-      mutate(
-        Onde_vende = trimws(Onde_vende),
-        Onde_vende = padronizar_canais(Onde_vende)
-      ) %>%
-      
-      distinct(
-        Nome_Participante,
-        Tipo_Avaliacao,
-        Onde_vende
-      )
-    
-    
-    if(nrow(dados) == 0){
-      
-      return(
-        tags$p(
-          style = "margin:0;text-align:justify;",
-          "Não existem participantes com dados disponíveis simultaneamente no Baseline e no Endline."
-        )
-      )
-    }
-    
-    
-    # ------------------------------------------------------------
-    # Total de participantes pareados
-    # ------------------------------------------------------------
-    
-    total_pareados <- length(
-      unique(
-        ids_pareados$Nome_Participante
-      )
-    )
-    
-    
-    # ------------------------------------------------------------
-    # Percentagens por canal
-    # ------------------------------------------------------------
-    
-    resumo <- dados %>%
-      
-      count(
-        Tipo_Avaliacao,
-        Onde_vende,
         name = "n"
       ) %>%
       
+      group_by(
+        Tipo_Avaliacao
+      ) %>%
+      
       mutate(
-        perc = round(
-          n / total_pareados * 100,
-          1
-        )
-      )
+        
+        perc =
+          round(
+            n /
+              sum(n) *
+              100,
+            1
+          )
+      ) %>%
+      
+      ungroup()
     
     
-    # ------------------------------------------------------------
-    # Baseline
-    # ------------------------------------------------------------
+    # ==========================================================
+    # 6. BASELINE
+    # ==========================================================
     
     baseline <- resumo %>%
       
@@ -5034,15 +5781,14 @@ server <- function(input, output, session) {
       ) %>%
       
       select(
-        Onde_vende,
-        n_baseline = n,
+        categoria,
         perc_baseline = perc
       )
     
     
-    # ------------------------------------------------------------
-    # Endline
-    # ------------------------------------------------------------
+    # ==========================================================
+    # 7. ENDLINE
+    # ==========================================================
     
     endline <- resumo %>%
       
@@ -5051,259 +5797,579 @@ server <- function(input, output, session) {
       ) %>%
       
       select(
-        Onde_vende,
-        n_endline = n,
+        categoria,
         perc_endline = perc
       )
     
     
-    # ------------------------------------------------------------
-    # Comparação
-    # ------------------------------------------------------------
+    # ==========================================================
+    # 8. COMPARAÇÃO BASELINE × ENDLINE
+    # ==========================================================
     
     comparacao <- full_join(
+      
       baseline,
       endline,
-      by = "Onde_vende"
+      
+      by =
+        "categoria"
+      
     ) %>%
       
       mutate(
         
-        n_baseline = tidyr::replace_na(
-          n_baseline,
-          0
-        ),
+        perc_baseline =
+          tidyr::replace_na(
+            perc_baseline,
+            0
+          ),
         
-        n_endline = tidyr::replace_na(
-          n_endline,
-          0
-        ),
+        perc_endline =
+          tidyr::replace_na(
+            perc_endline,
+            0
+          ),
         
-        perc_baseline = tidyr::replace_na(
-          perc_baseline,
-          0
-        ),
-        
-        perc_endline = tidyr::replace_na(
-          perc_endline,
-          0
-        ),
-        
-        variacao = round(
-          perc_endline - perc_baseline,
-          1
-        )
+        variacao =
+          round(
+            perc_endline -
+              perc_baseline,
+            1
+          )
       )
     
     
-    # ------------------------------------------------------------
-    # Criar frases
-    # ------------------------------------------------------------
+    # ==========================================================
+    # 9. ORDENAR CATEGORIAS
+    # ==========================================================
     
-    frases <- apply(
-      comparacao,
-      1,
-      function(x){
+    ordem_categorias <- c(
+      "0–5",
+      "6–10",
+      "11–20",
+      ">20"
+    )
+    
+    comparacao <- comparacao %>%
+      
+      mutate(
         
-        canal <- x["Onde_vende"]
+        categoria =
+          factor(
+            categoria,
+            levels =
+              ordem_categorias
+          )
+      ) %>%
+      
+      arrange(
+        categoria
+      )
+    
+    
+    # ==========================================================
+    # 10. CRIAR FRASES
+    # ==========================================================
+    
+    frases <- lapply(
+      
+      seq_len(
+        nrow(comparacao)
+      ),
+      
+      function(i) {
         
-        base_n <- as.numeric(
-          x["n_baseline"]
-        )
+        categoria <-
+          as.character(
+            comparacao$categoria[i]
+          )
         
-        end_n <- as.numeric(
-          x["n_endline"]
-        )
+        base <-
+          comparacao$perc_baseline[i]
         
-        base <- as.numeric(
-          x["perc_baseline"]
-        )
+        end <-
+          comparacao$perc_endline[i]
         
-        end <- as.numeric(
-          x["perc_endline"]
-        )
-        
-        var <- as.numeric(
-          x["variacao"]
-        )
+        var <-
+          comparacao$variacao[i]
         
         
-        if(var > 0){
+        # ------------------------------------------------------
+        # AUMENTO
+        # ------------------------------------------------------
+        
+        if (
+          var > 0
+        ) {
           
           paste0(
-            canal,
+            
+            "A categoria ",
+            
+            categoria,
+            
             " aumentou de ",
+            
             base,
-            "% (",
-            base_n,
-            " participantes) no Baseline para ",
+            
+            "% no Baseline para ",
+            
             end,
-            "% (",
-            end_n,
-            " participantes) no Endline, ",
-            "uma variação de +",
+            
+            "% no Endline (+",
+            
             var,
-            " p.p."
+            
+            " p.p.)."
           )
-          
-        } else if(var < 0){
+        }
+        
+        
+        # ------------------------------------------------------
+        # REDUÇÃO
+        # ------------------------------------------------------
+        
+        else if (
+          var < 0
+        ) {
           
           paste0(
-            canal,
+            
+            "A categoria ",
+            
+            categoria,
+            
             " reduziu de ",
+            
             base,
-            "% (",
-            base_n,
-            " participantes) no Baseline para ",
+            
+            "% no Baseline para ",
+            
             end,
-            "% (",
-            end_n,
-            " participantes) no Endline, ",
-            "uma variação de ",
+            
+            "% no Endline (",
+            
             var,
-            " p.p."
+            
+            " p.p.)."
           )
-          
-        } else {
+        }
+        
+        
+        # ------------------------------------------------------
+        # SEM ALTERAÇÃO
+        # ------------------------------------------------------
+        
+        else {
           
           paste0(
-            canal,
+            
+            "A categoria ",
+            
+            categoria,
+            
             " manteve-se em ",
+            
             end,
-            "% entre o Baseline e o Endline"
+            
+            "% entre o Baseline e o Endline."
           )
-          
         }
       }
     )
     
     
-    # ============================================================
-    # TEXTO FINAL
-    # ============================================================
+    # ==========================================================
+    # 11. TEXTO FINAL
+    # ==========================================================
     
     tags$p(
       
-      style = "margin:0;text-align:justify;",
+      style =
+        "margin:0;text-align:justify;",
       
       tags$b(
-        "Locais de venda dos produtos ou serviços. "
+        "Quantos clientes regulares tem actualmente no seu negócio?"
       ),
       
-      "A análise considera apenas os ",
-      
-      tags$b(
-        total_pareados
-      ),
-      
-      " participantes com informação disponível tanto no Baseline como no Endline. ",
-      
-      "A comparação mostra a evolução dos canais utilizados para a venda dos produtos ou serviços. ",
+      " A comparação entre o Baseline e o Endline mostra a evolução da distribuição dos negócios segundo o número de clientes regulares. ",
       
       paste(
         frases,
-        collapse = ". "
-      ),
-      
-      "."
-      
+        collapse = " "
+      )
     )
   })
   
-  # ============================================================
-  # Dados filtrados para Local de Venda
-  # ============================================================
-  
-  dados_local_venda <- reactive({
+  output$tabela_local_venda <- renderDT({
+    
+    # ==========================================================
+    # 1. BASE ORIGINAL
+    # ==========================================================
     
     dados <- Pam_Verde_Indicadores
     
-    # Filtro Cidade
-    if(input$filtro_cidade != "Todas"){
+    
+    # ==========================================================
+    # 2. FILTRO CIDADE
+    # ==========================================================
+    
+    if (input$filtro_cidade != "Todas") {
+      
+      dados <- dados %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # ==========================================================
+    # 3. FILTRO CICLO
+    # ==========================================================
+    
+    if (input$filtro_ciclo != "Todos") {
+      
+      dados <- dados %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    # ==========================================================
+    # 4. IDENTIFICAR PARTICIPANTES PAREADOS
+    # ==========================================================
+    
+    ids_pareados <- dados %>%
+      
+      filter(
+        Tipo_Avaliacao %in%
+          c("Baseline", "Endline"),
+        
+        !is.na(Nome_Participante),
+        
+        Nome_Participante != ""
+      ) %>%
+      
+      distinct(
+        Nome_Participante,
+        Tipo_Avaliacao
+      ) %>%
+      
+      group_by(
+        Nome_Participante
+      ) %>%
+      
+      summarise(
+        
+        n_avaliacoes =
+          n_distinct(
+            Tipo_Avaliacao
+          ),
+        
+        .groups = "drop"
+      ) %>%
+      
+      filter(
+        n_avaliacoes == 2
+      )
+    
+    
+    # ==========================================================
+    # 5. SE NÃO EXISTIREM PAREADOS
+    # ==========================================================
+    
+    if (
+      nrow(ids_pareados) == 0
+    ) {
+      
+      return(
+        datatable(
+          data.frame(
+            Informação =
+              "Não existem participantes com Baseline e Endline."
+          ),
+          options =
+            list(
+              dom = "t"
+            ),
+          rownames = FALSE
+        )
+      )
+    }
+    
+    
+    # ==========================================================
+    # 6. TOTAL DE PARTICIPANTES
+    # ==========================================================
+    
+    total_pareados <-
+      nrow(ids_pareados)
+    
+    
+    # ==========================================================
+    # 7. PREPARAR DADOS
+    # ==========================================================
+    
+    dados_venda <- dados %>%
+      
+      filter(
+        
+        Nome_Participante %in%
+          ids_pareados$Nome_Participante,
+        
+        Tipo_Avaliacao %in%
+          c("Baseline", "Endline"),
+        
+        !is.na(Onde_vende),
+        
+        Onde_vende != ""
+      ) %>%
+      
+      separate_rows(
+        Onde_vende,
+        sep = ","
+      ) %>%
+      
+      mutate(
+        
+        Onde_vende =
+          trimws(Onde_vende)
+      ) %>%
+      
+      distinct(
+        Nome_Participante,
+        Tipo_Avaliacao,
+        Onde_vende
+      )
+    
+    
+    # ==========================================================
+    # 8. CONTAGEM
+    # ==========================================================
+    
+    dados_n <- dados_venda %>%
+      
+      count(
+        Onde_vende,
+        Tipo_Avaliacao,
+        name = "n"
+      )
+    
+    
+    # ==========================================================
+    # 9. TRANSFORMAR BASELINE / ENDLINE EM COLUNAS
+    # ==========================================================
+    
+    tabela <- dados_n %>%
+      
+      tidyr::pivot_wider(
+        
+        names_from =
+          Tipo_Avaliacao,
+        
+        values_from =
+          n,
+        
+        values_fill =
+          0
+      )
+    
+    
+    # ==========================================================
+    # 10. GARANTIR AS DUAS COLUNAS
+    # ==========================================================
+    
+    if (!"Baseline" %in% names(tabela)) {
+      tabela$Baseline <- 0
+    }
+    
+    if (!"Endline" %in% names(tabela)) {
+      tabela$Endline <- 0
+    }
+    
+    
+    # ==========================================================
+    # 11. CALCULAR PERCENTAGENS
+    # ==========================================================
+    
+    tabela <- tabela %>%
+      
+      mutate(
+        
+        Baseline_Percent =
+          round(
+            Baseline /
+              total_pareados *
+              100,
+            1
+          ),
+        
+        Endline_Percent =
+          round(
+            Endline /
+              total_pareados *
+              100,
+            1
+          ),
+        
+        Variacao =
+          round(
+            Endline_Percent -
+              Baseline_Percent,
+            1
+          )
+      )
+    
+    
+    # ==========================================================
+    # 12. CRIAR TEXTO N (%)
+    # ==========================================================
+    
+    tabela <- tabela %>%
+      
+      mutate(
+        
+        Baseline =
+          paste0(
+            Baseline,
+            " (",
+            Baseline_Percent,
+            "%)"
+          ),
+        
+        Endline =
+          paste0(
+            Endline,
+            " (",
+            Endline_Percent,
+            "%)"
+          ),
+        
+        Variacao =
+          paste0(
+            ifelse(
+              Variacao > 0,
+              "+",
+              ""
+            ),
+            Variacao,
+            " p.p."
+          )
+      ) %>%
+      
+      select(
+        Onde_vende,
+        Baseline,
+        Endline,
+        Variacao
+      ) %>%
+      
+      rename(
+        
+        `Local de venda` =
+          Onde_vende,
+        
+        `Baseline` =
+          Baseline,
+        
+        `Endline` =
+          Endline,
+        
+        `Variação` =
+          Variacao
+      )
+    
+    
+    # ==========================================================
+    # 13. TABELA DT
+    # ==========================================================
+    
+    datatable(
+      
+      tabela,
+      
+      rownames = FALSE,
+      
+      class =
+        "cell-border stripe hover",
+      
+      options =
+        list(
+          
+          pageLength = 10,
+          
+          lengthMenu =
+            c(
+              5,
+              10,
+              25,
+              50
+            ),
+          
+          searching = FALSE,
+          
+          ordering = FALSE,
+          
+          info = TRUE,
+          
+          autoWidth = TRUE,
+          
+          dom =
+            "t"
+        ),
+      
+      colnames =
+        c(
+          "Local de venda",
+          "Baseline",
+          "Endline",
+          "Variação"
+        )
+      
+    ) %>%
+      
+      formatStyle(
+        
+        "Local de venda",
+        
+        fontWeight =
+          "bold"
+      ) %>%
+      
+      formatStyle(
+        
+        "Variação",
+        
+        fontWeight =
+          "bold"
+      )
+  })
+ 
+  output$texto_local_venda <- renderUI({
+    
+    dados <- Pam_Verde_Indicadores
+    
+    # ==========================================================
+    # FILTROS
+    # ==========================================================
+    
+    if (input$filtro_cidade != "Todas") {
       dados <- dados %>%
         filter(Cidade == input$filtro_cidade)
     }
     
-    # Filtro Ciclo
-    if(input$filtro_ciclo != "Todos"){
+    if (input$filtro_ciclo != "Todos") {
       dados <- dados %>%
         filter(Ciclo == input$filtro_ciclo)
     }
     
-    # Filtro Tipo Avaliação
-    if(input$filtro_tipo_avaliacao != "Todos"){
-      dados <- dados %>%
-        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
-    }
     
-    dados
-  })
-  
-  
-  # ============================================================
-  # Padronizar canais
-  # ============================================================
-  
-  padronizar_canais <- function(x){
+    # ==========================================================
+    # PARTICIPANTES PAREADOS
+    # ==========================================================
     
-    case_when(
-      
-      x == "Loja ou banca própria (física)" ~ 
-        "Loja/banca própria",
-      
-      x == "Venda em casa (clientes que vêm a casa)" ~
-        "Venda em casa",
-      
-      x == "Mercado ou feira" ~
-        "Mercado/feira",
-      
-      x == "Na loja ou banca de outra pessoa (consignação ou parceria)" ~
-        "Consignação/parceria",
-      
-      x == "Entrega ao domicílio (delivery)" ~
-        "Delivery",
-      
-      x == "WhatsApp / WhatsApp Business" ~
-        "WhatsApp",
-      
-      x == "Outro website ou plataforma online" ~
-        "Website/plataforma",
-      
-      TRUE ~ x
-      
-    )
-  }
-  
-  
-  # ============================================================
-  # Cores
-  # ============================================================
-  
-  cores_local_venda <- c(
-    
-    "WhatsApp" = "#9442d4",
-    "Mercado/feira" = "#F37238",
-    "Delivery" = "#F39C12",
-    "Loja/banca própria" = "#69C7BE",
-    "Facebook" = "#1877F2",
-    "Instagram" = "#007793",
-    "Venda em casa" = "#b8c0ff",
-    "Consignação/parceria" = "#f15bb5",
-    "Website/plataforma" = "#70d6ff",
-    "Outros" = "#757575"
-    
-  )
-  
-  
-  # ============================================================
-  # PARTICIPANTES PRESENTES NO BASELINE E ENDLINE
-  # ============================================================
-  
-  participantes_pareados <- reactive({
-    
-    dados <- dados_local_venda()
-    
-    dados %>%
+    ids_pareados <- dados %>%
       filter(
         Tipo_Avaliacao %in% c("Baseline", "Endline"),
         !is.na(Nome_Participante),
@@ -5313,91 +6379,251 @@ server <- function(input, output, session) {
         Nome_Participante,
         Tipo_Avaliacao
       ) %>%
-      count(
-        Nome_Participante,
-        name = "n_avaliacoes"
+      group_by(Nome_Participante) %>%
+      summarise(
+        n_avaliacoes = n_distinct(Tipo_Avaliacao),
+        .groups = "drop"
       ) %>%
-      filter(
-        n_avaliacoes == 2
-      ) %>%
-      select(
-        Nome_Participante
-      )
-  })
-  
-  
-  output$texto_local_venda <- renderUI({
-    dados <- dados_local_venda()
-    ids_pareados <- participantes_pareados()
+      filter(n_avaliacoes == 2)
     
-    dados <- dados %>%
+    
+    if (nrow(ids_pareados) == 0) {
+      
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem participantes com dados pareados entre o Baseline e o Endline para apresentar uma leitura comparativa."
+        )
+      )
+    }
+    
+    
+    total_pareados <- nrow(ids_pareados)
+    
+    
+    # ==========================================================
+    # DADOS DE LOCAL DE VENDA
+    # ==========================================================
+    
+    dados_venda <- dados %>%
       filter(
         Nome_Participante %in% ids_pareados$Nome_Participante,
         Tipo_Avaliacao %in% c("Baseline", "Endline"),
         !is.na(Onde_vende),
         Onde_vende != ""
       ) %>%
-      separate_rows(Onde_vende, sep = ",") %>%
-      mutate(
-        Onde_vende = trimws(Onde_vende),
-        Onde_vende = padronizar_canais(Onde_vende)
+      separate_rows(
+        Onde_vende,
+        sep = ","
       ) %>%
-      distinct(Nome_Participante, Tipo_Avaliacao, Onde_vende)
+      mutate(
+        Onde_vende = trimws(Onde_vende)
+      ) %>%
+      distinct(
+        Nome_Participante,
+        Tipo_Avaliacao,
+        Onde_vende
+      )
     
-    if(nrow(dados) == 0){
+    
+    if (nrow(dados_venda) == 0) {
+      
       return(
         tags$p(
-          style = "margin:0;",
-          "Sem dados para comparação."
+          style = "margin:0;text-align:justify;",
+          "Não foram identificados dados válidos sobre os locais de venda para os participantes pareados."
         )
       )
     }
     
-    total_pareados <- length(unique(ids_pareados$Nome_Participante))
     
-    comparacao <- dados %>%
-      count(Tipo_Avaliacao, Onde_vende, name = "n") %>%
-      mutate(perc = round(n / total_pareados * 100, 1)) %>%
-      select(Tipo_Avaliacao, Onde_vende, perc) %>%
+    # ==========================================================
+    # CONTAGEM E PERCENTAGEM
+    # ==========================================================
+    
+    resumo <- dados_venda %>%
+      count(
+        Onde_vende,
+        Tipo_Avaliacao,
+        name = "n"
+      ) %>%
       tidyr::pivot_wider(
         names_from = Tipo_Avaliacao,
-        values_from = perc,
+        values_from = n,
         values_fill = 0
-      ) %>%
-      mutate(
-        variacao = round(Endline - Baseline, 1)
-      ) %>%
-      filter(variacao != 0)
+      )
     
-    if(nrow(comparacao) == 0){
-      return(
-        tags$p(
-          style = "margin:0;",
-          "Não foram observadas alterações entre o Baseline e o Endline."
-        )
+    
+    if (!"Baseline" %in% names(resumo)) {
+      resumo$Baseline <- 0
+    }
+    
+    if (!"Endline" %in% names(resumo)) {
+      resumo$Endline <- 0
+    }
+    
+    
+    resumo <- resumo %>%
+      mutate(
+        Baseline_pct =
+          Baseline / total_pareados * 100,
+        
+        Endline_pct =
+          Endline / total_pareados * 100,
+        
+        Variacao =
+          Endline_pct - Baseline_pct
+      )
+    
+    
+    # ==========================================================
+    # IDENTIFICAR MAIOR AUMENTO
+    # ==========================================================
+    
+    maior_aumento <- resumo %>%
+      filter(Variacao > 0) %>%
+      arrange(desc(Variacao)) %>%
+      slice(1)
+    
+    
+    # ==========================================================
+    # IDENTIFICAR MAIOR REDUÇÃO
+    # ==========================================================
+    
+    maior_reducao <- resumo %>%
+      filter(Variacao < 0) %>%
+      arrange(Variacao) %>%
+      slice(1)
+    
+    
+    # ==========================================================
+    # TOTAL DE CANAIS
+    # ==========================================================
+    
+    n_canais <- n_distinct(
+      dados_venda$Onde_vende
+    )
+    
+    
+    # ==========================================================
+    # CONSTRUIR LEITURA
+    # ==========================================================
+    
+    texto <- paste0(
+      
+      "A tabela apresenta a distribuição dos participantes pareados ",
+      "segundo os locais de venda reportados no Baseline e no Endline. ",
+      
+      "A análise considera ",
+      total_pareados,
+      " participantes com informação disponível nos dois momentos ",
+      "de avaliação e ",
+      n_canais,
+      " locais de venda identificados."
+    )
+    
+    
+    # ==========================================================
+    # ADICIONAR MAIOR AUMENTO
+    # ==========================================================
+    
+    if (nrow(maior_aumento) > 0) {
+      
+      texto <- paste0(
+        
+        texto,
+        
+        " Entre os canais apresentados, ",
+        
+        maior_aumento$Onde_vende,
+        
+        " registou o maior aumento, passando de ",
+        
+        round(
+          maior_aumento$Baseline_pct,
+          1
+        ),
+        
+        "% no Baseline para ",
+        
+        round(
+          maior_aumento$Endline_pct,
+          1
+        ),
+        
+        "% no Endline, correspondendo a um aumento de ",
+        
+        round(
+          maior_aumento$Variacao,
+          1
+        ),
+        
+        " pontos percentuais."
       )
     }
     
-    frases <- apply(comparacao, 1, function(x) {
-      canal <- x["Onde_vende"]
-      base  <- as.numeric(x["Baseline"])
-      end   <- as.numeric(x["Endline"])
-      var   <- as.numeric(x["variacao"])
+    
+    # ==========================================================
+    # ADICIONAR MAIOR REDUÇÃO
+    # ==========================================================
+    
+    if (nrow(maior_reducao) > 0) {
       
-      paste0(
-        canal, ": ",
-        base, "% → ", end, "% (",
-        ifelse(var > 0, "+", ""), var, " p.p.)"
+      texto <- paste0(
+        
+        texto,
+        
+        " Por outro lado, ",
+        
+        maior_reducao$Onde_vende,
+        
+        " apresentou a maior redução, passando de ",
+        
+        round(
+          maior_reducao$Baseline_pct,
+          1
+        ),
+        
+        "% para ",
+        
+        round(
+          maior_reducao$Endline_pct,
+          1
+        ),
+        
+        "%, uma variação de ",
+        
+        round(
+          maior_reducao$Variacao,
+          1
+        ),
+        
+        " pontos percentuais."
       )
-    })
+    }
+    
+    
+    # ==========================================================
+    # NOTA SOBRE RESPOSTAS MÚLTIPLAS
+    # ==========================================================
+    
+    texto <- paste0(
+      
+      texto,
+      
+      " Como os participantes podem indicar mais de um local de venda, ",
+      "as percentagens representam a proporção de participantes que ",
+      "reportaram cada canal e, por isso, não devem necessariamente ",
+      "somar 100%."
+    )
+    
     
     tags$p(
-      style = "margin:0;text-align:justify;font-size:13px;",
-      paste(frases, collapse = " | ")
+      style = "margin:0;text-align:justify;",
+      texto
     )
   })
-  
-  
+
   # ##----------------------------------------------------------- 
   # ###################                  3 PAGINA SOFT SKILL
   # ##-----------------------------------------------------------------------------  
@@ -5406,100 +6632,319 @@ server <- function(input, output, session) {
   # #################################################
   # # Dados filtrados reativos
   
+  # ============================================================
+  # GRÁFICO — TOMADA DE DECISÃO NO NEGÓCIO
+  # BASELINE VS ENDLINE
+  # ============================================================
+  
   output$grafico_triang_empilhado <- renderPlotly({
     
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
+    # ============================================================
+    # 1. BASE DE DADOS
+    # ============================================================
+    
+    df <- Pam_Verde_Indicadores
     
     
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Quem_Toma_Decisoes_Negocio"
-    ) %in% colnames(df)))
+    # ============================================================
+    # 2. FILTRO — CIDADE
+    # ============================================================
+    
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
     
     
-    req(nrow(df) > 0)
+    # ============================================================
+    # 3. FILTRO — CICLO
+    # ============================================================
+    
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
     
     
-    # =============================
-    # Resumo
-    # =============================
-    df_resumo <- df %>%
+    # ============================================================
+    # 4. VERIFICAR VARIÁVEIS
+    # ============================================================
+    
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      "Quem_Toma_Decisoes_Negocio" %in% names(df)
+    )
+    
+    
+    # ============================================================
+    # 5. MANTER BASELINE E ENDLINE
+    # ============================================================
+    
+    df <- df %>%
       filter(
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        ),
+        
         !is.na(Tipo_Avaliacao),
-        !is.na(Quem_Toma_Decisoes_Negocio)
-      ) %>%
+        
+        !is.na(
+          Quem_Toma_Decisoes_Negocio
+        ),
+        
+        Quem_Toma_Decisoes_Negocio != ""
+      )
+    
+    
+    # ============================================================
+    # 6. VERIFICAR SE EXISTEM DADOS
+    # ============================================================
+    
+    if (nrow(df) == 0) {
+      
+      return(
+        plotly_empty()
+      )
+    }
+    
+    
+    # ============================================================
+    # 7. RESUMO DOS DADOS
+    # ============================================================
+    
+    df_resumo <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Quem_Toma_Decisoes_Negocio
       ) %>%
+      
       summarise(
         Total = n(),
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
+      
+      group_by(
+        Tipo_Avaliacao
+      ) %>%
+      
       mutate(
+        
         Percentagem = round(
-          Total / sum(Total) * 100,
+          Total /
+            sum(Total) *
+            100,
           1
         )
+        
       ) %>%
+      
       ungroup()
     
     
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
+    # ============================================================
+    # 8. GARANTIR TODAS AS CATEGORIAS
+    #    NOS DOIS MOMENTOS
+    # ============================================================
+    
+    categorias <- unique(
+      df_resumo$Quem_Toma_Decisoes_Negocio
+    )
+    
+    
+    df_resumo <- df_resumo %>%
+      
+      tidyr::complete(
+        
+        Tipo_Avaliacao = c(
+          "Baseline",
+          "Endline"
+        ),
+        
+        Quem_Toma_Decisoes_Negocio =
+          categorias,
+        
+        fill = list(
+          Total = 0,
+          Percentagem = 0
+        )
+      )
+    
+    
+    # ============================================================
+    # 9. REORDENAR AS CATEGORIAS
+    # ============================================================
+    
+    ordem_decisao <- df_resumo %>%
+      
+      group_by(
+        Quem_Toma_Decisoes_Negocio
+      ) %>%
+      
+      summarise(
+        
+        total = sum(
+          Percentagem,
+          na.rm = TRUE
+        ),
+        
+        .groups = "drop"
+      ) %>%
+      
+      arrange(total) %>%
+      
+      pull(
+        Quem_Toma_Decisoes_Negocio
+      )
+    
+    
+    df_resumo <- df_resumo %>%
+      
+      mutate(
+        
+        Tipo_Avaliacao = factor(
+          Tipo_Avaliacao,
+          levels = c(
+            "Baseline",
+            "Endline"
+          )
+        ),
+        
+        Quem_Toma_Decisoes_Negocio =
+          factor(
+            Quem_Toma_Decisoes_Negocio,
+            levels = ordem_decisao
+          )
+      )
+    
+    
+    # ============================================================
+    # 10. CORES
+    # ============================================================
+    
+    cores <- c(
+      
+      "Só eu" =
+        "#9442d4",
+      
+      "Eu juntamente com outra pessoa" =
+        "#ff7f0e",
+      
+      "Outra pessoa" =
+        "#5cd6c7"
+    )
+    
+    
+    # ============================================================
+    # 11. CORES PARA EVENTUAIS CATEGORIAS NOVAS
+    # ============================================================
+    
+    categorias_extra <- setdiff(
+      
+      levels(
+        df_resumo$Quem_Toma_Decisoes_Negocio
+      ),
+      
+      names(cores)
+    )
+    
+    
+    if (length(categorias_extra) > 0) {
+      
+      cores_extra <- c(
+        
+        "#42A5F5",
+        "#f9a825",
+        "#7E57C2",
+        "#26A69A",
+        "#EF5350",
+        "#8D6E63"
+      )
+      
+      
+      cores <- c(
+        
+        cores,
+        
+        setNames(
+          
+          rep(
+            cores_extra,
+            length.out =
+              length(categorias_extra)
+          ),
+          
+          categorias_extra
+        )
+      )
     }
     
     
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_decisao <- df_resumo %>%
-      group_by(Quem_Toma_Decisoes_Negocio) %>%
-      summarise(
-        total = sum(Percentagem),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(Quem_Toma_Decisoes_Negocio)
+    # ============================================================
+    # 12. CRIAR RÓTULO
+    #    n (percentagem)
+    # ============================================================
+    
+    df_resumo <- df_resumo %>%
+      
+      mutate(
+        
+        texto = ifelse(
+          
+          Percentagem > 0,
+          
+          paste0(
+            Total,
+            " (",
+            format(
+              Percentagem,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          
+          ""
+        )
+      )
     
     
-    df_resumo$Quem_Toma_Decisoes_Negocio <- factor(
-      df_resumo$Quem_Toma_Decisoes_Negocio,
-      levels = ordem_decisao
-    )
+    # ============================================================
+    # 13. GRÁFICO
+    # ============================================================
     
-    
-    # =============================
-    # Cores
-    # =============================
-    cores <- c(
-      "Só eu" = "#9442d4",
-      "Eu juntamente com outra pessoa" = "#ff7f0e",
-      "Outra pessoa" = "#5cd6c7"
-    )
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
     plot_ly(
+      
       data = df_resumo,
       
       x = ~Tipo_Avaliacao,
+      
       y = ~Percentagem,
       
-      color = ~Quem_Toma_Decisoes_Negocio,
+      color =
+        ~Quem_Toma_Decisoes_Negocio,
+      
       colors = cores,
       
       type = "bar",
       
-      text = ~paste0(Percentagem, "%"),
+      # ----------------------------------------------------------
+      # TEXTO DENTRO DA BARRA
+      # ----------------------------------------------------------
+      
+      text = ~texto,
+      
       texttemplate = "%{text}",
+      
       textposition = "inside",
+      
       insidetextanchor = "middle",
       
       textfont = list(
@@ -5507,9 +6952,20 @@ server <- function(input, output, session) {
         size = 11
       ),
       
-      hovertemplate = paste(
+      # ----------------------------------------------------------
+      # HOVER
+      # ----------------------------------------------------------
+      
+      customdata = ~Total,
+      
+      hovertemplate = paste0(
+        
         "<b>%{x}</b><br>",
+        
         "%{fullData.name}<br>",
+        
+        "Participantes: %{customdata}<br>",
+        
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
       
@@ -5517,155 +6973,418 @@ server <- function(input, output, session) {
       
       layout(
         
+        # --------------------------------------------------------
+        # BARRA EMPILHADA
+        # --------------------------------------------------------
+        
         barmode = "stack",
         
+        
+        # --------------------------------------------------------
+        # EIXO X
+        # --------------------------------------------------------
+        
         xaxis = list(
-          title = ""
+          
+          title = "",
+          
+          categoryorder = "array",
+          
+          categoryarray = c(
+            "Baseline",
+            "Endline"
+          )
         ),
+        
+        
+        # --------------------------------------------------------
+        # EIXO Y
+        # --------------------------------------------------------
         
         yaxis = list(
+          
           title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
+          
+          range = c(
+            0,
+            100
+          ),
+          
+          tickmode = "array",
+          
+          tickvals = seq(
+            0,
+            100,
+            20
+          ),
+          
+          ticktext = paste0(
+            seq(
+              0,
+              100,
+              20
+            ),
+            "%"
+          )
         ),
         
+        
+        # --------------------------------------------------------
+        # LEGENDA
+        # --------------------------------------------------------
+        
         legend = list(
+          
           orientation = "h",
+          
           x = 0.5,
+          
           xanchor = "center",
+          
           y = -0.25
         ),
         
+        
+        # --------------------------------------------------------
+        # MARGENS
+        # --------------------------------------------------------
+        
         margin = list(
-          l = 60,
+          
+          l = 70,
+          
           r = 20,
+          
           t = 20,
+          
           b = 130
         ),
         
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
+        
+        # --------------------------------------------------------
+        # FUNDO
+        # --------------------------------------------------------
+        
+        paper_bgcolor =
+          "#f5f3f4",
+        
+        plot_bgcolor =
+          "#f5f3f4"
+      ) %>%
+      
+      config(
+        
+        displayModeBar = TRUE,
+        
+        displaylogo = FALSE,
+        
+        responsive = TRUE,
+        
+        toImageButtonOptions = list(
+          
+          format = "png",
+          
+          filename =
+            "tomada_decisao_baseline_endline",
+          
+          height = 800,
+          
+          width = 1600,
+          
+          scale = 3
+        )
       )
   })
+  
+  
+  # ============================================================
+  # LEITURA — TOMADA DE DECISÃO
+  # ============================================================
+  
   output$texto_decisoes <- renderUI({
     
-    df <- dados_filtrados()
+    # ============================================================
+    # 1. BASE DE DADOS
+    # ============================================================
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # ============================================================
+    # 2. FILTRO — CIDADE
+    # ============================================================
+    
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # ============================================================
+    # 3. FILTRO — CICLO
+    # ============================================================
+    
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    # ============================================================
+    # 4. FILTRAR BASELINE E ENDLINE
+    # ============================================================
     
     df <- df %>%
       filter(
-        !is.na(Quem_Toma_Decisoes_Negocio),
+        
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        ),
+        
+        !is.na(
+          Quem_Toma_Decisoes_Negocio
+        ),
+        
+        Quem_Toma_Decisoes_Negocio != "",
+        
         !is.na(Tipo_Avaliacao)
       )
     
-    if(nrow(df) == 0){
-      return(NULL)
-    }
     
     # ============================================================
-    # CALCULAR PERCENTAGENS
+    # 5. VERIFICAR DADOS
+    # ============================================================
+    
+    if (nrow(df) == 0) {
+      
+      return(
+        
+        tags$p(
+          
+          style =
+            "margin:0;text-align:justify;",
+          
+          "Não existem dados disponíveis para apresentar a leitura sobre a tomada de decisão."
+        )
+      )
+    }
+    
+    
+    # ============================================================
+    # 6. RESUMO
     # ============================================================
     
     resumo <- df %>%
+      
       group_by(
         Tipo_Avaliacao,
         Quem_Toma_Decisoes_Negocio
       ) %>%
+      
       summarise(
+        
         n = n(),
+        
         .groups = "drop"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
+      
+      group_by(
+        Tipo_Avaliacao
       ) %>%
+      
+      mutate(
+        
+        perc =
+          n /
+          sum(n) *
+          100
+      ) %>%
+      
       ungroup()
     
     
     # ============================================================
-    # BASELINE
+    # 7. BASELINE
     # ============================================================
     
     baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
+      
+      filter(
+        Tipo_Avaliacao ==
+          "Baseline"
+      ) %>%
+      
       select(
+        
         Quem_Toma_Decisoes_Negocio,
-        perc_baseline = perc
+        
+        perc_baseline =
+          perc
       )
     
     
     # ============================================================
-    # ENDLINE
+    # 8. ENDLINE
     # ============================================================
     
     endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
+      
+      filter(
+        Tipo_Avaliacao ==
+          "Endline"
+      ) %>%
+      
       select(
+        
         Quem_Toma_Decisoes_Negocio,
-        perc_endline = perc
+        
+        perc_endline =
+          perc
       )
     
     
     # ============================================================
-    # COMPARAÇÃO
+    # 9. COMPARAÇÃO
     # ============================================================
     
     comparacao <- full_join(
+      
       baseline,
+      
       endline,
-      by = "Quem_Toma_Decisoes_Negocio"
+      
+      by =
+        "Quem_Toma_Decisoes_Negocio"
+      
     ) %>%
+      
       mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
+        
+        perc_baseline =
+          tidyr::replace_na(
+            perc_baseline,
+            0
+          ),
+        
+        perc_endline =
+          tidyr::replace_na(
+            perc_endline,
+            0
+          ),
+        
+        variacao =
+          perc_endline -
+          perc_baseline
       )
     
     
     # ============================================================
-    # TEXTO DINÂMICO
+    # 10. CRIAR LEITURA DE CADA CATEGORIA
     # ============================================================
     
     texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
+      
+      seq_len(
+        nrow(comparacao)
+      ),
+      
+      function(i) {
         
-        categoria <- comparacao$Quem_Toma_Decisoes_Negocio[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
+        categoria <-
+          comparacao$Quem_Toma_Decisoes_Negocio[i]
         
-        if(variacao > 0){
+        base <-
+          round(
+            comparacao$perc_baseline[i],
+            1
+          )
+        
+        end <-
+          round(
+            comparacao$perc_endline[i],
+            1
+          )
+        
+        variacao <-
+          round(
+            comparacao$variacao[i],
+            1
+          )
+        
+        
+        # --------------------------------------------------------
+        # AUMENTO
+        # --------------------------------------------------------
+        
+        if (variacao > 0) {
           
           paste0(
+            
             categoria,
+            
             " aumentou de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (+",
+            
             variacao,
+            
             " p.p.)"
           )
           
-        } else if(variacao < 0){
+          
+          # --------------------------------------------------------
+          # REDUÇÃO
+          # --------------------------------------------------------
+          
+        } else if (variacao < 0) {
           
           paste0(
+            
             categoria,
+            
             " reduziu de ",
+            
             base,
+            
             "% no Baseline para ",
+            
             end,
+            
             "% no Endline (",
+            
             variacao,
+            
             " p.p.)"
           )
+          
+          
+          # --------------------------------------------------------
+          # SEM ALTERAÇÃO
+          # --------------------------------------------------------
           
         } else {
           
           paste0(
+            
             categoria,
+            
             " manteve-se em ",
+            
             end,
+            
             "% entre o Baseline e o Endline"
           )
         }
@@ -5673,2310 +7392,89 @@ server <- function(input, output, session) {
     )
     
     
+    # ============================================================
+    # 11. TEXTO FINAL
+    # ============================================================
+    
+    texto <- paste(
+      
+      texto_categorias,
+      
+      collapse = "; "
+    )
+    
+    
+    # ============================================================
+    # 12. OUTPUT
+    # ============================================================
+    
     tags$p(
       
-      style = "margin:0;text-align:justify;",
+      style =
+        "margin:0;text-align:justify;",
       
-      tags$b("Tomada de decisão. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução da participação na tomada de decisões do negócio. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
+      tags$b(
+        "Quem costuma tomar as principais decisões sobre o seu negócio? "
       ),
       
-      "."
-    )
-  })
-  
-  # 
-  # #################### Negociacao_Com_Agregado_Familiar
-  output$grafico_agregado_familiar <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Negociacao_Com_Agregado_Familiar"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Preparação dos dados
-    # =============================
-    df_resumo <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(Negociacao_Com_Agregado_Familiar)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        Negociacao_Com_Agregado_Familiar
-      ) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        Percent = round(
-          Total / sum(Total) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_agregado <- df_resumo %>%
-      group_by(Negociacao_Com_Agregado_Familiar) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(Negociacao_Com_Agregado_Familiar)
-    
-    
-    df_resumo$Negociacao_Com_Agregado_Familiar <- factor(
-      df_resumo$Negociacao_Com_Agregado_Familiar,
-      levels = ordem_agregado
-    )
-    
-    
-    
-    # =============================
-    # Cores fixas
-    # =============================
-    cores <- c(
-      "Não me sinto confiante/ não sei negociar" = "#5cd6c7",
-      "Depende /de certa forma" = "#ff7f0e",
-      "Sim, sinto-me confiante e sei defender a minha posição" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = df_resumo,
+      "A comparação entre o Baseline e o Endline permite observar a distribuição das responsabilidades pela tomada de decisões no negócio. ",
       
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
-      
-      color = ~Negociacao_Com_Agregado_Familiar,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(Percent, "%"),
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = ""
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 130
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  # 
-  output$texto_agregado <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Negociacao_Com_Agregado_Familiar"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        Negociacao_Com_Agregado_Familiar,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        Negociacao_Com_Agregado_Familiar,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Negociacao_Com_Agregado_Familiar"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$Negociacao_Com_Agregado_Familiar[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Influência no agregado familiar. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução da negociação dentro do agregado familiar. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  output$texto_negociacao <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Praticou_negociação_nos_últimos_3meses"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        `Praticou_negociação_nos_últimos_3meses`,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        `Praticou_negociação_nos_últimos_3meses`,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Praticou_negociação_nos_últimos_3meses"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$`Praticou_negociação_nos_últimos_3meses`[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Competências de negociação. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução da prática de negociação. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  # 
-  # #################################### Negociacao_Com_Clientes
-  # 
-  output$grafico_clientes <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Negociacao_Com_Clientes"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Preparação dos dados
-    # =============================
-    df_resumo <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(Negociacao_Com_Clientes)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        Negociacao_Com_Clientes
-      ) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        Percent = round(
-          Total / sum(Total) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_clientes <- df_resumo %>%
-      group_by(Negociacao_Com_Clientes) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(Negociacao_Com_Clientes)
-    
-    
-    df_resumo$Negociacao_Com_Clientes <- factor(
-      df_resumo$Negociacao_Com_Clientes,
-      levels = ordem_clientes
-    )
-    
-    
-    
-    # =============================
-    # Cores fixas
-    # =============================
-    cores <- c(
-      "Não me sinto confiante/ não sei negociar" = "#5cd6c7",
-      "Depende /de certa forma" = "#ff7f0e",
-      "Sim, sinto-me confiante e sei defender a minha posição" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = df_resumo,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
-      
-      color = ~Negociacao_Com_Clientes,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(Percent, "%"),
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = ""
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 130
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  # 
-  output$texto_clientes_neg <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Negociacao_Com_Clientes"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        Negociacao_Com_Clientes,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        Negociacao_Com_Clientes,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Negociacao_Com_Clientes"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$Negociacao_Com_Clientes[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Negociação comercial com clientes. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução das práticas de negociação com clientes. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  # 
-  output$grafico_funcionarios <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Negociacao_Pessoas_Com_Quem_Trabalha"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Preparação dos dados
-    # =============================
-    df_resumo <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(Negociacao_Pessoas_Com_Quem_Trabalha)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        Negociacao_Pessoas_Com_Quem_Trabalha
-      ) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        Percent = round(
-          Total / sum(Total) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_funcionarios <- df_resumo %>%
-      group_by(Negociacao_Pessoas_Com_Quem_Trabalha) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(Negociacao_Pessoas_Com_Quem_Trabalha)
-    
-    
-    df_resumo$Negociacao_Pessoas_Com_Quem_Trabalha <- factor(
-      df_resumo$Negociacao_Pessoas_Com_Quem_Trabalha,
-      levels = ordem_funcionarios
-    )
-    
-    
-    
-    # =============================
-    # Cores fixas
-    # =============================
-    cores <- c(
-      "Não me sinto confiante/ não sei negociar" = "#5cd6c7",
-      "Depende /de certa forma" = "#ff7f0e",
-      "Sim, sinto-me confiante e sei defender a minha posição" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = df_resumo,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
-      
-      color = ~Negociacao_Pessoas_Com_Quem_Trabalha,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(Percent, "%"),
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = ""
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 130
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  # 
-  output$texto_funcionarios <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Negociacao_Pessoas_Com_Quem_Trabalha"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        Negociacao_Pessoas_Com_Quem_Trabalha,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        Negociacao_Pessoas_Com_Quem_Trabalha,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Negociacao_Pessoas_Com_Quem_Trabalha"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$Negociacao_Pessoas_Com_Quem_Trabalha[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Gestão das relações de trabalho. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução na gestão das relações de trabalho. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  # 
-  # output$texto_canais <- renderUI({
-  #   
-  #   df <- dados_filtrados()
-  #   
-  #   var <- "Onde vende actualmente os seus produtos ou serviços?"
-  #   
-  #   req(var %in% names(df))
-  #   
-  #   
-  #   resumo <- df %>%
-  #     filter(!is.na(.data[[var]])) %>%
-  #     separate_rows(.data[[var]], sep=",") %>%
-  #     mutate(
-  #       Canal=str_trim(.data[[var]])
-  #     ) %>%
-  #     count(Canal) %>%
-  #     mutate(
-  #       Percentagem=round(n/sum(n)*100,1)
-  #     ) %>%
-  #     arrange(desc(n))
-  #   
-  #   
-  #   principal <- resumo[1,]
-  #   
-  #   
-  #   tags$p(
-  #     style="margin:0; text-align:justify;",
-  #     
-  #     tags$b("Estratégias de comercialização. "),
-  #     
-  #     "O principal canal utilizado pelas empreendedoras é ",
-  #     
-  #     tags$b(principal$Canal),
-  #     
-  #     ", representando ",
-  #     
-  #     principal$Percentagem,
-  #     
-  #     "% das respostas. ",
-  #     
-  #     "Este indicador permite compreender os mecanismos utilizados pelas participantes para alcançar clientes e gerar receitas."
-  #   )
-  #   
-  # })
-  # ##----------------------------------------------------------- 
-  # ###################                  3 PAGINA Habilidades e Processos
-  # ##-----------------------------------------------------------------------------  
-  
-  output$grafico_uso_ia <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Uso_de_ferramentas_de_IA"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Limpeza e resumo
-    # =============================
-    freq_data <- df %>%
-      filter(
-        !is.na(Uso_de_ferramentas_de_IA),
-        !is.na(Tipo_Avaliacao)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        Uso_de_ferramentas_de_IA
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        pct = round(
-          n / sum(n) * 100,
-          1
-        ),
-        label = paste0(pct,"%")
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_ia <- freq_data %>%
-      group_by(Uso_de_ferramentas_de_IA) %>%
-      summarise(
-        total = sum(pct),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(Uso_de_ferramentas_de_IA)
-    
-    
-    
-    freq_data$Uso_de_ferramentas_de_IA <- factor(
-      freq_data$Uso_de_ferramentas_de_IA,
-      levels = ordem_ia
-    )
-    
-    
-    
-    # =============================
-    # Cores manuais
-    # =============================
-    cores <- c(
-      "Não, nunca usei e não sei bem o que é" = "#69C7BE",
-      "Ouvi falar mas nunca experimentei" = "#f39c12",
-      "Sim, usei pelo menos uma vez" = "#ff7f0e",
-      "Sim, uso regularmente para o negócio" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~pct,
-      
-      color = ~Uso_de_ferramentas_de_IA,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 140
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_uso_ia <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Uso_de_ferramentas_de_IA"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        Uso_de_ferramentas_de_IA,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        Uso_de_ferramentas_de_IA,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Uso_de_ferramentas_de_IA"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$Uso_de_ferramentas_de_IA[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Utilização de ferramentas digitais e inteligência artificial. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução na utilização de ferramentas de inteligência artificial. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
+      texto,
       
       "."
     )
   })
   
   
-  output$grafico_control_dinheiro <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Resumo
-    # =============================
-    df_resumo <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
-      ) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        Percent = round(
-          Total / sum(Total) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_controle <- df_resumo %>%
-      group_by(`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`)
-    
-    
-    
-    df_resumo$`Faz controlo do dinheiro que entra e que sai (receitas e despesas)` <- factor(
-      df_resumo$`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
-      levels = ordem_controle
-    )
-    
-    
-    
-    # =============================
-    # Cores
-    # =============================
-    cores <- c(
-      "Não" = "#69C7BE",
-      "Sim" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = df_resumo,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
-      
-      color = ~`Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(Percent,"%"),
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = ""
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_control_dinheiro <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao[[var]][i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Controlo financeiro do negócio. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução no controlo das receitas e despesas. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  output$grafico_separacao_contas <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Faz separação das contas pessoais e do negócio"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Resumo dos dados
-    # =============================
-    df_resumo <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Faz separação das contas pessoais e do negócio`)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        `Faz separação das contas pessoais e do negócio`
-      ) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        Percent = round(
-          Total / sum(Total) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_contas <- df_resumo %>%
-      group_by(`Faz separação das contas pessoais e do negócio`) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Faz separação das contas pessoais e do negócio`)
-    
-    
-    
-    df_resumo$`Faz separação das contas pessoais e do negócio` <- factor(
-      df_resumo$`Faz separação das contas pessoais e do negócio`,
-      levels = ordem_contas
-    )
-    
-    
-    
-    # =============================
-    # Cores fixas
-    # =============================
-    cores <- c(
-      "Não" = "#69C7BE",
-      "Sim" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = df_resumo,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
-      
-      color = ~`Faz separação das contas pessoais e do negócio`,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(Percent,"%"),
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = ""
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_separacao_contas <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Faz separação das contas pessoais e do negócio"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        `Faz separação das contas pessoais e do negócio`,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        `Faz separação das contas pessoais e do negócio`,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Faz separação das contas pessoais e do negócio"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao[[var]][i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Gestão financeira e organização empresarial. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução na separação das contas pessoais e do negócio. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  
-  output$grafico_calcular_Lucro <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Sabe calcular o lucro do negócio  (com base no exercício prático)"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Resumo dos dados
-    # =============================
-    df_resumo <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Sabe calcular o lucro do negócio  (com base no exercício prático)`)
-      ) %>%
-      group_by(
-        Tipo_Avaliacao,
-        `Sabe calcular o lucro do negócio  (com base no exercício prático)`
-      ) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        Percent = round(
-          Total / sum(Total) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    
-    if(nrow(df_resumo) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_lucro <- df_resumo %>%
-      group_by(`Sabe calcular o lucro do negócio  (com base no exercício prático)`) %>%
-      summarise(
-        total = sum(Percent),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Sabe calcular o lucro do negócio  (com base no exercício prático)`)
-    
-    
-    
-    df_resumo$`Sabe calcular o lucro do negócio  (com base no exercício prático)` <- factor(
-      df_resumo$`Sabe calcular o lucro do negócio  (com base no exercício prático)`,
-      levels = ordem_lucro
-    )
-    
-    
-    
-    # =============================
-    # Cores fixas
-    # =============================
-    cores <- c(
-      "Não" = "#69C7BE",
-      "Sim" = "#9442d4"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      data = df_resumo,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~Percent,
-      
-      color = ~`Sabe calcular o lucro do negócio  (com base no exercício prático)`,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(Percent,"%"),
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = ""
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_calculo_lucro <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Sabe calcular o lucro do negócio  (com base no exercício prático)"
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        `Sabe calcular o lucro do negócio  (com base no exercício prático)`,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        `Sabe calcular o lucro do negócio  (com base no exercício prático)`,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Sabe calcular o lucro do negócio  (com base no exercício prático)"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao[[var]][i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Conhecimento sobre cálculo do lucro. "),
-      
-      "A comparação entre o Baseline e o Endline:",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
   
   output$grafico_negociacao_3meses <- renderPlotly({
     
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
+    # ============================================================
+    # BASE DE DADOS
+    # ============================================================
     
+    df <- Pam_Verde_Indicadores
+    
+    # ============================================================
+    # FILTRO POR CIDADE
+    # ============================================================
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    # ============================================================
+    # FILTRO POR CICLO
+    # ============================================================
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ============================================================
+    # VALIDAR VARIÁVEIS
+    # ============================================================
     
     req(all(c(
       "Tipo_Avaliacao",
       "Praticou_negociação_nos_últimos_3meses"
     ) %in% colnames(df)))
     
-    
     req(nrow(df) > 0)
     
     
+    # ============================================================
+    # PREPARAÇÃO DOS DADOS
+    # ============================================================
     
-    # =============================
-    # Preparação dos dados
-    # =============================
     df_resumo <- df %>%
       filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
         !is.na(Tipo_Avaliacao),
-        !is.na(Praticou_negociação_nos_últimos_3meses)
+        !is.na(Praticou_negociação_nos_últimos_3meses),
+        Praticou_negociação_nos_últimos_3meses != ""
       ) %>%
       group_by(
         Tipo_Avaliacao,
@@ -7996,37 +7494,89 @@ server <- function(input, output, session) {
       ungroup()
     
     
-    
-    if(nrow(df_resumo) == 0){
+    if (nrow(df_resumo) == 0) {
       return(plotly_empty())
     }
     
     
+    # ============================================================
+    # GARANTIR TODAS AS CATEGORIAS
+    # ============================================================
     
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
+    categorias <- unique(
+      df_resumo$Praticou_negociação_nos_últimos_3meses
+    )
+    
+    df_resumo <- df_resumo %>%
+      tidyr::complete(
+        Tipo_Avaliacao = c("Baseline", "Endline"),
+        Praticou_negociação_nos_últimos_3meses = categorias,
+        fill = list(
+          Total = 0,
+          Percent = 0
+        )
+      )
+    
+    
+    # ============================================================
+    # ORDEM DAS CATEGORIAS
+    # ============================================================
+    
     ordem_negociacao <- df_resumo %>%
-      group_by(Praticou_negociação_nos_últimos_3meses) %>%
+      group_by(
+        Praticou_negociação_nos_últimos_3meses
+      ) %>%
       summarise(
-        total = sum(Percent),
+        total = sum(Percent, na.rm = TRUE),
         .groups = "drop"
       ) %>%
       arrange(total) %>%
-      pull(Praticou_negociação_nos_últimos_3meses)
+      pull(
+        Praticou_negociação_nos_últimos_3meses
+      )
     
     
+    df_resumo <- df_resumo %>%
+      mutate(
+        Tipo_Avaliacao = factor(
+          Tipo_Avaliacao,
+          levels = c("Baseline", "Endline")
+        ),
+        
+        Praticou_negociação_nos_últimos_3meses = factor(
+          Praticou_negociação_nos_últimos_3meses,
+          levels = ordem_negociacao
+        )
+      )
     
-    df_resumo$Praticou_negociação_nos_últimos_3meses <- factor(
-      df_resumo$Praticou_negociação_nos_últimos_3meses,
-      levels = ordem_negociacao
-    )
+    
+    # ============================================================
+    # TEXTO DAS BARRAS: n (%)
+    # ============================================================
+    
+    df_resumo <- df_resumo %>%
+      mutate(
+        texto = ifelse(
+          Percent > 0,
+          paste0(
+            Total,
+            " (",
+            format(
+              Percent,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          ""
+        )
+      )
     
     
+    # ============================================================
+    # CORES
+    # ============================================================
     
-    # =============================
-    # Cores fixas
-    # =============================
     cores <- c(
       "Não tive situações de negociação neste período" = "#69C7BE",
       "Não, aceitei as condições sem negociar" = "#F39C12",
@@ -8035,22 +7585,19 @@ server <- function(input, output, session) {
     )
     
     
+    # ============================================================
+    # GRÁFICO
+    # ============================================================
     
-    # =============================
-    # Gráfico
-    # =============================
     plot_ly(
       data = df_resumo,
-      
       x = ~Tipo_Avaliacao,
       y = ~Percent,
-      
       color = ~Praticou_negociação_nos_últimos_3meses,
       colors = cores,
-      
       type = "bar",
       
-      text = ~paste0(Percent,"%"),
+      text = ~texto,
       texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
@@ -8060,37 +7607,48 @@ server <- function(input, output, session) {
         size = 11
       ),
       
-      hovertemplate = paste(
+      customdata = ~Total,
+      
+      hovertemplate = paste0(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
+        "Participantes: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
       
     ) %>%
-      
       layout(
-        
         barmode = "stack",
         
         xaxis = list(
-          title = ""
+          title = "",
+          categoryorder = "array",
+          categoryarray = c(
+            "Baseline",
+            "Endline"
+          )
         ),
         
         yaxis = list(
           title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
+          range = c(0, 100),
+          tickmode = "array",
+          tickvals = seq(0, 100, 20),
+          ticktext = paste0(
+            seq(0, 100, 20),
+            "%"
+          )
         ),
         
         legend = list(
           orientation = "h",
           x = 0.5,
           xanchor = "center",
-          y = -0.35
+          y = -0.30
         ),
         
         margin = list(
-          l = 60,
+          l = 70,
           r = 20,
           t = 20,
           b = 170
@@ -8098,578 +7656,88 @@ server <- function(input, output, session) {
         
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
+      ) %>%
+      config(
+        displayModeBar = TRUE,
+        displaylogo = FALSE,
+        responsive = TRUE,
+        toImageButtonOptions = list(
+          format = "png",
+          filename = "negociacao_ultimos_3_meses",
+          height = 800,
+          width = 1600,
+          scale = 3
+        )
       )
-    
   })
   
-  # 
-  # # ============================================================
-  # # Dados filtrados para Local de Venda
-  # # ============================================================
-  # # ============================================================
-  # # Dados filtrados
-  # # ============================================================
-  # 
-  # dados_local_venda <- reactive({
-  #   
-  #   dados <- Pam_Verde_Indicadores
-  #   
-  #   
-  #   # Filtro Cidade
-  #   if(input$filtro_cidade != "Todas"){
-  #     
-  #     dados <- dados %>%
-  #       filter(
-  #         Cidade == input$filtro_cidade
-  #       )
-  #     
-  #   }
-  #   
-  #   
-  #   # Filtro Ciclo
-  #   if(input$filtro_ciclo != "Todos"){
-  #     
-  #     dados <- dados %>%
-  #       filter(
-  #         Ciclo == input$filtro_ciclo
-  #       )
-  #     
-  #   }
-  #   
-  #   
-  #   # Filtro Tipo Avaliação
-  #   if(input$filtro_tipo_avaliacao != "Todos"){
-  #     
-  #     dados <- dados %>%
-  #       filter(
-  #         Tipo_Avaliacao == input$filtro_tipo_avaliacao
-  #       )
-  #     
-  #   }
-  #   
-  #   
-  #   dados
-  #   
-  # })
-  # 
-  # 
-  # 
-  # # ============================================================
-  # # Função para encurtar nomes dos canais
-  # # ============================================================
-  # 
-  # padronizar_canais <- function(x){
-  #   
-  #   case_when(
-  #     
-  #     x == "Loja ou banca própria (física)" ~ 
-  #       "Loja/banca própria",
-  #     
-  #     x == "Venda em casa (clientes que vêm a casa)" ~
-  #       "Venda em casa",
-  #     
-  #     x == "Mercado ou feira" ~
-  #       "Mercado/feira",
-  #     
-  #     x == "Na loja ou banca de outra pessoa (consignação ou parceria)" ~
-  #       "Consignação/parceria",
-  #     
-  #     x == "Entrega ao domicílio (delivery)" ~
-  #       "Delivery",
-  #     
-  #     x == "WhatsApp / WhatsApp Business" ~
-  #       "WhatsApp",
-  #     
-  #     x == "Outro website ou plataforma online" ~
-  #       "Website/plataforma",
-  #     
-  #     TRUE ~ x
-  #     
-  #   )
-  #   
-  # }
-  # 
-  # 
-  # 
-  # # ============================================================
-  # # Cores manuais
-  # # ============================================================
-  # 
-  # cores_local_venda <- c(
-  #   
-  #   "WhatsApp" = "#9442d4",
-  #   
-  #   "Mercado/feira" = "#F37238",
-  #   
-  #   "Delivery" = "#F39C12",
-  #   
-  #   "Loja/banca própria" = "#69C7BE",
-  #   
-  #   "Facebook" = "#1877F2",
-  #   
-  #   "Instagram" = "#007793",
-  #   
-  #   "Venda em casa" = "#b8c0ff",
-  #   
-  #   "Consignação/parceria" = "#f15bb5",
-  #   
-  #   "Website/plataforma" = "#70d6ff",
-  #   
-  #   "Outros" = "#757575"
-  #   
-  # )
-  # 
-  # 
-  # 
-  # # ============================================================
-  # # Texto resumo + Top 5
-  # # ============================================================
-  # 
-  # output$texto_local_venda <- renderUI({
-  #   
-  #   dados <- dados_local_venda()
-  #   
-  #   
-  #   total <- nrow(dados)
-  #   
-  #   
-  #   top5 <- dados %>%
-  #     
-  #     filter(
-  #       !is.na(Onde_vende),
-  #       Onde_vende != ""
-  #     ) %>%
-  #     
-  #     separate_rows(
-  #       Onde_vende,
-  #       sep = ","
-  #     ) %>%
-  #     
-  #     mutate(
-  #       
-  #       Onde_vende = trimws(Onde_vende),
-  #       
-  #       Onde_vende = padronizar_canais(Onde_vende)
-  #       
-  #     ) %>%
-  #     
-  #     count(
-  #       Onde_vende,
-  #       name = "Total"
-  #     ) %>%
-  #     
-  #     arrange(
-  #       desc(Total)
-  #     ) %>%
-  #     
-  #     slice_head(
-  #       n = 5
-  #     )
-  #   
-  #   
-  #   lista_top5 <- paste0(
-  #     
-  #     top5$Onde_vende,
-  #     
-  #     " (",
-  #     
-  #     top5$Total,
-  #     
-  #     ")"
-  #     
-  #   )
-  #   
-  #   
-  #   div(
-  #     
-  #     HTML(
-  #       
-  #       paste0(
-  #         
-  #         "<b>Locais de venda dos produtos ou serviços</b><br>",
-  #         
-  #         "Total de empreendedoras analisadas: <b>",
-  #         total,
-  #         "</b><br><br>",
-  #         
-  #         "<b>Top 5 canais mais utilizados:</b><br>",
-  #         
-  #         paste(
-  #           lista_top5,
-  #           collapse = " | "
-  #         )
-  #         
-  #       )
-  #       
-  #     )
-  #     
-  #   )
-  #   
-  #   
-  # })
-  # 
-  # 
-  # 
-  # # ============================================================
-  # # Gráfico Local de Venda
-  # # ============================================================
-  # 
-  # output$grafico_local_venda <- renderPlotly({
-  #   
-  #   
-  #   dados <- dados_local_venda()
-  #   
-  #   
-  #   
-  #   dados_grafico <- dados %>%
-  #     
-  #     filter(
-  #       
-  #       !is.na(Onde_vende),
-  #       
-  #       Onde_vende != ""
-  #       
-  #     ) %>%
-  #     
-  #     
-  #     separate_rows(
-  #       
-  #       Onde_vende,
-  #       
-  #       sep = ","
-  #       
-  #     ) %>%
-  #     
-  #     
-  #     mutate(
-  #       
-  #       Onde_vende = trimws(Onde_vende),
-  #       
-  #       Onde_vende = padronizar_canais(Onde_vende)
-  #       
-  #     ) %>%
-  #     
-  #     
-  #     count(
-  #       
-  #       Onde_vende,
-  #       
-  #       name = "Total"
-  #       
-  #     ) %>%
-  #     
-  #     
-  #     arrange(
-  #       
-  #       Total
-  #       
-  #     )
-  #   
-  #   
-  #   
-  #   # ============================================================
-  #   # Aplicar cores
-  #   # ============================================================
-  #   
-  #   dados_grafico <- dados_grafico %>%
-  #     
-  #     mutate(
-  #       
-  #       Cor = cores_local_venda[Onde_vende]
-  #       
-  #     )
-  #   
-  #   
-  #   # Cor padrão para categorias sem definição
-  #   
-  #   dados_grafico$Cor[
-  #     is.na(dados_grafico$Cor)
-  #   ] <- "#034EA2"
-  #   
-  #   
-  #   
-  #   # ============================================================
-  #   # Plotly
-  #   # ============================================================
-  #   
-  #   plot_ly(
-  #     
-  #     data = dados_grafico,
-  #     
-  #     x = ~Total,
-  #     
-  #     y = ~reorder(Onde_vende, Total),
-  #     
-  #     type = "bar",
-  #     
-  #     orientation = "h",
-  #     
-  #     text = ~Total,
-  #     
-  #     textposition = "inside",
-  #     
-  #     insidetextanchor = "middle",
-  #     
-  #     textfont = list(
-  #       
-  #       color = "white",
-  #       
-  #       size = 13,
-  #       
-  #       family = "Arial"
-  #       
-  #     ),
-  #     
-  #     marker = list(
-  #       
-  #       color = ~Cor
-  #       
-  #     ),
-  #     
-  #     hovertemplate = paste(
-  #       
-  #       "<b>%{y}</b>",
-  #       
-  #       "<br>Número de empreendedoras: %{x}",
-  #       
-  #       "<extra></extra>"
-  #       
-  #     )
-  #     
-  #   ) %>%
-  #     
-  #     
-  #     layout(
-  #       
-  #       title = "",
-  #       
-  #       paper_bgcolor = "#f5f3f4",
-  #       
-  #       plot_bgcolor = "#f5f3f4",
-  #       
-  #       xaxis = list(
-  #         
-  #         title = "Número de empreendedoras"
-  #         
-  #       ),
-  #       
-  #       yaxis = list(
-  #         
-  #         title = "",
-  #         
-  #         automargin = TRUE
-  #         
-  #       ),
-  #       
-  #       margin = list(
-  #         
-  #         l = 220,
-  #         
-  #         r = 40,
-  #         
-  #         t = 30,
-  #         
-  #         b = 50
-  #         
-  #       )
-  #       
-  #     ) %>%
-  #     
-  #     
-  #     config(
-  #       
-  #       displayModeBar = TRUE,
-  #       
-  #       displaylogo = FALSE,
-  #       
-  #       responsive = TRUE,
-  #       
-  #       scrollZoom = TRUE,
-  #       
-  #       toImageButtonOptions = list(
-  #         
-  #         format = "png",
-  #         
-  #         filename = "canais_de_venda",
-  #         
-  #         height = 800,
-  #         
-  #         width = 1400,
-  #         
-  #         scale = 3
-  #         
-  #       )
-  #       
-  #     )
-  #   
-  #   
-  # })
-#################################### CONSCIENCIA DE GENERO
-  output$grafico_H_Financeiros <- renderPlotly({
+  output$texto_negociacao_3meses <- renderUI({
     
-    df <- dados_filtrados()
+    # ============================================================
+    # BASE DE DADOS
+    # ============================================================
     
+    df <- Pam_Verde_Indicadores
     
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados ."
-    ) %in% colnames(df)))
+    # ============================================================
+    # FILTRO POR CIDADE
+    # ============================================================
     
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    freq_data <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`)
-      ) %>%
-      
-      group_by(
-        Tipo_Avaliacao,
-        `Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(Tipo_Avaliacao) %>%
-      
-      mutate(
-        pct = round(n / sum(n) * 100,1),
-        label = paste0(pct,"%")
-      ) %>%
-      
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data)==0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # Ordem menor para maior
-    ordem_genero <- freq_data %>%
-      group_by(`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`) %>%
-      summarise(
-        total=sum(pct),
-        .groups="drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`)
-    
-    
-    
-    freq_data$`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .` <- factor(
-      freq_data$`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`,
-      levels = ordem_genero
-    )
-    
-    
-    
-    cores <- c(
-      "Discordo" = "#F77333",
-      "Depende" = "#ffc107",
-      "Concordo" = "#69C7BE"
-    )
-    
-    
-    
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~pct,
-      
-      color = ~`Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      texttemplate = "%{text}",
-      textposition = "inside",
-      
-      textfont = list(
-        color="#ffffff",
-        size=12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode="stack",
-        
-        xaxis=list(
-          title=""
-        ),
-        
-        yaxis=list(
-          title="Percentagem (%)",
-          range=c(0,100),
-          ticksuffix="%"
-        ),
-        
-        legend=list(
-          orientation="h",
-          x=0.5,
-          xanchor="center",
-          y=-0.25
-        ),
-        
-        margin=list(
-          l=60,
-          r=20,
-          t=20,
-          b=130
-        ),
-        
-        paper_bgcolor="#f5f3f4",
-        plot_bgcolor="#f5f3f4"
-      )
-    
-  })
-  
-  
-  output$texto_H_Financeiros <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados ."
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
     }
     
     # ============================================================
-    # CALCULAR PERCENTAGENS
+    # FILTRO POR CICLO
+    # ============================================================
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ============================================================
+    # VALIDAR VARIÁVEIS
+    # ============================================================
+    
+    req(all(c(
+      "Tipo_Avaliacao",
+      "Praticou_negociação_nos_últimos_3meses"
+    ) %in% colnames(df)))
+    
+    
+    # ============================================================
+    # FILTRAR DADOS
+    # ============================================================
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(Praticou_negociação_nos_últimos_3meses),
+        Praticou_negociação_nos_últimos_3meses != ""
+      )
+    
+    
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    
+    # ============================================================
+    # RESUMO
     # ============================================================
     
     resumo <- df %>%
       group_by(
         Tipo_Avaliacao,
-        .data[[var]]
+        Praticou_negociação_nos_últimos_3meses
       ) %>%
       summarise(
         n = n(),
@@ -8689,7 +7757,8 @@ server <- function(input, output, session) {
     baseline <- resumo %>%
       filter(Tipo_Avaliacao == "Baseline") %>%
       select(
-        `Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`,
+        categoria = Praticou_negociação_nos_últimos_3meses,
+        n_baseline = n,
         perc_baseline = perc
       )
     
@@ -8701,7 +7770,8 @@ server <- function(input, output, session) {
     endline <- resumo %>%
       filter(Tipo_Avaliacao == "Endline") %>%
       select(
-        `Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .`,
+        categoria = Praticou_negociação_nos_últimos_3meses,
+        n_endline = n,
         perc_endline = perc
       )
     
@@ -8713,1153 +7783,712 @@ server <- function(input, output, session) {
     comparacao <- full_join(
       baseline,
       endline,
-      by = "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados ."
+      by = "categoria"
     ) %>%
       mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao[[var]][i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Acesso a oportunidades financeiras. "),
-      
-      "A comparação entre o Baseline e o Endline: ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  output$grafico_H_Serios <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Os homens são levados mais a sério como empreendedores."
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Frequência + percentagem
-    # =============================
-    freq_data <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Os homens são levados mais a sério como empreendedores.`)
-      ) %>%
-      
-      group_by(
-        Tipo_Avaliacao,
-        `Os homens são levados mais a sério como empreendedores.`
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(Tipo_Avaliacao) %>%
-      
-      mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct,"%")
-      ) %>%
-      
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_serios <- freq_data %>%
-      group_by(`Os homens são levados mais a sério como empreendedores.`) %>%
-      summarise(
-        total = sum(pct),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Os homens são levados mais a sério como empreendedores.`)
-    
-    
-    
-    freq_data$`Os homens são levados mais a sério como empreendedores.` <- factor(
-      freq_data$`Os homens são levados mais a sério como empreendedores.`,
-      levels = ordem_serios
-    )
-    
-    
-    
-    # =============================
-    # Cores
-    # =============================
-    cores <- c(
-      "Discordo" = "#F77333",
-      "Depende" = "#ffc107",
-      "Concordo" = "#69C7BE"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      
-      y = ~pct,
-      
-      color = ~`Os homens são levados mais a sério como empreendedores.`,
-      
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_H_Serios <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Os homens são levados mais a sério como empreendedores."
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    # ============================================================
-    # CALCULAR PERCENTAGENS
-    # ============================================================
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    
-    # ============================================================
-    # BASELINE
-    # ============================================================
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        `Os homens são levados mais a sério como empreendedores.`,
-        perc_baseline = perc
-      )
-    
-    
-    # ============================================================
-    # ENDLINE
-    # ============================================================
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        `Os homens são levados mais a sério como empreendedores.`,
-        perc_endline = perc
-      )
-    
-    
-    # ============================================================
-    # COMPARAÇÃO
-    # ============================================================
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "Os homens são levados mais a sério como empreendedores."
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    
-    # ============================================================
-    # TEXTO DINÂMICO
-    # ============================================================
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao[[var]][i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else if(variacao < 0){
-          
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-          
-        } else {
-          
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Reconhecimento social do empreendedorismo. "),
-      
-      "A comparação entre o Baseline e o Endline: ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  output$grafico_H_Capazes <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Homens são mais capazes de negociar do que as mulheres."
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Frequência + percentagem
-    # =============================
-    freq_data <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Homens são mais capazes de negociar do que as mulheres.`)
-      ) %>%
-      
-      group_by(
-        Tipo_Avaliacao,
-        `Homens são mais capazes de negociar do que as mulheres.`
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(Tipo_Avaliacao) %>%
-      
-      mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct,"%")
-      ) %>%
-      
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_capazes <- freq_data %>%
-      group_by(`Homens são mais capazes de negociar do que as mulheres.`) %>%
-      summarise(
-        total = sum(pct),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Homens são mais capazes de negociar do que as mulheres.`)
-    
-    
-    
-    freq_data$`Homens são mais capazes de negociar do que as mulheres.` <- factor(
-      freq_data$`Homens são mais capazes de negociar do que as mulheres.`,
-      levels = ordem_capazes
-    )
-    
-    
-    
-    # =============================
-    # Cores
-    # =============================
-    cores <- c(
-      "Discordo" = "#F77333",
-      "Depende" = "#ffc107",
-      "Concordo" = "#69C7BE"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      
-      y = ~pct,
-      
-      color = ~`Homens são mais capazes de negociar do que as mulheres.`,
-      
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_H_Capazes <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Homens são mais capazes de negociar do que as mulheres."
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        resposta = .data[[var]],
-        perc_baseline = perc
-      )
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        resposta = .data[[var]],
-        perc_endline = perc
-      )
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "resposta"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$resposta[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-        } else if(variacao < 0){
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-        } else {
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Perceção sobre negociação. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução das perceções sobre a capacidade de negociação de homens e mulheres. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  output$grafico_Obrigacoes_Domesticas <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens."
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Frequência + percentagem
-    # =============================
-    freq_data <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`)
-      ) %>%
-      
-      group_by(
-        Tipo_Avaliacao,
-        `Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(Tipo_Avaliacao) %>%
-      
-      mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct, "%")
-      ) %>%
-      
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_domesticas <- freq_data %>%
-      group_by(`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`) %>%
-      summarise(
-        total = sum(pct),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`)
-    
-    
-    
-    freq_data$`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.` <- factor(
-      freq_data$`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`,
-      levels = ordem_domesticas
-    )
-    
-    
-    
-    # =============================
-    # Cores
-    # =============================
-    cores <- c(
-      "Discordo" = "#F77333",
-      "Depende" = "#ffc107",
-      "Concordo" = "#69C7BE"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      
-      y = ~pct,
-      
-      color = ~`Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.`,
-      
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_Obrigacoes_Domesticas <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens."
-    
-    req(var %in% names(df))
-    
-    df <- df %>%
-      filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    resumo <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      ungroup()
-    
-    baseline <- resumo %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      select(
-        resposta = .data[[var]],
-        perc_baseline = perc
-      )
-    
-    endline <- resumo %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      select(
-        resposta = .data[[var]],
-        perc_endline = perc
-      )
-    
-    comparacao <- full_join(
-      baseline,
-      endline,
-      by = "resposta"
-    ) %>%
-      mutate(
-        perc_baseline = replace_na(perc_baseline, 0),
-        perc_endline = replace_na(perc_endline, 0),
-        variacao = perc_endline - perc_baseline
-      )
-    
-    texto_categorias <- lapply(
-      seq_len(nrow(comparacao)),
-      function(i){
-        
-        categoria <- comparacao$resposta[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
-        
-        if(variacao > 0){
-          paste0(
-            categoria,
-            " aumentou de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (+",
-            variacao,
-            " p.p.)"
-          )
-        } else if(variacao < 0){
-          paste0(
-            categoria,
-            " reduziu de ",
-            base,
-            "% no Baseline para ",
-            end,
-            "% no Endline (",
-            variacao,
-            " p.p.)"
-          )
-        } else {
-          paste0(
-            categoria,
-            " manteve-se em ",
-            end,
-            "% entre o Baseline e o Endline"
-          )
-        }
-      }
-    )
-    
-    tags$p(
-      style = "margin:0;text-align:justify;",
-      
-      tags$b("Carga doméstica e participação económica. "),
-      
-      "A comparação entre o Baseline e o Endline permite observar a evolução das perceções sobre a distribuição das responsabilidades domésticas e o tempo disponível das mulheres para o negócio. ",
-      
-      paste(
-        texto_categorias,
-        collapse = "; "
-      ),
-      
-      "."
-    )
-  })
-  
-  output$grafico_M_Gerir <- renderPlotly({
-    
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
-    
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Não se espera que as mulheres sejam capazes de gerir um negócio."
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Frequência + percentagem
-    # =============================
-    freq_data <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Não se espera que as mulheres sejam capazes de gerir um negócio.`)
-      ) %>%
-      
-      group_by(
-        Tipo_Avaliacao,
-        `Não se espera que as mulheres sejam capazes de gerir um negócio.`
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(Tipo_Avaliacao) %>%
-      
-      mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct, "%")
-      ) %>%
-      
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
-    }
-    
-    
-    
-    # =============================
-    # Ordenar menor para maior %
-    # =============================
-    ordem_gerir <- freq_data %>%
-      group_by(`Não se espera que as mulheres sejam capazes de gerir um negócio.`) %>%
-      summarise(
-        total = sum(pct),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(`Não se espera que as mulheres sejam capazes de gerir um negócio.`)
-    
-    
-    
-    freq_data$`Não se espera que as mulheres sejam capazes de gerir um negócio.` <- factor(
-      freq_data$`Não se espera que as mulheres sejam capazes de gerir um negócio.`,
-      levels = ordem_gerir
-    )
-    
-    
-    
-    # =============================
-    # Cores
-    # =============================
-    cores <- c(
-      "Discordo" = "#F77333",
-      "Depende" = "#ffc107",
-      "Concordo" = "#69C7BE"
-    )
-    
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      
-      y = ~pct,
-      
-      color = ~`Não se espera que as mulheres sejam capazes de gerir um negócio.`,
-      
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
-  })
-  
-  output$texto_M_Gerir <- renderUI({
-    
-    df <- dados_filtrados()
-    
-    var <- "Não se espera que as mulheres sejam capazes de gerir um negócio."
-    
-    req(var %in% colnames(df))
-    
-    df <- df %>%
-      dplyr::filter(
-        !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    if(nrow(df) == 0){
-      return(NULL)
-    }
-    
-    resumo <- df %>%
-      dplyr::group_by(
-        Tipo_Avaliacao,
-        .data[[var]]
-      ) %>%
-      dplyr::summarise(
-        n = dplyr::n(),
-        .groups = "drop"
-      ) %>%
-      dplyr::group_by(Tipo_Avaliacao) %>%
-      dplyr::mutate(
-        perc = n / sum(n) * 100
-      ) %>%
-      dplyr::ungroup()
-    
-    baseline <- resumo %>%
-      dplyr::filter(Tipo_Avaliacao == "Baseline") %>%
-      dplyr::select(
-        resposta = .data[[var]],
-        perc_baseline = perc
-      )
-    
-    endline <- resumo %>%
-      dplyr::filter(Tipo_Avaliacao == "Endline") %>%
-      dplyr::select(
-        resposta = .data[[var]],
-        perc_endline = perc
-      )
-    
-    comparacao <- dplyr::full_join(
-      baseline,
-      endline,
-      by = "resposta"
-    ) %>%
-      dplyr::mutate(
+        n_baseline = tidyr::replace_na(n_baseline, 0),
+        n_endline = tidyr::replace_na(n_endline, 0),
         perc_baseline = tidyr::replace_na(perc_baseline, 0),
         perc_endline = tidyr::replace_na(perc_endline, 0),
         variacao = perc_endline - perc_baseline
       )
     
-    texto_categorias <- lapply(
+    
+    # ============================================================
+    # FUNÇÃO PARA FORMATAR VARIAÇÃO
+    # ============================================================
+    
+    formatar_variacao <- function(valor) {
+      
+      valor <- round(valor, 1)
+      
+      if (valor > 0) {
+        return(paste0("+", valor, " p.p."))
+      }
+      
+      if (valor < 0) {
+        return(paste0(valor, " p.p."))
+      }
+      
+      return("sem variação")
+    }
+    
+    
+    # ============================================================
+    # TEXTO DAS CATEGORIAS
+    # ============================================================
+    
+    textos <- lapply(
       seq_len(nrow(comparacao)),
-      function(i){
+      function(i) {
         
-        categoria <- comparacao$resposta[i]
+        categoria <- comparacao$categoria[i]
         base <- round(comparacao$perc_baseline[i], 1)
         end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
+        variacao <- comparacao$variacao[i]
         
-        if(variacao > 0){
+        paste0(
+          categoria,
+          ": ",
+          base,
+          "% no Baseline e ",
+          end,
+          "% no Endline (",
+          formatar_variacao(variacao),
+          ")"
+        )
+      }
+    )
+    
+    
+    # ============================================================
+    # TEXTO FINAL
+    # ============================================================
+    
+    tags$p(
+      style = "margin:0;text-align:justify;",
+      
+      tags$b(
+        "Nos últimos 3 meses, teve alguma situação em que podia negociar preços, prazos ou condições com fornecedor ou cliente para beneficiar o seu negócio? Por exemplo: pedir desconto, propor outro prazo de pagamento, discutir preço, pedir melhores condições de entrega ou combinar uma forma de pagamento mais favorável. "
+      ),
+      
+      "A comparação entre o Baseline e o Endline permite ",
+      "observar mudanças na experiência de negociação dos participantes. ",
+      
+      paste(
+        textos,
+        collapse = "; "
+      ),
+      
+      "."
+    )
+  })
+  # 
+  # #################### Negociacao_Com_Agregado_Familiar
+  # ============================================================
+  # FUNÇÃO AUXILIAR — GRÁFICO BASELINE VS ENDLINE
+  # ============================================================
+  
+  gerar_grafico_negociacao <- function(
+    df,
+    variavel,
+    cores
+  ) {
+    
+    # ==========================================================
+    # VERIFICAR VARIÁVEIS
+    # ==========================================================
+    
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
+    
+    
+    # ==========================================================
+    # FILTRAR DADOS
+    # ==========================================================
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        ),
+        
+        !is.na(Tipo_Avaliacao),
+        
+        !is.na(.data[[variavel]]),
+        
+        .data[[variavel]] != ""
+      )
+    
+    
+    if (nrow(df) == 0) {
+      return(
+        plotly_empty()
+      )
+    }
+    
+    
+    # ==========================================================
+    # RESUMO
+    # ==========================================================
+    
+    df_resumo <- df %>%
+      
+      group_by(
+        Tipo_Avaliacao,
+        .data[[variavel]]
+      ) %>%
+      
+      summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      
+      group_by(
+        Tipo_Avaliacao
+      ) %>%
+      
+      mutate(
+        
+        Percent = round(
+          Total /
+            sum(Total) *
+            100,
+          1
+        )
+        
+      ) %>%
+      
+      ungroup()
+    
+    
+    # ==========================================================
+    # CATEGORIAS DOS DOIS MOMENTOS
+    # ==========================================================
+    
+    categorias <- unique(
+      df_resumo[[variavel]]
+    )
+    
+    
+    df_resumo <- df_resumo %>%
+      
+      tidyr::complete(
+        
+        Tipo_Avaliacao = c(
+          "Baseline",
+          "Endline"
+        ),
+        
+        !!rlang::sym(variavel) := categorias,
+        
+        fill = list(
+          Total = 0,
+          Percent = 0
+        )
+      )
+    
+    
+    # ==========================================================
+    # ORDEM DAS CATEGORIAS
+    # ==========================================================
+    
+    ordem <- df_resumo %>%
+      
+      group_by(
+        .data[[variavel]]
+      ) %>%
+      
+      summarise(
+        
+        total = sum(
+          Percent,
+          na.rm = TRUE
+        ),
+        
+        .groups = "drop"
+      ) %>%
+      
+      arrange(total) %>%
+      
+      pull(
+        .data[[variavel]]
+      )
+    
+    
+    df_resumo <- df_resumo %>%
+      
+      mutate(
+        
+        Tipo_Avaliacao = factor(
+          Tipo_Avaliacao,
+          levels = c(
+            "Baseline",
+            "Endline"
+          )
+        ),
+        
+        categoria = factor(
+          .data[[variavel]],
+          levels = ordem
+        )
+      )
+    
+    
+    # ==========================================================
+    # RÓTULO — n (%)
+    # ==========================================================
+    
+    df_resumo <- df_resumo %>%
+      
+      mutate(
+        
+        texto = ifelse(
+          
+          Percent > 0,
+          
+          paste0(
+            Total,
+            " (",
+            format(
+              Percent,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          
+          ""
+        )
+      )
+    
+    
+    # ==========================================================
+    # GRÁFICO
+    # ==========================================================
+    
+    plot_ly(
+      
+      data = df_resumo,
+      
+      x = ~Tipo_Avaliacao,
+      
+      y = ~Percent,
+      
+      color = ~categoria,
+      
+      colors = cores,
+      
+      type = "bar",
+      
+      text = ~texto,
+      
+      texttemplate = "%{text}",
+      
+      textposition = "inside",
+      
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      customdata = ~Total,
+      
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Participantes: %{customdata}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+      
+    ) %>%
+      
+      layout(
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          categoryorder = "array",
+          categoryarray = c(
+            "Baseline",
+            "Endline"
+          )
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(
+            0,
+            100
+          ),
+          tickmode = "array",
+          tickvals = seq(
+            0,
+            100,
+            20
+          ),
+          ticktext = paste0(
+            seq(
+              0,
+              100,
+              20
+            ),
+            "%"
+          )
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.25
+        ),
+        
+        margin = list(
+          l = 70,
+          r = 20,
+          t = 20,
+          b = 130
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      ) %>%
+      
+      config(
+        displayModeBar = TRUE,
+        displaylogo = FALSE,
+        responsive = TRUE,
+        
+        toImageButtonOptions = list(
+          format = "png",
+          filename = paste0(
+            "negociacao_",
+            variavel
+          ),
+          height = 800,
+          width = 1600,
+          scale = 3
+        )
+      )
+  }
+  
+  output$grafico_agregado_familiar <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    gerar_grafico_negociacao(
+      
+      df = df,
+      
+      variavel =
+        "Negociacao_Com_Agregado_Familiar",
+      
+      cores = c(
+        
+        "Não me sinto confiante/ não sei negociar" =
+          "#5cd6c7",
+        
+        "Depende /de certa forma" =
+          "#ff7f0e",
+        
+        "Sim, sinto-me confiante e sei defender a minha posição" =
+          "#9442d4"
+      )
+    )
+  })
+  
+  
+  output$grafico_clientes <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    gerar_grafico_negociacao(
+      
+      df = df,
+      
+      variavel =
+        "Negociacao_Com_Clientes",
+      
+      cores = c(
+        
+        "Não me sinto confiante/ não sei negociar" =
+          "#5cd6c7",
+        
+        "Depende /de certa forma" =
+          "#ff7f0e",
+        
+        "Sim, sinto-me confiante e sei defender a minha posição" =
+          "#9442d4"
+      )
+    )
+  })
+  
+  output$grafico_funcionarios <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    gerar_grafico_negociacao(
+      
+      df = df,
+      
+      variavel =
+        "Negociacao_Pessoas_Com_Quem_Trabalha",
+      
+      cores = c(
+        
+        "Não me sinto confiante/ não sei negociar" =
+          "#5cd6c7",
+        
+        "Depende /de certa forma" =
+          "#ff7f0e",
+        
+        "Sim, sinto-me confiante e sei defender a minha posição" =
+          "#9442d4"
+      )
+    )
+  })
+  
+  # ============================================================
+  # FUNÇÃO AUXILIAR — LEITURA BASELINE VS ENDLINE
+  # ============================================================
+  
+  gerar_leitura_negociacao <- function(
+    df,
+    variavel,
+    titulo,
+    introducao
+  ) {
+    
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
+    
+    
+    # ==========================================================
+    # FILTRAR DADOS
+    # ==========================================================
+    
+    df <- df %>%
+      filter(
+        
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        ),
+        
+        !is.na(Tipo_Avaliacao),
+        
+        !is.na(.data[[variavel]]),
+        
+        .data[[variavel]] != ""
+      )
+    
+    
+    if (nrow(df) == 0) {
+      
+      return(
+        tags$p(
+          style =
+            "margin:0;text-align:justify;",
+          
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    
+    # ==========================================================
+    # RESUMO
+    # ==========================================================
+    
+    resumo <- df %>%
+      
+      group_by(
+        Tipo_Avaliacao,
+        .data[[variavel]]
+      ) %>%
+      
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      
+      group_by(
+        Tipo_Avaliacao
+      ) %>%
+      
+      mutate(
+        perc =
+          n /
+          sum(n) *
+          100
+      ) %>%
+      
+      ungroup()
+    
+    
+    # ==========================================================
+    # BASELINE
+    # ==========================================================
+    
+    baseline <- resumo %>%
+      
+      filter(
+        Tipo_Avaliacao ==
+          "Baseline"
+      ) %>%
+      
+      select(
+        
+        categoria =
+          .data[[variavel]],
+        
+        perc_baseline =
+          perc
+      )
+    
+    
+    # ==========================================================
+    # ENDLINE
+    # ==========================================================
+    
+    endline <- resumo %>%
+      
+      filter(
+        Tipo_Avaliacao ==
+          "Endline"
+      ) %>%
+      
+      select(
+        
+        categoria =
+          .data[[variavel]],
+        
+        perc_endline =
+          perc
+      )
+    
+    
+    # ==========================================================
+    # COMPARAÇÃO
+    # ==========================================================
+    
+    comparacao <- full_join(
+      
+      baseline,
+      endline,
+      
+      by = "categoria"
+      
+    ) %>%
+      
+      mutate(
+        
+        perc_baseline =
+          tidyr::replace_na(
+            perc_baseline,
+            0
+          ),
+        
+        perc_endline =
+          tidyr::replace_na(
+            perc_endline,
+            0
+          ),
+        
+        variacao =
+          perc_endline -
+          perc_baseline
+      )
+    
+    
+    # ==========================================================
+    # LEITURA POR CATEGORIA
+    # ==========================================================
+    
+    texto_categorias <- lapply(
+      
+      seq_len(
+        nrow(comparacao)
+      ),
+      
+      function(i) {
+        
+        categoria <-
+          comparacao$categoria[i]
+        
+        base <-
+          round(
+            comparacao$perc_baseline[i],
+            1
+          )
+        
+        end <-
+          round(
+            comparacao$perc_endline[i],
+            1
+          )
+        
+        variacao <-
+          round(
+            comparacao$variacao[i],
+            1
+          )
+        
+        
+        if (variacao > 0) {
+          
           paste0(
             categoria,
             " aumentou de ",
@@ -9870,7 +8499,9 @@ server <- function(input, output, session) {
             variacao,
             " p.p.)"
           )
-        } else if(variacao < 0){
+          
+        } else if (variacao < 0) {
+          
           paste0(
             categoria,
             " reduziu de ",
@@ -9881,7 +8512,9 @@ server <- function(input, output, session) {
             variacao,
             " p.p.)"
           )
+          
         } else {
+          
           paste0(
             categoria,
             " manteve-se em ",
@@ -9892,12 +8525,612 @@ server <- function(input, output, session) {
       }
     )
     
+    
+    # ==========================================================
+    # TEXTO FINAL
+    # ==========================================================
+    
+    tags$p(
+      
+      style =
+        "margin:0;text-align:justify;",
+      
+      tags$b(
+        paste0(
+          titulo,
+          ". "
+        )
+      ),
+      
+      introducao,
+      
+      " ",
+      
+      paste(
+        texto_categorias,
+        collapse = "; "
+      ),
+      
+      "."
+    )
+  }
+  
+  output$texto_agregado <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    gerar_leitura_negociacao(
+      
+      df = df,
+      
+      variavel =
+        "Negociacao_Com_Agregado_Familiar",
+      
+      titulo =
+        "Negociação com Pessoas do agregado familiar/esfera pessoal (sobre uso de dinheiro do negócio, tempo para trabalhar",
+      
+      introducao =
+        "A comparação entre o Baseline e o Endline permite observar a evolução da confiança e capacidade de negociação dentro do agregado familiar."
+    )
+  })
+  
+  output$texto_clientes_neg <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    gerar_leitura_negociacao(
+      
+      df = df,
+      
+      variavel =
+        "Negociacao_Com_Clientes",
+      
+      titulo =
+        "Negociação comercial com clientes",
+      
+      introducao =
+        "A comparação entre o Baseline e o Endline permite observar a evolução da confiança e capacidade de negociação nas relações comerciais com clientes."
+    )
+  })
+  
+  output$texto_funcionarios <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    
+    if (input$filtro_cidade != "Todas") {
+      
+      df <- df %>%
+        filter(
+          Cidade == input$filtro_cidade
+        )
+    }
+    
+    
+    if (input$filtro_ciclo != "Todos") {
+      
+      df <- df %>%
+        filter(
+          Ciclo == input$filtro_ciclo
+        )
+    }
+    
+    
+    gerar_leitura_negociacao(
+      
+      df = df,
+      
+      variavel =
+        "Negociacao_Pessoas_Com_Quem_Trabalha",
+      
+      titulo =
+        "Negociação com Pessoas com quem trabalha (fornecedores, funcionários, parceiros...)",
+      
+      introducao =
+        "A comparação entre o Baseline e o Endline permite observar a evolução da confiança e capacidade de negociação nas relações com as pessoas com quem os participantes trabalham."
+    )
+  })
+
+  # ##----------------------------------------------------------- 
+  # ###################                  3 PAGINA Habilidades e Processos
+  # ##-----------------------------------------------------------------------------  
+  
+  # ============================================================
+  # FUNÇÃO - GRÁFICO 100% EMPILHADO
+  # INDICADORES PAM VERDE
+  # ============================================================
+  
+  gerar_grafico_indicador <- function(
+    df,
+    variavel,
+    ordem_categorias,
+    cores,
+    nome_download
+  ) {
+    
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
+    
+    # ----------------------------------------------------------
+    # LIMPEZA
+    # ----------------------------------------------------------
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[variavel]]),
+        .data[[variavel]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(plotly_empty())
+    }
+    
+    # ----------------------------------------------------------
+    # FREQUÊNCIAS E PERCENTAGENS
+    # ----------------------------------------------------------
+    
+    freq_data <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        categoria = .data[[variavel]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        pct = n / sum(n) * 100
+      ) %>%
+      ungroup()
+    
+    # ----------------------------------------------------------
+    # GARANTIR TODAS AS CATEGORIAS
+    # ----------------------------------------------------------
+    
+    freq_data <- freq_data %>%
+      tidyr::complete(
+        Tipo_Avaliacao = c("Baseline", "Endline"),
+        categoria = ordem_categorias,
+        fill = list(
+          n = 0,
+          pct = 0
+        )
+      )
+    
+    # ----------------------------------------------------------
+    # FACTORES E RÓTULOS
+    # ----------------------------------------------------------
+    
+    freq_data <- freq_data %>%
+      mutate(
+        Tipo_Avaliacao = factor(
+          Tipo_Avaliacao,
+          levels = c("Baseline", "Endline")
+        ),
+        
+        categoria = factor(
+          categoria,
+          levels = ordem_categorias
+        ),
+        
+        label = ifelse(
+          pct > 0,
+          paste0(
+            n,
+            " (",
+            format(
+              round(pct, 1),
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          ""
+        )
+      )
+    
+    # ----------------------------------------------------------
+    # GRÁFICO
+    # ----------------------------------------------------------
+    
+    plot_ly(
+      data = freq_data,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      
+      color = ~categoria,
+      colors = cores,
+      
+      type = "bar",
+      
+      text = ~label,
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#FFFFFF",
+        size = 11
+      ),
+      
+      customdata = ~n,
+      
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Participantes: %{customdata}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+      
+    ) %>%
+      
+      layout(
+        
+        barmode = "stack",
+        
+        uniformtext = list(
+          mode = "show",
+          minsize = 10
+        ),
+        
+        xaxis = list(
+          title = "",
+          categoryorder = "array",
+          categoryarray = c(
+            "Baseline",
+            "Endline"
+          ),
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          tickmode = "array",
+          tickvals = seq(0, 100, 20),
+          ticktext = paste0(
+            seq(0, 100, 20),
+            "%"
+          )
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.28
+        ),
+        
+        margin = list(
+          l = 70,
+          r = 20,
+          t = 20,
+          b = 150
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+        
+      ) %>%
+      
+      config(
+        displayModeBar = TRUE,
+        displaylogo = FALSE,
+        responsive = TRUE,
+        
+        toImageButtonOptions = list(
+          format = "png",
+          filename = nome_download,
+          height = 800,
+          width = 1600,
+          scale = 3
+        )
+      )
+  }
+  # ============================================================
+  # GRÁFICO - UTILIZAÇÃO DE FERRAMENTAS DE IA
+  # ============================================================
+  
+  ordem_ia <- c(
+    "Não, nunca usei e não sei bem o que é",
+    "Ouvi falar mas nunca experimentei",
+    "Sim, usei pelo menos uma vez",
+    "Sim, uso regularmente para o negócio"
+  )
+  
+  cores_ia <- c(
+    "Não, nunca usei e não sei bem o que é" = "#69C7BE",
+    "Ouvi falar mas nunca experimentei" = "#f9a825",
+    "Sim, usei pelo menos uma vez" = "#F77333",
+    "Sim, uso regularmente para o negócio" = "#9442d4"
+  )
+  
+  
+  output$grafico_uso_ia <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    # ----------------------------------------------------------
+    # FILTRO CIDADE
+    # ----------------------------------------------------------
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    # ----------------------------------------------------------
+    # FILTRO CICLO
+    # ----------------------------------------------------------
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ----------------------------------------------------------
+    # GRÁFICO
+    # ----------------------------------------------------------
+    
+    gerar_grafico_indicador(
+      df = df,
+      variavel = "Uso_de_ferramentas_de_IA",
+      ordem_categorias = ordem_ia,
+      cores = cores_ia,
+      nome_download = "utilizacao_ferramentas_IA"
+    )
+  })
+  
+  # ============================================================
+  # TEXTO - UTILIZAÇÃO DE FERRAMENTAS DE IA
+  # ============================================================
+  
+  output$texto_uso_ia <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    # ----------------------------------------------------------
+    # FILTROS
+    # ----------------------------------------------------------
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    var <- "Uso_de_ferramentas_de_IA"
+    
+    req(var %in% names(df))
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[var]]),
+        .data[[var]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    # ----------------------------------------------------------
+    # PERCENTAGENS
+    # ----------------------------------------------------------
+    
+    resumo <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        categoria = .data[[var]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        perc = n / sum(n) * 100
+      ) %>%
+      ungroup()
+    
+    # ----------------------------------------------------------
+    # BASELINE
+    # ----------------------------------------------------------
+    
+    baseline <- resumo %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      select(
+        categoria,
+        perc_baseline = perc
+      )
+    
+    # ----------------------------------------------------------
+    # ENDLINE
+    # ----------------------------------------------------------
+    
+    endline <- resumo %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      select(
+        categoria,
+        perc_endline = perc
+      )
+    
+    # ----------------------------------------------------------
+    # COMPARAÇÃO
+    # ----------------------------------------------------------
+    
+    comparacao <- full_join(
+      baseline,
+      endline,
+      by = "categoria"
+    ) %>%
+      mutate(
+        perc_baseline = replace_na(
+          perc_baseline,
+          0
+        ),
+        
+        perc_endline = replace_na(
+          perc_endline,
+          0
+        ),
+        
+        variacao = perc_endline - perc_baseline
+      )
+    
+    # ----------------------------------------------------------
+    # TEXTO
+    # ----------------------------------------------------------
+    
+    texto_categorias <- lapply(
+      seq_len(nrow(comparacao)),
+      function(i) {
+        
+        categoria <- comparacao$categoria[i]
+        
+        base <- round(
+          comparacao$perc_baseline[i],
+          1
+        )
+        
+        end <- round(
+          comparacao$perc_endline[i],
+          1
+        )
+        
+        variacao <- round(
+          comparacao$variacao[i],
+          1
+        )
+        
+        if (variacao > 0) {
+          
+          paste0(
+            categoria,
+            " aumentou de ",
+            format(
+              base,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Baseline para ",
+            format(
+              end,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Endline (+",
+            format(
+              variacao,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            " p.p.)"
+          )
+          
+        } else if (variacao < 0) {
+          
+          paste0(
+            categoria,
+            " reduziu de ",
+            format(
+              base,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Baseline para ",
+            format(
+              end,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Endline (",
+            format(
+              variacao,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            " p.p.)"
+          )
+          
+        } else {
+          
+          paste0(
+            categoria,
+            " manteve-se em ",
+            format(
+              end,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% entre o Baseline e o Endline"
+          )
+        }
+      }
+    )
+    
     tags$p(
       style = "margin:0;text-align:justify;",
       
-      tags$b("Perceção sobre a capacidade das mulheres para gerir negócios. "),
+      tags$b(
+        "Já utilizou alguma ferramenta de inteligência artificial (ex: ChatGPT, Gemini ou outra) para pesquisar sobre os seus clientes ou obter informações úteis para o negócio? "
+      ),
       
-      "A comparação entre o Baseline e o Endline permite observar a evolução das perceções sobre a capacidade das mulheres para gerir um negócio. ",
+      "A comparação entre o Baseline e o Endline permite observar a evolução na utilização de ferramentas de inteligência artificial. ",
       
       paste(
         texto_categorias,
@@ -9908,7 +9141,1631 @@ server <- function(input, output, session) {
     )
   })
   
-  # 
+  # ============================================================
+  # GRÁFICO - CONTROLO DO DINHEIRO
+  # ============================================================
+  
+  ordem_controle <- c(
+    "Não",
+    "Sim"
+  )
+  
+  cores_controle <- c(
+    "Não" = "#69C7BE",
+    "Sim" = "#9442d4"
+  )
+  
+  
+  output$grafico_control_dinheiro <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    gerar_grafico_indicador(
+      df = df,
+      variavel = "Faz controlo do dinheiro que entra e que sai (receitas e despesas)",
+      ordem_categorias = ordem_controle,
+      cores = cores_controle,
+      nome_download = "controlo_dinheiro_receitas_despesas"
+    )
+  })
+  
+  # ============================================================
+  # TEXTO - CONTROLO DO DINHEIRO
+  # ============================================================
+  
+  output$texto_control_dinheiro <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    var <- "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
+    
+    req(var %in% names(df))
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[var]]),
+        .data[[var]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    resumo <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        categoria = .data[[var]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        perc = n / sum(n) * 100
+      ) %>%
+      ungroup()
+    
+    baseline <- resumo %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      select(
+        categoria,
+        perc_baseline = perc
+      )
+    
+    endline <- resumo %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      select(
+        categoria,
+        perc_endline = perc
+      )
+    
+    comparacao <- full_join(
+      baseline,
+      endline,
+      by = "categoria"
+    ) %>%
+      mutate(
+        perc_baseline = replace_na(perc_baseline, 0),
+        perc_endline = replace_na(perc_endline, 0),
+        variacao = perc_endline - perc_baseline
+      )
+    
+    texto_categorias <- lapply(
+      seq_len(nrow(comparacao)),
+      function(i) {
+        
+        categoria <- comparacao$categoria[i]
+        base <- round(comparacao$perc_baseline[i], 1)
+        end <- round(comparacao$perc_endline[i], 1)
+        variacao <- round(comparacao$variacao[i], 1)
+        
+        if (variacao > 0) {
+          
+          paste0(
+            categoria,
+            " aumentou de ",
+            format(base, decimal.mark = ",", nsmall = 1),
+            "% no Baseline para ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% no Endline (+",
+            format(variacao, decimal.mark = ",", nsmall = 1),
+            " p.p.)"
+          )
+          
+        } else if (variacao < 0) {
+          
+          paste0(
+            categoria,
+            " reduziu de ",
+            format(base, decimal.mark = ",", nsmall = 1),
+            "% no Baseline para ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% no Endline (",
+            format(variacao, decimal.mark = ",", nsmall = 1),
+            " p.p.)"
+          )
+          
+        } else {
+          
+          paste0(
+            categoria,
+            " manteve-se em ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% entre o Baseline e o Endline"
+          )
+        }
+      }
+    )
+    
+    tags$p(
+      style = "margin:0;text-align:justify;",
+      
+      tags$b(
+        "Faz controlo do dinheiro que entra e que sai (receitas e despesas). "
+      ),
+      
+      "A comparação entre o Baseline e o Endline permite observar a evolução no controlo das receitas e despesas. ",
+      
+      paste(
+        texto_categorias,
+        collapse = "; "
+      ),
+      
+      "."
+    )
+  })
+  
+  # ============================================================
+  # GRÁFICO - SEPARAÇÃO DAS CONTAS
+  # ============================================================
+  
+  ordem_contas <- c(
+    "Não",
+    "Sim"
+  )
+  
+  cores_contas <- c(
+    "Não" = "#69C7BE",
+    "Sim" = "#9442d4"
+  )
+  
+  
+  output$grafico_separacao_contas <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    gerar_grafico_indicador(
+      df = df,
+      variavel = "Faz separação das contas pessoais e do negócio",
+      ordem_categorias = ordem_contas,
+      cores = cores_contas,
+      nome_download = "separacao_contas_pessoais_negocio"
+    )
+  })
+  
+  # ============================================================
+  # TEXTO - SEPARAÇÃO DAS CONTAS
+  # ============================================================
+  
+  output$texto_separacao_contas <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    var <- "Faz separação das contas pessoais e do negócio"
+    
+    req(var %in% names(df))
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[var]]),
+        .data[[var]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    resumo <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        categoria = .data[[var]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        perc = n / sum(n) * 100
+      ) %>%
+      ungroup()
+    
+    comparacao <- resumo %>%
+      select(
+        Tipo_Avaliacao,
+        categoria,
+        perc
+      ) %>%
+      tidyr::pivot_wider(
+        names_from = Tipo_Avaliacao,
+        values_from = perc,
+        values_fill = 0
+      ) %>%
+      mutate(
+        variacao = Endline - Baseline
+      )
+    
+    texto_categorias <- lapply(
+      seq_len(nrow(comparacao)),
+      function(i) {
+        
+        categoria <- comparacao$categoria[i]
+        base <- round(comparacao$Baseline[i], 1)
+        end <- round(comparacao$Endline[i], 1)
+        variacao <- round(comparacao$variacao[i], 1)
+        
+        if (variacao > 0) {
+          
+          paste0(
+            categoria,
+            " aumentou de ",
+            format(base, decimal.mark = ",", nsmall = 1),
+            "% no Baseline para ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% no Endline (+",
+            format(variacao, decimal.mark = ",", nsmall = 1),
+            " p.p.)"
+          )
+          
+        } else if (variacao < 0) {
+          
+          paste0(
+            categoria,
+            " reduziu de ",
+            format(base, decimal.mark = ",", nsmall = 1),
+            "% no Baseline para ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% no Endline (",
+            format(variacao, decimal.mark = ",", nsmall = 1),
+            " p.p.)"
+          )
+          
+        } else {
+          
+          paste0(
+            categoria,
+            " manteve-se em ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% entre o Baseline e o Endline"
+          )
+        }
+      }
+    )
+    
+    tags$p(
+      style = "margin:0;text-align:justify;",
+      
+      tags$b(
+        "Faz separação das contas pessoais e do negócio. "
+      ),
+      
+      "A comparação entre o Baseline e o Endline permite observar a evolução na separação das contas pessoais e do negócio. ",
+      
+      paste(
+        texto_categorias,
+        collapse = "; "
+      ),
+      
+      "."
+    )
+  })
+  
+  # ============================================================
+  # GRÁFICO - CÁLCULO DO LUCRO
+  # ============================================================
+  
+  ordem_lucro <- c(
+    "Não",
+    "Sim"
+  )
+  
+  cores_lucro <- c(
+    "Não" = "#69C7BE",
+    "Sim" = "#9442d4"
+  )
+  
+  
+  output$grafico_calcular_Lucro <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    gerar_grafico_indicador(
+      df = df,
+      variavel = "Sabe calcular o lucro do negócio  (com base no exercício prático)",
+      ordem_categorias = ordem_lucro,
+      cores = cores_lucro,
+      nome_download = "calculo_lucro_negocio"
+    )
+  })
+  
+  # ============================================================
+  # TEXTO - CÁLCULO DO LUCRO
+  # ============================================================
+  
+  output$texto_calculo_lucro <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    var <- "Sabe calcular o lucro do negócio  (com base no exercício prático)"
+    
+    req(var %in% names(df))
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[var]]),
+        .data[[var]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    resumo <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        categoria = .data[[var]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        perc = n / sum(n) * 100
+      ) %>%
+      ungroup()
+    
+    comparacao <- resumo %>%
+      select(
+        Tipo_Avaliacao,
+        categoria,
+        perc
+      ) %>%
+      tidyr::pivot_wider(
+        names_from = Tipo_Avaliacao,
+        values_from = perc,
+        values_fill = 0
+      )
+    
+    # Garantir as duas colunas
+    if (!"Baseline" %in% names(comparacao)) {
+      comparacao$Baseline <- 0
+    }
+    
+    if (!"Endline" %in% names(comparacao)) {
+      comparacao$Endline <- 0
+    }
+    
+    comparacao <- comparacao %>%
+      mutate(
+        variacao = Endline - Baseline
+      )
+    
+    texto_categorias <- lapply(
+      seq_len(nrow(comparacao)),
+      function(i) {
+        
+        categoria <- comparacao$categoria[i]
+        base <- round(comparacao$Baseline[i], 1)
+        end <- round(comparacao$Endline[i], 1)
+        variacao <- round(comparacao$variacao[i], 1)
+        
+        if (variacao > 0) {
+          
+          paste0(
+            categoria,
+            " aumentou de ",
+            format(base, decimal.mark = ",", nsmall = 1),
+            "% no Baseline para ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% no Endline (+",
+            format(variacao, decimal.mark = ",", nsmall = 1),
+            " p.p.)"
+          )
+          
+        } else if (variacao < 0) {
+          
+          paste0(
+            categoria,
+            " reduziu de ",
+            format(base, decimal.mark = ",", nsmall = 1),
+            "% no Baseline para ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% no Endline (",
+            format(variacao, decimal.mark = ",", nsmall = 1),
+            " p.p.)"
+          )
+          
+        } else {
+          
+          paste0(
+            categoria,
+            " manteve-se em ",
+            format(end, decimal.mark = ",", nsmall = 1),
+            "% entre o Baseline e o Endline"
+          )
+        }
+      }
+    )
+    
+    tags$p(
+      style = "margin:0;text-align:justify;",
+      
+      tags$b(
+        "Sabe calcular o lucro do negócio  (com base no exercício prático). "
+      ),
+      
+      "A comparação entre o Baseline e o Endline permite observar a evolução do conhecimento das participantes sobre o cálculo do lucro do negócio. ",
+      
+      paste(
+        texto_categorias,
+        collapse = "; "
+      ),
+      
+      "."
+    )
+  })
+
+#################################### CONSCIENCIA DE GENERO
+  
+  # ============================================================
+  # FUNÇÃO — GRÁFICOS DE PERCEÇÃO
+  # ============================================================
+  
+  gerar_grafico_percepcao <- function(df, variavel, cores, nome_download) {
+    
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
+    
+    # ------------------------------------------------------------
+    # Filtrar Baseline e Endline
+    # ------------------------------------------------------------
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[variavel]]),
+        .data[[variavel]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(plotly_empty())
+    }
+    
+    
+    # ------------------------------------------------------------
+    # Frequência e percentagem
+    # ------------------------------------------------------------
+    
+    freq_data <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        .data[[variavel]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        pct = round(
+          n / sum(n) * 100,
+          1
+        )
+      ) %>%
+      ungroup()
+    
+    
+    # ------------------------------------------------------------
+    # Garantir todas as categorias nos dois momentos
+    # ------------------------------------------------------------
+    
+    categorias <- unique(
+      freq_data[[variavel]]
+    )
+    
+    freq_data <- freq_data %>%
+      tidyr::complete(
+        Tipo_Avaliacao = c(
+          "Baseline",
+          "Endline"
+        ),
+        !!rlang::sym(variavel) := categorias,
+        fill = list(
+          n = 0,
+          pct = 0
+        )
+      )
+    
+    
+    # ------------------------------------------------------------
+    # Ordenar categorias pela percentagem
+    # ------------------------------------------------------------
+    
+    ordem <- freq_data %>%
+      group_by(.data[[variavel]]) %>%
+      summarise(
+        total = sum(pct, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      arrange(total) %>%
+      pull(.data[[variavel]])
+    
+    
+    # ------------------------------------------------------------
+    # Factor
+    # ------------------------------------------------------------
+    
+    freq_data <- freq_data %>%
+      mutate(
+        Tipo_Avaliacao = factor(
+          Tipo_Avaliacao,
+          levels = c(
+            "Baseline",
+            "Endline"
+          )
+        ),
+        
+        categoria = factor(
+          .data[[variavel]],
+          levels = ordem
+        )
+      )
+    
+    
+    # ------------------------------------------------------------
+    # Texto dentro das barras
+    # n (percentagem)
+    # ------------------------------------------------------------
+    
+    freq_data <- freq_data %>%
+      mutate(
+        label = ifelse(
+          pct > 0,
+          paste0(
+            n,
+            " (",
+            format(
+              pct,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          ""
+        )
+      )
+    
+    
+    # ------------------------------------------------------------
+    # Gráfico
+    # ------------------------------------------------------------
+    
+    plot_ly(
+      data = freq_data,
+      
+      x = ~Tipo_Avaliacao,
+      y = ~pct,
+      
+      color = ~categoria,
+      colors = cores,
+      
+      type = "bar",
+      
+      text = ~label,
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      customdata = ~n,
+      
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        "%{fullData.name}<br>",
+        "Participantes: %{customdata}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+      
+    ) %>%
+      
+      layout(
+        
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          categoryorder = "array",
+          categoryarray = c(
+            "Baseline",
+            "Endline"
+          ),
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          tickmode = "array",
+          tickvals = seq(0, 100, 20),
+          ticktext = paste0(
+            seq(0, 100, 20),
+            "%"
+          )
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.28
+        ),
+        
+        margin = list(
+          l = 70,
+          r = 20,
+          t = 20,
+          b = 140
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      ) %>%
+      
+      config(
+        displayModeBar = TRUE,
+        displaylogo = FALSE,
+        responsive = TRUE,
+        toImageButtonOptions = list(
+          format = "png",
+          filename = nome_download,
+          height = 800,
+          width = 1600,
+          scale = 3
+        )
+      )
+  }
+  # ============================================================
+  # CORES — PERCEÇÕES DE GÉNERO
+  # ============================================================
+  
+  cores_percepcao_genero <- c(
+    "Concordo" = "#F77333",
+    "Depende" = "#ffc107",
+    "Discordo" = "#69C7BE"
+  )
+  
+  output$grafico_H_Financeiro_Faci <- renderPlotly({
+
+    df <- Pam_Verde_Indicadores
+
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_grafico_percepcao(
+      df = df,
+      variavel = "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .",
+      cores = cores_percepcao_genero,
+      nome_download = "homens_acesso_financeiros"
+    )
+  })
+  
+  output$grafico_H_Serios <- renderPlotly({
+
+    df <- Pam_Verde_Indicadores
+
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_grafico_percepcao(
+      df = df,
+      variavel = "Os homens são levados mais a sério como empreendedores.",
+      cores = cores_percepcao_genero,
+      nome_download = "homens_levados_a_serio"
+    )
+  })
+
+  output$grafico_H_Capazes <- renderPlotly({
+
+    df <- Pam_Verde_Indicadores
+
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_grafico_percepcao(
+      df = df,
+      variavel = "Homens são mais capazes de negociar do que as mulheres.",
+      cores = cores_percepcao_genero,
+      nome_download = "homens_capacidade_negociacao"
+    )
+  })
+
+  output$grafico_Obrigacoes_Domesticas <- renderPlotly({
+
+    df <- Pam_Verde_Indicadores
+
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_grafico_percepcao(
+      df = df,
+      variavel = "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.",
+      cores = cores_percepcao_genero,
+      nome_download = "responsabilidades_domesticas"
+    )
+  })
+
+  output$grafico_M_Gerir <- renderPlotly({
+
+    df <- Pam_Verde_Indicadores
+
+    # Filtro cidade
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    # Filtro ciclo
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_grafico_percepcao(
+      df = df,
+      variavel = "Não se espera que as mulheres sejam capazes de gerir um negócio.",
+      cores = cores_percepcao_genero,
+      nome_download = "mulheres_capacidade_gerir_negocio"
+    )
+  })
+  
+  
+  # ============================================================
+  # FUNÇÃO — TEXTO COMPARATIVO BASELINE VS ENDLINE
+  # ============================================================
+
+  gerar_texto_percepcao <- function(
+    df,
+    variavel,
+    titulo,
+    introducao
+  ) {
+
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
+
+
+    # ------------------------------------------------------------
+    # Filtrar dados
+    # ------------------------------------------------------------
+
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        ),
+        !is.na(Tipo_Avaliacao),
+        !is.na(.data[[variavel]]),
+        .data[[variavel]] != ""
+      )
+
+
+    if (nrow(df) == 0) {
+
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+
+
+    # ------------------------------------------------------------
+    # Frequência
+    # ------------------------------------------------------------
+
+    resumo <- df %>%
+      group_by(
+        Tipo_Avaliacao,
+        .data[[variavel]]
+      ) %>%
+      summarise(
+        n = n(),
+        .groups = "drop"
+      ) %>%
+      group_by(Tipo_Avaliacao) %>%
+      mutate(
+        perc = n / sum(n) * 100
+      ) %>%
+      ungroup()
+
+
+    # ------------------------------------------------------------
+    # Baseline
+    # ------------------------------------------------------------
+
+    baseline <- resumo %>%
+      filter(
+        Tipo_Avaliacao == "Baseline"
+      ) %>%
+      select(
+        resposta = .data[[variavel]],
+        n_baseline = n,
+        perc_baseline = perc
+      )
+
+
+    # ------------------------------------------------------------
+    # Endline
+    # ------------------------------------------------------------
+
+    endline <- resumo %>%
+      filter(
+        Tipo_Avaliacao == "Endline"
+      ) %>%
+      select(
+        resposta = .data[[variavel]],
+        n_endline = n,
+        perc_endline = perc
+      )
+
+
+    # ------------------------------------------------------------
+    # Comparação
+    # ------------------------------------------------------------
+
+    comparacao <- full_join(
+      baseline,
+      endline,
+      by = "resposta"
+    ) %>%
+      mutate(
+        n_baseline = tidyr::replace_na(
+          n_baseline,
+          0
+        ),
+
+        n_endline = tidyr::replace_na(
+          n_endline,
+          0
+        ),
+
+        perc_baseline = tidyr::replace_na(
+          perc_baseline,
+          0
+        ),
+
+        perc_endline = tidyr::replace_na(
+          perc_endline,
+          0
+        ),
+
+        variacao = perc_endline - perc_baseline
+      )
+
+
+    # ------------------------------------------------------------
+    # Criar texto de cada categoria
+    # ------------------------------------------------------------
+
+    texto_categorias <- lapply(
+      seq_len(nrow(comparacao)),
+      function(i) {
+
+        categoria <- comparacao$resposta[i]
+
+        base <- round(
+          comparacao$perc_baseline[i],
+          1
+        )
+
+        end <- round(
+          comparacao$perc_endline[i],
+          1
+        )
+
+        variacao <- round(
+          comparacao$variacao[i],
+          1
+        )
+
+
+        if (variacao > 0) {
+
+          paste0(
+            categoria,
+            " aumentou de ",
+            format(
+              base,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Baseline para ",
+            format(
+              end,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Endline (+",
+            format(
+              variacao,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            " p.p.)"
+          )
+
+        } else if (variacao < 0) {
+
+          paste0(
+            categoria,
+            " reduziu de ",
+            format(
+              base,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Baseline para ",
+            format(
+              end,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% no Endline (",
+            format(
+              variacao,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            " p.p.)"
+          )
+
+        } else {
+
+          paste0(
+            categoria,
+            " manteve-se em ",
+            format(
+              end,
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "% entre o Baseline e o Endline"
+          )
+        }
+      }
+    )
+
+
+    # ------------------------------------------------------------
+    # Resultado
+    # ------------------------------------------------------------
+
+    tags$p(
+      style = "margin:0;text-align:justify;",
+
+      tags$b(
+        paste0(
+          titulo,
+          ". "
+        )
+      ),
+
+      introducao,
+
+      " ",
+
+      paste(
+        texto_categorias,
+        collapse = "; "
+      ),
+
+      "."
+    )
+  }
+  output$texto_H_Financeiros <- renderUI({
+
+    df <- Pam_Verde_Indicadores
+
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_texto_percepcao(
+      df = df,
+      variavel = "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .",
+      titulo = "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados",
+      introducao = paste0(
+        "A comparação entre o Baseline e o Endline permite ",
+        "observar a evolução das perceções sobre a facilidade ",
+        "dos homens em aceder a produtos financeiros, redes ",
+        "ou novos mercados."
+      )
+    )
+  })
+
+  output$texto_H_Serios <- renderUI({
+
+    df <- Pam_Verde_Indicadores
+
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_texto_percepcao(
+      df = df,
+      variavel = "Os homens são levados mais a sério como empreendedores.",
+      titulo = "Os homens são levados mais a sério como empreendedores.",
+      introducao = paste0(
+        "A comparação entre o Baseline e o Endline permite ",
+        "observar a evolução das perceções sobre o reconhecimento ",
+        "dos homens enquanto empreendedores."
+      )
+    )
+  })
+
+  output$texto_H_Capazes <- renderUI({
+
+    df <- Pam_Verde_Indicadores
+
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_texto_percepcao(
+      df = df,
+      variavel = "Homens são mais capazes de negociar do que as mulheres.",
+      titulo = "Homens são mais capazes de negociar do que as mulheres.",
+      introducao = paste0(
+        "A comparação entre o Baseline e o Endline permite ",
+        "observar a evolução das perceções sobre a capacidade ",
+        "de negociação de homens e mulheres."
+      )
+    )
+  })
+
+  output$texto_Obrigacoes_Domesticas <- renderUI({
+
+    df <- Pam_Verde_Indicadores
+
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_texto_percepcao(
+      df = df,
+      variavel = "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.",
+      titulo = "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.",
+      introducao = paste0(
+        "A comparação entre o Baseline e o Endline permite ",
+        "observar a evolução das perceções sobre a distribuição ",
+        "das responsabilidades domésticas e o tempo disponível ",
+        "das mulheres para o negócio."
+      )
+    )
+  })
+
+  output$texto_M_Gerir <- renderUI({
+
+    df <- Pam_Verde_Indicadores
+
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+
+    gerar_texto_percepcao(
+      df = df,
+      variavel = "Não se espera que as mulheres sejam capazes de gerir um negócio.",
+      titulo = "Não se espera que as mulheres sejam capazes de gerir um negócio.",
+      introducao = paste0(
+        "A comparação entre o Baseline e o Endline permite ",
+        "observar a evolução das perceções sobre a capacidade ",
+        "das mulheres para gerir um negócio."
+      )
+    )
+  })
+
+  
+  output$grafico_sa <- renderPlotly({
+    
+    df <- Pam_Verde_Indicadores
+    
+    # ============================================================
+    # FILTROS
+    # ============================================================
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ============================================================
+    # VARIÁVEL
+    # ============================================================
+    
+    variavel <- "Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?"
+    
+    req(variavel %in% names(df))
+    
+    # ============================================================
+    # APENAS ENDLINE
+    # ============================================================
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao == "Endline",
+        !is.na(.data[[variavel]]),
+        .data[[variavel]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(
+        plotly_empty()
+      )
+    }
+    
+    # ============================================================
+    # RESUMO
+    # ============================================================
+    
+    df_resumo <- df %>%
+      group_by(.data[[variavel]]) %>%
+      summarise(
+        Total = n(),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        Percent = Total / sum(Total) * 100
+      )
+    
+    # ============================================================
+    # ORDEM DAS CATEGORIAS
+    # ============================================================
+    
+    ordem <- c(
+      "Ajudaram um pouco",
+      "Ajudaram moderadamente",
+      "Ajudaram bastante / mudaram a minha compreensão"
+    )
+    
+    # Garantir categorias mesmo que alguma não exista
+    df_resumo <- df_resumo %>%
+      rename(categoria = .data[[variavel]]) %>%
+      tidyr::complete(
+        categoria = ordem,
+        fill = list(
+          Total = 0,
+          Percent = 0
+        )
+      ) %>%
+      mutate(
+        categoria = factor(
+          categoria,
+          levels = ordem
+        )
+      )
+    
+    # ============================================================
+    # TEXTO DENTRO DA BARRA
+    # ============================================================
+    
+    df_resumo <- df_resumo %>%
+      mutate(
+        texto = ifelse(
+          Percent > 0,
+          paste0(
+            Total,
+            " (",
+            format(
+              round(Percent, 1),
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          ""
+        )
+      )
+    
+    # ============================================================
+    # CORES
+    # ============================================================
+    
+    cores_genero_extra <- c(
+      "Ajudaram bastante / mudaram a minha compreensão" = "#F77333",
+      "Ajudaram moderadamente" = "#ffc107",
+      "Ajudaram um pouco" = "#69C7BE"
+    )
+   
+    # ============================================================
+    # GRÁFICO
+    # ============================================================
+    
+    plot_ly(
+      data = df_resumo,
+      x = "Endline",
+      y = ~Percent,
+      color = ~categoria,
+      colors = cores_genero_extra,
+      type = "bar",
+      
+      text = ~texto,
+      texttemplate = "%{text}",
+      textposition = "inside",
+      insidetextanchor = "middle",
+      
+      textfont = list(
+        color = "#ffffff",
+        size = 11
+      ),
+      
+      customdata = ~Total,
+      
+      hovertemplate = paste0(
+        "<b>Endline</b><br>",
+        "%{fullData.name}<br>",
+        "Participantes: %{customdata}<br>",
+        "Percentagem: %{y:.1f}%<extra></extra>"
+      )
+    ) %>%
+      
+      layout(
+        barmode = "stack",
+        
+        xaxis = list(
+          title = "",
+          categoryorder = "array",
+          categoryarray = "Endline",
+          tickfont = list(size = 12)
+        ),
+        
+        yaxis = list(
+          title = "Percentagem (%)",
+          range = c(0, 100),
+          tickmode = "array",
+          tickvals = seq(0, 100, 20),
+          ticktext = paste0(
+            seq(0, 100, 20),
+            "%"
+          )
+        ),
+        
+        legend = list(
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.30
+        ),
+        
+        margin = list(
+          l = 70,
+          r = 20,
+          t = 20,
+          b = 150
+        ),
+        
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      ) %>%
+      
+      config(
+        displayModeBar = TRUE,
+        displaylogo = FALSE,
+        responsive = TRUE,
+        
+        toImageButtonOptions = list(
+          format = "png",
+          filename = "compreensao_desigualdades_genero_endline",
+          height = 800,
+          width = 1600,
+          scale = 3
+        )
+      )
+  })
+  
+  output$texto_genero_extra <- renderUI({
+    
+    df <- Pam_Verde_Indicadores
+    
+    # ============================================================
+    # FILTROS
+    # ============================================================
+    
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    # ============================================================
+    # VARIÁVEL
+    # ============================================================
+    
+    variavel <- "Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?"
+    
+    req(variavel %in% names(df))
+    
+    # ============================================================
+    # APENAS ENDLINE
+    # ============================================================
+    
+    df <- df %>%
+      filter(
+        Tipo_Avaliacao == "Endline",
+        !is.na(.data[[variavel]]),
+        .data[[variavel]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
+    }
+    
+    # ============================================================
+    # RESUMO
+    # ============================================================
+    
+    resumo <- df %>%
+      count(
+        resposta = .data[[variavel]],
+        name = "n"
+      ) %>%
+      mutate(
+        percentagem = n / sum(n) * 100
+      )
+    
+    # Função para obter valores
+    obter_valor <- function(nome) {
+      
+      linha <- resumo %>%
+        filter(resposta == nome)
+      
+      if (nrow(linha) == 0) {
+        return(
+          list(
+            n = 0,
+            pct = 0
+          )
+        )
+      }
+      
+      list(
+        n = linha$n[1],
+        pct = linha$percentagem[1]
+      )
+    }
+    
+    bastante <- obter_valor(
+      "Ajudaram bastante / mudaram a minha compreensão"
+    )
+    
+    moderadamente <- obter_valor(
+      "Ajudaram moderadamente"
+    )
+    
+    pouco <- obter_valor(
+      "Ajudaram um pouco"
+    )
+    
+    # ============================================================
+    # TEXTO
+    # ============================================================
+    
+    tags$p(
+      style = "margin:0;text-align:justify;",
+      
+      tags$b(
+        "Compreensão das desigualdades de género. "
+      ),
+      
+      "No Endline, os participantes avaliaram até que ponto as actividades ligadas à questão de género contribuíram para a compreensão das desigualdades entre homens e mulheres. ",
+      
+      "A maioria, ",
+      tags$b(
+        paste0(
+          bastante$n,
+          " (",
+          format(
+            round(bastante$pct, 1),
+            decimal.mark = ",",
+            nsmall = 1
+          ),
+          "%)"
+        )
+      ),
+      ", indicou que as actividades ajudaram bastante ou mudaram a sua compreensão. ",
+      
+      tags$b(
+        paste0(
+          moderadamente$n,
+          " (",
+          format(
+            round(moderadamente$pct, 1),
+            decimal.mark = ",",
+            nsmall = 1
+          ),
+          "%)"
+        )
+      ),
+      " indicaram que ajudaram moderadamente, enquanto ",
+      tags$b(
+        paste0(
+          pouco$n,
+          " (",
+          format(
+            round(pouco$pct, 1),
+            decimal.mark = ",",
+            nsmall = 1
+          ),
+          "%)"
+        )
+      ),
+      " indicaram que ajudaram um pouco."
+    )
+  })
+  
   # ##########################     CONSCIENCIA AMBIENTAL ######################
   # 
   # # ####################Pontuacões##############
@@ -10320,191 +11177,281 @@ server <- function(input, output, session) {
       )
   })
  
+  # ============================================================
+  # FUNÇÃO - GRÁFICO 100% EMPILHADO
+  # ============================================================
   
-  output$grafico_conhecimento_ambiental <- renderPlotly({
+  gerar_grafico_ambiental <- function(
+    df,
+    variavel,
+    ordem_categorias,
+    cores,
+    nome_download
+  ) {
     
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
     
+    # ----------------------------------------------------------
+    # Filtrar Baseline e Endline
+    # ----------------------------------------------------------
     
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Nível_de_conhecimento_ambiental"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Frequência + percentagem
-    # =============================
-    freq_data <- df %>%
+    df <- df %>%
       filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
         !is.na(Tipo_Avaliacao),
-        !is.na(Nível_de_conhecimento_ambiental)
-      ) %>%
-      
+        !is.na(.data[[variavel]]),
+        .data[[variavel]] != ""
+      )
+    
+    if (nrow(df) == 0) {
+      return(plotly_empty())
+    }
+    
+    # ----------------------------------------------------------
+    # Frequência
+    # ----------------------------------------------------------
+    
+    freq_data <- df %>%
       group_by(
         Tipo_Avaliacao,
-        Nível_de_conhecimento_ambiental
+        categoria = .data[[variavel]]
       ) %>%
-      
       summarise(
         n = n(),
         .groups = "drop"
       ) %>%
-      
       group_by(Tipo_Avaliacao) %>%
-      
       mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct, "%")
+        pct = n / sum(n) * 100
       ) %>%
-      
       ungroup()
     
+    # ----------------------------------------------------------
+    # Garantir todas as categorias
+    # ----------------------------------------------------------
     
+    freq_data <- freq_data %>%
+      tidyr::complete(
+        Tipo_Avaliacao = c("Baseline", "Endline"),
+        categoria = ordem_categorias,
+        fill = list(
+          n = 0,
+          pct = 0
+        )
+      )
     
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
-    }
+    # ----------------------------------------------------------
+    # Ordem das categorias
+    # ----------------------------------------------------------
     
+    freq_data <- freq_data %>%
+      mutate(
+        Tipo_Avaliacao = factor(
+          Tipo_Avaliacao,
+          levels = c("Baseline", "Endline")
+        ),
+        categoria = factor(
+          categoria,
+          levels = ordem_categorias
+        ),
+        label = ifelse(
+          pct > 0,
+          paste0(
+            n,
+            " (",
+            format(
+              round(pct, 1),
+              decimal.mark = ",",
+              nsmall = 1
+            ),
+            "%)"
+          ),
+          ""
+        )
+      )
     
-    
-    # =============================
-    # Ordem lógica
-    # =============================
-    ordem_ambiental <- c(
-      "Básico — já ouvi falar, mas não sei muito",
-      "Bom — estou ciente dos problemas",
-      "Muito bom — compreendo bem e tento manter-me informada"
-    )
-    
-    
-    freq_data$Nível_de_conhecimento_ambiental <- factor(
-      freq_data$Nível_de_conhecimento_ambiental,
-      levels = ordem_ambiental
-    )
-    
-    
-    
-    # =============================
-    # Cores manuais
-    # =============================
-    cores <- c(
-      "Básico — já ouvi falar, mas não sei muito" = "#69C7BE",
-      "Bom — estou ciente dos problemas" = "#f39c12",
-      "Muito bom — compreendo bem e tento manter-me informada" = "#8054A2"
-    )
-    
-    
-    
-    # =============================
+    # ----------------------------------------------------------
     # Gráfico
-    # =============================
+    # ----------------------------------------------------------
+    
     plot_ly(
-      
       data = freq_data,
       
       x = ~Tipo_Avaliacao,
       
       y = ~pct,
       
-      color = ~Nível_de_conhecimento_ambiental,
+      color = ~categoria,
       
       colors = cores,
       
       type = "bar",
       
       text = ~label,
+      
       texttemplate = "%{text}",
+      
       textposition = "inside",
+      
       insidetextanchor = "middle",
       
       textfont = list(
-        color = "#ffffff",
-        size = 12
+        color = "#FFFFFF",
+        size = 11
       ),
       
-      hovertemplate = paste(
+      customdata = ~n,
+      
+      hovertemplate = paste0(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
+        "Participantes: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
-      
     ) %>%
       
       layout(
         
         barmode = "stack",
         
+        uniformtext = list(
+          mode = "show",
+          minsize = 10
+        ),
+        
         xaxis = list(
           title = "",
+          categoryorder = "array",
+          categoryarray = c(
+            "Baseline",
+            "Endline"
+          ),
           tickfont = list(size = 12)
         ),
         
         yaxis = list(
           title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
+          range = c(0, 100),
+          tickmode = "array",
+          tickvals = seq(0, 100, 20),
+          ticktext = paste0(
+            seq(0, 100, 20),
+            "%"
+          )
         ),
         
         legend = list(
           orientation = "h",
           x = 0.5,
           xanchor = "center",
-          y = -0.25
+          y = -0.28
         ),
         
         margin = list(
-          l = 60,
+          l = 70,
           r = 20,
           t = 20,
-          b = 120
+          b = 150
         ),
         
         paper_bgcolor = "#f5f3f4",
+        
         plot_bgcolor = "#f5f3f4"
+      ) %>%
+      
+      config(
+        displayModeBar = TRUE,
+        displaylogo = FALSE,
+        responsive = TRUE,
+        
+        toImageButtonOptions = list(
+          format = "png",
+          filename = nome_download,
+          height = 800,
+          width = 1600,
+          scale = 3
+        )
       )
+  }
+  
+  output$grafico_conhecimento_ambiental <- renderPlotly({
     
+    df <- Pam_Verde_Indicadores
+    
+    # Filtros
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    ordem_ambiental <- c(
+      "Básico — já ouvi falar, mas não sei muito",
+      "Bom — estou ciente dos problemas",
+      "Muito bom — compreendo bem e tento manter-me informada"
+    )
+    
+    cores_ambiental <- c(
+      "Básico — já ouvi falar, mas não sei muito" = "#69C7BE",
+      "Bom — estou ciente dos problemas" = "#f9a825",
+      "Muito bom — compreendo bem e tento manter-me informada" = "#8054A2"
+    )
+    
+    gerar_grafico_ambiental(
+      df = df,
+      variavel = "Nível_de_conhecimento_ambiental",
+      ordem_categorias = ordem_ambiental,
+      cores = cores_ambiental,
+      nome_download = "nivel_conhecimento_ambiental"
+    )
   })
   
   output$texto_conhecimento_ambiental <- renderUI({
     
     df <- Pam_Verde_Indicadores
     
-    if(input$filtro_cidade != "Todas"){
-      df <- df %>% 
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
     
-    if(input$filtro_ciclo != "Todos"){
-      df <- df %>% 
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
     
     var <- "Nível_de_conhecimento_ambiental"
     
-    req(var %in% colnames(df))
+    req(var %in% names(df))
     
     df <- df %>%
       filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
         !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
+        .data[[var]] != ""
       )
     
-    if(nrow(df) == 0){
-      return(NULL)
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
     }
     
     resumo <- df %>%
       group_by(
         Tipo_Avaliacao,
-        .data[[var]]
+        categoria = .data[[var]]
       ) %>%
       summarise(
         n = n(),
@@ -10519,14 +11466,14 @@ server <- function(input, output, session) {
     baseline <- resumo %>%
       filter(Tipo_Avaliacao == "Baseline") %>%
       select(
-        resposta = .data[[var]],
+        resposta = categoria,
         perc_baseline = perc
       )
     
     endline <- resumo %>%
       filter(Tipo_Avaliacao == "Endline") %>%
       select(
-        resposta = .data[[var]],
+        resposta = categoria,
         perc_endline = perc
       )
     
@@ -10543,40 +11490,57 @@ server <- function(input, output, session) {
     
     texto_categorias <- lapply(
       seq_len(nrow(comparacao)),
-      function(i){
+      function(i) {
         
         categoria <- comparacao$resposta[i]
-        base <- round(comparacao$perc_baseline[i], 1)
-        end <- round(comparacao$perc_endline[i], 1)
-        variacao <- round(comparacao$variacao[i], 1)
         
-        if(variacao > 0){
+        base <- round(
+          comparacao$perc_baseline[i],
+          1
+        )
+        
+        end <- round(
+          comparacao$perc_endline[i],
+          1
+        )
+        
+        variacao <- round(
+          comparacao$variacao[i],
+          1
+        )
+        
+        if (variacao > 0) {
+          
           paste0(
             categoria,
             " aumentou de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (+",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
-        } else if(variacao < 0){
+          
+        } else if (variacao < 0) {
+          
           paste0(
             categoria,
             " reduziu de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
+          
         } else {
+          
           paste0(
             categoria,
             " manteve-se em ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% entre o Baseline e o Endline"
           )
         }
@@ -10586,7 +11550,9 @@ server <- function(input, output, session) {
     tags$p(
       style = "margin:0;text-align:justify;",
       
-      tags$b("Nível de conhecimento ambiental. "),
+      tags$b(
+        "Como classificaria o seu nível de conhecimento sobre questões ambientais em geral? (poluição, catástrofes naturais, falta de recursos, impacto de actividades...). "
+      ),
       
       "A comparação entre o Baseline e o Endline permite observar a evolução do nível de conhecimento ambiental das empreendedoras. ",
       
@@ -10601,61 +11567,18 @@ server <- function(input, output, session) {
   
   output$grafico_impacto_ambiental_negocio <- renderPlotly({
     
-    # =============================
-    # Dados com filtros aplicados
-    # =============================
-    df <- dados_filtrados()
+    df <- Pam_Verde_Indicadores
     
-    
-    req(all(c(
-      "Tipo_Avaliacao",
-      "Em que medida tem consciência do impacto ambiental do seu negócio?"
-    ) %in% colnames(df)))
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    
-    # =============================
-    # Frequência + percentagem
-    # =============================
-    freq_data <- df %>%
-      filter(
-        !is.na(Tipo_Avaliacao),
-        !is.na(`Em que medida tem consciência do impacto ambiental do seu negócio?`)
-      ) %>%
-      
-      group_by(
-        Tipo_Avaliacao,
-        `Em que medida tem consciência do impacto ambiental do seu negócio?`
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(Tipo_Avaliacao) %>%
-      
-      mutate(
-        pct = round(n / sum(n) * 100, 1),
-        label = paste0(pct, "%")
-      ) %>%
-      
-      ungroup()
-    
-    
-    
-    if(nrow(freq_data) == 0){
-      return(plotly_empty())
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
     }
     
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
     
-    
-    # =============================
-    # Ordem lógica
-    # =============================
     ordem_impacto <- c(
       "Não conheço a relação entre a minha actividade e o impacto ambiental",
       "Basicamente, sei que o que faço pode poluir ou ter impacto",
@@ -10663,128 +11586,61 @@ server <- function(input, output, session) {
       "Muito bom — procuro activamente formas de reduzir o meu impacto ambiental"
     )
     
-    
-    freq_data$`Em que medida tem consciência do impacto ambiental do seu negócio?` <- factor(
-      freq_data$`Em que medida tem consciência do impacto ambiental do seu negócio?`,
-      levels = ordem_impacto
-    )
-    
-    
-    
-    # =============================
-    # Cores manuais
-    # =============================
-    cores <- c(
+    cores_impacto <- c(
       "Não conheço a relação entre a minha actividade e o impacto ambiental" = "#69C7BE",
       "Basicamente, sei que o que faço pode poluir ou ter impacto" = "#f9a825",
       "Bom — estou ciente disso e tento reduzi-lo" = "#F37238",
       "Muito bom — procuro activamente formas de reduzir o meu impacto ambiental" = "#8054A2"
     )
     
-    
-    
-    # =============================
-    # Gráfico
-    # =============================
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      
-      y = ~pct,
-      
-      color = ~`Em que medida tem consciência do impacto ambiental do seu negócio?`,
-      
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~label,
-      texttemplate = "%{text}",
-      textposition = "inside",
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 12
-      ),
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        barmode = "stack",
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
-    
+    gerar_grafico_ambiental(
+      df = df,
+      variavel = "Em que medida tem consciência do impacto ambiental do seu negócio?",
+      ordem_categorias = ordem_impacto,
+      cores = cores_impacto,
+      nome_download = "consciencia_impacto_ambiental_negocio"
+    )
   })
   
   output$texto_impacto_ambiental <- renderUI({
     
     df <- Pam_Verde_Indicadores
     
-    if(input$filtro_cidade != "Todas"){
-      df <- df %>% 
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
     
-    if(input$filtro_ciclo != "Todos"){
-      df <- df %>% 
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
     
     var <- "Em que medida tem consciência do impacto ambiental do seu negócio?"
     
-    req(var %in% colnames(df))
+    req(var %in% names(df))
     
     df <- df %>%
       filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
         !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
+        .data[[var]] != ""
       )
     
-    if(nrow(df) == 0){
-      return(NULL)
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
     }
     
     resumo <- df %>%
       group_by(
         Tipo_Avaliacao,
-        .data[[var]]
+        categoria = .data[[var]]
       ) %>%
       summarise(
         n = n(),
@@ -10794,19 +11650,16 @@ server <- function(input, output, session) {
       mutate(
         perc = n / sum(n) * 100
       ) %>%
-      ungroup()
-    
-    # Agrupar "Bom" e "Muito bom"
-    resumo_agrupado <- resumo %>%
+      ungroup() %>%
       mutate(
         categoria = if_else(
           grepl(
             "Bom|Muito bom",
-            .data[[var]],
+            categoria,
             ignore.case = TRUE
           ),
           "Bom ou Muito bom",
-          .data[[var]]
+          categoria
         )
       ) %>%
       group_by(
@@ -10818,14 +11671,14 @@ server <- function(input, output, session) {
         .groups = "drop"
       )
     
-    baseline <- resumo_agrupado %>%
+    baseline <- resumo %>%
       filter(Tipo_Avaliacao == "Baseline") %>%
       select(
         resposta = categoria,
         perc_baseline = perc
       )
     
-    endline <- resumo_agrupado %>%
+    endline <- resumo %>%
       filter(Tipo_Avaliacao == "Endline") %>%
       select(
         resposta = categoria,
@@ -10845,40 +11698,45 @@ server <- function(input, output, session) {
     
     texto_categorias <- lapply(
       seq_len(nrow(comparacao)),
-      function(i){
+      function(i) {
         
         categoria <- comparacao$resposta[i]
         base <- round(comparacao$perc_baseline[i], 1)
         end <- round(comparacao$perc_endline[i], 1)
         variacao <- round(comparacao$variacao[i], 1)
         
-        if(variacao > 0){
+        if (variacao > 0) {
+          
           paste0(
             categoria,
             " aumentou de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (+",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
-        } else if(variacao < 0){
+          
+        } else if (variacao < 0) {
+          
           paste0(
             categoria,
             " reduziu de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
+          
         } else {
+          
           paste0(
             categoria,
             " manteve-se em ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% entre o Baseline e o Endline"
           )
         }
@@ -10888,7 +11746,9 @@ server <- function(input, output, session) {
     tags$p(
       style = "margin:0;text-align:justify;",
       
-      tags$b("Consciência sobre o impacto ambiental do negócio. "),
+      tags$b(
+        "Em que medida tem consciência do impacto ambiental do seu negócio?. "
+      ),
       
       "A comparação entre o Baseline e o Endline permite observar a evolução da consciência das participantes sobre o impacto ambiental das suas actividades económicas. ",
       
@@ -10903,172 +11763,76 @@ server <- function(input, output, session) {
   
   output$grafico_praticas_sustentaveis <- renderPlotly({
     
-    # =========================
-    # BASE COM FILTROS
-    # =========================
-    df <- dados_filtrados()
+    df <- Pam_Verde_Indicadores
     
-    req(nrow(df) > 0)
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
     
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
     
-    # =========================
-    # LIMPEZA
-    # =========================
-    df <- df %>%
-      dplyr::filter(
-        !is.na(`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    # =========================
-    # FREQUÊNCIA E PERCENTAGEM
-    # =========================
-    freq_data <- df %>%
-      dplyr::group_by(
-        Tipo_Avaliacao,
-        `Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`
-      ) %>%
-      dplyr::summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      dplyr::group_by(Tipo_Avaliacao) %>%
-      dplyr::mutate(
-        pct = round(n / sum(n) * 100, 1)
-      ) %>%
-      dplyr::ungroup()
-    
-    
-    # =========================
-    # ORDEM DAS CATEGORIAS
-    # =========================
-    freq_data$`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?` <- factor(
-      freq_data$`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`,
-      levels = c(
-        "Não, não consigo identificar nenhuma prática sustentável para o meu negócio",
-        "Sim"
-      )
+    ordem_praticas <- c(
+      "Não, não consigo identificar nenhuma prática sustentável para o meu negócio",
+      "Sim"
     )
     
-    
-    # =========================
-    # CORES
-    # =========================
-    cores <- c(
+    cores_praticas <- c(
       "Não, não consigo identificar nenhuma prática sustentável para o meu negócio" = "#69C7BE",
       "Sim" = "#8054A2"
     )
     
-    
-    # =========================
-    # GRÁFICO
-    # =========================
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      y = ~pct,
-      
-      color = ~`Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?`,
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(pct, "%"),
-      
-      textposition = "inside",
-      
-      insidetextanchor = "middle",
-      
-      hovertemplate = paste(
-        "<b>%{x}</b><br>",
-        "%{fullData.name}<br>",
-        "Percentagem: %{y:.1f}%<extra></extra>"
-      ),
-      
-      textfont = list(
-        color = "#FFFFFF",
-        size = 12
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        title = "",
-        
-        barmode = "stack",
-        
-        uniformtext = list(
-          mode = "show",
-          minsize = 10
-        ),
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4"
-      )
+    gerar_grafico_ambiental(
+      df = df,
+      variavel = "Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?",
+      ordem_categorias = ordem_praticas,
+      cores = cores_praticas,
+      nome_download = "identificacao_praticas_sustentaveis"
+    )
   })
-  
-  
-  
-  # =====================================================
-  # TEXTO INTERPRETATIVO
-  # =====================================================
   
   output$texto_praticas_sustentaveis <- renderUI({
     
-    df <- dados_filtrados()
+    df <- Pam_Verde_Indicadores
     
-    req(nrow(df) > 0)
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
     
     var <- "Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio?"
     
-    req(var %in% colnames(df))
+    req(var %in% names(df))
     
     df <- df %>%
       filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
         !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
+        .data[[var]] != ""
       )
     
-    if(nrow(df) == 0){
-      return(NULL)
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
     }
     
     resumo <- df %>%
       group_by(
         Tipo_Avaliacao,
-        .data[[var]]
+        categoria = .data[[var]]
       ) %>%
       summarise(
         n = n(),
@@ -11083,14 +11847,14 @@ server <- function(input, output, session) {
     baseline <- resumo %>%
       filter(Tipo_Avaliacao == "Baseline") %>%
       select(
-        resposta = .data[[var]],
+        resposta = categoria,
         perc_baseline = perc
       )
     
     endline <- resumo %>%
       filter(Tipo_Avaliacao == "Endline") %>%
       select(
-        resposta = .data[[var]],
+        resposta = categoria,
         perc_endline = perc
       )
     
@@ -11107,40 +11871,45 @@ server <- function(input, output, session) {
     
     texto_categorias <- lapply(
       seq_len(nrow(comparacao)),
-      function(i){
+      function(i) {
         
         categoria <- comparacao$resposta[i]
         base <- round(comparacao$perc_baseline[i], 1)
         end <- round(comparacao$perc_endline[i], 1)
         variacao <- round(comparacao$variacao[i], 1)
         
-        if(variacao > 0){
+        if (variacao > 0) {
+          
           paste0(
             categoria,
             " aumentou de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (+",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
-        } else if(variacao < 0){
+          
+        } else if (variacao < 0) {
+          
           paste0(
             categoria,
             " reduziu de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
+          
         } else {
+          
           paste0(
             categoria,
             " manteve-se em ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% entre o Baseline e o Endline"
           )
         }
@@ -11150,7 +11919,9 @@ server <- function(input, output, session) {
     tags$p(
       style = "margin:0;text-align:justify;",
       
-      tags$b("Identificação de práticas sustentáveis. "),
+      tags$b(
+        "Consegue identificar pelo menos uma prática sustentável aplicável ao seu negócio? "
+      ),
       
       "A comparação entre o Baseline e o Endline permite observar a evolução da capacidade dos participantes de identificar práticas sustentáveis aplicáveis aos seus negócios. ",
       
@@ -11163,215 +11934,80 @@ server <- function(input, output, session) {
     )
   })
   
-  
-  # =====================================================
-  # GRÁFICO - Aplicação de práticas sustentáveis
-  # =====================================================
-  
   output$grafico_aplica_praticas <- renderPlotly({
     
+    df <- Pam_Verde_Indicadores
     
-    # =========================
-    # BASE COM FILTROS
-    # =========================
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
     
-    df <- dados_filtrados()
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
     
-    req(nrow(df) > 0)
-    
-    
-    # =========================
-    # LIMPEZA
-    # =========================
-    
-    df <- df %>%
-      dplyr::filter(
-        !is.na(`Já aplica esta prática no seu negócio?`),
-        !is.na(Tipo_Avaliacao)
-      )
-    
-    
-    req(nrow(df) > 0)
-    
-    
-    # =========================
-    # FREQUÊNCIA E PERCENTAGEM
-    # =========================
-    
-    freq_data <- df %>%
-      
-      dplyr::group_by(
-        Tipo_Avaliacao,
-        `Já aplica esta prática no seu negócio?`
-      ) %>%
-      
-      dplyr::summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      dplyr::group_by(
-        Tipo_Avaliacao
-      ) %>%
-      
-      dplyr::mutate(
-        pct = round(n / sum(n) * 100,1)
-      ) %>%
-      
-      dplyr::ungroup()
-    
-    
-    
-    # =========================
-    # ORDEM DAS CATEGORIAS
-    # =========================
-    
-    freq_data$`Já aplica esta prática no seu negócio?` <- factor(
-      
-      freq_data$`Já aplica esta prática no seu negócio?`,
-      
-      levels = c(
-        "Ainda não, mas planejo aplicar em breve",
-        "Já tentei mas encontrei obstáculos",
-        "Sim, já aplico"
-      )
-      
+    ordem_aplicacao <- c(
+      "Ainda não, mas planejo aplicar em breve",
+      "Já tentei mas encontrei obstáculos",
+      "Sim, já aplico"
     )
     
-    
-    
-    # =========================
-    # CORES MANUAIS
-    # =========================
-    
-    cores <- c(
-      
+    cores_aplicacao <- c(
       "Ainda não, mas planejo aplicar em breve" = "#69C7BE",
-      
-      "Já tentei mas encontrei obstáculos" = "#F9A825",
-      
+      "Já tentei mas encontrei obstáculos" = "#f9a825",
       "Sim, já aplico" = "#8054A2"
-      
     )
     
-    
-    
-    # =========================
-    # GRÁFICO
-    # =========================
-    
-    plot_ly(
-      
-      data = freq_data,
-      
-      x = ~Tipo_Avaliacao,
-      
-      y = ~pct,
-      
-      color = ~`Já aplica esta prática no seu negócio?`,
-      
-      colors = cores,
-      
-      type = "bar",
-      
-      text = ~paste0(pct,"%"),
-      
-      textposition = "inside",
-      
-      insidetextanchor = "middle",
-      
-      hovertemplate = paste(
-        
-        "<b>%{x}</b><br>",
-        
-        "%{fullData.name}<br>",
-        
-        "Percentagem: %{y:.1f}%<extra></extra>"
-        
-      ),
-      
-      textfont = list(
-        color = "#FFFFFF",
-        size = 12
-      )
-      
-    ) %>%
-      
-      layout(
-        
-        title = "",
-        
-        barmode = "stack",
-        
-        uniformtext = list(
-          mode = "show",
-          minsize = 10
-        ),
-        
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 12)
-        ),
-        
-        yaxis = list(
-          title = "Percentagem (%)",
-          range = c(0,100),
-          ticksuffix = "%"
-        ),
-        
-        legend = list(
-          orientation = "h",
-          x = 0.5,
-          xanchor = "center",
-          y = -0.25
-        ),
-        
-        margin = list(
-          l = 60,
-          r = 20,
-          t = 20,
-          b = 120
-        ),
-        
-        paper_bgcolor = "#f5f3f4",
-        
-        plot_bgcolor = "#f5f3f4"
-        
-      )
-    
+    gerar_grafico_ambiental(
+      df = df,
+      variavel = "Já aplica esta prática no seu negócio?",
+      ordem_categorias = ordem_aplicacao,
+      cores = cores_aplicacao,
+      nome_download = "aplicacao_praticas_sustentaveis"
+    )
   })
-  
-  
-  
-  
-  # =====================================================
-  # TEXTO INTERPRETATIVO
-  # =====================================================
   
   output$texto_aplica_praticas <- renderUI({
     
-    df <- dados_filtrados()
+    df <- Pam_Verde_Indicadores
     
-    req(nrow(df) > 0)
+    if (input$filtro_cidade != "Todas") {
+      df <- df %>%
+        filter(Cidade == input$filtro_cidade)
+    }
+    
+    if (input$filtro_ciclo != "Todos") {
+      df <- df %>%
+        filter(Ciclo == input$filtro_ciclo)
+    }
     
     var <- "Já aplica esta prática no seu negócio?"
     
-    req(var %in% colnames(df))
+    req(var %in% names(df))
     
     df <- df %>%
       filter(
+        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+        !is.na(Tipo_Avaliacao),
         !is.na(.data[[var]]),
-        !is.na(Tipo_Avaliacao)
+        .data[[var]] != ""
       )
     
-    if(nrow(df) == 0){
-      return(NULL)
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          style = "margin:0;text-align:justify;",
+          "Não existem dados disponíveis para apresentar esta análise."
+        )
+      )
     }
     
     resumo <- df %>%
       group_by(
         Tipo_Avaliacao,
-        .data[[var]]
+        categoria = .data[[var]]
       ) %>%
       summarise(
         n = n(),
@@ -11386,26 +12022,26 @@ server <- function(input, output, session) {
     baseline <- resumo %>%
       filter(
         Tipo_Avaliacao == "Baseline",
-        .data[[var]] %in% c(
+        categoria %in% c(
           "Sim, já aplico",
           "Ainda não, mas planejo aplicar em breve"
         )
       ) %>%
       select(
-        resposta = .data[[var]],
+        resposta = categoria,
         perc_baseline = perc
       )
     
     endline <- resumo %>%
       filter(
         Tipo_Avaliacao == "Endline",
-        .data[[var]] %in% c(
+        categoria %in% c(
           "Sim, já aplico",
           "Ainda não, mas planejo aplicar em breve"
         )
       ) %>%
       select(
-        resposta = .data[[var]],
+        resposta = categoria,
         perc_endline = perc
       )
     
@@ -11422,40 +12058,45 @@ server <- function(input, output, session) {
     
     texto_categorias <- lapply(
       seq_len(nrow(comparacao)),
-      function(i){
+      function(i) {
         
         categoria <- comparacao$resposta[i]
         base <- round(comparacao$perc_baseline[i], 1)
         end <- round(comparacao$perc_endline[i], 1)
         variacao <- round(comparacao$variacao[i], 1)
         
-        if(variacao > 0){
+        if (variacao > 0) {
+          
           paste0(
             categoria,
             " aumentou de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (+",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
-        } else if(variacao < 0){
+          
+        } else if (variacao < 0) {
+          
           paste0(
             categoria,
             " reduziu de ",
-            base,
+            format(base, decimal.mark = ",", nsmall = 1),
             "% no Baseline para ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% no Endline (",
-            variacao,
+            format(variacao, decimal.mark = ",", nsmall = 1),
             " p.p.)"
           )
+          
         } else {
+          
           paste0(
             categoria,
             " manteve-se em ",
-            end,
+            format(end, decimal.mark = ",", nsmall = 1),
             "% entre o Baseline e o Endline"
           )
         }
@@ -11465,7 +12106,9 @@ server <- function(input, output, session) {
     tags$p(
       style = "margin:0;text-align:justify;",
       
-      tags$b("Aplicação de práticas sustentáveis no negócio. "),
+      tags$b(
+        "Já aplica esta prática no seu negócio? "
+      ),
       
       "A comparação entre o Baseline e o Endline permite observar a evolução na aplicação de práticas sustentáveis nos negócios. ",
       
@@ -11477,6 +12120,8 @@ server <- function(input, output, session) {
       "."
     )
   })
+  
+  
 ################## EXERCICIOS RESULTADOS
   # ============================================================
   # Dados do Exercício 1
@@ -20525,403 +21170,479 @@ output$texto_resultado_exercicio_4 <- renderUI({
   ################### MATRIZ DOS INDICADORES
   
   # ============================================================
-  # MATRIZ DE INDICADORES DA TOC
-  # PAM VERDE - C3 + FINANCEIRO NAMPULA
+  # MATRIZ DE INDICADORES TOC - PAM VERDE CICLO 3
   # ============================================================
   
   output$toc_matriz_indicadores <- renderDT({
     
+    # ==========================================================
+    # 1. BASE PRINCIPAL DO TOC
+    # ==========================================================
+    
+    df_toc_pam_verde <- PAM_VERDE_TOC_C3
+    
     
     # ==========================================================
-    # 1. FORMALIZAÇÃO DO NEGÓCIO
+    # 2. BASE ESPECÍFICA PARA MONITORIA DA FORMAÇÃO
+    #    Criada com nome próprio para evitar conflitos
+    #    com outras bases de presenças/monitoria.
     # ==========================================================
     
-    formalizacao <- PAM_VERDE_TOC_C3 %>%
-      filter(
-        !is.na(Negocio_Formalizado),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        N = sum(
-          Negocio_Formalizado ==
-            "Iniciei o processo de formalização",
-          na.rm = TRUE
-        ),
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+    df_conclusao_formacao_pam_verde <- PERFIL_PAM_VERDE_C3_2026 %>%
+      dplyr::mutate(
+        Status_Padrao_PAM = toupper(
+          stringr::str_squish(
+            trimws(as.character(Status))
+          )
+        )
       )
     
-    formalizacao_BL <- formalizacao %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
     
-    if(length(formalizacao_BL) == 0)
-      formalizacao_BL <- NA_real_
+    # ==========================================================
+    # 3. PARTICIPANTES QUE INICIARAM A FORMAÇÃO
+    #
+    # Mesma lógica usada no gráfico:
+    # ACTIVA / ATIVA / DESISTENTE = iniciou
+    # ==========================================================
+    
+    resultado_inicio_formacao_pam_verde <-
+      df_conclusao_formacao_pam_verde %>%
+      dplyr::filter(
+        Status_Padrao_PAM %in% c(
+          "ACTIVA",
+          "ACTIVAS",
+          "ATIVA",
+          "ATIVAS",
+          "DESISTENTE",
+          "DESISTENTES"
+        )
+      ) %>%
+      dplyr::summarise(
+        Total_Selecionadas = nrow(
+          df_conclusao_formacao_pam_verde
+        ),
+        
+        Total_Iniciaram = dplyr::n(),
+        
+        Percentagem_Iniciaram = dplyr::case_when(
+          Total_Selecionadas > 0 ~
+            (Total_Iniciaram / Total_Selecionadas) * 100,
+          
+          TRUE ~ NA_real_
+        )
+      )
+    
+    
+    # ==========================================================
+    # 4. RESULTADO - PARTICIPANTES QUE INICIARAM
+    # ==========================================================
+    
+    inicio_formacao_EL <-
+      resultado_inicio_formacao_pam_verde$Percentagem_Iniciaram
+    
+    if (
+      length(inicio_formacao_EL) == 0 ||
+      is.na(inicio_formacao_EL)
+    ) {
+      inicio_formacao_EL <- NA_real_
+    }
+    
+    
+    # ==========================================================
+    # 5. PARTICIPANTES QUE TERMINARAM A FORMAÇÃO
+    #
+    # Mesma lógica do gráfico:
+    #
+    # Iniciaram:
+    #   ACTIVA / ATIVA / DESISTENTE
+    #
+    # Terminaram:
+    #   ACTIVA / ATIVA
+    #
+    # Percentagem:
+    #   Terminaram / Iniciaram
+    # ==========================================================
+    
+    resultado_conclusao_formacao_pam_verde <-
+      df_conclusao_formacao_pam_verde %>%
+      dplyr::filter(
+        Status_Padrao_PAM %in% c(
+          "ACTIVA",
+          "ACTIVAS",
+          "ATIVA",
+          "ATIVAS",
+          "DESISTENTE",
+          "DESISTENTES"
+        )
+      ) %>%
+      dplyr::summarise(
+        
+        Total_Iniciaram = dplyr::n(),
+        
+        N_Terminaram = sum(
+          Status_Padrao_PAM %in% c(
+            "ACTIVA",
+            "ACTIVAS",
+            "ATIVA",
+            "ATIVAS"
+          ),
+          na.rm = TRUE
+        ),
+        
+        Percentagem_Terminaram = dplyr::case_when(
+          
+          Total_Iniciaram > 0 ~
+            (N_Terminaram / Total_Iniciaram) * 100,
+          
+          TRUE ~ NA_real_
+        )
+      )
+    
+    
+    # ==========================================================
+    # 6. RESULTADO - PARTICIPANTES QUE TERMINARAM
+    # ==========================================================
+    
+    conclusao_formacao_EL <-
+      resultado_conclusao_formacao_pam_verde$Percentagem_Terminaram
+    
+    if (
+      length(conclusao_formacao_EL) == 0 ||
+      is.na(conclusao_formacao_EL)
+    ) {
+      conclusao_formacao_EL <- NA_real_
+    }
+    
+    
+    # ==========================================================
+    # 7. FORMALIZAÇÃO DO NEGÓCIO
+    # ==========================================================
+    
+    formalizacao <- df_toc_pam_verde %>%
+      dplyr::filter(
+        !is.na(Negocio_Formalizado),
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
+      )
     
     formalizacao_EL <- formalizacao %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
-    
-    if(length(formalizacao_EL) == 0)
-      formalizacao_EL <- NA_real_
-    
-    
-    # ==========================================================
-    # 2. SALÁRIO MENSAL
-    # Apenas entre as que retiram dinheiro do negócio
-    # ==========================================================
-    
-    salario <- PAM_VERDE_TOC_C3 %>%
-      filter(
-        !is.na(Tira_Salario_Para_Si),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      dplyr::filter(
+        Negocio_Formalizado ==
+          "Iniciei o processo de formalização"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        
-        Total_Que_Retiram = sum(
-          Tira_Salario_Para_Si !=
-            "Não, não retiro nenhum valor para mim mesma",
-          na.rm = TRUE
-        ),
-        
-        N_Fixo = sum(
-          Tira_Salario_Para_Si ==
-            "Sim, retiro um valor fixo todos os meses",
-          na.rm = TRUE
-        ),
-        
-        Percentagem = case_when(
-          Total_Que_Retiram > 0 ~
-            (N_Fixo / Total_Que_Retiram) * 100,
-          TRUE ~ NA_real_
-        ),
-        
-        .groups = "drop"
+      nrow()
+    
+    formalizacao_total_EL <- nrow(formalizacao)
+    
+    formalizacao_percentual_EL <- dplyr::if_else(
+      formalizacao_total_EL > 0,
+      (formalizacao_EL / formalizacao_total_EL) * 100,
+      NA_real_
+    )
+    
+    
+    # ==========================================================
+    # 8. SALÁRIO MENSAL PARA SI MESMA
+    # ==========================================================
+    
+    salario <- df_toc_pam_verde %>%
+      dplyr::filter(
+        !is.na(Tira_Salario_Para_Si),
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
     
-    salario_BL <- salario %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
-    
-    if(length(salario_BL) == 0)
-      salario_BL <- NA_real_
+    salario_total_EL <- salario %>%
+      dplyr::filter(
+        Tira_Salario_Para_Si !=
+          "Não, não retiro nenhum valor para mim mesma"
+      ) %>%
+      nrow()
     
     salario_EL <- salario %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
+      dplyr::filter(
+        Tira_Salario_Para_Si ==
+          "Sim, retiro um valor fixo todos os meses"
+      ) %>%
+      nrow()
     
-    if(length(salario_EL) == 0)
-      salario_EL <- NA_real_
+    salario_percentual_EL <- dplyr::if_else(
+      salario_total_EL > 0,
+      (salario_EL / salario_total_EL) * 100,
+      NA_real_
+    )
     
     
     # ==========================================================
-    # 3. AUTONOMIA NAS DECISÕES
+    # 9. TOMADA DE DECISÕES
     # ==========================================================
     
-    decisao <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    decisoes <- df_toc_pam_verde %>%
+      dplyr::filter(
         !is.na(Quem_Toma_Decisoes_Negocio),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        N = sum(
-          Quem_Toma_Decisoes_Negocio == "Só eu",
-          na.rm = TRUE
-        ),
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
     
-    decisao_BL <- decisao %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
+    decisoes_EL <- decisoes %>%
+      dplyr::filter(
+        Quem_Toma_Decisoes_Negocio ==
+          "Só eu"
+      ) %>%
+      nrow()
     
-    if(length(decisao_BL) == 0)
-      decisao_BL <- NA_real_
+    decisoes_total_EL <- nrow(decisoes)
     
-    decisao_EL <- decisao %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
-    
-    if(length(decisao_EL) == 0)
-      decisao_EL <- NA_real_
+    decisoes_percentual_EL <- dplyr::if_else(
+      decisoes_total_EL > 0,
+      (decisoes_EL / decisoes_total_EL) * 100,
+      NA_real_
+    )
     
     
     # ==========================================================
-    # 4. CONFIANÇA PARA NEGOCIAR COM CLIENTES
+    # 10. CONFIANÇA NA NEGOCIAÇÃO COM CLIENTES
     # ==========================================================
     
-    negociacao_clientes <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    negociacao_clientes <- df_toc_pam_verde %>%
+      dplyr::filter(
         !is.na(Negociacao_Com_Clientes),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        N = sum(
-          Negociacao_Com_Clientes ==
-            "Sim, sinto-me confiante e sei defender a minha posição",
-          na.rm = TRUE
-        ),
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
-    
-    negociacao_clientes_BL <- negociacao_clientes %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
-    
-    if(length(negociacao_clientes_BL) == 0)
-      negociacao_clientes_BL <- NA_real_
     
     negociacao_clientes_EL <- negociacao_clientes %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
-    
-    if(length(negociacao_clientes_EL) == 0)
-      negociacao_clientes_EL <- NA_real_
-    
-    
-    # ==========================================================
-    # 5. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
-    # ==========================================================
-    
-    pratica_negociacao <- PAM_VERDE_TOC_C3 %>%
-      filter(
-        !is.na(Praticou_negociação_nos_últimos_3meses),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
+      dplyr::filter(
+        Negociacao_Com_Clientes ==
+          "Sim, sinto-me confiante e sei defender a minha posição"
       ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        N = sum(
-          Praticou_negociação_nos_últimos_3meses ==
-            "Sim, negociei e consegui um acordo favorável para o meu negócio",
-          na.rm = TRUE
-        ),
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+      nrow()
+    
+    negociacao_clientes_total_EL <-
+      nrow(negociacao_clientes)
+    
+    negociacao_clientes_percentual_EL <-
+      dplyr::if_else(
+        negociacao_clientes_total_EL > 0,
+        (
+          negociacao_clientes_EL /
+            negociacao_clientes_total_EL
+        ) * 100,
+        NA_real_
       )
     
-    pratica_negociacao_BL <- pratica_negociacao %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
     
-    if(length(pratica_negociacao_BL) == 0)
-      pratica_negociacao_BL <- NA_real_
+    # ==========================================================
+    # 11. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
+    # ==========================================================
     
-    pratica_negociacao_EL <- pratica_negociacao %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
+    negociacao_3meses <- df_toc_pam_verde %>%
+      dplyr::filter(
+        !is.na(
+          Praticou_negociação_nos_últimos_3meses
+        ),
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
+      )
     
-    if(length(pratica_negociacao_EL) == 0)
-      pratica_negociacao_EL <- NA_real_
+    negociacao_3meses_EL <- negociacao_3meses %>%
+      dplyr::filter(
+        Praticou_negociação_nos_últimos_3meses ==
+          "Sim, negociei e consegui um acordo favorável para o meu negócio"
+      ) %>%
+      nrow()
+    
+    negociacao_3meses_total_EL <-
+      nrow(negociacao_3meses)
+    
+    negociacao_3meses_percentual_EL <-
+      dplyr::if_else(
+        negociacao_3meses_total_EL > 0,
+        (
+          negociacao_3meses_EL /
+            negociacao_3meses_total_EL
+        ) * 100,
+        NA_real_
+      )
     
     
     # ==========================================================
-    # 6. UTILIZAÇÃO DE IA
+    # 12. UTILIZAÇÃO DE FERRAMENTAS DE IA
     # ==========================================================
     
-    uso_ia <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    uso_ia <- df_toc_pam_verde %>%
+      dplyr::filter(
         !is.na(Uso_de_ferramentas_de_IA),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        
-        N = sum(
-          Uso_de_ferramentas_de_IA %in%
-            c(
-              "Sim, usei pelo menos uma vez",
-              "Sim, uso regularmente para o negócio"
-            ),
-          na.rm = TRUE
-        ),
-        
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
-    
-    uso_ia_BL <- uso_ia %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
-    
-    if(length(uso_ia_BL) == 0)
-      uso_ia_BL <- NA_real_
     
     uso_ia_EL <- uso_ia %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
+      dplyr::filter(
+        Uso_de_ferramentas_de_IA %in% c(
+          "Sim, usei pelo menos uma vez",
+          "Sim, uso regularmente para o negócio"
+        )
+      ) %>%
+      nrow()
     
-    if(length(uso_ia_EL) == 0)
-      uso_ia_EL <- NA_real_
+    uso_ia_total_EL <- nrow(uso_ia)
+    
+    uso_ia_percentual_EL <- dplyr::if_else(
+      uso_ia_total_EL > 0,
+      (uso_ia_EL / uso_ia_total_EL) * 100,
+      NA_real_
+    )
     
     
     # ==========================================================
-    # 7. SEPARAÇÃO DAS CONTAS
+    # 13. SEPARAÇÃO DAS CONTAS PESSOAIS E DO NEGÓCIO
     # ==========================================================
     
-    separacao_contas <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    contas <- df_toc_pam_verde %>%
+      dplyr::filter(
         !is.na(
           `Faz separação das contas pessoais e do negócio`
         ),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        
-        N = sum(
-          `Faz separação das contas pessoais e do negócio` == "Sim",
-          na.rm = TRUE
-        ),
-        
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
     
-    separacao_contas_BL <- separacao_contas %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
+    contas_EL <- contas %>%
+      dplyr::filter(
+        `Faz separação das contas pessoais e do negócio` ==
+          "Sim"
+      ) %>%
+      nrow()
     
-    if(length(separacao_contas_BL) == 0)
-      separacao_contas_BL <- NA_real_
+    contas_total_EL <- nrow(contas)
     
-    separacao_contas_EL <- separacao_contas %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
-    
-    if(length(separacao_contas_EL) == 0)
-      separacao_contas_EL <- NA_real_
+    contas_percentual_EL <- dplyr::if_else(
+      contas_total_EL > 0,
+      (contas_EL / contas_total_EL) * 100,
+      NA_real_
+    )
     
     
     # ==========================================================
-    # 8. SABE CALCULAR O LUCRO
+    # 14. SABEM CALCULAR O LUCRO
     # ==========================================================
     
-    calcula_lucro <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    calculo_lucro <- df_toc_pam_verde %>%
+      dplyr::filter(
         !is.na(
           `Sabe calcular o lucro do negócio  (com base no exercício prático)`
         ),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        
-        N = sum(
-          `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
-            "Sim",
-          na.rm = TRUE
-        ),
-        
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
     
-    calcula_lucro_BL <- calcula_lucro %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
+    calculo_lucro_EL <- calculo_lucro %>%
+      dplyr::filter(
+        `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
+          "Sim"
+      ) %>%
+      nrow()
     
-    if(length(calcula_lucro_BL) == 0)
-      calcula_lucro_BL <- NA_real_
+    calculo_lucro_total_EL <- nrow(calculo_lucro)
     
-    calcula_lucro_EL <- calcula_lucro %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
-    
-    if(length(calcula_lucro_EL) == 0)
-      calcula_lucro_EL <- NA_real_
+    calculo_lucro_percentual_EL <- dplyr::if_else(
+      calculo_lucro_total_EL > 0,
+      (
+        calculo_lucro_EL /
+          calculo_lucro_total_EL
+      ) * 100,
+      NA_real_
+    )
     
     
     # ==========================================================
-    # 9. CONTROLO DE RECEITAS E DESPESAS
+    # 15. CONTROLO DO DINHEIRO QUE ENTRA E SAI
     # ==========================================================
     
-    controlo_dinheiro <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    controlo_dinheiro <- df_toc_pam_verde %>%
+      dplyr::filter(
         !is.na(
           `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
         ),
-        Tipo_Avaliacao %in% c("Baseline", "Endline")
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        Total = n(),
-        
-        N = sum(
-          `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
-            "Sim",
-          na.rm = TRUE
-        ),
-        
-        Percentagem = (N / Total) * 100,
-        .groups = "drop"
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
       )
     
-    controlo_dinheiro_BL <- controlo_dinheiro %>%
-      filter(Tipo_Avaliacao == "Baseline") %>%
-      pull(Percentagem)
-    
-    if(length(controlo_dinheiro_BL) == 0)
-      controlo_dinheiro_BL <- NA_real_
-    
     controlo_dinheiro_EL <- controlo_dinheiro %>%
-      filter(Tipo_Avaliacao == "Endline") %>%
-      pull(Percentagem)
+      dplyr::filter(
+        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
+          "Sim"
+      ) %>%
+      nrow()
     
-    if(length(controlo_dinheiro_EL) == 0)
-      controlo_dinheiro_EL <- NA_real_
+    controlo_dinheiro_total_EL <-
+      nrow(controlo_dinheiro)
+    
+    controlo_dinheiro_percentual_EL <-
+      dplyr::if_else(
+        controlo_dinheiro_total_EL > 0,
+        (
+          controlo_dinheiro_EL /
+            controlo_dinheiro_total_EL
+        ) * 100,
+        NA_real_
+      )
     
     
     # ==========================================================
-    # 10. ACTIVIDADES DE GÉNERO
-    # ENDLINE ONLY
-    # META = 100%
+    # 16. ACTIVIDADES DE GÉNERO
+    #     APENAS ENDLINE
     # ==========================================================
     
-    genero_compreensao <- PAM_VERDE_TOC_C3 %>%
-      filter(
+    genero <- df_toc_pam_verde %>%
+      dplyr::filter(
+        Tipo_Avaliacao == "Endline",
         !is.na(
           `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?`
-        ),
-        Tipo_Avaliacao == "Endline"
-      ) %>%
-      summarise(
-        Total = n(),
-        
-        N = sum(
-          `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?` ==
-            "Ajudaram bastante / mudaram a minha compreensão",
-          na.rm = TRUE
-        ),
-        
-        Percentagem = (N / Total) * 100
-      ) %>%
-      pull(Percentagem)
+        )
+      )
     
-    if(length(genero_compreensao) == 0)
-      genero_compreensao <- NA_real_
+    genero_EL <- genero %>%
+      dplyr::filter(
+        `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?` ==
+          "Ajudaram bastante / mudaram a minha compreensão"
+      ) %>%
+      nrow()
+    
+    genero_total_EL <- nrow(genero)
+    
+    genero_percentual_EL <- dplyr::if_else(
+      genero_total_EL > 0,
+      (genero_EL / genero_total_EL) * 100,
+      NA_real_
+    )
     
     
     # ==========================================================
-    # 11. BASE FINANCEIRA
-    # EVOLUÇÃO DO LUCRO POR EMPREENDEDORA
+    # 17. RESULTADOS FINANCEIROS
     # ==========================================================
     
-    lucro_evolucao <- FINANCEIRO_TOC_NAMPULA %>%
-      
-      filter(
+    financeiro_pam_verde <- FINANCEIRO_TOC_NAMPULA %>%
+      dplyr::filter(
         Periodo %in% c(
           "Primeiro Mês",
           "Segundo Mês",
@@ -20930,196 +21651,203 @@ output$texto_resultado_exercicio_4 <- renderUI({
         !is.na(Nome_Empreendedora),
         !is.na(Lucro_Semanal)
       ) %>%
-      
-      group_by(
+      dplyr::group_by(
         Nome_Empreendedora,
         Periodo
       ) %>%
-      
-      summarise(
+      dplyr::summarise(
         Lucro = sum(
           Lucro_Semanal,
           na.rm = TRUE
         ),
         .groups = "drop"
       ) %>%
-      
       tidyr::pivot_wider(
         names_from = Periodo,
-        values_from = Lucro
+        values_from = Lucro,
+        values_fill = 0
       )
     
     
     # ==========================================================
-    # 12. CALCULAR VARIAÇÃO DO LUCRO
+    # 18. AUMENTO DO LUCRO
     # ==========================================================
     
-    lucro_evolucao <- lucro_evolucao %>%
+    if (
+      nrow(financeiro_pam_verde) > 0 &&
+      all(
+        c(
+          "Primeiro Mês",
+          "Terceiro Mês"
+        ) %in%
+        names(financeiro_pam_verde)
+      )
+    ) {
       
-      mutate(
-        
-        Aumento_Lucro = case_when(
-          !is.na(`Primeiro Mês`) &
-            !is.na(`Terceiro Mês`) ~
-            `Terceiro Mês` - `Primeiro Mês`,
-          TRUE ~ NA_real_
-        ),
-        
-        Percentual_Aumento = case_when(
+      financeiro_pam_verde <- financeiro_pam_verde %>%
+        dplyr::mutate(
           
-          !is.na(`Primeiro Mês`) &
-            !is.na(`Terceiro Mês`) &
-            `Primeiro Mês` > 0 ~
-            (
-              (`Terceiro Mês` - `Primeiro Mês`) /
-                `Primeiro Mês`
-            ) * 100,
+          Aumento_Lucro =
+            `Terceiro Mês` -
+            `Primeiro Mês`,
           
-          TRUE ~ NA_real_
+          Percentual_Aumento =
+            dplyr::if_else(
+              `Primeiro Mês` > 0,
+              (
+                Aumento_Lucro /
+                  `Primeiro Mês`
+              ) * 100,
+              NA_real_
+            )
         )
-      )
-    
-    
-    # ==========================================================
-    # 13. INDICADOR:
-    # % QUE AUMENTARAM OS LUCROS
-    # ==========================================================
-    
-    indicador_aumento_lucro <- lucro_evolucao %>%
       
-      filter(
-        !is.na(Percentual_Aumento)
-      ) %>%
+    } else {
       
-      summarise(
-        
-        Total = n(),
-        
-        N = sum(
-          Percentual_Aumento > 0,
-          na.rm = TRUE
-        ),
-        
-        Percentagem = case_when(
-          Total > 0 ~
-            (N / Total) * 100,
-          TRUE ~ NA_real_
-        )
-      )
-    
-    aumento_lucro_EL <- indicador_aumento_lucro$Percentagem
-    
-    if(length(aumento_lucro_EL) == 0)
-      aumento_lucro_EL <- NA_real_
-    
-    
-    # ==========================================================
-    # 14. INDICADOR:
-    # % QUE AUMENTARAM O LUCRO > 25%
-    # ==========================================================
-    
-    indicador_aumento_25 <- lucro_evolucao %>%
+      financeiro_pam_verde$Aumento_Lucro <-
+        numeric(0)
       
-      filter(
-        !is.na(Percentual_Aumento)
-      ) %>%
-      
-      summarise(
-        
-        Total = n(),
-        
-        N = sum(
-          Percentual_Aumento > 25,
-          na.rm = TRUE
-        ),
-        
-        Percentagem = case_when(
-          Total > 0 ~
-            (N / Total) * 100,
-          TRUE ~ NA_real_
-        )
-      )
-    
-    aumento_25_EL <- indicador_aumento_25$Percentagem
-    
-    if(length(aumento_25_EL) == 0)
-      aumento_25_EL <- NA_real_
-    
-    
-    # ==========================================================
-    # 15. INDICADOR:
-    # AUMENTO MÉDIO DO LUCRO POR EMPREENDEDORA
-    # ==========================================================
-    
-    aumento_medio_lucro <- lucro_evolucao %>%
-      
-      summarise(
-        Valor = mean(
-          Aumento_Lucro,
-          na.rm = TRUE
-        )
-      ) %>%
-      
-      pull(Valor)
-    
-    if(length(aumento_medio_lucro) == 0 ||
-       is.nan(aumento_medio_lucro)) {
-      aumento_medio_lucro <- NA_real_
+      financeiro_pam_verde$Percentual_Aumento <-
+        numeric(0)
     }
     
     
     # ==========================================================
-    # 16. SALDO LÍQUIDO DO VALOR ADICIONADO
+    # 19. % QUE AUMENTARAM O LUCRO
     # ==========================================================
     
-    saldo_valor_adicionado <- lucro_evolucao %>%
+    lucro_aumentou_EL <- ifelse(
+      nrow(financeiro_pam_verde) > 0,
       
-      summarise(
-        Valor = sum(
-          Aumento_Lucro,
-          na.rm = TRUE
-        )
-      ) %>%
+      mean(
+        financeiro_pam_verde$Percentual_Aumento > 0,
+        na.rm = TRUE
+      ) * 100,
       
-      pull(Valor)
+      NA_real_
+    )
     
-    if(length(saldo_valor_adicionado) == 0 ||
-       is.nan(saldo_valor_adicionado)) {
-      saldo_valor_adicionado <- NA_real_
+    if (
+      is.nan(lucro_aumentou_EL)
+    ) {
+      lucro_aumentou_EL <- NA_real_
     }
     
     
     # ==========================================================
-    # 17. CONSTRUIR MATRIZ DA TOC
+    # 20. % QUE AUMENTARAM O LUCRO EM MAIS DE 25%
     # ==========================================================
     
-    toc <- data.frame(
+    lucro_mais_25_EL <- ifelse(
+      nrow(financeiro_pam_verde) > 0,
+      
+      mean(
+        financeiro_pam_verde$Percentual_Aumento > 25,
+        na.rm = TRUE
+      ) * 100,
+      
+      NA_real_
+    )
+    
+    if (
+      is.nan(lucro_mais_25_EL)
+    ) {
+      lucro_mais_25_EL <- NA_real_
+    }
+    
+    
+    # ==========================================================
+    # 21. VALOR MÉDIO DO AUMENTO DO LUCRO
+    # ==========================================================
+    
+    aumento_medio_lucro_EL <- ifelse(
+      nrow(financeiro_pam_verde) > 0,
+      
+      mean(
+        financeiro_pam_verde$Aumento_Lucro,
+        na.rm = TRUE
+      ),
+      
+      NA_real_
+    )
+    
+    if (
+      is.nan(aumento_medio_lucro_EL)
+    ) {
+      aumento_medio_lucro_EL <- NA_real_
+    }
+    
+    
+    # ==========================================================
+    # 22. SALDO LÍQUIDO DO VALOR ADICIONADO
+    # ==========================================================
+    
+    saldo_liquido_lucro_EL <- ifelse(
+      nrow(financeiro_pam_verde) > 0,
+      
+      sum(
+        financeiro_pam_verde$Aumento_Lucro,
+        na.rm = TRUE
+      ),
+      
+      NA_real_
+    )
+    
+    
+    # ==========================================================
+    # 23. MATRIZ DE INDICADORES
+    # ==========================================================
+    
+    indicadores_toc <- data.frame(
       
       Indicador = c(
+        
+        # ------------------------------------------------------
+        # FORMAÇÃO
+        # ------------------------------------------------------
+        
+        "% de participantes que iniciam a formação",
+        
+        "% de participantes que completam  a formação",
+        
+        
+        # ------------------------------------------------------
+        # NEGÓCIO / GESTÃO
+        # ------------------------------------------------------
         
         "% de empreendedoras que iniciam o processo de formalização",
         
         "% de empreendedoras que definem um salário mensal para si mesmas",
         
-        "% de empreendedoras que tomam sozinhas as principais decisões do negócio",
+        "% de empreendedoras que tomam sozinhas as principais decisões",
         
-        "% de empreendedoras que se sentem confiantes e sabem defender a sua posição na negociação com clientes",
+        "% de empreendedoras confiantes na negociação com clientes",
         
-        "% de empreendedoras que, nos últimos 3 meses, negociaram e conseguiram um acordo favorável para o seu negócio",
+        "% de empreendedoras que nos últimos 3 meses negociaram e conseguiram acordo favorável",
         
-        "% de empreendedoras que sabem utilizar ferramentas de IA para aprimorar o negócio",
+        "% de empreendedoras que sabem utilizar ferramentas de IA",
         
         "% de empreendedoras que fazem separação das contas pessoais e do negócio",
         
-        "% de empreendedoras que sabem calcular o lucro do negócio",
+        "% de empreendedoras que sabem calcular o lucro",
         
-        "% de empreendedoras que fazem controlo do dinheiro que entra e que sai (receitas e despesas)",
+        "% de empreendedoras que fazem controlo do dinheiro que entra e sai",
         
-        "% de empreendedoras que consideram que as actividades de género ajudaram bastante/mudaram a compreensão das desigualdades",
         
-        "% de empreendedoras que aumentaram os seus lucros durante os 3 meses de implementação",
+        # ------------------------------------------------------
+        # GÉNERO
+        # ------------------------------------------------------
         
-        "% de empreendedoras que aumentaram os seus lucros em mais de 25% durante os 3 meses",
+        "% de empreendedoras que consideram que as actividades de género ajudaram bastante / mudaram a sua compreensão",
+        
+        
+        # ------------------------------------------------------
+        # RESULTADOS FINANCEIROS
+        # ------------------------------------------------------
+        
+        "% de empreendedoras que aumentaram os seus lucros durante os 3 meses",
+        
+        "% de empreendedoras que aumentaram o lucro em mais de 25%",
         
         "Valor médio de aumento do lucro por empreendedora",
         
@@ -21133,369 +21861,446 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       Baseline = c(
         
-        formalizacao_BL,
-        salario_BL,
-        decisao_BL,
-        negociacao_clientes_BL,
-        pratica_negociacao_BL,
-        uso_ia_BL,
-        separacao_contas_BL,
-        calcula_lucro_BL,
-        controlo_dinheiro_BL,
         NA_real_,
         
         NA_real_,
+        
         NA_real_,
+        
         NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
+        NA_real_,
+        
         NA_real_
       ),
       
       
       # ========================================================
-      # ENDLINE / RESULTADO
+      # ENDLINE
       # ========================================================
       
       Endline = c(
         
-        formalizacao_EL,
-        salario_EL,
-        decisao_EL,
-        negociacao_clientes_EL,
-        pratica_negociacao_EL,
-        uso_ia_EL,
-        separacao_contas_EL,
-        calcula_lucro_EL,
-        controlo_dinheiro_EL,
-        genero_compreensao,
+        # Formação
+        inicio_formacao_EL,
         
-        aumento_lucro_EL,
-        aumento_25_EL,
-        aumento_medio_lucro,
-        saldo_valor_adicionado
+        conclusao_formacao_EL,
+        
+        # Gestão
+        formalizacao_percentual_EL,
+        
+        salario_percentual_EL,
+        
+        decisoes_percentual_EL,
+        
+        negociacao_clientes_percentual_EL,
+        
+        negociacao_3meses_percentual_EL,
+        
+        uso_ia_percentual_EL,
+        
+        contas_percentual_EL,
+        
+        calculo_lucro_percentual_EL,
+        
+        controlo_dinheiro_percentual_EL,
+        
+        # Género
+        genero_percentual_EL,
+        
+        # Financeiro
+        lucro_aumentou_EL,
+        
+        lucro_mais_25_EL,
+        
+        aumento_medio_lucro_EL,
+        
+        saldo_liquido_lucro_EL
       ),
       
       
       # ========================================================
-      # METAS 2026
+      # META 2026
       # ========================================================
       
       Meta_2026 = c(
         
-        10,     # Formalização
+        # Formação
+        85,
         
-        50,     # Salário mensal
+        80,
         
-        100,    # Decisão
+        # Gestão
+        10,
         
-        70,     # Confiança negociação
+        50,
         
-        70,     # Negociação favorável
+        100,
         
-        80,     # IA
+        70,
         
-        80,     # Separação contas
+        70,
         
-        85,     # Saber calcular lucro
+        80,
         
-        80,     # Controlo receitas/despesas
+        80,
         
-        100,    # Género
+        85,
         
-        80,     # Aumento de lucro
+        80,
         
-        50,     # Aumento >25%
+        # Género
+        100,
         
-        2500,   # Aumento médio do lucro - MT
+        # Financeiro
+        80,
         
-        70000   # Saldo líquido - MT
+        50,
+        
+        2500,
+        
+        70000
       ),
+      
       
       stringsAsFactors = FALSE
     )
     
     
     # ==========================================================
-    # 18. TIPO DE INDICADOR
+    # 24. TIPO DE INDICADOR
     # ==========================================================
     
-    toc <- toc %>%
-      mutate(
+    indicadores_toc$Tipo_Indicador <-
+      dplyr::case_when(
         
-        Tipo_Indicador = case_when(
-          
-          grepl(
-            "Valor médio|Saldo líquido",
-            Indicador
-          ) ~ "MT",
-          
-          TRUE ~ "%"
-        )
+        grepl(
+          "Valor médio|Saldo líquido",
+          indicadores_toc$Indicador
+        ) ~ "MT",
+        
+        TRUE ~ "%"
       )
     
     
     # ==========================================================
-    # 19. ALCANCE DA META
+    # 25. ALCANCE DA META
     # ==========================================================
     
-    toc <- toc %>%
-      mutate(
+    indicadores_toc$Alcance_Numerico <-
+      dplyr::case_when(
         
-        Alcance_Numerico = case_when(
+        !is.na(indicadores_toc$Endline) &
+          !is.na(indicadores_toc$Meta_2026) &
+          indicadores_toc$Meta_2026 > 0 ~
           
-          !is.na(Endline) &
-            !is.na(Meta_2026) &
-            Meta_2026 > 0 ~
-            (Endline / Meta_2026) * 100,
-          
-          TRUE ~ NA_real_
-        ),
+          (
+            indicadores_toc$Endline /
+              indicadores_toc$Meta_2026
+          ) * 100,
         
-        Alcance_Barra = case_when(
-          
-          is.na(Alcance_Numerico) ~
-            NA_real_,
-          
-          TRUE ~
-            pmin(Alcance_Numerico, 100)
-        ),
-        
-        Estado = case_when(
-          
-          is.na(Alcance_Numerico) ~
-            "⚪ Sem dados",
-          
-          Alcance_Numerico >= 100 ~
-            "🟢 Meta atingida",
-          
-          Alcance_Numerico >= 80 ~
-            "🟡 Próximo da meta",
-          
-          Alcance_Numerico >= 50 ~
-            "🟠 Em progresso",
-          
-          TRUE ~
-            "🔴 Abaixo da meta"
-        )
+        TRUE ~ NA_real_
       )
     
     
     # ==========================================================
-    # 20. BARRA DE PROGRESSO
+    # 26. LIMITE DA BARRA DE PROGRESSO
     # ==========================================================
     
-    toc <- toc %>%
-      mutate(
+    indicadores_toc$Alcance_Barra <-
+      pmin(
+        indicadores_toc$Alcance_Numerico,
+        100
+      )
+    
+    
+    # ==========================================================
+    # 27. ESTADO DO INDICADOR
+    # ==========================================================
+    
+    indicadores_toc$Estado <-
+      dplyr::case_when(
         
-        Alcance_Meta = case_when(
+        is.na(
+          indicadores_toc$Alcance_Numerico
+        ) ~
           
-          is.na(Alcance_Barra) ~
-            '<span style="color:#777;font-size:12px;">Sem dados</span>',
+          "⚪ Sem dados",
+        
+        indicadores_toc$Alcance_Numerico >= 100 ~
           
-          TRUE ~ paste0(
+          "🟢 Meta atingida",
+        
+        indicadores_toc$Alcance_Numerico >= 80 ~
+          
+          "🟡 Próximo da meta",
+        
+        indicadores_toc$Alcance_Numerico >= 50 ~
+          
+          "🟠 Em progresso",
+        
+        TRUE ~
+          
+          "🔴 Abaixo da meta"
+      )
+    
+    
+    # ==========================================================
+    # 28. BARRA DE PROGRESSO
+    # ==========================================================
+    
+    indicadores_toc$Alcance <-
+      dplyr::case_when(
+        
+        is.na(
+          indicadores_toc$Alcance_Barra
+        ) ~
+          
+          "—",
+        
+        TRUE ~
+          
+          paste0(
             
-            '<div style="
-            width:160px;
-            height:22px;
-            background:#e9ecef;
-            border-radius:6px;
-            position:relative;
-            overflow:hidden;
-          ">',
+            '<div style="width:160px;
+                       background:#e9e9e9;
+                       border-radius:10px;
+                       height:22px;
+                       overflow:hidden;">',
             
-            '<div style="
-            width:',
-            round(Alcance_Barra, 1),
+            '<div style="width:',
+            indicadores_toc$Alcance_Barra,
             '%;
-            height:22px;
-            background:#9442d4;
-            border-radius:6px;
-          "></div>',
+                       background:#9442d4;
+                       height:22px;
+                       border-radius:10px;
+                       text-align:center;
+                       color:white;
+                       font-size:12px;
+                       line-height:22px;">',
             
-            '<div style="
-            position:absolute;
-            top:0;
-            left:0;
-            width:100%;
-            height:22px;
-            line-height:22px;
-            text-align:center;
-            font-size:11px;
-            font-weight:bold;
-            color:#333;
-          ">',
+            round(
+              indicadores_toc$Alcance_Numerico,
+              1
+            ),
             
-            round(Alcance_Barra, 1),
-            '%</div>',
-            
-            '</div>'
+            '%</div></div>'
+          )
+      )
+    
+    
+    # ==========================================================
+    # 29. FORMATAÇÃO BASELINE / ENDLINE / META
+    # ==========================================================
+    
+    formatar_valor <- function(
+    valor,
+    tipo
+    ) {
+      
+      if (
+        is.na(valor)
+      ) {
+        return("—")
+      }
+      
+      if (
+        tipo == "%"
+      ) {
+        
+        return(
+          paste0(
+            round(valor, 1),
+            "%"
           )
         )
-      )
-    
-    
-    # ==========================================================
-    # 21. FORMATAR BASELINE / ENDLINE / META
-    # ==========================================================
-    
-    toc <- toc %>%
-      mutate(
         
-        Baseline = case_when(
-          
-          is.na(Baseline) ~ "—",
-          
-          Tipo_Indicador == "%" ~
-            paste0(round(Baseline, 1), "%"),
-          
-          TRUE ~
-            paste0(
-              scales::comma(
-                round(Baseline, 0)
-              ),
-              " MT"
-            )
-        ),
+      } else {
         
-        
-        Endline = case_when(
-          
-          is.na(Endline) ~ "—",
-          
-          Tipo_Indicador == "%" ~
-            paste0(round(Endline, 1), "%"),
-          
-          TRUE ~
-            paste0(
-              scales::comma(
-                round(Endline, 0)
-              ),
-              " MT"
-            )
-        ),
-        
-        
-        Meta_2026 = case_when(
-          
-          is.na(Meta_2026) ~ "—",
-          
-          Tipo_Indicador == "%" ~
-            paste0(round(Meta_2026, 1), "%"),
-          
-          TRUE ~
-            paste0(
-              scales::comma(
-                round(Meta_2026, 0)
-              ),
-              " MT"
-            )
+        return(
+          paste0(
+            scales::comma(
+              round(valor, 0)
+            ),
+            " MT"
+          )
         )
+      }
+    }
+    
+    
+    indicadores_toc$Baseline_Formatado <-
+      mapply(
+        formatar_valor,
+        indicadores_toc$Baseline,
+        indicadores_toc$Tipo_Indicador
+      )
+    
+    
+    indicadores_toc$Endline_Formatado <-
+      mapply(
+        formatar_valor,
+        indicadores_toc$Endline,
+        indicadores_toc$Tipo_Indicador
+      )
+    
+    
+    indicadores_toc$Meta_Formatada <-
+      mapply(
+        formatar_valor,
+        indicadores_toc$Meta_2026,
+        indicadores_toc$Tipo_Indicador
       )
     
     
     # ==========================================================
-    # 22. FORMATAR INDICADOR
+    # 30. INDICADOR COM HTML
     # ==========================================================
     
-    toc$Indicador <- paste0(
-      '<div style="
-      white-space:normal;
-      overflow-wrap:break-word;
-      line-height:1.25;
-      font-size:13px;
-      text-align:left;
-      padding:3px 0;
-    ">',
-      toc$Indicador,
-      '</div>'
-    )
+    indicadores_toc$Indicador <-
+      paste0(
+        
+        '<div style="
+        white-space:normal;
+        line-height:1.4;
+        padding:4px 0;
+      ">',
+        
+        indicadores_toc$Indicador,
+        
+        '</div>'
+      )
     
     
     # ==========================================================
-    # 23. COLUNAS FINAIS
+    # 31. TABELA FINAL
     # ==========================================================
     
-    toc <- toc %>%
-      select(
+    tabela_final_toc <-
+      indicadores_toc %>%
+      dplyr::select(
         Indicador,
-        Baseline,
-        Endline,
-        Meta_2026,
-        Alcance_Meta,
+        Baseline_Formatado,
+        Endline_Formatado,
+        Meta_Formatada,
+        Alcance,
         Estado
       )
     
     
     # ==========================================================
-    # 24. TABELA DATATABLE
+    # 32. DATATABLE
     # ==========================================================
     
-    datatable(
+    DT::datatable(
       
-      toc,
+      tabela_final_toc,
       
       rownames = FALSE,
       
       escape = FALSE,
       
-      colnames = c(
-        "Indicador",
-        "Baseline",
-        "Endline",
-        "Meta 2026",
-        "Alcance da Meta",
-        "Estado"
+      extensions = c(
+        "Responsive"
       ),
       
       options = list(
         
         pageLength = 15,
         
-        autoWidth = FALSE,
-        
         scrollX = TRUE,
+        
+        scrollY = "600px",
+        
+        scrollCollapse = TRUE,
+        
+        autoWidth = FALSE,
         
         dom = "tip",
         
         columnDefs = list(
           
           list(
-            targets = 0,
-            width = "360px"
+            width = "360px",
+            targets = 0
           ),
           
           list(
-            targets = 1,
             width = "95px",
-            className = "dt-center"
+            targets = 1
           ),
           
           list(
-            targets = 2,
             width = "95px",
-            className = "dt-center"
+            targets = 2
           ),
           
           list(
-            targets = 3,
             width = "100px",
-            className = "dt-center"
+            targets = 3
           ),
           
           list(
-            targets = 4,
             width = "175px",
-            className = "dt-center"
+            targets = 4
           ),
           
           list(
-            targets = 5,
             width = "135px",
-            className = "dt-center"
+            targets = 5
           )
         )
       )
-    )
+      
+    ) %>%
+      
+      DT::formatStyle(
+        
+        "Indicador",
+        
+        `white-space` = "normal",
+        
+        `vertical-align` = "middle"
+      ) %>%
+      
+      DT::formatStyle(
+        
+        columns = c(
+          "Baseline_Formatado",
+          "Endline_Formatado",
+          "Meta_Formatada",
+          "Alcance",
+          "Estado"
+        ),
+        
+        `text-align` = "center",
+        
+        `vertical-align` = "middle"
+      )
+    
   })
+  
+  
   ########### BOTAO
   
   output$admin_ui <- renderUI({

@@ -27,7 +27,7 @@ library(lubridate)
 dotenv::load_dot_env()
 
 
-PAM_VERDE_BASELINE_2026 <- read_excel("PAM_VERDE_2026_Baseline.xlsx")
+PAM_VERDE_BASELINE_2026 <- read_excel("PAM_VERDE_BASELINE_ENDLINE_NAMPULA_BEIRA.xlsx")
 
 
 
@@ -138,7 +138,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
 Pam_Verde_Indicadores <- Pam_Verde_Indicadores %>%
   filter(Ciclo %in% c("Ciclo 3", "Ciclo 1"))
 
-# table(Pam_Verde_Indicadores$`B2  Aplicação no negócio`)
+table(Pam_Verde_Indicadores$`Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?`)
 
 
 ############## PEGADA DE CARBONO
@@ -1004,6 +1004,22 @@ PAM_VERDE_TOC_C3 <- Pam_Verde_Indicadores %>%
 
 FINANCEIRO_TOC_NAMPULA <- Financeiro_Nampula
 
-table(FINANCEIRO_TOC_NAMPULA$Periodo, FINANCEIRO_TOC_NAMPULA$Lucro_Semanal)
+# ============================================================
+# BASE PARA INDICADOR DE CONCLUSÃO DA FORMAÇÃO
+# PAM VERDE C3 2026
+# ============================================================
+
+PAM_VERDE_CONCLUSAO_FORMACAO <- PERFIL_PAM_VERDE_C3_2026 %>%
+  
+  dplyr::mutate(
+    
+    Status_Padrao = toupper(
+      stringr::str_squish(
+        trimws(as.character(Status))
+      )
+    )
+  )
+
+# table(FINANCEIRO_TOC_NAMPULA$Periodo, FINANCEIRO_TOC_NAMPULA$Lucro_Semanal)
 
 # table(PAM_VERDE_TOC_C3$Tipo_Avaliacao, PAM_VERDE_TOC_C3$`Não se espera que as mulheres sejam capazes de gerir um negócio.`)
