@@ -856,9 +856,6 @@ Presencas_Colectivas_Beira %>%
 # Financeiro_Report no formato que seu dashboard usa
 
 
-library(readxl)
-library(dplyr)
-library(tidyr)
 
 # ============================================================
 # 1. LEITURA DA BASE
@@ -1022,4 +1019,4 @@ PAM_VERDE_CONCLUSAO_FORMACAO <- PERFIL_PAM_VERDE_C3_2026 %>%
 
 # table(FINANCEIRO_TOC_NAMPULA$Periodo, FINANCEIRO_TOC_NAMPULA$Lucro_Semanal)
 
-# table(PAM_VERDE_TOC_C3$Tipo_Avaliacao, PAM_VERDE_TOC_C3$`Não se espera que as mulheres sejam capazes de gerir um negócio.`)
+table(PAM_VERDE_TOC_C3$Tipo_Avaliacao,PAM_VERDE_TOC_C3$Uso_de_ferramentas_de_IA)

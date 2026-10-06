@@ -1981,7 +1981,7 @@ ui <- navbarPage(
           # ==================================================
           
           tabPanel(
-            "Feiras_Nampula",
+            "Feiras",
             
             sidebarLayout(
               
@@ -18728,37 +18728,51 @@ output$texto_resultado_exercicio_4 <- renderUI({
   # ==========================================================
 
   
+  # ==========================================================
+  # WEBINARS - BEIRA
+  # Estrutura padronizada
+  # ==========================================================
+  
+  
+  # ==========================================================
+  # Atualizar cidades
+  # ==========================================================
+  
   observe({
     
     cidades <- Webinars_Beira %>%
       pull(Cidade) %>%
       unique() %>%
+      na.omit() %>%
       sort()
-    
     
     updateSelectInput(
       session,
       "filtro_monitoria_webinar_beira",
-      choices = c("Todas", cidades)
+      choices = c("Todas", cidades),
+      selected = "Todas"
     )
     
   })
+  
+  
+  # ==========================================================
+  # Atualizar pesquisadores conforme cidade
+  # ==========================================================
   
   observeEvent(
     input$filtro_monitoria_webinar_beira,
     {
       
-      
-      if(input$filtro_monitoria_webinar_beira == "Todas"){
+      if (input$filtro_monitoria_webinar_beira == "Todas") {
         
         pesquisadores <- Webinars_Beira %>%
           pull(Pesquisadores) %>%
           unique() %>%
+          na.omit() %>%
           sort()
         
-        
       } else {
-        
         
         pesquisadores <- Webinars_Beira %>%
           filter(
@@ -18766,10 +18780,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
           ) %>%
           pull(Pesquisadores) %>%
           unique() %>%
+          na.omit() %>%
           sort()
         
       }
-      
       
       updateSelectInput(
         session,
@@ -18778,21 +18792,25 @@ output$texto_resultado_exercicio_4 <- renderUI({
         selected = "Todas"
       )
       
-    }
+    },
+    ignoreInit = FALSE
   )
   
   
-  
-  # -------------------------------
-  # Dados filtrados Webinars
-  # -------------------------------
+  # ==========================================================
+  # Dados filtrados
+  # ==========================================================
   
   dados_filtrados_webinar_beira <- reactive({
     
     df <- Webinars_Beira
     
     
-    if(input$filtro_monitoria_webinar_beira != "Todas"){
+    # --------------------------------------------------------
+    # Filtro por cidade
+    # --------------------------------------------------------
+    
+    if (input$filtro_monitoria_webinar_beira != "Todas") {
       
       df <- df %>%
         filter(
@@ -18802,7 +18820,11 @@ output$texto_resultado_exercicio_4 <- renderUI({
     }
     
     
-    if(input$pesquisador_webinar_beira != "Todas"){
+    # --------------------------------------------------------
+    # Filtro por pesquisador
+    # --------------------------------------------------------
+    
+    if (input$pesquisador_webinar_beira != "Todas") {
       
       df <- df %>%
         filter(
@@ -18816,20 +18838,17 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
   })
   
-  # ==========================================================
-  # KPIs WEBINARS
-  # ==========================================================
   
+  # ==========================================================
+  # KPI - PARTICIPANTES
+  # ==========================================================
   
   output$total_participantes_web_beira <- renderUI({
     
-    total <- nrow(
-      dados_filtrados_webinar_beira()
-    )
-    
+    df <- dados_filtrados_webinar_beira()
     
     valueBox(
-      total,
+      nrow(df),
       "Participantes",
       icon = icon("users"),
       color = "purple"
@@ -18838,11 +18857,37 @@ output$texto_resultado_exercicio_4 <- renderUI({
   })
   
   
+  # ==========================================================
+  # KPI - SESSÕES
+  # ==========================================================
   
   output$total_sessoes_web_beira <- renderUI({
     
     df <- dados_filtrados_webinar_beira()
     
+    sessoes <- grep(
+      "^Sessao_\\d+$",
+      names(df),
+      value = TRUE
+    )
+    
+    valueBox(
+      length(sessoes),
+      "Sessões",
+      icon = icon("calendar"),
+      color = "blue"
+    )
+    
+  })
+  
+  
+  # ==========================================================
+  # KPI - TAXA DE PRESENÇA
+  # ==========================================================
+  
+  output$taxa_presenca_web_beira <- renderUI({
+    
+    df <- dados_filtrados_webinar_beira()
     
     sessoes <- grep(
       "^Sessao_\\d+$",
@@ -18851,426 +18896,1070 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
     
     
-    valueBox(
-      length(sessoes),
-      "Sessões",
-      icon = icon("calendar"),
-      color="blue"
-    )
+    # --------------------------------------------------------
+    # Evitar erro quando não existem sessões ou participantes
+    # --------------------------------------------------------
+    
+    if (
+      length(sessoes) == 0 ||
+      nrow(df) == 0
+    ) {
+      
+      return(
+        valueBox(
+          "0%",
+          "Taxa Presença",
+          icon = icon("percent"),
+          color = "green"
+        )
+      )
+      
+    }
     
     
-  })
-  
-  
-  
-  output$taxa_presenca_web_beira <- renderUI({
+    # --------------------------------------------------------
+    # Limpar valores das sessões
+    # --------------------------------------------------------
     
-    df <- dados_filtrados_webinar_beira()
+    pres <- df %>%
+      select(all_of(sessoes)) %>%
+      mutate(
+        across(
+          everything(),
+          ~ sapply(.x, function(x) {
+            
+            if (is.null(x)) {
+              return(NA_character_)
+            }
+            
+            if (is.list(x)) {
+              x <- unlist(x)
+            }
+            
+            paste(x, collapse = ", ")
+            
+          })
+        )
+      ) %>%
+      unlist() %>%
+      as.character() %>%
+      str_detect("Presente") %>%
+      sum(na.rm = TRUE)
     
     
-    sessoes <- grep(
-      "^Sessao_\\d+$",
-      names(df),
-      value=TRUE
-    )
-    
+    # --------------------------------------------------------
+    # Total possível de presenças
+    # --------------------------------------------------------
     
     total <- nrow(df) * length(sessoes)
     
     
-    presentes <- df %>%
-      select(all_of(sessoes)) %>%
-      unlist() %>%
-      as.character() %>%
-      str_detect("Presente") %>%
-      sum(na.rm=TRUE)
-    
-    
-    
-    taxa <- round(
-      presentes/total*100,
-      1
+    taxa <- ifelse(
+      total > 0,
+      round(
+        (pres / total) * 100,
+        1
+      ),
+      0
     )
     
     
     valueBox(
-      paste0(taxa,"%"),
+      paste0(
+        taxa,
+        "%"
+      ),
       "Taxa Presença",
       icon = icon("percent"),
-      color="green"
+      color = "green"
     )
-    
     
   })
   
   
-  
-  
   # ==========================================================
-  # GRÁFICO WEBINARS
+  # Preparar dados para o gráfico
   # ==========================================================
-  
   
   dados_plot_webinar_beira <- reactive({
     
     df <- dados_filtrados_webinar_beira()
     
-    
-    sessoes <- grep(
-      "^Sessao_\\d+$",
-      names(df),
-      value=TRUE
-    )
+    previsto <- 43
     
     
-    df %>%
-      select(all_of(sessoes)) %>%
-      pivot_longer(
-        everything(),
-        names_to="Sessao",
-        values_to="Presenca"
-      ) %>%
+    # --------------------------------------------------------
+    # Verificar se existem dados
+    # --------------------------------------------------------
+    
+    if (nrow(df) == 0) {
+      return(
+        data.frame()
+      )
+    }
+    
+    
+    # --------------------------------------------------------
+    # Limpar colunas de sessões
+    # --------------------------------------------------------
+    
+    df <- df %>%
       mutate(
-        Presenca=as.character(Presenca)
+        across(
+          starts_with("Sessao_"),
+          ~ sapply(.x, function(x) {
+            
+            if (is.null(x)) {
+              return(NA_character_)
+            }
+            
+            if (is.list(x)) {
+              x <- unlist(x)
+            }
+            
+            paste(x, collapse = ", ")
+            
+          })
+        )
+      )
+    
+    
+    # --------------------------------------------------------
+    # Transformar sessões para formato longo
+    # --------------------------------------------------------
+    
+    df_long <- df %>%
+      pivot_longer(
+        cols = starts_with("Sessao_"),
+        names_to = "Sessoes",
+        values_to = "Presenca"
+      )
+    
+    
+    # --------------------------------------------------------
+    # Agregar presenças
+    # --------------------------------------------------------
+    
+    df_agg <- df_long %>%
+      mutate(
+        Presenca = as.character(Presenca)
       ) %>%
       filter(
         !is.na(Presenca),
-        str_detect(Presenca,"Presente")
-      ) %>%
-      count(Sessao) %>%
-      mutate(
-        Ordem=as.numeric(
-          gsub("Sessao_","",Sessao)
+        str_detect(
+          Presenca,
+          "Presente"
         )
       ) %>%
-      arrange(Ordem) %>%
+      group_by(Sessoes) %>%
+      summarise(
+        Count = n(),
+        .groups = "drop"
+      ) %>%
       mutate(
-        Sessao=factor(
-          Sessao,
-          levels=Sessao
+        
+        # Número previsto
+        Previsto = previsto,
+        
+        # Percentual em relação ao previsto
+        Percentual = round(
+          (Count / Previsto) * 100,
+          1
+        ),
+        
+        # Número da sessão
+        Sessao_num = as.numeric(
+          gsub(
+            "Sessao_",
+            "",
+            Sessoes
+          )
         )
+        
+      ) %>%
+      arrange(
+        Sessao_num
+      ) %>%
+      mutate(
+        Sessoes = factor(
+          Sessoes,
+          levels = Sessoes
+        )
+      ) %>%
+      select(
+        -Sessao_num
+      )
+    
+    
+    df_agg
+    
+  })
+  
+  
+  # ==========================================================
+  # GRÁFICO - PRESENÇAS POR SESSÃO
+  # ==========================================================
+  
+  output$grafico_webinar_beira <- renderPlotly({
+    
+    df_agg <- dados_plot_webinar_beira()
+    
+    
+    # --------------------------------------------------------
+    # Sem dados
+    # --------------------------------------------------------
+    
+    if (nrow(df_agg) == 0) {
+      return(NULL)
+    }
+    
+    
+    previsto <- unique(
+      df_agg$Previsto
+    )[1]
+    
+    
+    # --------------------------------------------------------
+    # Limite superior do eixo Y
+    # --------------------------------------------------------
+    
+    limite_y <- max(
+      c(
+        df_agg$Count,
+        previsto
+      ),
+      na.rm = TRUE
+    ) + 7
+    
+    
+    # --------------------------------------------------------
+    # Gráfico
+    # --------------------------------------------------------
+    
+    g <- ggplot(
+      df_agg,
+      aes(
+        x = Sessoes,
+        y = Count,
+        fill = Sessoes
+      )
+    ) +
+      
+      geom_col() +
+      
+      
+      # ------------------------------------------------------
+    # Linha do previsto
+    # ------------------------------------------------------
+    
+    geom_hline(
+      yintercept = previsto,
+      linetype = "dashed",
+      color = "purple",
+      linewidth = 1.1
+    ) +
+      
+      
+      # ------------------------------------------------------
+    # Valores e percentuais nas barras
+    # ------------------------------------------------------
+    
+    geom_text(
+      aes(
+        label = paste0(
+          Count,
+          "\n(",
+          Percentual,
+          "%)"
+        ),
+        text = paste0(
+          "<b>",
+          Sessoes,
+          "</b>",
+          "<br>Presenças: ",
+          Count,
+          "<br>Previsto: ",
+          previsto,
+          "<br>Percentual: ",
+          Percentual,
+          "%"
+        )
+      ),
+      vjust = -0.2,
+      color = "black",
+      size = 4,
+      fontface = "bold"
+    ) +
+      
+      
+      theme_stata() +
+      
+      
+      scale_y_continuous(
+        limits = c(
+          0,
+          limite_y
+        )
+      ) +
+      
+      
+      labs(
+        x = "",
+        y = "Presenças",
+        title = "Presenças por Sessão - Webinars_Beira"
+      )
+    
+    
+    # --------------------------------------------------------
+    # Plotly
+    # --------------------------------------------------------
+    
+    ggplotly(
+      g,
+      tooltip = "text"
+    ) %>%
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
       )
     
   })
   
   
+  # ==========================================================
+  # TEXTO AUTOMÁTICO
+  # ==========================================================
   
-  output$grafico_webinar_beira <- renderPlotly({
-    
+  output$texto_webinar_beira <- renderUI({
     
     df <- dados_plot_webinar_beira()
     
     
-    if(nrow(df)==0)
+    if (nrow(df) == 0) {
       return(NULL)
+    }
     
     
+    maior <- df %>%
+      arrange(
+        desc(Count)
+      ) %>%
+      slice(1)
     
-    g <- ggplot(
-      df,
-      aes(
-        Sessao,
-        n,
-        fill=Sessao
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> A sessão com maior participação foi ",
+        maior$Sessoes,
+        " com ",
+        maior$Count,
+        " participantes (",
+        maior$Percentual,
+        "% do previsto)."
       )
-    )+
-      
-      geom_col()+
-      
-      geom_text(
-        aes(label=n),
-        vjust=-0.3,
-        fontface="bold"
-      )+
-      
-      theme_stata()+
-      
-      labs(
-        title="Presença por Sessão - Webinars",
-        x="",
-        y="Participantes"
-      )
-    
-    
-    ggplotly(g)
-    
+    )
     
   })
   
   
-  
   # ==========================================================
-  # TABELA WEBINARS
+  # TABELA - WEBINARS BEIRA
   # ==========================================================
   
-  
-  output$tabela_webinar_beira <- renderDT({
-    
+  output$tabela_webinar_beira <- renderDataTable({
     
     df <- dados_filtrados_webinar_beira()
     
     
-    sessoes <- grep(
+    # --------------------------------------------------------
+    # Identificar colunas de sessões
+    # --------------------------------------------------------
+    
+    col_sessoes <- grep(
       "^Sessao_\\d+$",
       names(df),
-      value=TRUE
+      value = TRUE
     )
     
     
-    sessoes <- sessoes[
+    # --------------------------------------------------------
+    # Ordenar sessões numericamente
+    # --------------------------------------------------------
+    
+    col_sessoes_ordenadas <- col_sessoes[
       order(
         as.numeric(
-          gsub("Sessao_","",sessoes)
+          gsub(
+            "Sessao_",
+            "",
+            col_sessoes
+          )
         )
       )
     ]
     
     
-    fixas <- setdiff(
+    # --------------------------------------------------------
+    # Colunas fixas
+    # --------------------------------------------------------
+    
+    col_fixas <- setdiff(
       names(df),
-      sessoes
+      col_sessoes
     )
     
+    
+    # --------------------------------------------------------
+    # Reorganizar tabela
+    # --------------------------------------------------------
     
     df <- df[
       ,
-      c(fixas,sessoes)
+      c(
+        col_fixas,
+        col_sessoes_ordenadas
+      )
     ]
     
     
-    df[sessoes] <- lapply(
-      df[sessoes],
-      formatar_pontos
-    )
+    # --------------------------------------------------------
+    # Formatar sessões
+    # --------------------------------------------------------
     
+    if (length(col_sessoes_ordenadas) > 0) {
+      
+      df[col_sessoes_ordenadas] <- lapply(
+        df[col_sessoes_ordenadas],
+        formatar_pontos
+      )
+      
+    }
+    
+    
+    # --------------------------------------------------------
+    # DataTable
+    # --------------------------------------------------------
     
     datatable(
       df,
-      escape=FALSE,
-      options=list(
-        pageLength=10,
-        scrollX=TRUE
+      escape = FALSE,
+      options = list(
+        pageLength = 10,
+        scrollX = TRUE
       )
     )
     
-    
   })
-  
   
   
   # ==========================================================
   #                 Feiras_Nampula BEIRA
   # ==========================================================
   
+  # ==========================================================
+  # FEIRAS - BEIRA
+  # Estrutura igual à Feiras_Nampula
+  # ==========================================================
+  
+  
+  # ==========================================================
+  # Atualizar cidades
+  # ==========================================================
   
   observe({
     
     cidades <- Feiras_Beira %>%
       pull(Cidade) %>%
       unique() %>%
+      na.omit() %>%
       sort()
-    
     
     updateSelectInput(
       session,
       "filtro_monitoria_feira_beira",
-      choices=c("Todas",cidades)
+      choices = c("Todas", cidades),
+      selected = "Todas"
     )
-    
     
   })
   
   
+  # ==========================================================
+  # Atualizar pesquisadores conforme cidade
+  # ==========================================================
   
   observeEvent(
     input$filtro_monitoria_feira_beira,
     {
       
-      
-      if(input$filtro_monitoria_feira_beira=="Todas"){
+      if (input$filtro_monitoria_feira_beira == "Todas") {
         
         pesquisadores <- Feiras_Beira %>%
           pull(Pesquisadores) %>%
           unique() %>%
+          na.omit() %>%
           sort()
         
-        
-      }else{
-        
+      } else {
         
         pesquisadores <- Feiras_Beira %>%
           filter(
-            Cidade==input$filtro_monitoria_feira_beira
+            Cidade == input$filtro_monitoria_feira_beira
           ) %>%
           pull(Pesquisadores) %>%
           unique() %>%
+          na.omit() %>%
           sort()
         
       }
       
-      
-      
       updateSelectInput(
         session,
         "pesquisador_feira_beira",
-        choices=c("Todas",pesquisadores),
-        selected="Todas"
+        choices = c("Todas", pesquisadores),
+        selected = "Todas"
       )
       
-      
-    })
+    },
+    ignoreInit = FALSE
+  )
   
   
+  # ==========================================================
+  # Dados filtrados
+  # ==========================================================
   
   dados_filtrados_feira_beira <- reactive({
     
     df <- Feiras_Beira
     
+    # --------------------------------------------------------
+    # Filtro por cidade
+    # --------------------------------------------------------
     
-    if(input$filtro_monitoria_feira_beira!="Todas"){
+    if (input$filtro_monitoria_feira_beira != "Todas") {
       
       df <- df %>%
         filter(
-          Cidade==input$filtro_monitoria_feira_beira
+          Cidade == input$filtro_monitoria_feira_beira
         )
       
     }
     
+    # --------------------------------------------------------
+    # Filtro por pesquisador
+    # --------------------------------------------------------
     
-    if(input$pesquisador_feira_beira!="Todas"){
+    if (input$pesquisador_feira_beira != "Todas") {
       
       df <- df %>%
         filter(
-          Pesquisadores==input$pesquisador_feira_beira
+          Pesquisadores == input$pesquisador_feira_beira
         )
       
     }
-    
     
     df
     
   })
   
   
+  # ==========================================================
+  # KPIs
+  # ==========================================================
   
   output$total_participantes_feira_beira <- renderUI({
     
+    df <- dados_filtrados_feira_beira()
+    
     valueBox(
-      nrow(dados_filtrados_feira_beira()),
+      nrow(df),
       "Participantes",
-      icon=icon("users"),
-      color="purple"
+      icon = icon("users"),
+      color = "purple"
     )
     
   })
   
   
+  # ==========================================================
+  # Total de sessões
+  # ==========================================================
   
   output$total_sessoes_feira_beira <- renderUI({
     
-    df<-dados_filtrados_feira_beira()
+    df <- dados_filtrados_feira_beira()
+    
+    sessoes <- grep(
+      "^Sessao_\\d+$",
+      names(df),
+      value = TRUE
+    )
     
     valueBox(
-      length(grep("^Sessao_\\d+$",names(df))),
+      length(sessoes),
       "Sessões",
-      icon=icon("calendar"),
-      color="blue"
+      icon = icon("calendar"),
+      color = "blue"
     )
     
   })
   
   
+  # ==========================================================
+  # Taxa geral de presença
+  # ==========================================================
   
   output$taxa_presenca_feira_beira <- renderUI({
     
-    df<-dados_filtrados_feira_beira()
+    df <- dados_filtrados_feira_beira()
     
-    sessoes<-grep(
+    sessoes <- grep(
       "^Sessao_\\d+$",
       names(df),
-      value=TRUE
+      value = TRUE
     )
     
+    # --------------------------------------------------------
+    # Evitar erro quando não existem sessões
+    # --------------------------------------------------------
+    
+    if (length(sessoes) == 0 || nrow(df) == 0) {
+      
+      return(
+        valueBox(
+          "0%",
+          "Taxa Presença",
+          icon = icon("percent"),
+          color = "green"
+        )
+      )
+      
+    }
+    
+    
+    # --------------------------------------------------------
+    # Calcular presenças
+    # --------------------------------------------------------
     
     pres <- df %>%
       select(all_of(sessoes)) %>%
+      mutate(
+        across(
+          everything(),
+          ~ sapply(.x, function(x) {
+            
+            if (is.null(x)) {
+              return(NA_character_)
+            }
+            
+            if (is.list(x)) {
+              x <- unlist(x)
+            }
+            
+            paste(x, collapse = ", ")
+            
+          })
+        )
+      ) %>%
       unlist() %>%
-      as.character()%>%
-      str_detect("Presente")%>%
-      sum(na.rm=TRUE)
+      as.character() %>%
+      str_detect("Presente") %>%
+      sum(na.rm = TRUE)
     
     
-    total <- nrow(df)*length(sessoes)
+    # --------------------------------------------------------
+    # Total possível de presenças
+    # --------------------------------------------------------
+    
+    total <- nrow(df) * length(sessoes)
+    
+    
+    taxa <- ifelse(
+      total > 0,
+      round((pres / total) * 100, 1),
+      0
+    )
     
     
     valueBox(
-      paste0(round(pres/total*100,1),"%"),
+      paste0(taxa, "%"),
       "Taxa Presença",
-      icon=icon("percent"),
-      color="green"
+      icon = icon("percent"),
+      color = "green"
     )
-    
     
   })
   
   
+  # ==========================================================
+  # Preparar dados para o gráfico
+  # ==========================================================
+  
+  dados_plot_feira_beira <- reactive({
+    
+    df <- dados_filtrados_feira_beira()
+    
+    previsto <- 39
+    
+    
+    # --------------------------------------------------------
+    # Verificar se existem dados
+    # --------------------------------------------------------
+    
+    if (nrow(df) == 0) {
+      return(
+        data.frame()
+      )
+    }
+    
+    
+    # --------------------------------------------------------
+    # Limpar colunas de sessões
+    # --------------------------------------------------------
+    
+    df <- df %>%
+      mutate(
+        across(
+          starts_with("Sessao_"),
+          ~ sapply(.x, function(x) {
+            
+            if (is.null(x)) {
+              return(NA_character_)
+            }
+            
+            if (is.list(x)) {
+              x <- unlist(x)
+            }
+            
+            paste(x, collapse = ", ")
+            
+          })
+        )
+      )
+    
+    
+    # --------------------------------------------------------
+    # Transformar sessões para formato longo
+    # --------------------------------------------------------
+    
+    df_long <- df %>%
+      pivot_longer(
+        cols = starts_with("Sessao_"),
+        names_to = "Sessoes",
+        values_to = "Presenca"
+      )
+    
+    
+    # --------------------------------------------------------
+    # Agregar presenças
+    # --------------------------------------------------------
+    
+    df_agg <- df_long %>%
+      mutate(
+        Presenca = as.character(Presenca)
+      ) %>%
+      filter(
+        !is.na(Presenca),
+        str_detect(
+          Presenca,
+          "Presente"
+        )
+      ) %>%
+      group_by(Sessoes) %>%
+      summarise(
+        Count = n(),
+        .groups = "drop"
+      ) %>%
+      mutate(
+        
+        # Número previsto
+        Previsto = previsto,
+        
+        # Percentual em relação ao previsto
+        Percentual = round(
+          (Count / Previsto) * 100,
+          1
+        ),
+        
+        # Número da sessão
+        Sessao_num = as.numeric(
+          gsub(
+            "Sessao_",
+            "",
+            Sessoes
+          )
+        )
+        
+      ) %>%
+      arrange(
+        Sessao_num
+      ) %>%
+      mutate(
+        Sessoes = factor(
+          Sessoes,
+          levels = Sessoes
+        )
+      ) %>%
+      select(
+        -Sessao_num
+      )
+    
+    
+    df_agg
+    
+  })
+  
+  
+  # ==========================================================
+  # Gráfico - Presenças por Sessão
+  # ==========================================================
   
   output$grafico_feira_beira <- renderPlotly({
     
+    df_agg <- dados_plot_feira_beira()
     
-    df<-dados_filtrados_feira_beira()
+    # --------------------------------------------------------
+    # Sem dados
+    # --------------------------------------------------------
     
-    
-    sessoes<-grep(
-      "^Sessao_\\d+$",
-      names(df),
-      value=TRUE
-    )
-    
-    
-    graf<-df%>%
-      select(all_of(sessoes))%>%
-      pivot_longer(
-        everything(),
-        names_to="Sessao",
-        values_to="Presenca"
-      )%>%
-      filter(
-        str_detect(Presenca,"Presente")
-      )%>%
-      count(Sessao)
+    if (nrow(df_agg) == 0) {
+      return(NULL)
+    }
     
     
-    
-    g<-ggplot(
-      graf,
-      aes(Sessao,n,fill=Sessao)
-    )+
-      geom_col()+
-      geom_text(
-        aes(label=n),
-        vjust=-.3
-      )+
-      theme_stata()
+    previsto <- unique(
+      df_agg$Previsto
+    )[1]
     
     
-    ggplotly(g)
+    # --------------------------------------------------------
+    # Limite superior do eixo Y
+    # --------------------------------------------------------
+    
+    limite_y <- max(
+      c(
+        df_agg$Count,
+        previsto
+      ),
+      na.rm = TRUE
+    ) + 7
+    
+    
+    # --------------------------------------------------------
+    # Gráfico
+    # --------------------------------------------------------
+    
+    g <- ggplot(
+      df_agg,
+      aes(
+        x = Sessoes,
+        y = Count,
+        fill = Sessoes
+      )
+    ) +
+      
+      geom_col() +
+      
+      
+      # ------------------------------------------------------
+    # Linha do previsto
+    # ------------------------------------------------------
+    
+    geom_hline(
+      yintercept = previsto,
+      linetype = "dashed",
+      color = "purple",
+      linewidth = 1.1
+    ) +
+      
+      
+      # ------------------------------------------------------
+    # Valores nas barras
+    # ------------------------------------------------------
+    
+    geom_text(
+      aes(
+        label = paste0(
+          Count,
+          "\n(",
+          Percentual,
+          "%)"
+        ),
+        text = paste0(
+          "<b>",
+          Sessoes,
+          "</b>",
+          "<br>Presenças: ",
+          Count,
+          "<br>Previsto: ",
+          previsto,
+          "<br>Percentual: ",
+          Percentual,
+          "%"
+        )
+      ),
+      vjust = -0.2,
+      color = "black",
+      size = 4,
+      fontface = "bold"
+    ) +
+      
+      
+      theme_stata() +
+      
+      
+      scale_y_continuous(
+        limits = c(
+          0,
+          limite_y
+        )
+      ) +
+      
+      
+      labs(
+        x = "",
+        y = "Presenças",
+        title = "Presenças por Sessão - Feiras_Beira"
+      )
+    
+    
+    # --------------------------------------------------------
+    # Plotly
+    # --------------------------------------------------------
+    
+    ggplotly(
+      g,
+      tooltip = "text"
+    ) %>%
+      layout(
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4"
+      )
     
   })
   
   
+  # ==========================================================
+  # Texto automático
+  # ==========================================================
   
-  output$tabela_feira_beira <- renderDT({
+  output$texto_feira_beira <- renderUI({
     
-    df<-dados_filtrados_feira_beira()
+    df <- dados_plot_feira_beira()
+    
+    if (nrow(df) == 0) {
+      return(NULL)
+    }
+    
+    
+    maior <- df %>%
+      arrange(
+        desc(Count)
+      ) %>%
+      slice(1)
+    
+    
+    HTML(
+      paste0(
+        "<b>Resumo:</b> A sessão com maior participação foi ",
+        maior$Sessoes,
+        " com ",
+        maior$Count,
+        " participantes (",
+        maior$Percentual,
+        "% do previsto)."
+      )
+    )
+    
+  })
+  
+  
+  # ==========================================================
+  # Tabela - Feiras_Beira
+  # ==========================================================
+  
+  output$tabela_feira_beira <- renderDataTable({
+    
+    df <- dados_filtrados_feira_beira()
+    
+    
+    # --------------------------------------------------------
+    # Identificar colunas de sessões
+    # --------------------------------------------------------
+    
+    col_sessoes <- grep(
+      "^Sessao_\\d+$",
+      names(df),
+      value = TRUE
+    )
+    
+    
+    # --------------------------------------------------------
+    # Ordenar sessões numericamente
+    # --------------------------------------------------------
+    
+    col_sessoes_ordenadas <- col_sessoes[
+      order(
+        as.numeric(
+          gsub(
+            "Sessao_",
+            "",
+            col_sessoes
+          )
+        )
+      )
+    ]
+    
+    
+    # --------------------------------------------------------
+    # Colunas fixas
+    # --------------------------------------------------------
+    
+    col_fixas <- setdiff(
+      names(df),
+      col_sessoes
+    )
+    
+    
+    # --------------------------------------------------------
+    # Reorganizar tabela
+    # --------------------------------------------------------
+    
+    df <- df[
+      ,
+      c(
+        col_fixas,
+        col_sessoes_ordenadas
+      )
+    ]
+    
+    
+    # --------------------------------------------------------
+    # Formatar sessões
+    # --------------------------------------------------------
+    
+    if (length(col_sessoes_ordenadas) > 0) {
+      
+      df[col_sessoes_ordenadas] <- lapply(
+        df[col_sessoes_ordenadas],
+        formatar_pontos
+      )
+      
+    }
+    
+    
+    # --------------------------------------------------------
+    # DataTable
+    # --------------------------------------------------------
     
     datatable(
       df,
-      options=list(
-        pageLength=10,
-        scrollX=TRUE
+      escape = FALSE,
+      options = list(
+        pageLength = 10,
+        scrollX = TRUE
       )
-      
     )
     
   })
@@ -21167,104 +21856,146 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
     )
   })
+  
+  
   ################### MATRIZ DOS INDICADORES
   
+ 
   # ============================================================
   # MATRIZ DE INDICADORES TOC - PAM VERDE CICLO 3
+  #
+  # VERSÃO AJUSTADA
+  #
+  # PRINCIPAIS CORRECÇÕES:
+  #
+  # 1. BASELINE e ENDLINE são calculados separadamente.
+  # 2. Endline NÃO mistura dados de Baseline.
+  # 3. A tabela apresenta:
+  #       ID_Indicador
+  #       Indicador
+  #       Baseline
+  #       Endline
+  #       Variação
+  #       Meta 2026
+  #       Alcance da Meta
+  #       Estado
+  #
+  # 4. Alcance da Meta é calculado somente com o Endline.
+  # 5. Variação para indicadores percentuais:
+  #       Endline - Baseline
+  #
   # ============================================================
   
+  
   output$toc_matriz_indicadores <- renderDT({
+    
     
     # ==========================================================
     # 1. BASE PRINCIPAL DO TOC
     # ==========================================================
     
-    df_toc_pam_verde <- PAM_VERDE_TOC_C3
+    df_toc_pam_verde <-
+      PAM_VERDE_TOC_C3
+    
     
     
     # ==========================================================
     # 2. BASE ESPECÍFICA PARA MONITORIA DA FORMAÇÃO
-    #    Criada com nome próprio para evitar conflitos
-    #    com outras bases de presenças/monitoria.
     # ==========================================================
     
-    df_conclusao_formacao_pam_verde <- PERFIL_PAM_VERDE_C3_2026 %>%
+    df_conclusao_formacao_pam_verde <-
+      PERFIL_PAM_VERDE_C3_2026 %>%
+      
       dplyr::mutate(
-        Status_Padrao_PAM = toupper(
-          stringr::str_squish(
-            trimws(as.character(Status))
+        
+        Status_Padrao_PAM =
+          toupper(
+            stringr::str_squish(
+              trimws(
+                as.character(Status)
+              )
+            )
           )
-        )
       )
+    
     
     
     # ==========================================================
     # 3. PARTICIPANTES QUE INICIARAM A FORMAÇÃO
     #
-    # Mesma lógica usada no gráfico:
     # ACTIVA / ATIVA / DESISTENTE = iniciou
+    #
+    # Este indicador é de monitoria da formação e não possui
+    # Baseline/Endline tradicional.
     # ==========================================================
     
     resultado_inicio_formacao_pam_verde <-
       df_conclusao_formacao_pam_verde %>%
-      dplyr::filter(
-        Status_Padrao_PAM %in% c(
-          "ACTIVA",
-          "ACTIVAS",
-          "ATIVA",
-          "ATIVAS",
-          "DESISTENTE",
-          "DESISTENTES"
-        )
-      ) %>%
+      
       dplyr::summarise(
-        Total_Selecionadas = nrow(
-          df_conclusao_formacao_pam_verde
-        ),
         
-        Total_Iniciaram = dplyr::n(),
+        Total_Selecionadas =
+          dplyr::n(),
         
-        Percentagem_Iniciaram = dplyr::case_when(
-          Total_Selecionadas > 0 ~
-            (Total_Iniciaram / Total_Selecionadas) * 100,
-          
-          TRUE ~ NA_real_
-        )
+        Total_Iniciaram =
+          sum(
+            Status_Padrao_PAM %in% c(
+              "ACTIVA",
+              "ACTIVAS",
+              "ATIVA",
+              "ATIVAS",
+              "DESISTENTE",
+              "DESISTENTES"
+            ),
+            na.rm = TRUE
+          ),
+        
+        Percentagem_Iniciaram =
+          dplyr::case_when(
+            
+            Total_Selecionadas > 0 ~
+              
+              (
+                Total_Iniciaram /
+                  Total_Selecionadas
+              ) * 100,
+            
+            TRUE ~
+              NA_real_
+          )
       )
     
     
-    # ==========================================================
-    # 4. RESULTADO - PARTICIPANTES QUE INICIARAM
-    # ==========================================================
     
     inicio_formacao_EL <-
-      resultado_inicio_formacao_pam_verde$Percentagem_Iniciaram
+      resultado_inicio_formacao_pam_verde$
+      Percentagem_Iniciaram
     
     if (
       length(inicio_formacao_EL) == 0 ||
       is.na(inicio_formacao_EL)
     ) {
-      inicio_formacao_EL <- NA_real_
+      
+      inicio_formacao_EL <-
+        NA_real_
+      
     }
     
     
+    
     # ==========================================================
-    # 5. PARTICIPANTES QUE TERMINARAM A FORMAÇÃO
-    #
-    # Mesma lógica do gráfico:
+    # 4. PARTICIPANTES QUE TERMINARAM A FORMAÇÃO
     #
     # Iniciaram:
     #   ACTIVA / ATIVA / DESISTENTE
     #
     # Terminaram:
     #   ACTIVA / ATIVA
-    #
-    # Percentagem:
-    #   Terminaram / Iniciaram
     # ==========================================================
     
     resultado_conclusao_formacao_pam_verde <-
       df_conclusao_formacao_pam_verde %>%
+      
       dplyr::filter(
         Status_Padrao_PAM %in% c(
           "ACTIVA",
@@ -21275,429 +22006,1305 @@ output$texto_resultado_exercicio_4 <- renderUI({
           "DESISTENTES"
         )
       ) %>%
+      
       dplyr::summarise(
         
-        Total_Iniciaram = dplyr::n(),
+        Total_Iniciaram =
+          dplyr::n(),
         
-        N_Terminaram = sum(
-          Status_Padrao_PAM %in% c(
-            "ACTIVA",
-            "ACTIVAS",
-            "ATIVA",
-            "ATIVAS"
+        N_Terminaram =
+          sum(
+            Status_Padrao_PAM %in% c(
+              "ACTIVA",
+              "ACTIVAS",
+              "ATIVA",
+              "ATIVAS"
+            ),
+            na.rm = TRUE
           ),
-          na.rm = TRUE
-        ),
         
-        Percentagem_Terminaram = dplyr::case_when(
-          
-          Total_Iniciaram > 0 ~
-            (N_Terminaram / Total_Iniciaram) * 100,
-          
-          TRUE ~ NA_real_
-        )
+        Percentagem_Terminaram =
+          dplyr::case_when(
+            
+            Total_Iniciaram > 0 ~
+              
+              (
+                N_Terminaram /
+                  Total_Iniciaram
+              ) * 100,
+            
+            TRUE ~
+              NA_real_
+          )
       )
     
     
-    # ==========================================================
-    # 6. RESULTADO - PARTICIPANTES QUE TERMINARAM
-    # ==========================================================
     
     conclusao_formacao_EL <-
-      resultado_conclusao_formacao_pam_verde$Percentagem_Terminaram
+      resultado_conclusao_formacao_pam_verde$
+      Percentagem_Terminaram
     
     if (
       length(conclusao_formacao_EL) == 0 ||
       is.na(conclusao_formacao_EL)
     ) {
-      conclusao_formacao_EL <- NA_real_
+      
+      conclusao_formacao_EL <-
+        NA_real_
+      
     }
     
     
+    
     # ==========================================================
-    # 7. FORMALIZAÇÃO DO NEGÓCIO
+    # 5. FORMALIZAÇÃO DO NEGÓCIO
+    #
+    # ID:
+    # iPAM_INT1.1
     # ==========================================================
     
-    formalizacao <- df_toc_pam_verde %>%
+    formalizacao <-
+      df_toc_pam_verde %>%
+      
       dplyr::filter(
-        !is.na(Negocio_Formalizado),
+        
+        !is.na(
+          Negocio_Formalizado
+        ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    formalizacao_EL <- formalizacao %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    formalizacao_BL <-
+      formalizacao %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    formalizacao_n_BL <-
+      formalizacao_BL %>%
+      
+      dplyr::filter(
+        
         Negocio_Formalizado ==
           "Iniciei o processo de formalização"
+        
       ) %>%
+      
       nrow()
     
-    formalizacao_total_EL <- nrow(formalizacao)
     
-    formalizacao_percentual_EL <- dplyr::if_else(
-      formalizacao_total_EL > 0,
-      (formalizacao_EL / formalizacao_total_EL) * 100,
-      NA_real_
-    )
+    formalizacao_total_BL <-
+      nrow(
+        formalizacao_BL
+      )
     
     
-    # ==========================================================
-    # 8. SALÁRIO MENSAL PARA SI MESMA
-    # ==========================================================
+    formalizacao_percentual_BL <-
+      dplyr::if_else(
+        
+        formalizacao_total_BL > 0,
+        
+        (
+          formalizacao_n_BL /
+            formalizacao_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
     
-    salario <- df_toc_pam_verde %>%
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    formalizacao_EL <-
+      formalizacao %>%
+      
       dplyr::filter(
-        !is.na(Tira_Salario_Para_Si),
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    formalizacao_n_EL <-
+      formalizacao_EL %>%
+      
+      dplyr::filter(
+        
+        Negocio_Formalizado ==
+          "Iniciei o processo de formalização"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    formalizacao_total_EL <-
+      nrow(
+        formalizacao_EL
+      )
+    
+    
+    formalizacao_percentual_EL <-
+      dplyr::if_else(
+        
+        formalizacao_total_EL > 0,
+        
+        (
+          formalizacao_n_EL /
+            formalizacao_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 6. SALÁRIO MENSAL PARA SI MESMA
+    #
+    # ID:
+    # iPAM_RI.2.4
+    # ==========================================================
+    
+    salario <-
+      df_toc_pam_verde %>%
+      
+      dplyr::filter(
+        
+        !is.na(
+          Tira_Salario_Para_Si
+        ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    salario_total_EL <- salario %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    salario_BL <-
+      salario %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    salario_total_BL <-
+      salario_BL %>%
+      
+      dplyr::filter(
+        
         Tira_Salario_Para_Si !=
           "Não, não retiro nenhum valor para mim mesma"
+        
       ) %>%
+      
       nrow()
     
-    salario_EL <- salario %>%
+    
+    salario_n_BL <-
+      salario_BL %>%
+      
       dplyr::filter(
+        
         Tira_Salario_Para_Si ==
           "Sim, retiro um valor fixo todos os meses"
+        
       ) %>%
+      
       nrow()
     
-    salario_percentual_EL <- dplyr::if_else(
-      salario_total_EL > 0,
-      (salario_EL / salario_total_EL) * 100,
-      NA_real_
-    )
+    
+    salario_percentual_BL <-
+      dplyr::if_else(
+        
+        salario_total_BL > 0,
+        
+        (
+          salario_n_BL /
+            salario_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
     
     
-    # ==========================================================
-    # 9. TOMADA DE DECISÕES
-    # ==========================================================
     
-    decisoes <- df_toc_pam_verde %>%
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    salario_EL <-
+      salario %>%
+      
       dplyr::filter(
-        !is.na(Quem_Toma_Decisoes_Negocio),
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    salario_total_EL <-
+      salario_EL %>%
+      
+      dplyr::filter(
+        
+        Tira_Salario_Para_Si !=
+          "Não, não retiro nenhum valor para mim mesma"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    salario_n_EL <-
+      salario_EL %>%
+      
+      dplyr::filter(
+        
+        Tira_Salario_Para_Si ==
+          "Sim, retiro um valor fixo todos os meses"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    salario_percentual_EL <-
+      dplyr::if_else(
+        
+        salario_total_EL > 0,
+        
+        (
+          salario_n_EL /
+            salario_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 7. TOMADA DE DECISÕES
+    #
+    # Pergunta:
+    # Quem_Toma_Decisoes_Negocio
+    #
+    # Resposta considerada:
+    # "Só eu"
+    # ==========================================================
+    
+    decisoes <-
+      df_toc_pam_verde %>%
+      
+      dplyr::filter(
+        
+        !is.na(
+          Quem_Toma_Decisoes_Negocio
+        ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    decisoes_EL <- decisoes %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    decisoes_BL <-
+      decisoes %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    decisoes_n_BL <-
+      decisoes_BL %>%
+      
+      dplyr::filter(
+        
         Quem_Toma_Decisoes_Negocio ==
           "Só eu"
+        
       ) %>%
+      
       nrow()
     
-    decisoes_total_EL <- nrow(decisoes)
     
-    decisoes_percentual_EL <- dplyr::if_else(
-      decisoes_total_EL > 0,
-      (decisoes_EL / decisoes_total_EL) * 100,
-      NA_real_
-    )
+    decisoes_total_BL <-
+      nrow(
+        decisoes_BL
+      )
     
     
-    # ==========================================================
-    # 10. CONFIANÇA NA NEGOCIAÇÃO COM CLIENTES
-    # ==========================================================
+    decisoes_percentual_BL <-
+      dplyr::if_else(
+        
+        decisoes_total_BL > 0,
+        
+        (
+          decisoes_n_BL /
+            decisoes_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
     
-    negociacao_clientes <- df_toc_pam_verde %>%
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    decisoes_EL <-
+      decisoes %>%
+      
       dplyr::filter(
-        !is.na(Negociacao_Com_Clientes),
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    decisoes_n_EL <-
+      decisoes_EL %>%
+      
+      dplyr::filter(
+        
+        Quem_Toma_Decisoes_Negocio ==
+          "Só eu"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    decisoes_total_EL <-
+      nrow(
+        decisoes_EL
+      )
+    
+    
+    decisoes_percentual_EL <-
+      dplyr::if_else(
+        
+        decisoes_total_EL > 0,
+        
+        (
+          decisoes_n_EL /
+            decisoes_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 8. CONFIANÇA NA NEGOCIAÇÃO COM CLIENTES
+    #
+    # ID:
+    # iPAM_RI.2.6
+    #
+    # Resposta considerada:
+    # "Sim, sinto-me confiante e sei defender a minha posição"
+    #
+    # IMPORTANTE:
+    # Baseline e Endline são calculados separadamente.
+    # ==========================================================
+    
+    negociacao_clientes <-
+      df_toc_pam_verde %>%
+      
+      dplyr::filter(
+        
+        !is.na(
+          Negociacao_Com_Clientes
+        ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    negociacao_clientes_EL <- negociacao_clientes %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    negociacao_clientes_BL <-
+      negociacao_clientes %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    negociacao_clientes_confiante_BL <-
+      negociacao_clientes_BL %>%
+      
+      dplyr::filter(
+        
         Negociacao_Com_Clientes ==
           "Sim, sinto-me confiante e sei defender a minha posição"
+        
       ) %>%
+      
       nrow()
     
+    
+    negociacao_clientes_total_BL <-
+      nrow(
+        negociacao_clientes_BL
+      )
+    
+    
+    negociacao_clientes_percentual_BL <-
+      dplyr::if_else(
+        
+        negociacao_clientes_total_BL > 0,
+        
+        (
+          negociacao_clientes_confiante_BL /
+            negociacao_clientes_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    negociacao_clientes_EL <-
+      negociacao_clientes %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    negociacao_clientes_confiante_EL <-
+      negociacao_clientes_EL %>%
+      
+      dplyr::filter(
+        
+        Negociacao_Com_Clientes ==
+          "Sim, sinto-me confiante e sei defender a minha posição"
+        
+      ) %>%
+      
+      nrow()
+    
+    
     negociacao_clientes_total_EL <-
-      nrow(negociacao_clientes)
+      nrow(
+        negociacao_clientes_EL
+      )
+    
     
     negociacao_clientes_percentual_EL <-
       dplyr::if_else(
+        
         negociacao_clientes_total_EL > 0,
+        
         (
-          negociacao_clientes_EL /
+          negociacao_clientes_confiante_EL /
             negociacao_clientes_total_EL
         ) * 100,
+        
         NA_real_
       )
     
     
+    
+    
     # ==========================================================
-    # 11. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
+    # 9. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
+    #
+    # ID:
+    # iPAM_RI.5.1
+    #
+    # Resposta:
+    # "Sim, negociei e consegui um acordo favorável
+    #  para o meu negócio"
     # ==========================================================
     
-    negociacao_3meses <- df_toc_pam_verde %>%
+    negociacao_3meses <-
+      df_toc_pam_verde %>%
+      
       dplyr::filter(
+        
         !is.na(
           Praticou_negociação_nos_últimos_3meses
         ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    negociacao_3meses_EL <- negociacao_3meses %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    negociacao_3meses_BL <-
+      negociacao_3meses %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    negociacao_3meses_n_BL <-
+      negociacao_3meses_BL %>%
+      
+      dplyr::filter(
+        
         Praticou_negociação_nos_últimos_3meses ==
           "Sim, negociei e consegui um acordo favorável para o meu negócio"
+        
       ) %>%
+      
       nrow()
     
+    
+    negociacao_3meses_total_BL <-
+      nrow(
+        negociacao_3meses_BL
+      )
+    
+    
+    negociacao_3meses_percentual_BL <-
+      dplyr::if_else(
+        
+        negociacao_3meses_total_BL > 0,
+        
+        (
+          negociacao_3meses_n_BL /
+            negociacao_3meses_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    negociacao_3meses_EL <-
+      negociacao_3meses %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    negociacao_3meses_n_EL <-
+      negociacao_3meses_EL %>%
+      
+      dplyr::filter(
+        
+        Praticou_negociação_nos_últimos_3meses ==
+          "Sim, negociei e consegui um acordo favorável para o meu negócio"
+        
+      ) %>%
+      
+      nrow()
+    
+    
     negociacao_3meses_total_EL <-
-      nrow(negociacao_3meses)
+      nrow(
+        negociacao_3meses_EL
+      )
+    
     
     negociacao_3meses_percentual_EL <-
       dplyr::if_else(
+        
         negociacao_3meses_total_EL > 0,
+        
         (
-          negociacao_3meses_EL /
+          negociacao_3meses_n_EL /
             negociacao_3meses_total_EL
         ) * 100,
+        
         NA_real_
       )
     
     
+    
+    
     # ==========================================================
-    # 12. UTILIZAÇÃO DE FERRAMENTAS DE IA
+    # 10. UTILIZAÇÃO DE FERRAMENTAS DE IA
+    #
+    # Mede utilização geral de IA.
+    #
+    # Não atribuímos automaticamente iPAM_RI.3.1 porque esse
+    # ID refere-se especificamente à utilização da ferramenta HCD.
     # ==========================================================
     
-    uso_ia <- df_toc_pam_verde %>%
+    uso_ia <-
+      df_toc_pam_verde %>%
+      
       dplyr::filter(
-        !is.na(Uso_de_ferramentas_de_IA),
+        
+        !is.na(
+          Uso_de_ferramentas_de_IA
+        ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    uso_ia_EL <- uso_ia %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    uso_ia_BL <-
+      uso_ia %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    uso_ia_n_BL <-
+      uso_ia_BL %>%
+      
+      dplyr::filter(
+        
         Uso_de_ferramentas_de_IA %in% c(
+          
           "Sim, usei pelo menos uma vez",
+          
           "Sim, uso regularmente para o negócio"
+          
         )
+        
       ) %>%
+      
       nrow()
     
-    uso_ia_total_EL <- nrow(uso_ia)
     
-    uso_ia_percentual_EL <- dplyr::if_else(
-      uso_ia_total_EL > 0,
-      (uso_ia_EL / uso_ia_total_EL) * 100,
-      NA_real_
-    )
+    uso_ia_total_BL <-
+      nrow(
+        uso_ia_BL
+      )
     
     
-    # ==========================================================
-    # 13. SEPARAÇÃO DAS CONTAS PESSOAIS E DO NEGÓCIO
-    # ==========================================================
+    uso_ia_percentual_BL <-
+      dplyr::if_else(
+        
+        uso_ia_total_BL > 0,
+        
+        (
+          uso_ia_n_BL /
+            uso_ia_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
     
-    contas <- df_toc_pam_verde %>%
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    uso_ia_EL <-
+      uso_ia %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    uso_ia_n_EL <-
+      uso_ia_EL %>%
+      
+      dplyr::filter(
+        
+        Uso_de_ferramentas_de_IA %in% c(
+          
+          "Sim, usei pelo menos uma vez",
+          
+          "Sim, uso regularmente para o negócio"
+          
+        )
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    uso_ia_total_EL <-
+      nrow(
+        uso_ia_EL
+      )
+    
+    
+    uso_ia_percentual_EL <-
+      dplyr::if_else(
+        
+        uso_ia_total_EL > 0,
+        
+        (
+          uso_ia_n_EL /
+            uso_ia_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 11. SEPARAÇÃO DAS CONTAS PESSOAIS E DO NEGÓCIO
+    # ==========================================================
+    
+    contas <-
+      df_toc_pam_verde %>%
+      
+      dplyr::filter(
+        
         !is.na(
           `Faz separação das contas pessoais e do negócio`
         ),
+        
         Tipo_Avaliacao %in% c(
           "Baseline",
           "Endline"
         )
       )
     
-    contas_EL <- contas %>%
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    contas_BL <-
+      contas %>%
+      
       dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    contas_n_BL <-
+      contas_BL %>%
+      
+      dplyr::filter(
+        
         `Faz separação das contas pessoais e do negócio` ==
           "Sim"
+        
       ) %>%
+      
       nrow()
     
-    contas_total_EL <- nrow(contas)
     
-    contas_percentual_EL <- dplyr::if_else(
-      contas_total_EL > 0,
-      (contas_EL / contas_total_EL) * 100,
-      NA_real_
-    )
-    
-    
-    # ==========================================================
-    # 14. SABEM CALCULAR O LUCRO
-    # ==========================================================
-    
-    calculo_lucro <- df_toc_pam_verde %>%
-      dplyr::filter(
-        !is.na(
-          `Sabe calcular o lucro do negócio  (com base no exercício prático)`
-        ),
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
+    contas_total_BL <-
+      nrow(
+        contas_BL
       )
     
-    calculo_lucro_EL <- calculo_lucro %>%
-      dplyr::filter(
-        `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
-          "Sim"
-      ) %>%
-      nrow()
     
-    calculo_lucro_total_EL <- nrow(calculo_lucro)
-    
-    calculo_lucro_percentual_EL <- dplyr::if_else(
-      calculo_lucro_total_EL > 0,
-      (
-        calculo_lucro_EL /
-          calculo_lucro_total_EL
-      ) * 100,
-      NA_real_
-    )
-    
-    
-    # ==========================================================
-    # 15. CONTROLO DO DINHEIRO QUE ENTRA E SAI
-    # ==========================================================
-    
-    controlo_dinheiro <- df_toc_pam_verde %>%
-      dplyr::filter(
-        !is.na(
-          `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
-        ),
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    controlo_dinheiro_EL <- controlo_dinheiro %>%
-      dplyr::filter(
-        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
-          "Sim"
-      ) %>%
-      nrow()
-    
-    controlo_dinheiro_total_EL <-
-      nrow(controlo_dinheiro)
-    
-    controlo_dinheiro_percentual_EL <-
+    contas_percentual_BL <-
       dplyr::if_else(
-        controlo_dinheiro_total_EL > 0,
+        
+        contas_total_BL > 0,
+        
         (
-          controlo_dinheiro_EL /
-            controlo_dinheiro_total_EL
+          contas_n_BL /
+            contas_total_BL
         ) * 100,
+        
         NA_real_
       )
     
     
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    contas_EL <-
+      contas %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    contas_n_EL <-
+      contas_EL %>%
+      
+      dplyr::filter(
+        
+        `Faz separação das contas pessoais e do negócio` ==
+          "Sim"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    contas_total_EL <-
+      nrow(
+        contas_EL
+      )
+    
+    
+    contas_percentual_EL <-
+      dplyr::if_else(
+        
+        contas_total_EL > 0,
+        
+        (
+          contas_n_EL /
+            contas_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
     # ==========================================================
-    # 16. ACTIVIDADES DE GÉNERO
-    #     APENAS ENDLINE
+    # 12. SABEM CALCULAR O LUCRO
+    #
+    # ID:
+    # iPAM_RI.4.1
     # ==========================================================
     
-    genero <- df_toc_pam_verde %>%
+    calculo_lucro <-
+      df_toc_pam_verde %>%
+      
       dplyr::filter(
+        
+        !is.na(
+          `Sabe calcular o lucro do negócio  (com base no exercício prático)`
+        ),
+        
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
+      )
+    
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    calculo_lucro_BL <-
+      calculo_lucro %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    calculo_lucro_n_BL <-
+      calculo_lucro_BL %>%
+      
+      dplyr::filter(
+        
+        `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
+          "Sim"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    calculo_lucro_total_BL <-
+      nrow(
+        calculo_lucro_BL
+      )
+    
+    
+    calculo_lucro_percentual_BL <-
+      dplyr::if_else(
+        
+        calculo_lucro_total_BL > 0,
+        
+        (
+          calculo_lucro_n_BL /
+            calculo_lucro_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    calculo_lucro_EL <-
+      calculo_lucro %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    calculo_lucro_n_EL <-
+      calculo_lucro_EL %>%
+      
+      dplyr::filter(
+        
+        `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
+          "Sim"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    calculo_lucro_total_EL <-
+      nrow(
+        calculo_lucro_EL
+      )
+    
+    
+    calculo_lucro_percentual_EL <-
+      dplyr::if_else(
+        
+        calculo_lucro_total_EL > 0,
+        
+        (
+          calculo_lucro_n_EL /
+            calculo_lucro_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 13. CONTROLO DO DINHEIRO QUE ENTRA E SAI
+    # ==========================================================
+    
+    controlo_dinheiro <-
+      df_toc_pam_verde %>%
+      
+      dplyr::filter(
+        
+        !is.na(
+          `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
+        ),
+        
+        Tipo_Avaliacao %in% c(
+          "Baseline",
+          "Endline"
+        )
+      )
+    
+    
+    
+    # -------------------------
+    # BASELINE
+    # -------------------------
+    
+    controlo_dinheiro_BL <-
+      controlo_dinheiro %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Baseline"
+      )
+    
+    
+    controlo_dinheiro_n_BL <-
+      controlo_dinheiro_BL %>%
+      
+      dplyr::filter(
+        
+        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
+          "Sim"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    controlo_dinheiro_total_BL <-
+      nrow(
+        controlo_dinheiro_BL
+      )
+    
+    
+    controlo_dinheiro_percentual_BL <-
+      dplyr::if_else(
+        
+        controlo_dinheiro_total_BL > 0,
+        
+        (
+          controlo_dinheiro_n_BL /
+            controlo_dinheiro_total_BL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    # -------------------------
+    # ENDLINE
+    # -------------------------
+    
+    controlo_dinheiro_EL <-
+      controlo_dinheiro %>%
+      
+      dplyr::filter(
+        Tipo_Avaliacao == "Endline"
+      )
+    
+    
+    controlo_dinheiro_n_EL <-
+      controlo_dinheiro_EL %>%
+      
+      dplyr::filter(
+        
+        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
+          "Sim"
+        
+      ) %>%
+      
+      nrow()
+    
+    
+    controlo_dinheiro_total_EL <-
+      nrow(
+        controlo_dinheiro_EL
+      )
+    
+    
+    controlo_dinheiro_percentual_EL <-
+      dplyr::if_else(
+        
+        controlo_dinheiro_total_EL > 0,
+        
+        (
+          controlo_dinheiro_n_EL /
+            controlo_dinheiro_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 14. ACTIVIDADES DE GÉNERO
+    #
+    # APENAS ENDLINE
+    #
+    # Não existe Baseline equivalente nesta pergunta.
+    # ==========================================================
+    
+    genero <-
+      df_toc_pam_verde %>%
+      
+      dplyr::filter(
+        
         Tipo_Avaliacao == "Endline",
+        
         !is.na(
           `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?`
         )
       )
     
-    genero_EL <- genero %>%
+    
+    genero_n_EL <-
+      genero %>%
+      
       dplyr::filter(
+        
         `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?` ==
+          
           "Ajudaram bastante / mudaram a minha compreensão"
+        
       ) %>%
+      
       nrow()
     
-    genero_total_EL <- nrow(genero)
     
-    genero_percentual_EL <- dplyr::if_else(
-      genero_total_EL > 0,
-      (genero_EL / genero_total_EL) * 100,
-      NA_real_
-    )
+    genero_total_EL <-
+      nrow(
+        genero
+      )
+    
+    
+    genero_percentual_EL <-
+      dplyr::if_else(
+        
+        genero_total_EL > 0,
+        
+        (
+          genero_n_EL /
+            genero_total_EL
+        ) * 100,
+        
+        NA_real_
+      )
+    
     
     
     # ==========================================================
-    # 17. RESULTADOS FINANCEIROS
+    # 15. RESULTADOS FINANCEIROS
+    #
+    # Fonte:
+    # FINANCEIRO_TOC_NAMPULA
+    #
+    # Não existe Baseline/Endline convencional.
+    # O cálculo é feito a partir dos 3 meses.
     # ==========================================================
     
-    financeiro_pam_verde <- FINANCEIRO_TOC_NAMPULA %>%
+    financeiro_pam_verde <-
+      FINANCEIRO_TOC_NAMPULA %>%
+      
       dplyr::filter(
+        
         Periodo %in% c(
           "Primeiro Mês",
           "Segundo Mês",
           "Terceiro Mês"
         ),
-        !is.na(Nome_Empreendedora),
-        !is.na(Lucro_Semanal)
+        
+        !is.na(
+          Nome_Empreendedora
+        ),
+        
+        !is.na(
+          Lucro_Semanal
+        )
+        
       ) %>%
+      
       dplyr::group_by(
+        
         Nome_Empreendedora,
         Periodo
+        
       ) %>%
+      
       dplyr::summarise(
-        Lucro = sum(
-          Lucro_Semanal,
-          na.rm = TRUE
-        ),
+        
+        Lucro =
+          sum(
+            Lucro_Semanal,
+            na.rm = TRUE
+          ),
+        
         .groups = "drop"
+        
       ) %>%
+      
       tidyr::pivot_wider(
-        names_from = Periodo,
-        values_from = Lucro,
+        
+        names_from =
+          Periodo,
+        
+        values_from =
+          Lucro,
+        
         values_fill = 0
+        
       )
     
     
+    
     # ==========================================================
-    # 18. AUMENTO DO LUCRO
+    # 16. AUMENTO DO LUCRO
     # ==========================================================
     
     if (
-      nrow(financeiro_pam_verde) > 0 &&
+      
+      nrow(
+        financeiro_pam_verde
+      ) > 0 &&
+      
       all(
         c(
           "Primeiro Mês",
           "Terceiro Mês"
         ) %in%
-        names(financeiro_pam_verde)
+        names(
+          financeiro_pam_verde
+        )
       )
+      
     ) {
       
-      financeiro_pam_verde <- financeiro_pam_verde %>%
+      financeiro_pam_verde <-
+        financeiro_pam_verde %>%
+        
         dplyr::mutate(
           
           Aumento_Lucro =
+            
             `Terceiro Mês` -
             `Primeiro Mês`,
           
           Percentual_Aumento =
+            
             dplyr::if_else(
+              
               `Primeiro Mês` > 0,
+              
               (
                 Aumento_Lucro /
                   `Primeiro Mês`
               ) * 100,
+              
               NA_real_
             )
         )
@@ -21705,313 +23312,463 @@ output$texto_resultado_exercicio_4 <- renderUI({
     } else {
       
       financeiro_pam_verde$Aumento_Lucro <-
-        numeric(0)
+        numeric(
+          nrow(
+            financeiro_pam_verde
+          )
+        )
       
       financeiro_pam_verde$Percentual_Aumento <-
-        numeric(0)
+        numeric(
+          nrow(
+            financeiro_pam_verde
+          )
+        )
     }
     
     
-    # ==========================================================
-    # 19. % QUE AUMENTARAM O LUCRO
-    # ==========================================================
-    
-    lucro_aumentou_EL <- ifelse(
-      nrow(financeiro_pam_verde) > 0,
-      
-      mean(
-        financeiro_pam_verde$Percentual_Aumento > 0,
-        na.rm = TRUE
-      ) * 100,
-      
-      NA_real_
-    )
-    
-    if (
-      is.nan(lucro_aumentou_EL)
-    ) {
-      lucro_aumentou_EL <- NA_real_
-    }
-    
     
     # ==========================================================
-    # 20. % QUE AUMENTARAM O LUCRO EM MAIS DE 25%
+    # 17. % QUE AUMENTARAM O LUCRO
+    #
+    # ID:
+    # iPAM_RI.1.1
     # ==========================================================
     
-    lucro_mais_25_EL <- ifelse(
-      nrow(financeiro_pam_verde) > 0,
+    lucro_aumentou_EL <-
       
-      mean(
-        financeiro_pam_verde$Percentual_Aumento > 25,
-        na.rm = TRUE
-      ) * 100,
-      
-      NA_real_
-    )
-    
-    if (
-      is.nan(lucro_mais_25_EL)
-    ) {
-      lucro_mais_25_EL <- NA_real_
-    }
-    
-    
-    # ==========================================================
-    # 21. VALOR MÉDIO DO AUMENTO DO LUCRO
-    # ==========================================================
-    
-    aumento_medio_lucro_EL <- ifelse(
-      nrow(financeiro_pam_verde) > 0,
-      
-      mean(
-        financeiro_pam_verde$Aumento_Lucro,
-        na.rm = TRUE
-      ),
-      
-      NA_real_
-    )
-    
-    if (
-      is.nan(aumento_medio_lucro_EL)
-    ) {
-      aumento_medio_lucro_EL <- NA_real_
-    }
-    
-    
-    # ==========================================================
-    # 22. SALDO LÍQUIDO DO VALOR ADICIONADO
-    # ==========================================================
-    
-    saldo_liquido_lucro_EL <- ifelse(
-      nrow(financeiro_pam_verde) > 0,
-      
-      sum(
-        financeiro_pam_verde$Aumento_Lucro,
-        na.rm = TRUE
-      ),
-      
-      NA_real_
-    )
-    
-    
-    # ==========================================================
-    # 23. MATRIZ DE INDICADORES
-    # ==========================================================
-    
-    indicadores_toc <- data.frame(
-      
-      Indicador = c(
+      ifelse(
         
-        # ------------------------------------------------------
-        # FORMAÇÃO
-        # ------------------------------------------------------
+        nrow(
+          financeiro_pam_verde
+        ) > 0,
         
-        "% de participantes que iniciam a formação",
-        
-        "% de participantes que completam  a formação",
-        
-        
-        # ------------------------------------------------------
-        # NEGÓCIO / GESTÃO
-        # ------------------------------------------------------
-        
-        "% de empreendedoras que iniciam o processo de formalização",
-        
-        "% de empreendedoras que definem um salário mensal para si mesmas",
-        
-        "% de empreendedoras que tomam sozinhas as principais decisões",
-        
-        "% de empreendedoras confiantes na negociação com clientes",
-        
-        "% de empreendedoras que nos últimos 3 meses negociaram e conseguiram acordo favorável",
-        
-        "% de empreendedoras que sabem utilizar ferramentas de IA",
-        
-        "% de empreendedoras que fazem separação das contas pessoais e do negócio",
-        
-        "% de empreendedoras que sabem calcular o lucro",
-        
-        "% de empreendedoras que fazem controlo do dinheiro que entra e sai",
-        
-        
-        # ------------------------------------------------------
-        # GÉNERO
-        # ------------------------------------------------------
-        
-        "% de empreendedoras que consideram que as actividades de género ajudaram bastante / mudaram a sua compreensão",
-        
-        
-        # ------------------------------------------------------
-        # RESULTADOS FINANCEIROS
-        # ------------------------------------------------------
-        
-        "% de empreendedoras que aumentaram os seus lucros durante os 3 meses",
-        
-        "% de empreendedoras que aumentaram o lucro em mais de 25%",
-        
-        "Valor médio de aumento do lucro por empreendedora",
-        
-        "Saldo líquido do valor adicionado ao final dos 3 meses"
-      ),
-      
-      
-      # ========================================================
-      # BASELINE
-      # ========================================================
-      
-      Baseline = c(
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
-        
-        NA_real_,
+        mean(
+          financeiro_pam_verde$
+            Percentual_Aumento > 0,
+          na.rm = TRUE
+        ) * 100,
         
         NA_real_
-      ),
+      )
+    
+    
+    if (
+      is.nan(
+        lucro_aumentou_EL
+      )
+    ) {
       
+      lucro_aumentou_EL <-
+        NA_real_
       
-      # ========================================================
-      # ENDLINE
-      # ========================================================
-      
-      Endline = c(
-        
-        # Formação
-        inicio_formacao_EL,
-        
-        conclusao_formacao_EL,
-        
-        # Gestão
-        formalizacao_percentual_EL,
-        
-        salario_percentual_EL,
-        
-        decisoes_percentual_EL,
-        
-        negociacao_clientes_percentual_EL,
-        
-        negociacao_3meses_percentual_EL,
-        
-        uso_ia_percentual_EL,
-        
-        contas_percentual_EL,
-        
-        calculo_lucro_percentual_EL,
-        
-        controlo_dinheiro_percentual_EL,
-        
-        # Género
-        genero_percentual_EL,
-        
-        # Financeiro
-        lucro_aumentou_EL,
-        
-        lucro_mais_25_EL,
-        
-        aumento_medio_lucro_EL,
-        
-        saldo_liquido_lucro_EL
-      ),
-      
-      
-      # ========================================================
-      # META 2026
-      # ========================================================
-      
-      Meta_2026 = c(
-        
-        # Formação
-        85,
-        
-        80,
-        
-        # Gestão
-        10,
-        
-        50,
-        
-        100,
-        
-        70,
-        
-        70,
-        
-        80,
-        
-        80,
-        
-        85,
-        
-        80,
-        
-        # Género
-        100,
-        
-        # Financeiro
-        80,
-        
-        50,
-        
-        2500,
-        
-        70000
-      ),
-      
-      
-      stringsAsFactors = FALSE
-    )
+    }
+    
     
     
     # ==========================================================
-    # 24. TIPO DE INDICADOR
+    # 18. % QUE AUMENTARAM O LUCRO EM 25% OU MAIS
+    #
+    # ID:
+    # iPAM_RI.1.2
+    # ==========================================================
+    
+    lucro_mais_25_EL <-
+      
+      ifelse(
+        
+        nrow(
+          financeiro_pam_verde
+        ) > 0,
+        
+        mean(
+          financeiro_pam_verde$
+            Percentual_Aumento >= 25,
+          na.rm = TRUE
+        ) * 100,
+        
+        NA_real_
+      )
+    
+    
+    if (
+      is.nan(
+        lucro_mais_25_EL
+      )
+    ) {
+      
+      lucro_mais_25_EL <-
+        NA_real_
+      
+    }
+    
+    
+    
+    # ==========================================================
+    # 19. VALOR MÉDIO DO AUMENTO DO LUCRO
+    #
+    # Mantido como valor financeiro.
+    # ==========================================================
+    
+    aumento_medio_lucro_EL <-
+      
+      ifelse(
+        
+        nrow(
+          financeiro_pam_verde
+        ) > 0,
+        
+        mean(
+          financeiro_pam_verde$
+            Aumento_Lucro,
+          na.rm = TRUE
+        ),
+        
+        NA_real_
+      )
+    
+    
+    if (
+      is.nan(
+        aumento_medio_lucro_EL
+      )
+    ) {
+      
+      aumento_medio_lucro_EL <-
+        NA_real_
+      
+    }
+    
+    
+    
+    # ==========================================================
+    # 20. SALDO LÍQUIDO DO VALOR ADICIONADO
+    # ==========================================================
+    
+    saldo_liquido_lucro_EL <-
+      
+      ifelse(
+        
+        nrow(
+          financeiro_pam_verde
+        ) > 0,
+        
+        sum(
+          financeiro_pam_verde$
+            Aumento_Lucro,
+          na.rm = TRUE
+        ),
+        
+        NA_real_
+      )
+    
+    
+    
+    # ==========================================================
+    # 21. MATRIZ DE INDICADORES
+    # ==========================================================
+    
+    indicadores_toc <-
+      
+      data.frame(
+        
+        
+        # ========================================================
+        # ID
+        # ========================================================
+        
+        ID_Indicador = c(
+          
+          NA_character_,
+          NA_character_,
+          
+          "iPAM_INT1.1",
+          "iPAM_RI.2.4",
+          NA_character_,
+          "iPAM_RI.2.6",
+          "iPAM_RI.5.1",
+          NA_character_,
+          NA_character_,
+          "iPAM_RI.4.1",
+          NA_character_,
+          
+          NA_character_,
+          
+          "iPAM_RI.1.1",
+          "iPAM_RI.1.2",
+          "iPAM_RI.2.1",
+          "iPAM_RI.1.3b"
+          
+        ),
+        
+        
+        
+        # ========================================================
+        # INDICADOR
+        # ========================================================
+        
+        Indicador = c(
+          
+          # Formação
+          
+          "% de participantes que iniciam a formação",
+          
+          "% de participantes que completam a formação",
+          
+          
+          # Gestão
+          
+          "% de empreendedoras que iniciam o processo de formalização",
+          
+          "% de empreendedoras que definem um salário mensal para si mesmas",
+          
+          "% de empreendedoras que tomam sozinhas as principais decisões",
+          
+          "% de empreendedoras confiantes na negociação com clientes",
+          
+          "% de empreendedoras que nos últimos 3 meses negociaram e conseguiram acordo favorável",
+          
+          "% de empreendedoras que sabem utilizar ferramentas de IA",
+          
+          "% de empreendedoras que fazem separação das contas pessoais e do negócio",
+          
+          "% de empreendedoras que sabem calcular o lucro",
+          
+          "% de empreendedoras que fazem controlo do dinheiro que entra e sai",
+          
+          
+          # Género
+          
+          "% de empreendedoras que consideram que as actividades de género ajudaram bastante / mudaram a sua compreensão",
+          
+          
+          # Financeiro
+          
+          "% de empreendedoras que aumentaram os seus lucros durante os 3 meses",
+          
+          "% de empreendedoras que aumentaram o lucro em 25% ou mais",
+          
+          "Valor médio de aumento do lucro por empreendedora",
+          
+          "Saldo líquido do valor adicionado ao final dos 3 meses"
+          
+        ),
+        
+        
+        
+        # ========================================================
+        # BASELINE
+        # ========================================================
+        
+        Baseline = c(
+          
+          # Formação
+          
+          NA_real_,
+          NA_real_,
+          
+          # Gestão
+          
+          formalizacao_percentual_BL,
+          salario_percentual_BL,
+          decisoes_percentual_BL,
+          negociacao_clientes_percentual_BL,
+          negociacao_3meses_percentual_BL,
+          uso_ia_percentual_BL,
+          contas_percentual_BL,
+          calculo_lucro_percentual_BL,
+          controlo_dinheiro_percentual_BL,
+          
+          # Género
+          
+          NA_real_,
+          
+          # Financeiro
+          
+          NA_real_,
+          NA_real_,
+          NA_real_,
+          NA_real_
+          
+        ),
+        
+        
+        
+        # ========================================================
+        # ENDLINE
+        # ========================================================
+        
+        Endline = c(
+          
+          # Formação
+          
+          inicio_formacao_EL,
+          conclusao_formacao_EL,
+          
+          # Gestão
+          
+          formalizacao_percentual_EL,
+          salario_percentual_EL,
+          decisoes_percentual_EL,
+          negociacao_clientes_percentual_EL,
+          negociacao_3meses_percentual_EL,
+          uso_ia_percentual_EL,
+          contas_percentual_EL,
+          calculo_lucro_percentual_EL,
+          controlo_dinheiro_percentual_EL,
+          
+          # Género
+          
+          genero_percentual_EL,
+          
+          # Financeiro
+          
+          lucro_aumentou_EL,
+          lucro_mais_25_EL,
+          aumento_medio_lucro_EL,
+          saldo_liquido_lucro_EL
+          
+        ),
+        
+        
+        
+        # ========================================================
+        # META 2026
+        # ========================================================
+        
+        Meta_2026 = c(
+          
+          # Formação
+          
+          85,
+          80,
+          
+          # Gestão
+          
+          10,
+          50,
+          100,
+          70,
+          70,
+          80,
+          80,
+          85,
+          80,
+          
+          # Género
+          
+          100,
+          
+          # Financeiro
+          
+          80,
+          50,
+          2500,
+          70000
+          
+        ),
+        
+        
+        stringsAsFactors = FALSE
+        
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 22. TIPO DE INDICADOR
     # ==========================================================
     
     indicadores_toc$Tipo_Indicador <-
+      
       dplyr::case_when(
         
         grepl(
           "Valor médio|Saldo líquido",
           indicadores_toc$Indicador
-        ) ~ "MT",
+        ) ~
+          "MT",
         
-        TRUE ~ "%"
+        TRUE ~
+          "%"
       )
     
     
+    
+    
     # ==========================================================
-    # 25. ALCANCE DA META
+    # 23. VARIAÇÃO BASELINE → ENDLINE
+    #
+    # Para indicadores percentuais:
+    #
+    # Variação = Endline - Baseline
+    #
+    # Resultado apresentado em pontos percentuais.
+    #
+    # Para indicadores sem Baseline:
+    # "NA"
+    # ==========================================================
+    
+    indicadores_toc$Variacao_Numerica <-
+      
+      dplyr::case_when(
+        
+        indicadores_toc$Tipo_Indicador == "%" &
+          
+          !is.na(
+            indicadores_toc$Baseline
+          ) &
+          
+          !is.na(
+            indicadores_toc$Endline
+          ) ~
+          
+          indicadores_toc$Endline -
+          indicadores_toc$Baseline,
+        
+        indicadores_toc$Tipo_Indicador == "MT" &
+          
+          !is.na(
+            indicadores_toc$Baseline
+          ) &
+          
+          !is.na(
+            indicadores_toc$Endline
+          ) ~
+          
+          indicadores_toc$Endline -
+          indicadores_toc$Baseline,
+        
+        TRUE ~
+          NA_real_
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 24. ALCANCE DA META
+    #
+    # IMPORTANTE:
+    #
+    # O alcance é calculado exclusivamente sobre o ENDLINE.
+    #
+    # Não utilizamos o Baseline neste cálculo.
     # ==========================================================
     
     indicadores_toc$Alcance_Numerico <-
+      
       dplyr::case_when(
         
-        !is.na(indicadores_toc$Endline) &
-          !is.na(indicadores_toc$Meta_2026) &
+        !is.na(
+          indicadores_toc$Endline
+        ) &
+          
+          !is.na(
+            indicadores_toc$Meta_2026
+          ) &
+          
           indicadores_toc$Meta_2026 > 0 ~
           
           (
@@ -22019,26 +23776,42 @@ output$texto_resultado_exercicio_4 <- renderUI({
               indicadores_toc$Meta_2026
           ) * 100,
         
-        TRUE ~ NA_real_
+        TRUE ~
+          NA_real_
       )
     
     
+    
+    
     # ==========================================================
-    # 26. LIMITE DA BARRA DE PROGRESSO
+    # 25. LIMITE DA BARRA DE PROGRESSO
     # ==========================================================
     
     indicadores_toc$Alcance_Barra <-
-      pmin(
-        indicadores_toc$Alcance_Numerico,
-        100
+      
+      dplyr::if_else(
+        
+        is.na(
+          indicadores_toc$Alcance_Numerico
+        ),
+        
+        NA_real_,
+        
+        pmin(
+          indicadores_toc$Alcance_Numerico,
+          100
+        )
       )
     
     
+    
+    
     # ==========================================================
-    # 27. ESTADO DO INDICADOR
+    # 26. ESTADO DO INDICADOR
     # ==========================================================
     
     indicadores_toc$Estado <-
+      
       dplyr::case_when(
         
         is.na(
@@ -22065,11 +23838,14 @@ output$texto_resultado_exercicio_4 <- renderUI({
       )
     
     
+    
+    
     # ==========================================================
-    # 28. BARRA DE PROGRESSO
+    # 27. BARRA DE PROGRESSO
     # ==========================================================
     
     indicadores_toc$Alcance <-
+      
       dplyr::case_when(
         
         is.na(
@@ -22082,102 +23858,291 @@ output$texto_resultado_exercicio_4 <- renderUI({
           
           paste0(
             
-            '<div style="width:160px;
-                       background:#e9e9e9;
-                       border-radius:10px;
-                       height:22px;
-                       overflow:hidden;">',
+            '<div style="
+            width:160px;
+            background:#e9e9e9;
+            border-radius:10px;
+            height:22px;
+            overflow:hidden;
+          ">
+          
+            <div style="
+              width:',
             
-            '<div style="width:',
             indicadores_toc$Alcance_Barra,
+            
             '%;
-                       background:#9442d4;
-                       height:22px;
-                       border-radius:10px;
-                       text-align:center;
-                       color:white;
-                       font-size:12px;
-                       line-height:22px;">',
+              background:#9442d4;
+              height:22px;
+              border-radius:10px;
+              text-align:center;
+              color:white;
+              font-size:12px;
+              line-height:22px;
+            ">',
             
             round(
               indicadores_toc$Alcance_Numerico,
               1
             ),
             
-            '%</div></div>'
+            '%</div>
+          
+          </div>'
           )
       )
     
     
+    
+    
     # ==========================================================
-    # 29. FORMATAÇÃO BASELINE / ENDLINE / META
+    # 28. FUNÇÃO PARA FORMATAR VALORES
     # ==========================================================
     
-    formatar_valor <- function(
+    formatar_valor <-
+      function(
     valor,
     tipo
-    ) {
-      
-      if (
-        is.na(valor)
-      ) {
-        return("—")
-      }
-      
-      if (
-        tipo == "%"
       ) {
         
-        return(
-          paste0(
-            round(valor, 1),
-            "%"
-          )
-        )
+        if (
+          is.na(valor)
+        ) {
+          
+          return("—")
+          
+        }
         
-      } else {
         
-        return(
-          paste0(
-            scales::comma(
-              round(valor, 0)
-            ),
-            " MT"
+        if (
+          tipo == "%"
+        ) {
+          
+          return(
+            
+            paste0(
+              
+              round(
+                valor,
+                1
+              ),
+              
+              "%"
+            )
           )
-        )
+          
+        } else {
+          
+          return(
+            
+            paste0(
+              
+              scales::comma(
+                round(
+                  valor,
+                  0
+                )
+              ),
+              
+              " MT"
+            )
+          )
+        }
       }
-    }
     
+    
+    
+    
+    # ==========================================================
+    # 29. BASELINE FORMATADO
+    # ==========================================================
     
     indicadores_toc$Baseline_Formatado <-
+      
       mapply(
+        
         formatar_valor,
+        
         indicadores_toc$Baseline,
+        
         indicadores_toc$Tipo_Indicador
+        
       )
     
+    
+    
+    
+    # ==========================================================
+    # 30. ENDLINE FORMATADO
+    # ==========================================================
     
     indicadores_toc$Endline_Formatado <-
+      
       mapply(
+        
         formatar_valor,
+        
         indicadores_toc$Endline,
+        
         indicadores_toc$Tipo_Indicador
+        
       )
     
+    
+    
+    
+    # ==========================================================
+    # 31. VARIAÇÃO FORMATADA
+    #
+    # Percentuais:
+    # +37,5 p.p.
+    #
+    # Valores monetários:
+    # +2 500 MT
+    # ==========================================================
+    
+    indicadores_toc$Variacao_Formatada <-
+      
+      mapply(
+        
+        function(
+    valor,
+    tipo
+        ) {
+          
+          if (
+            is.na(valor)
+          ) {
+            
+            return("—")
+            
+          }
+          
+          
+          if (
+            tipo == "%"
+          ) {
+            
+            sinal <-
+              ifelse(
+                valor > 0,
+                "+",
+                ""
+              )
+            
+            return(
+              
+              paste0(
+                
+                sinal,
+                
+                round(
+                  valor,
+                  1
+                ),
+                
+                " p.p."
+              )
+            )
+            
+          } else {
+            
+            sinal <-
+              ifelse(
+                valor > 0,
+                "+",
+                ""
+              )
+            
+            return(
+              
+              paste0(
+                
+                sinal,
+                
+                scales::comma(
+                  round(
+                    valor,
+                    0
+                  )
+                ),
+                
+                " MT"
+              )
+            )
+          }
+        },
+    
+    indicadores_toc$Variacao_Numerica,
+    
+    indicadores_toc$Tipo_Indicador
+    
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 32. META FORMATADA
+    # ==========================================================
     
     indicadores_toc$Meta_Formatada <-
+      
       mapply(
+        
         formatar_valor,
+        
         indicadores_toc$Meta_2026,
+        
         indicadores_toc$Tipo_Indicador
+        
       )
     
     
+    
+    
     # ==========================================================
-    # 30. INDICADOR COM HTML
+    # 33. ID COM HTML
     # ==========================================================
     
-    indicadores_toc$Indicador <-
+    indicadores_toc$ID_Indicador_HTML <-
+      
+      dplyr::if_else(
+        
+        is.na(
+          indicadores_toc$ID_Indicador
+        ) |
+          
+          indicadores_toc$ID_Indicador == "",
+        
+        '<span style="
+        color:#999999;
+        font-style:italic;
+      ">Não definido</span>',
+        
+        paste0(
+          
+          '<span style="
+          font-weight:600;
+          color:#9442d4;
+        ">',
+          
+          indicadores_toc$ID_Indicador,
+          
+          '</span>'
+          
+        )
+      )
+    
+    
+    
+    
+    # ==========================================================
+    # 34. INDICADOR COM HTML
+    # ==========================================================
+    
+    indicadores_toc$Indicador_HTML <-
+      
       paste0(
         
         '<div style="
@@ -22189,27 +24154,73 @@ output$texto_resultado_exercicio_4 <- renderUI({
         indicadores_toc$Indicador,
         
         '</div>'
+        
       )
     
     
+    
+    
     # ==========================================================
-    # 31. TABELA FINAL
+    # 35. TABELA FINAL
     # ==========================================================
     
     tabela_final_toc <-
+      
       indicadores_toc %>%
+      
       dplyr::select(
-        Indicador,
+        
+        ID_Indicador_HTML,
+        
+        Indicador_HTML,
+        
         Baseline_Formatado,
+        
         Endline_Formatado,
+        
+        Variacao_Formatada,
+        
         Meta_Formatada,
+        
         Alcance,
+        
         Estado
+        
+      ) %>%
+      
+      dplyr::rename(
+        
+        `ID_Indicador` =
+          ID_Indicador_HTML,
+        
+        `Indicador` =
+          Indicador_HTML,
+        
+        `Baseline` =
+          Baseline_Formatado,
+        
+        `Endline` =
+          Endline_Formatado,
+        
+        `Variação` =
+          Variacao_Formatada,
+        
+        `Meta 2026` =
+          Meta_Formatada,
+        
+        `Alcance da Meta` =
+          Alcance,
+        
+        `Estado` =
+          Estado
+        
       )
     
     
+    
+    
     # ==========================================================
-    # 32. DATATABLE
+    # 36. DATATABLE
     # ==========================================================
     
     DT::datatable(
@@ -22240,67 +24251,163 @@ output$texto_resultado_exercicio_4 <- renderUI({
         
         columnDefs = list(
           
+          
+          # ------------------------------------------------------
+          # ID
+          # ------------------------------------------------------
+          
           list(
-            width = "360px",
+            width = "125px",
             targets = 0
           ),
           
+          
+          # ------------------------------------------------------
+          # INDICADOR
+          # ------------------------------------------------------
+          
           list(
-            width = "95px",
+            width = "390px",
             targets = 1
           ),
           
+          
+          # ------------------------------------------------------
+          # BASELINE
+          # ------------------------------------------------------
+          
           list(
-            width = "95px",
+            width = "100px",
             targets = 2
           ),
+          
+          
+          # ------------------------------------------------------
+          # ENDLINE
+          # ------------------------------------------------------
           
           list(
             width = "100px",
             targets = 3
           ),
           
+          
+          # ------------------------------------------------------
+          # VARIAÇÃO
+          # ------------------------------------------------------
+          
           list(
-            width = "175px",
+            width = "110px",
             targets = 4
           ),
           
+          
+          # ------------------------------------------------------
+          # META
+          # ------------------------------------------------------
+          
           list(
-            width = "135px",
+            width = "100px",
             targets = 5
+          ),
+          
+          
+          # ------------------------------------------------------
+          # ALCANCE
+          # ------------------------------------------------------
+          
+          list(
+            width = "180px",
+            targets = 6
+          ),
+          
+          
+          # ------------------------------------------------------
+          # ESTADO
+          # ------------------------------------------------------
+          
+          list(
+            width = "145px",
+            targets = 7
           )
+          
         )
       )
       
     ) %>%
       
-      DT::formatStyle(
-        
-        "Indicador",
-        
-        `white-space` = "normal",
-        
-        `vertical-align` = "middle"
-      ) %>%
       
-      DT::formatStyle(
+      # ==========================================================
+    # FORMATAÇÃO ID
+    # ==========================================================
+    
+    DT::formatStyle(
+      
+      "ID_Indicador",
+      
+      `white-space` =
+        "normal",
+      
+      `vertical-align` =
+        "middle"
+      
+    ) %>%
+      
+      
+      # ==========================================================
+    # FORMATAÇÃO INDICADOR
+    # ==========================================================
+    
+    DT::formatStyle(
+      
+      "Indicador",
+      
+      `white-space` =
+        "normal",
+      
+      `vertical-align` =
+        "middle"
+      
+    ) %>%
+      
+      
+      # ==========================================================
+    # ALINHAMENTO
+    # ==========================================================
+    
+    DT::formatStyle(
+      
+      columns = c(
         
-        columns = c(
-          "Baseline_Formatado",
-          "Endline_Formatado",
-          "Meta_Formatada",
-          "Alcance",
-          "Estado"
-        ),
+        "ID_Indicador",
         
-        `text-align` = "center",
+        "Baseline",
         
-        `vertical-align` = "middle"
-      )
+        "Endline",
+        
+        "Variação",
+        
+        "Meta 2026",
+        
+        "Alcance da Meta",
+        
+        "Estado"
+        
+      ),
+      
+      `text-align` =
+        "center",
+      
+      `vertical-align` =
+        "middle"
+      
+    )
+    
     
   })
   
   
+ 
   ########### BOTAO
   
   output$admin_ui <- renderUI({
