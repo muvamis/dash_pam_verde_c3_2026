@@ -863,6 +863,8 @@ Presencas_Colectivas_Beira %>%
 
 Financeiro_Report <- read_excel("Financeiro_Report.xlsx")
 
+Dados_Financeiros_Ciclo_3 <- read_excel("Dados_Financeiros_Ciclo_3.xlsx")
+
 
 # ============================================================
 # 2. REMOÇÃO DE COLUNAS DESNECESSÁRIAS
@@ -873,6 +875,10 @@ Financeiro_Report <- Financeiro_Report[, -c(
 )]
 
 
+# Dados_Financeiros_Ciclo_3 <- Dados_Financeiros_Ciclo_3 [, -c(
+#   7, 8, 13, 15, 17, 27, 28, 29, 30, 35, 36
+# )]
+
 # ============================================================
 # 3. PADRONIZAÇÃO DOS NOMES
 # ============================================================
@@ -881,19 +887,32 @@ Financeiro_Report <- Financeiro_Report %>%
   rename(
     Projeto = NOME_PROJECTO.PROJECTO_NAME,
     Nome_Empreendedora = Nome_empreendedoras.name_empreendedora,
-    Ano_Projeto = ANO_DO_PROJECTO.Ano_do_projecto,
+    Ano_Projeto = ANO_DO_PROJECTO.zc_display_value,
     Setor_Negocio = Sector_do_negocio1.SECTOR_DO_NEGOCIO,
     Cidade = CIDADE.CIDADE,
     Status = Nome_empreendedoras.Status
   )
 
 
+Dados_Financeiros_Ciclo_3 <- Dados_Financeiros_Ciclo_3  %>%
+  rename(
+    Projeto = `NOME PROJECTO`,
+    Pesquisadores = `Nome do pesquisador`,
+    Nome_Empreendedora = `Nome empreendedoras`,
+    Ano_Projeto = `ANO DO PROJECTO`,
+    Setor_Negocio = `Sector do negocio`,
+    Cidade = CIDADE,
+    Custo_de_produtos_Servicos = `Custo de produtos (Servicos)`,
+    Custo_Operacional = `Custo Operacional`
+    
+  )
+
 # ============================================================
 # 4. BASE NAMPULA
 #    Mantém TODAS as variáveis
 # ============================================================
 
-Financeiro_Nampula <- Financeiro_Report %>%
+Financeiro_Nampula <- Dados_Financeiros_Ciclo_3 %>%
   filter(
     Cidade == "NAMPULA",
     Status == "Activa"
@@ -916,7 +935,7 @@ Financeiro_Beira <- Financeiro_Report %>%
 # 6. TRATAMENTO NUMÉRICO - NAMPULA
 # ============================================================
 
-Financeiro_Nampula <- Financeiro_Nampula %>%
+Dados_Financeiros_Ciclo_3 <- Financeiro_Nampula %>%
   mutate(
     across(
       c(
@@ -999,7 +1018,7 @@ PERFIL_PAM_VERDE_BEIRA_C3_2026 <- read_excel("PERFIL_PAM_VERDE_BEIRA_C3_2026.xls
 PAM_VERDE_TOC_C3 <- Pam_Verde_Indicadores %>%
   filter(Ciclo == "Ciclo 3")
 
-FINANCEIRO_TOC_NAMPULA <- Financeiro_Nampula
+FINANCEIRO_TOC_NAMPULA <- Dados_Financeiros_Ciclo_3
 
 # ============================================================
 # BASE PARA INDICADOR DE CONCLUSÃO DA FORMAÇÃO

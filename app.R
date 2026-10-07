@@ -1680,21 +1680,21 @@ ui <- navbarPage(
             selectInput(
               "Pesquisador",
               "Selecione o Pesquisador:",
-              choices = c("Todos", unique(Financeiro_Nampula$Nome_do_pesquisador)),
+              choices = c("Todos", unique(Dados_Financeiros_Ciclo_3$Pesquisadores)),
               selected = "Todos"
             ),
             
             selectInput(
               "Nome_Empreendedora",
               "Selecione a Empreendedora:",
-              choices = c("Todas", unique(Financeiro_Nampula$Nome_Empreendedora)),
+              choices = c("Todas", unique(Dados_Financeiros_Ciclo_3$Nome_Empreendedora)),
               selected = "Todas"
             ),
             
             selectInput(
               "Mes",
               "Selecione o Mês:",
-              choices = c("Todos", unique(Financeiro_Nampula$Periodo)),
+              choices = c("Todos", unique(Dados_Financeiros_Ciclo_3$Periodo)),
               selected = "Todos"
             )
           ),
@@ -16542,7 +16542,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       df <- df %>%
         filter(
-          Nome_do_pesquisador == input$Pesquisador
+          Pesquisadores == input$Pesquisador
         )
     }
     
@@ -16568,7 +16568,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   df_financeiro <- reactive({
     
-    df <- Financeiro_Nampula
+    df <- Dados_Financeiros_Ciclo_3
     
     # -------------------------
     # PESQUISADOR
@@ -16579,7 +16579,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       df <- df %>%
         filter(
-          Nome_do_pesquisador == input$Pesquisador
+          Pesquisadores == input$Pesquisador
         )
     }
     
@@ -17011,14 +17011,14 @@ output$texto_resultado_exercicio_4 <- renderUI({
   
   dados_financeiro_filtrado <- reactive({
     
-    df <- Financeiro_Nampula
+    df <- Dados_Financeiros_Ciclo_3
     
     if (!is.null(input$Pesquisador) &&
         input$Pesquisador != "Todos") {
       
       df <- df %>%
         filter(
-          Nome_do_pesquisador == input$Pesquisador
+          Pesquisadores == input$Pesquisador
         )
     }
     
@@ -18044,7 +18044,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
     # =========================
     df <- df %>%
       group_by(
-        Nome_do_pesquisador,
+        Pesquisadores,
         Nome_Empreendedora,
         Periodo
       ) %>%
@@ -18144,7 +18144,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
     # ORGANIZAR COLUNAS
     # =========================
     select(
-      Nome_do_pesquisador,
+      Pesquisadores,
       Nome_Empreendedora,
       `Primeiro Mês`,
       `Segundo Mês`,
@@ -21861,6 +21861,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
   ################### MATRIZ DOS INDICADORES
   
  
+  
   # ============================================================
   # MATRIZ DE INDICADORES TOC - PAM VERDE CICLO 3
   #
@@ -22094,14 +22095,12 @@ output$texto_resultado_exercicio_4 <- renderUI({
     
     formalizacao_n_BL <-
       formalizacao_BL %>%
-      
       dplyr::filter(
-        
-        Negocio_Formalizado ==
+        Negocio_Formalizado %in% c(
+          # "Sim",
           "Iniciei o processo de formalização"
-        
+        )
       ) %>%
-      
       nrow()
     
     
@@ -22143,11 +22142,11 @@ output$texto_resultado_exercicio_4 <- renderUI({
       
       dplyr::filter(
         
-        Negocio_Formalizado ==
+        Negocio_Formalizado %in% c(
+          # "Sim",
           "Iniciei o processo de formalização"
-        
+        )
       ) %>%
-      
       nrow()
     
     
@@ -23479,20 +23478,20 @@ output$texto_resultado_exercicio_4 <- renderUI({
         
         ID_Indicador = c(
           
-          NA_character_,
-          NA_character_,
+          "iVM1000",
+          "iVM1000",
           
           "iPAM_INT1.1",
           "iPAM_RI.2.4",
-          NA_character_,
+          "OS1.1",
           "iPAM_RI.2.6",
           "iPAM_RI.5.1",
-          NA_character_,
-          NA_character_,
+          "iPAM_RI.3.1",
+          "iPAM_RI.2.2",
           "iPAM_RI.4.1",
-          NA_character_,
+          "iPAM_RI.2.2",
           
-          NA_character_,
+          "iPAM_RI.4.2",
           
           "iPAM_RI.1.1",
           "iPAM_RI.1.2",
@@ -23522,11 +23521,11 @@ output$texto_resultado_exercicio_4 <- renderUI({
           
           "% de empreendedoras que definem um salário mensal para si mesmas",
           
-          "% de empreendedoras que tomam sozinhas as principais decisões",
+          "% de empreendedoras que tomam sozinhas as principais decisões no negócio",
           
           "% de empreendedoras confiantes na negociação com clientes",
           
-          "% de empreendedoras que nos últimos 3 meses negociaram e conseguiram acordo favorável",
+          "% participantes com maior poder de negociação em oportunidades económicas",
           
           "% de empreendedoras que sabem utilizar ferramentas de IA",
           
