@@ -442,77 +442,425 @@ ui <- navbarPage(
           # =========================
           # ABA 6
           # =========================
+          
           tabPanel(
-            "Consciência de Gênero",
+            "Gênero",
             
-            fluidRow(
+            tabsetPanel(
+              id = "subtab_genero",
+              type = "tabs",
               
-              column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_H_Financeiros")
+              # ==========================================================
+              # TAB 1 - CONSCIÊNCIA DE GÊNERO
+              # Mantém os gráficos e textos já existentes
+              # ==========================================================
+              
+              tabPanel(
+                "Consciência de Gênero",
+                
+                fluidRow(
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:12px;
+                     border-radius:6px; margin-bottom:20px;",
+                      uiOutput("texto_H_Financeiros")
+                    ),
+                    plotlyOutput("grafico_H_Financeiro_Faci")
+                  ),
+                  
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:12px;
+                     border-radius:6px; margin-bottom:20px;",
+                      uiOutput("texto_H_Serios")
+                    ),
+                    plotlyOutput("grafico_H_Serios")
+                  )
                 ),
-                plotlyOutput("grafico_H_Financeiro_Faci")
+                
+                br(),
+                
+                fluidRow(
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:12px;
+                     border-radius:6px; margin-bottom:20px;",
+                      uiOutput("texto_H_Capazes")
+                    ),
+                    plotlyOutput("grafico_H_Capazes")
+                  ),
+                  
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:12px;
+                     border-radius:6px; margin-bottom:20px;",
+                      uiOutput("texto_Obrigacoes_Domesticas")
+                    ),
+                    plotlyOutput("grafico_Obrigacoes_Domesticas")
+                  )
+                ),
+                
+                br(),
+                
+                fluidRow(
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:12px;
+                     border-radius:6px; margin-bottom:20px;",
+                      uiOutput("texto_M_Gerir")
+                    ),
+                    plotlyOutput("grafico_M_Gerir")
+                  ),
+                  
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:12px;
+                     border-radius:6px; margin-bottom:20px;",
+                      uiOutput("texto_genero_extra")
+                    ),
+                    plotlyOutput("grafico_sa")
+                  )
+                )
               ),
               
-              column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_H_Serios")
-                ),
-                plotlyOutput("grafico_H_Serios")
-              )
-            ),
-            
-            
-            br(),
-            
-            
-            fluidRow(
+              # ==========================================================
+              # TAB 2 - DADOS QUALITATIVOS DE GÊNERO
+              # Novas análises das perguntas abertas
+              # ==========================================================
               
-              column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_H_Capazes")
+              tabPanel(
+                "Dados Qualitativos de Gênero",
+                
+                br(),
+                
+                # Resumo da análise qualitativa
+                
+                # ==========================================================
+                # AVALIAÇÃO DAS ACTIVIDADES DE GÉNERO — MUVA
+                # ==========================================================
+                
+                fluidRow(
+                  column(
+                    width = 12,
+                    
+                    div(
+                      style = "
+        background-color:#eef4fb;
+        border-left:5px solid #8054A2;
+        padding:20px;
+        border-radius:6px;
+        margin-bottom:25px;
+      ",
+                      
+                      # Título principal
+                      tags$p(
+                        style = "
+          margin-top:0;
+          margin-bottom:8px;
+          color:#8054A2;
+          font-size:13px;
+          font-weight:600;
+          letter-spacing:0.5px;
+        ",
+                        "AVALIAÇÃO DAS ACTIVIDADES DE GÉNERO · MUVA · CICLO CONCLUÍDO"
+                      ),
+                      
+                      tags$h2(
+                        style = "
+          margin-top:0;
+          margin-bottom:12px;
+          color:#333333;
+          font-weight:700;
+          font-size:26px;
+        ",
+                        "O que mudou para as participantes"
+                      ),
+                      
+                      tags$p(
+                        style = "
+          color:#444444;
+          font-size:15px;
+          line-height:1.7;
+          margin-bottom:18px;
+        ",
+                        paste0(
+                          "Resultados de duas perguntas feitas às 30 participantes ",
+                          "que concluíram o ciclo: em que medida as actividades ",
+                          "ajudaram a compreender as desigualdades entre homens ",
+                          "e mulheres, e o que colocaram em prática depois dessas actividades."
+                        )
+                      ),
+                      
+                      # Indicadores de contexto
+                      fluidRow(
+                        column(
+                          width = 4,
+                          div(
+                            style = "
+              background-color:#ffffff;
+              padding:12px;
+              border-radius:6px;
+              min-height:75px;
+            ",
+                            tags$h3(
+                              style = "
+                margin:0;
+                color:#8054A2;
+                font-size:25px;
+                font-weight:700;
+              ",
+                              "30"
+                            ),
+                            tags$p(
+                              style = "
+                margin:3px 0 0 0;
+                color:#555555;
+                font-size:12px;
+              ",
+                              "Participantes avaliadas"
+                            )
+                          )
+                        ),
+                        
+                        column(
+                          width = 4,
+                          div(
+                            style = "
+              background-color:#ffffff;
+              padding:12px;
+              border-radius:6px;
+              min-height:75px;
+            ",
+                            tags$h3(
+                              style = "
+                margin:0;
+                color:#8054A2;
+                font-size:25px;
+                font-weight:700;
+              ",
+                              "2"
+                            ),
+                            tags$p(
+                              style = "
+                margin:3px 0 0 0;
+                color:#555555;
+                font-size:12px;
+              ",
+                              "Perguntas analisadas"
+                            )
+                          )
+                        ),
+                        
+                        column(
+                          width = 4,
+                          div(
+                            style = "
+              background-color:#ffffff;
+              padding:12px;
+              border-radius:6px;
+              min-height:75px;
+            ",
+                            tags$h3(
+                              style = "
+                margin:0;
+                color:#8054A2;
+                font-size:15px;
+                font-weight:700;
+                padding-top:5px;
+              ",
+                              "Ciclo 3 · Endline"
+                            ),
+                            tags$p(
+                              style = "
+                margin:3px 0 0 0;
+                color:#555555;
+                font-size:12px;
+              ",
+                              "Avaliação após as actividades"
+                            )
+                          )
+                        )
+                      ),
+                      
+                      tags$hr(
+                        style = "
+          border-top:1px solid #d8dfea;
+          margin-top:18px;
+          margin-bottom:15px;
+        "
+                      ),
+                      
+                      tags$p(
+                        style = "
+          color:#555555;
+          font-size:13px;
+          line-height:1.6;
+          margin-bottom:0;
+        ",
+                        tags$strong("Actividades abordadas: "),
+                        "Triângulo do Poder · Jogo das 24h · Seja homem, seja mulher"
+                      ),
+                      
+                      tags$p(
+                        style = "
+          color:#777777;
+          font-size:12px;
+          margin-top:8px;
+          margin-bottom:0;
+        ",
+                        tags$em(
+                          "Nota: a análise considera as participantes com avaliação Endline concluída."
+                        )
+                      )
+                    )
+                  )
                 ),
-                plotlyOutput("grafico_H_Capazes")
-              ),
-              
-              column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_Obrigacoes_Domesticas")
+                
+                # ==========================================================
+                # RESUMO DA ANÁLISE QUALITATIVA
+                # ==========================================================
+                fluidRow(
+                  column(
+                    width = 12,
+                    
+                    div(
+                      class = "value-box-container",
+                      
+                      uiOutput("box_avaliacao_positiva"),
+                      uiOutput("box_praticas"),
+                      uiOutput("box_casa"),
+                      uiOutput("box_autoconfianca")
+                    )
+                  )
                 ),
-                plotlyOutput("grafico_Obrigacoes_Domesticas")
-              )
-            ),
-            
-            
-            br(),
-            
-            
-            fluidRow(
-              
-              column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_M_Gerir")
+     
+                
+                br(),
+                
+                # Esferas de mudança e temas
+                fluidRow(
+                  
+                  column(
+                    6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:16px;
+             border-radius:8px; margin-bottom:20px;",
+                      
+                      h4(
+                        style = "color:#333333; font-weight:700;",
+                        ""
+                      ),
+                      
+                      # Legenda com tons de roxo
+                      div(
+                        style = "display:flex; flex-wrap:wrap; gap:10px;
+               margin:12px 0 18px 0; font-size:12px;",
+                        
+                        div(
+                          style = "display:flex; align-items:center; gap:5px;",
+                          span(style = "width:12px; height:12px; background:#6A1B9A;
+                     display:inline-block; border-radius:3px;"),
+                          span("Ajudaram bastante")
+                        ),
+                        
+                        div(
+                          style = "display:flex; align-items:center; gap:5px;",
+                          span(style = "width:12px; height:12px; background:#7E3FB2;
+                     display:inline-block; border-radius:3px;"),
+                          span("Moderadamente")
+                        ),
+                        
+                        div(
+                          style = "display:flex; align-items:center; gap:5px;",
+                          span(style = "width:12px; height:12px; background:#A56BCB;
+                     display:inline-block; border-radius:3px;"),
+                          span("Ajudaram um pouco")
+                        ),
+                        
+                        div(
+                          style = "display:flex; align-items:center; gap:5px;",
+                          span(style = "width:12px; height:12px; background:#D8C4E8;
+                     display:inline-block; border-radius:3px;"),
+                          span("Não ajudaram")
+                        )
+                      ),
+                      
+                      plotlyOutput("grafico_esferas_mudanca", height = "330px")
+                    )
+                  ),
+                  
+                  # Gráfico 2 — O que colocaram em prática
+                  column(
+                    width = 6,
+                    div(
+                      style = "background-color:#f5f3f4; padding:16px;
+               border-radius:8px; margin-bottom:20px;",
+                      # h4("O que as participantes puseram em prática"),
+                      p(
+                        style = "font-size:13px; color:#666666; margin-bottom:12px;",
+                        tags$em(
+                          "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
+                        )
+                      ),
+                      plotlyOutput("grafico_praticas_genero", height = "330px"),
+                      p(
+                        style = "font-size:12px; color:#777777; margin-top:8px;",
+                        "Esferas de mudança · nº de participantes (de 30). ",
+                        "Um depoimento pode contar em mais de uma categoria."
+                      )
+                    )
+                  )
                 ),
-                plotlyOutput("grafico_M_Gerir")
-              ),
-              
-              column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_genero_extra")
+                
+                br(),
+                
+                # Depoimentos
+                fluidRow(
+                  column(
+                    12,
+                    div(
+                      style = "background-color:#f5f3f4; padding:20px;
+                     border-radius:8px; margin-bottom:20px;",
+                      h4("Vozes das participantes"),
+                      selectInput(
+                        "filtro_tema_qualitativo",
+                        "Seleccionar tema:",
+                        choices = c(
+                          "Todos",
+                          "Trabalho doméstico",
+                          "Poder interior",
+                          "Negociar e fixar preços",
+                          "Relações de poder",
+                          "Estereótipos ocupacionais",
+                          "Tensões"
+                        ),
+                        selected = "Todos"
+                      ),
+                      uiOutput("depoimentos_genero")
+                    )
+                  )
                 ),
-                plotlyOutput("grafico_sa")
+                
+                br(),
+                
+                # Interpretação crítica
+                fluidRow(
+                  column(
+                    12,
+                    div(
+                      style = "background-color:#f5f3f4; padding:20px;
+                     border-radius:8px; margin-bottom:20px;",
+                      h4("Interpretação crítica e recomendações"),
+                      uiOutput("interpretacao_critica_genero")
+                    )
+                  )
+                )
               )
             )
           ),
@@ -10717,7 +11065,7 @@ server <- function(input, output, session) {
       style = "margin:0;text-align:justify;",
       
       tags$b(
-        "Compreensão das desigualdades de género. "
+        "Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres? "
       ),
       
       "No Endline, os participantes avaliaram até que ponto as actividades ligadas à questão de género contribuíram para a compreensão das desigualdades entre homens e mulheres. ",
@@ -10765,6 +11113,1347 @@ server <- function(input, output, session) {
       " indicaram que ajudaram um pouco."
     )
   })
+  ################################## QUALITATIVO #################################
+  
+  
+  # ==========================================================
+  # AVALIAÇÃO DE GÉNERO — CICLO 3 / ENDLINE
+  # ==========================================================
+  
+  # Perguntas utilizadas na análise
+  pergunta_fechada <- paste0(
+    "Até que ponto as actividades ligadas à questão de género ",
+    "ajudaram a compreender as desigualdades entre homens e mulheres?"
+  )
+  
+  pergunta_aberta <- paste0(
+    "Podes dizer algo que colocaste em prática ",
+    "depois de ter tido essas actividades?"
+  )
+  
+  # ----------------------------------------------------------
+  # 1. PREPARAR A BASE DA ANÁLISE
+  # ----------------------------------------------------------
+  
+  dados_genero_c3 <- Pam_Verde_Indicadores %>%
+    dplyr::filter(
+      stringr::str_detect(
+        Ciclo,
+        stringr::regex("Ciclo\\s*3", ignore_case = TRUE)
+      ),
+      stringr::str_detect(
+        Tipo_Avaliacao,
+        stringr::regex("^Endline$", ignore_case = TRUE)
+      )
+    )
+  
+  # Remover respostas vazias e preparar o texto
+  respostas_genero <- dados_genero_c3 %>%
+    dplyr::mutate(
+      resposta_aberta = as.character(.data[[pergunta_aberta]]),
+      resposta_fechada = as.character(.data[[pergunta_fechada]]),
+      resposta_aberta = stringr::str_squish(resposta_aberta)
+    ) %>%
+    dplyr::filter(
+      !is.na(resposta_aberta),
+      resposta_aberta != ""
+    ) %>%
+    dplyr::mutate(
+      texto_busca = stringr::str_to_lower(resposta_aberta),
+      
+      # Mudanças concretas ou acções relatadas
+      menciona_pratica = stringr::str_detect(
+        texto_busca,
+        paste(
+          "passei a",
+          "comecei",
+          "agora",
+          "conversei",
+          "converso",
+          "dialoguei",
+          "divido",
+          "partilho",
+          "negociei",
+          "negocio",
+          "negociar",
+          "apliquei",
+          "pratico",
+          "mudei",
+          "decidi",
+          "falo com",
+          "expliquei",
+          "ajudo",
+          "participo",
+          "coloquei em prática",
+          "coloquei em pratica",
+          "implement",
+          "repart",
+          sep = "|"
+        )
+      ),
+      
+      # Mudanças no contexto doméstico ou familiar
+      menciona_casa = stringr::str_detect(
+        texto_busca,
+        paste(
+          "em casa",
+          "tarefas domésticas",
+          "tarefas domesticas",
+          "trabalho doméstico",
+          "trabalho domestico",
+          "divisão das tarefas",
+          "divisao das tarefas",
+          "responsabilidades domésticas",
+          "responsabilidades domesticas",
+          "marido",
+          "esposo",
+          "parceiro",
+          "companheiro",
+          "família",
+          "familia",
+          "filhos",
+          "ajudar nas tarefas",
+          "partilhar as tarefas",
+          "dividir as tarefas",
+          sep = "|"
+        )
+      ),
+      
+      # Autoconfiança, autonomia e capacidade de decisão
+      menciona_autoconfianca = stringr::str_detect(
+        texto_busca,
+        paste(
+          "confiança",
+          "confianca",
+          "confiante",
+          "acredito em mim",
+          "acreditar em mim",
+          "autonomia",
+          "independente",
+          "tomar decisões",
+          "tomar decisoes",
+          "decidir por mim",
+          "direitos",
+          "minha opinião",
+          "minha opiniao",
+          "minha voz",
+          "expressar",
+          "negociar",
+          "negociei",
+          "defender",
+          "poder de decisão",
+          "poder de decisao",
+          "triângulo do poder",
+          "triangulo do poder",
+          sep = "|"
+        )
+      )
+    )
+  
+  # ----------------------------------------------------------
+  # 2. CALCULAR INDICADORES
+  # ----------------------------------------------------------
+  
+  n_participantes <- nrow(respostas_genero)
+  
+  n_praticas <- sum(
+    respostas_genero$menciona_pratica,
+    na.rm = TRUE
+  )
+  
+  n_casa <- sum(
+    respostas_genero$menciona_casa,
+    na.rm = TRUE
+  )
+  
+  n_autoconfianca <- sum(
+    respostas_genero$menciona_autoconfianca,
+    na.rm = TRUE
+  )
+  
+  # Resumo da pergunta fechada
+  resumo_fechada <- dados_genero_c3 %>%
+    dplyr::filter(
+      !is.na(.data[[pergunta_fechada]]),
+      trimws(as.character(.data[[pergunta_fechada]])) != ""
+    ) %>%
+    dplyr::count(
+      resposta = as.character(.data[[pergunta_fechada]]),
+      name = "N"
+    ) %>%
+    dplyr::mutate(
+      Percentagem = N / sum(N) * 100
+    )
+  
+  # Percentagem que indica maior contribuição
+  n_bastante <- resumo_fechada %>%
+    dplyr::filter(
+      resposta == "Ajudaram bastante / mudaram a minha compreensão"
+    ) %>%
+    dplyr::summarise(total = sum(N)) %>%
+    dplyr::pull(total)
+  
+  if (length(n_bastante) == 0 || is.na(n_bastante)) {
+    n_bastante <- 0
+  }
+  
+  n_fechadas <- sum(resumo_fechada$N)
+  
+  pct_bastante <- if (n_fechadas > 0) {
+    round(n_bastante / n_fechadas * 100, 1)
+  } else {
+    0
+  }
+  
+  # ----------------------------------------------------------
+  # 3. CAIXA — ANÁLISE DAS EXPERIÊNCIAS
+  # ----------------------------------------------------------
+  
+  output$texto_resumo_qualitativo <- renderUI({
+    
+    if (n_participantes == 0) {
+      return(
+        tags$p(
+          style = "color:#777777;",
+          "Não existem respostas abertas válidas para analisar no Ciclo 3 — Endline."
+        )
+      )
+    }
+    
+    tags$div(
+      tags$p(
+        style = "font-size:15px; line-height:1.8; color:#444444;",
+        tags$strong("Compreensão das desigualdades. "),
+        paste0(
+          "Entre as participantes com resposta válida à pergunta fechada, ",
+          n_bastante,
+          " de ",
+          n_fechadas,
+          " (",
+          format(pct_bastante, nsmall = 1, decimal.mark = ","),
+          "%) afirmaram que as actividades ajudaram bastante ou mudaram ",
+          "a sua compreensão das desigualdades entre homens e mulheres."
+        )
+      ),
+      
+      tags$p(
+        style = "font-size:15px; line-height:1.8; color:#444444;",
+        tags$strong("Aplicação prática. "),
+        paste0(
+          "Foram identificadas ",
+          n_praticas,
+          " respostas com palavras ou expressões associadas à aplicação ",
+          "de mudanças no quotidiano. Estas referências devem ser ",
+          "interpretadas à luz do conteúdo integral de cada resposta."
+        )
+      ),
+      
+      tags$p(
+        style = "font-size:15px; line-height:1.8; color:#444444;",
+        tags$strong("Relações familiares e domésticas. "),
+        paste0(
+          n_casa,
+          " respostas mencionam palavras ou expressões relacionadas ",
+          "com a família, o parceiro ou a divisão de tarefas domésticas."
+        )
+      ),
+      
+      tags$p(
+        style = "font-size:15px; line-height:1.8; color:#444444;",
+        tags$strong("Autoconfiança e autonomia. "),
+        paste0(
+          n_autoconfianca,
+          " respostas incluem referências associadas à confiança, ",
+          "à autonomia, à expressão de opinião ou à negociação."
+        )
+      ),
+      
+      tags$hr(
+        style = "border-top:1px solid #ded8e3; margin:18px 0;"
+      ),
+      
+      tags$p(
+        style = "font-size:12px; color:#777777; line-height:1.6;",
+        tags$em(
+          paste0(
+            "Enquadramento: Triângulo do Poder, Jogo das 24h e ",
+            "Seja homem, seja mulher. A classificação temática é ",
+            "automática, baseada em palavras-chave, e requer validação ",
+            "qualitativa das respostas originais."
+          )
+        )
+      )
+    )
+  })
+  
+  # ----------------------------------------------------------
+  # 4. KPI — PARTICIPANTES COM RESPOSTA ABERTA
+  # ----------------------------------------------------------
+
+  # =========================
+  # BOX 1 — AVALIAÇÃO POSITIVA
+  # =========================
+  output$box_avaliacao_positiva <- renderUI({
+    
+    n_positivas <- resumo_fechada %>%
+      dplyr::filter(
+        resposta %in% c(
+          "Ajudaram bastante / mudaram a minha compreensão",
+          "Ajudaram moderadamente"
+        )
+      ) %>%
+      dplyr::summarise(total = sum(N, na.rm = TRUE)) %>%
+      dplyr::pull(total)
+    
+    if (length(n_positivas) == 0 || is.na(n_positivas)) {
+      n_positivas <- 0
+    }
+    
+    total_respostas <- sum(resumo_fechada$N, na.rm = TRUE)
+    
+    pct_positiva <- if (total_respostas > 0) {
+      round(n_positivas / total_respostas * 100, 1)
+    } else {
+      0
+    }
+    
+    div(
+      class = "value-box blue",
+      
+      div(
+        class = "kpi-icon",
+        style = "font-size: 30px;",
+        icon("check-circle")
+      ),
+      
+      # Percentagem em destaque
+      div(
+        class = "kpi-value",
+        style = "font-size: 30px; font-weight: 200; line-height: 1.1;",
+        paste0(
+          format(pct_positiva, nsmall = 1, decimal.mark = ","),
+          "%"
+        )
+      ),
+      
+      # Título abaixo da percentagem
+      div(
+        class = "kpi-title",
+        style = "font-size: 16px;",
+        "Avaliação positiva"
+      ),
+      
+      # Descrição abaixo do título
+      div(
+        class = "kpi-detail",
+        style = "font-size: 14px;",
+        paste0(
+          n_positivas, " de ", total_respostas,
+          " · Bastante + Moderadamente"
+        )
+      )
+    )
+  })
+  
+  
+  # =========================
+  # BOX 2 — AJUDARAM BASTANTE
+  # =========================
+  output$box_praticas <- renderUI({
+    
+    total_bastante <- resumo_fechada %>%
+      dplyr::filter(
+        resposta == "Ajudaram bastante / mudaram a minha compreensão"
+      ) %>%
+      dplyr::summarise(total = sum(N, na.rm = TRUE)) %>%
+      dplyr::pull(total)
+    
+    if (length(total_bastante) == 0 || is.na(total_bastante)) {
+      total_bastante <- 0
+    }
+    
+    total_respostas <- sum(resumo_fechada$N, na.rm = TRUE)
+    
+    pct_bastante <- if (total_respostas > 0) {
+      round(total_bastante / total_respostas * 100, 1)
+    } else {
+      0
+    }
+    
+    div(
+      class = "value-box green",
+      div(
+        class = "kpi-icon",
+        style = "font-size: 30px;",
+        icon("lightbulb")
+      ),
+      div(
+        class = "kpi-value",
+        style = "font-size: 30px; font-weight: 500; line-height: 1.1;",
+        paste0(
+          format(pct_bastante, nsmall = 1, decimal.mark = ","),
+          "%"
+        )
+      ),
+      div(
+        class = "kpi-title",
+        style = "font-size: 16px;",
+        "Ajudaram bastante"
+      ),
+      div(
+        class = "kpi-detail",
+        style = "font-size: 14px;",
+        paste0(
+          total_bastante, " de ", total_respostas,
+          " · mudaram a sua compreensão"
+        )
+      )
+    )
+  })
+  
+  
+  # =========================
+  # BOX 3 — PRÁTICA NOVA
+  # =========================
+  output$box_casa <- renderUI({
+    
+    total_praticas <- n_praticas
+    total_participantes <- nrow(dados_genero_c3)
+    
+    pct_praticas <- if (total_participantes > 0) {
+      round(total_praticas / total_participantes * 100, 1)
+    } else {
+      0
+    }
+    
+    div(
+      class = "value-box orange",
+      
+      div(
+        class = "kpi-icon",
+        style = "font-size: 30px;",
+        icon("check-square")
+      ),
+      
+      div(
+        class = "kpi-value",
+        style = "font-size: 30px; font-weight: 500; line-height: 1.1;",
+        paste0(
+          format(pct_praticas, nsmall = 1, decimal.mark = ","),
+          "%"
+        )
+      ),
+      
+      div(
+        class = "kpi-title",
+        style = "font-size: 16px;",
+        "Descrevem uma prática nova"
+      ),
+      
+      div(
+        class = "kpi-detail",
+        style = "font-size: 14px;",
+        paste0(
+          total_praticas, " de ", total_participantes,
+          " participantes"
+        )
+      )
+    )
+  })
+  
+  
+  # =========================
+  # BOX 4 — FAMÍLIA E TAREFAS DOMÉSTICAS
+  # =========================
+  output$box_autoconfianca <- renderUI({
+    
+    total_referencias <- n_casa
+    total_participantes <- nrow(dados_genero_c3)
+    
+    pct_casa <- if (total_participantes > 0) {
+      round(total_referencias / total_participantes * 100, 1)
+    } else {
+      0
+    }
+    
+    div(
+      class = "value-box purple",
+      
+      div(
+        class = "kpi-icon",
+        style = "font-size: 30px;",
+        icon("home")
+      ),
+      
+      div(
+        class = "kpi-value",
+        style = "font-size: 30px; font-weight: 500; line-height: 1.1;",
+        paste0(
+          format(pct_casa, nsmall = 1, decimal.mark = ","),
+          "%"
+        )
+      ),
+      
+      div(
+        class = "kpi-title",
+        style = "font-size: 15px; line-height: 1.4;",
+        "Respostas com referências à família e às tarefas domésticas"
+      ),
+      
+      div(
+        class = "kpi-detail",
+        style = "font-size: 14px;",
+        paste0(
+          total_referencias, " de ", total_participantes,
+          " participantes"
+        )
+      )
+    )
+  })
+  
+  
+  
+  # ==========================================================
+  # GRÁFICO DE GÉNERO — BARRAS DE PROGRESSO
+  # CICLO 3 · ENDLINE
+  # ==========================================================
+  
+  output$grafico_esferas_mudanca <- renderPlotly({
+    
+    cor_fundo <- "#e9e3ed"
+    
+    ordem_respostas <- c(
+      "Ajudaram bastante",
+      "Ajudaram moderadamente",
+      "Ajudaram um pouco",
+      "Não ajudaram"
+    )
+    
+    # Preparar e normalizar as respostas
+    dados_observados <- resumo_fechada %>%
+      dplyr::mutate(
+        Resposta_plot = dplyr::case_when(
+          as.character(resposta) ==
+            "Ajudaram bastante / mudaram a minha compreensão" ~
+            "Ajudaram bastante",
+          
+          TRUE ~ as.character(resposta)
+        )
+      ) %>%
+      dplyr::group_by(Resposta_plot) %>%
+      dplyr::summarise(
+        N = sum(N, na.rm = TRUE),
+        .groups = "drop"
+      )
+    
+    # Incluir todas as categorias, mesmo as que têm zero respostas
+    dados_grafico <- tibble::tibble(
+      Resposta_plot = ordem_respostas
+    ) %>%
+      dplyr::left_join(
+        dados_observados,
+        by = "Resposta_plot"
+      ) %>%
+      dplyr::mutate(
+        N = dplyr::coalesce(N, 0)
+      )
+    
+    total_respostas <- sum(dados_grafico$N, na.rm = TRUE)
+    
+    dados_grafico <- dados_grafico %>%
+      dplyr::mutate(
+        Percentagem = if (total_respostas > 0) {
+          N / total_respostas * 100
+        } else {
+          0
+        },
+        
+        Cor = dplyr::case_when(
+          Resposta_plot == "Ajudaram bastante" ~ "#6A1B9A",
+          Resposta_plot == "Ajudaram moderadamente" ~ "#7E3FB2",
+          Resposta_plot == "Ajudaram um pouco" ~ "#A56BCB",
+          Resposta_plot == "Não ajudaram" ~ "#D8C4E8",
+          TRUE ~ "#D8C4E8"
+        ),
+        
+        label_direita = paste0(
+          format(
+            round(Percentagem, 1),
+            nsmall = 1,
+            decimal.mark = ","
+          ),
+          "%"
+        ),
+        
+        tooltip_txt = paste0(
+          "<b>", Resposta_plot, "</b>",
+          "<br>Participantes: ", N,
+          "<br>Percentagem: ", label_direita
+        ),
+        
+        # Posição do rótulo mesmo quando a percentagem é zero
+        posicao_label = pmin(Percentagem + 2, 103),
+        
+        Resposta_plot = factor(
+          Resposta_plot,
+          levels = rev(ordem_respostas)
+        )
+      ) %>%
+      dplyr::arrange(Resposta_plot)
+    
+    # Gráfico
+    plot_ly() %>%
+      
+      # Trilho de fundo: 100%
+      add_bars(
+        data = dados_grafico,
+        x = rep(100, nrow(dados_grafico)),
+        y = ~Resposta_plot,
+        orientation = "h",
+        marker = list(
+          color = cor_fundo,
+          line = list(width = 0)
+        ),
+        width = 0.48,
+        hoverinfo = "skip",
+        showlegend = FALSE,
+        name = "Fundo"
+      ) %>%
+      
+      # Barras preenchidas por categoria
+      add_bars(
+        data = dados_grafico,
+        x = ~Percentagem,
+        y = ~Resposta_plot,
+        orientation = "h",
+        marker = list(
+          color = ~Cor,
+          line = list(width = 0)
+        ),
+        width = 0.48,
+        hoverinfo = "text",
+        hovertext = ~tooltip_txt,
+        showlegend = FALSE,
+        name = "Respostas"
+      ) %>%
+      
+      # Rótulos independentes para garantir a visibilidade
+      add_trace(
+        data = dados_grafico,
+        x = ~posicao_label,
+        y = ~Resposta_plot,
+        type = "scatter",
+        mode = "text",
+        text = ~label_direita,
+        textposition = "middle right",
+        textfont = list(
+          color = "#333333",
+          size = 13,
+          family = "Arial"
+        ),
+        hoverinfo = "skip",
+        showlegend = FALSE,
+        inherit = FALSE
+      ) %>%
+      
+      layout(
+        barmode = "overlay",
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        
+        margin = list(
+          l = 155,
+          r = 65,
+          t = 20,
+          b = 25
+        ),
+        
+        bargap = 0.38,
+        
+        xaxis = list(
+          visible = FALSE,
+          range = c(0, 115),
+          fixedrange = TRUE,
+          zeroline = FALSE,
+          showgrid = FALSE
+        ),
+        
+        yaxis = list(
+          tickfont = list(
+            color = "#333333",
+            size = 12,
+            family = "Arial"
+          ),
+          showgrid = FALSE,
+          zeroline = FALSE,
+          categoryorder = "array",
+          categoryarray = rev(ordem_respostas),
+          automargin = TRUE,
+          fixedrange = TRUE
+        ),
+        
+        font = list(
+          color = "#333333",
+          family = "Arial"
+        ),
+        
+        hoverlabel = list(
+          bgcolor = "#ffffff",
+          bordercolor = "#9442d4",
+          font = list(
+            color = "#333333",
+            size = 12
+          )
+        )
+      ) %>%
+      
+      config(
+        displayModeBar = FALSE,
+        responsive = TRUE
+      )
+  })
+  
+  
+  
+  # ==========================================================
+  # GRÁFICO — O QUE AS PARTICIPANTES PUSERAM EM PRÁTICA
+  # CLASSIFICAÇÃO AUTOMÁTICA DAS RESPOSTAS ABERTAS
+  # CICLO 3 · ENDLINE
+  # ==========================================================
+  
+  output$grafico_praticas_genero <- renderPlotly({
+    
+    cor_fundo <- "#e9e3ed"
+    
+    # --------------------------------------------------------
+    # 1. Ler os depoimentos da variável da base de dados
+    # --------------------------------------------------------
+    respostas <- dados_genero_c3 %>%
+      dplyr::transmute(
+        depoimento = as.character(.data[[
+          "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
+        ]])
+      ) %>%
+      dplyr::mutate(
+        depoimento = stringr::str_squish(depoimento)
+      ) %>%
+      dplyr::filter(
+        !is.na(depoimento),
+        depoimento != ""
+      ) %>%
+      dplyr::mutate(
+        # Normalizar acentos para facilitar a pesquisa de palavras
+        texto = stringi::stri_trans_general(
+          stringr::str_to_lower(depoimento),
+          "Latin-ASCII"
+        )
+      )
+    
+    # Total de participantes na avaliação
+    total_participantes <- nrow(dados_genero_c3)
+    
+    # --------------------------------------------------------
+    # 2. Identificar automaticamente as esferas de mudança
+    # --------------------------------------------------------
+    
+    # CASA E FAMÍLIA
+    padrao_casa <- paste(
+      "casa", "familia", "marido", "esposo", "parceiro",
+      "companheiro", "filhos", "tarefas domesticas",
+      "trabalho domestico", "dividir as tarefas",
+      "partilhar as tarefas", "redistribu", "responsabilidades",
+      "ajudar nas tarefas", "divisao das tarefas",
+      "conversar com a familia",
+      sep = "|"
+    )
+    
+    # EU — AUTOCONFIANÇA E AUTONOMIA
+    padrao_eu <- paste(
+      "confianca", "confiante", "perder o medo",
+      "perdi o medo", "sem medo", "coragem",
+      "acredito em mim", "acreditar em mim",
+      "capaz", "autonomia", "independente",
+      "tomar decisoes", "decidir por mim",
+      "direitos", "minha opiniao", "minha voz",
+      "expressar", "defender-me", "valorizar-me",
+      "valorizar a mim", "autoestima",
+      sep = "|"
+    )
+    
+    # NEGÓCIO — GESTÃO E ACTIVIDADE ECONÓMICA
+    padrao_negocio <- paste(
+      "negocio", "negociar", "negociei", "negocio com",
+      "preco", "precos", "fixar precos", "clientes",
+      "vender", "vendas", "lucro", "investir",
+      "investimento", "capital", "poupanca",
+      "formalizar", "formalizacao", "empreender",
+      "comprar mercadoria", "gestao", "contabilidade",
+      "calcular custos", "aumentar os rendimentos",
+      sep = "|"
+    )
+    
+    # TEMPO — CONCILIAÇÃO DE RESPONSABILIDADES
+    padrao_tempo <- paste(
+      "tempo", "conciliar", "organizacao do tempo",
+      "gerir o tempo", "gestao do tempo",
+      "organizar o meu dia", "organizar o dia",
+      "horario", "rotina", "equilibrar",
+      "conciliacao", "dividir o tempo",
+      "tempo para a familia", "tempo para o negocio",
+      "planear o dia", "planeamento",
+      sep = "|"
+    )
+    
+    # Classificar cada depoimento.
+    # Um depoimento pode pertencer a várias esferas.
+    respostas_classificadas <- respostas %>%
+      dplyr::mutate(
+        Casa_familia = stringr::str_detect(
+          texto, padrao_casa
+        ),
+        Eu = stringr::str_detect(
+          texto, padrao_eu
+        ),
+        Negocio = stringr::str_detect(
+          texto, padrao_negocio
+        ),
+        Tempo = stringr::str_detect(
+          texto, padrao_tempo
+        )
+      )
+    
+    # --------------------------------------------------------
+    # 3. Calcular automaticamente os totais por esfera
+    # --------------------------------------------------------
+    dados_praticas <- tibble::tibble(
+      Esfera = c(
+        "Casa e família",
+        "Eu",
+        "Negócio",
+        "Tempo"
+      ),
+      Descricao = c(
+        "Redistribuir tarefas, negociar com parceiro ou família",
+        "Autoconfiança, perder o medo, sentir-se capaz",
+        "Negociar, fixar preços, investir, formalizar",
+        "Conciliar o negócio e a família"
+      ),
+      N = c(
+        sum(respostas_classificadas$Casa_familia, na.rm = TRUE),
+        sum(respostas_classificadas$Eu, na.rm = TRUE),
+        sum(respostas_classificadas$Negocio, na.rm = TRUE),
+        sum(respostas_classificadas$Tempo, na.rm = TRUE)
+      ),
+      Cor = c(
+        "#6A1B9A",
+        "#7E3FB2",
+        "#A56BCB",
+        "#D8C4E8"
+      )
+    ) %>%
+      dplyr::mutate(
+        Percentagem = if (total_participantes > 0) {
+          N / total_participantes * 100
+        } else {
+          0
+        },
+        Rotulo = paste0(N, " de ", total_participantes),
+        Tooltip = paste0(
+          "<b>", Esfera, "</b>",
+          "<br>", Descricao,
+          "<br>Depoimentos identificados: ", N,
+          "<br>Participantes avaliadas: ", total_participantes,
+          "<br>Percentagem: ",
+          format(
+            round(Percentagem, 1),
+            nsmall = 1,
+            decimal.mark = ","
+          ),
+          "%"
+        ),
+        Esfera = factor(
+          Esfera,
+          levels = rev(c(
+            "Casa e família",
+            "Eu",
+            "Negócio",
+            "Tempo"
+          ))
+        )
+      ) %>%
+      dplyr::arrange(Esfera)
+    
+    # --------------------------------------------------------
+    # 4. Construir as barras de progresso
+    # --------------------------------------------------------
+    plot_ly() %>%
+      
+      # Trilho de fundo: representa o total de participantes
+      add_bars(
+        data = dados_praticas,
+        x = rep(total_participantes, nrow(dados_praticas)),
+        y = ~Esfera,
+        orientation = "h",
+        marker = list(
+          color = cor_fundo,
+          line = list(width = 0)
+        ),
+        width = 0.48,
+        hoverinfo = "skip",
+        showlegend = FALSE,
+        name = "Total de participantes"
+      ) %>%
+      
+      # Preenchimento: número de depoimentos identificados
+      add_bars(
+        data = dados_praticas,
+        x = ~N,
+        y = ~Esfera,
+        orientation = "h",
+        marker = list(
+          color = ~Cor,
+          line = list(width = 0)
+        ),
+        width = 0.48,
+        hoverinfo = "text",
+        hovertext = ~Tooltip,
+        showlegend = FALSE,
+        name = "Esferas identificadas"
+      ) %>%
+      
+      # Valores fora das barras, incluindo quando N = 0
+      add_trace(
+        data = dados_praticas,
+        x = ~pmin(N + 0.7, total_participantes + 1),
+        y = ~Esfera,
+        type = "scatter",
+        mode = "text",
+        text = ~Rotulo,
+        textposition = "middle right",
+        textfont = list(
+          color = "#333333",
+          size = 12,
+          family = "Arial"
+        ),
+        hoverinfo = "skip",
+        showlegend = FALSE,
+        inherit = FALSE
+      ) %>%
+      
+      layout(
+        barmode = "overlay",
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        
+        margin = list(
+          l = 110,
+          r = 75,
+          t = 20,
+          b = 25
+        ),
+        
+        bargap = 0.38,
+        
+        xaxis = list(
+          visible = FALSE,
+          range = c(0, max(total_participantes + 5, 10)),
+          fixedrange = TRUE,
+          zeroline = FALSE,
+          showgrid = FALSE
+        ),
+        
+        yaxis = list(
+          title = "",
+          tickfont = list(
+            color = "#333333",
+            size = 12,
+            family = "Arial"
+          ),
+          showgrid = FALSE,
+          zeroline = FALSE,
+          categoryorder = "array",
+          categoryarray = rev(c(
+            "Casa e família",
+            "Eu",
+            "Negócio",
+            "Tempo"
+          )),
+          automargin = TRUE,
+          fixedrange = TRUE
+        ),
+        
+        font = list(
+          color = "#333333",
+          family = "Arial"
+        ),
+        
+        hoverlabel = list(
+          bgcolor = "#ffffff",
+          bordercolor = "#9442d4",
+          font = list(
+            color = "#333333",
+            size = 12
+          )
+        )
+      ) %>%
+      
+      config(
+        displayModeBar = FALSE,
+        responsive = TRUE
+      )
+  })
+  
+  
+  # ============================================================
+  # VOZES DAS PARTICIPANTES — PREPARAÇÃO DOS DEPOIMENTOS
+  # Apenas a pergunta aberta sobre práticas colocadas em prática
+  # Identificação exclusiva por ID
+  # ============================================================
+  
+  pergunta_praticas <-
+    "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
+  
+  
+  # ------------------------------------------------------------
+  # 1. Classificação temática
+  # ------------------------------------------------------------
+  
+  classificar_tema_genero <- function(texto) {
+    
+    if (
+      length(texto) == 0 ||
+      is.na(texto) ||
+      !nzchar(stringr::str_squish(texto))
+    ) {
+      return("Tema não classificado")
+    }
+    
+    texto_limpo <- stringi::stri_trans_general(
+      stringr::str_to_lower(texto),
+      "Latin-ASCII"
+    )
+    
+    regras_temas <- list(
+      
+      "Trabalho doméstico" = paste(
+        "tarefas domesticas", "trabalho domestico",
+        "casa", "familia", "filhos", "cozinhar",
+        "limpar", "lavar", "dividir tarefas",
+        "redistribuir", "responsabilidades domesticas",
+        "marido", "esposo", "parceiro", "companheiro",
+        sep = "|"
+      ),
+      
+      "Poder interior" = paste(
+        "confianca", "autoconfianca", "autoestima",
+        "perder o medo", "coragem", "sentir-me capaz",
+        "acreditar em mim", "acredito em mim",
+        "autonomia", "independencia", "tomar decisoes",
+        "minha voz", "minha opiniao", "direitos",
+        sep = "|"
+      ),
+      
+      "Negociar e fixar preços" = paste(
+        "negociar", "negociei", "negociacao",
+        "fixar precos", "preco", "precos",
+        "clientes", "vendas", "vender",
+        "lucro", "investir", "capital",
+        "formalizar", "formalizacao",
+        sep = "|"
+      ),
+      
+      "Relações de poder" = paste(
+        "poder de decisao", "tomada de decisao",
+        "decisao conjunta", "igualdade",
+        "desigualdade", "respeito", "direitos",
+        "voz na familia", "ser ouvida",
+        "participar nas decisoes", "relacao de poder",
+        sep = "|"
+      ),
+      
+      "Estereótipos ocupacionais" = paste(
+        "trabalho de homem", "trabalho de mulher",
+        "profissao de homem", "profissao de mulher",
+        "actividade de homem", "actividade de mulher",
+        "atividade de homem", "atividade de mulher",
+        "homens podem", "mulheres podem",
+        "mulher nao pode", "homem nao pode",
+        "estereotipo", "discriminacao no trabalho",
+        sep = "|"
+      ),
+      
+      "Tensões" = paste(
+        "conflito", "discussao", "discutir",
+        "problema", "dificuldade", "discordancia",
+        "rejeicao", "resistencia", "oposicao",
+        "nao aceitou", "nao aceitaram",
+        "briga", "tensao",
+        sep = "|"
+      )
+    )
+    
+    temas_encontrados <- names(regras_temas)[
+      vapply(
+        regras_temas,
+        function(padrao) {
+          stringr::str_detect(texto_limpo, padrao)
+        },
+        logical(1)
+      )
+    ]
+    
+    if (length(temas_encontrados) == 0) {
+      return("Tema não classificado")
+    }
+    
+    temas_encontrados[1]
+  }
+  
+  
+  # ------------------------------------------------------------
+  # 2. Identificar a coluna do ID
+  # ------------------------------------------------------------
+  
+  colunas_id_possiveis <- c(
+    "ID_Participante",
+    "id_participante",
+    "ID_participante",
+    "ID",
+    "id",
+    "Codigo_Participante",
+    "Código_Participante"
+  )
+  
+  coluna_id_encontrada <- intersect(
+    colunas_id_possiveis,
+    names(dados_genero_c3)
+  )
+  
+  if (length(coluna_id_encontrada) == 0) {
+    stop(
+      paste(
+        "Não foi encontrada a coluna do ID em dados_genero_c3.",
+        "Verifica names(dados_genero_c3) e acrescenta o nome",
+        "correcto à lista colunas_id_possiveis."
+      )
+    )
+  }
+  
+  coluna_id_encontrada <- coluna_id_encontrada[1]
+  
+  
+  # ------------------------------------------------------------
+  # 3. Verificar a pergunta aberta e preparar os dados
+  # ------------------------------------------------------------
+  
+  if (!pergunta_praticas %in% names(dados_genero_c3)) {
+    stop(
+      paste(
+        "A pergunta aberta não foi encontrada em dados_genero_c3:",
+        pergunta_praticas
+      )
+    )
+  }
+  
+  dados_depoimentos_genero <- tibble::tibble(
+    ID_Participante = as.character(
+      dados_genero_c3[[coluna_id_encontrada]]
+    ),
+    Texto_original = as.character(
+      dados_genero_c3[[pergunta_praticas]]
+    )
+  ) %>%
+    dplyr::mutate(
+      ID_Participante = stringr::str_squish(ID_Participante),
+      texto_verificacao = stringr::str_squish(Texto_original)
+    ) %>%
+    dplyr::filter(
+      !is.na(ID_Participante),
+      ID_Participante != "",
+      !is.na(Texto_original),
+      texto_verificacao != ""
+    ) %>%
+    dplyr::mutate(
+      Depoimento = Texto_original,
+      Tema = vapply(
+        Depoimento,
+        classificar_tema_genero,
+        character(1)
+      )
+    ) %>%
+    dplyr::select(
+      ID_Participante,
+      Texto_original,
+      Depoimento,
+      Tema
+    )
+  
+  
+  # ------------------------------------------------------------
+  # 4. Tabela opcional para futuras correcções ortográficas
+  # ------------------------------------------------------------
+  # Por defeito, não altera qualquer depoimento.
+  # As correcções devem ser revistas e registadas manualmente.
+  #
+  # Exemplo:
+  # correcoes_ortograficas <- tibble::tribble(
+  #   ~ID_Participante, ~Texto_original, ~Texto_corrigido,
+  #   "P001", "texto original", "texto corrigido"
+  # )
+  
+  
+  
+  # ============================================================
+  # VOZES DAS PARTICIPANTES — CARTÕES INDIVIDUAIS
+  # ============================================================
+  
+  output$depoimentos_genero <- renderUI({
+    
+    dados <- dados_depoimentos_genero
+    
+    tema_selecionado <- input$filtro_tema_qualitativo
+    
+    if (is.null(tema_selecionado) || tema_selecionado == "") {
+      tema_selecionado <- "Todos"
+    }
+    
+    if (tema_selecionado != "Todos") {
+      dados <- dados %>%
+        dplyr::filter(Tema == tema_selecionado)
+    }
+    
+    if (nrow(dados) == 0) {
+      return(
+        div(
+          style = paste(
+            "background-color:#ffffff;",
+            "padding:20px;",
+            "border-radius:8px;",
+            "text-align:center;",
+            "color:#777777;"
+          ),
+          icon("info-circle"),
+          p("Não existem depoimentos para o tema seleccionado.")
+        )
+      )
+    }
+    
+    cores_temas <- c(
+      "Trabalho doméstico" = "#6A1B9A",
+      "Poder interior" = "#7E3FB2",
+      "Negociar e fixar preços" = "#A56BCB",
+      "Relações de poder" = "#9442D4",
+      "Estereótipos ocupacionais" = "#F77333",
+      "Tensões" = "#42A5F5",
+      "Tema não classificado" = "#999999"
+    )
+    
+    div(
+      class = "depoimentos-genero-container",
+      
+      div(
+        style = paste(
+          "display:flex;",
+          "justify-content:space-between;",
+          "align-items:center;",
+          "flex-wrap:wrap;",
+          "gap:8px;",
+          "margin-bottom:15px;"
+        ),
+        
+        tags$strong(
+          paste(
+            nrow(dados),
+            if (nrow(dados) == 1) {
+              "depoimento encontrado"
+            } else {
+              "depoimentos encontrados"
+            }
+          ),
+          style = "color:#444444;"
+        ),
+        
+        span(
+          style = "font-size:12px;color:#777777;",
+          tema_selecionado
+        )
+      ),
+      
+      fluidRow(
+        lapply(seq_len(nrow(dados)), function(i) {
+          
+          registo <- dados[i, ]
+          
+          tema <- registo$Tema[[1]]
+          cor_tema <- unname(cores_temas[tema])
+          
+          if (length(cor_tema) == 0 || is.na(cor_tema)) {
+            cor_tema <- "#999999"
+          }
+          
+          column(
+            width = 6,
+            
+            div(
+              style = paste0(
+                "background-color:#ffffff;",
+                "border-left:5px solid ", cor_tema, ";",
+                "border-radius:8px;",
+                "padding:16px;",
+                "margin-bottom:16px;",
+                "box-shadow:0 2px 6px rgba(0,0,0,0.06);",
+                "height:auto;"
+              ),
+              
+              span(
+                style = paste0(
+                  "display:inline-block;",
+                  "background-color:", cor_tema, "18;",
+                  "color:", cor_tema, ";",
+                  "padding:5px 9px;",
+                  "border-radius:12px;",
+                  "font-size:11px;",
+                  "font-weight:600;",
+                  "margin-bottom:10px;"
+                ),
+                tema
+              ),
+              
+              tags$blockquote(
+                style = paste(
+                  "border-left:0;",
+                  "padding:0;",
+                  "margin:0 0 14px 0;",
+                  "font-size:14px;",
+                  "line-height:1.6;",
+                  "color:#333333;",
+                  "font-style:italic;",
+                  "white-space:pre-wrap;",
+                  "overflow-wrap:anywhere;"
+                ),
+                registo$Depoimento[[1]]
+              ),
+              
+              div(
+                style = paste(
+                  "border-top:1px solid #eeeeee;",
+                  "padding-top:8px;",
+                  "font-size:11px;",
+                  "color:#777777;"
+                ),
+                icon("user"),
+                span(
+                  style = "margin-left:5px;",
+                  paste("ID:", registo$ID_Participante[[1]])
+                )
+              )
+            )
+          )
+        })
+      )
+    )
+  })
+  
   
   # ##########################     CONSCIENCIA AMBIENTAL ######################
   # 
@@ -12678,10 +14367,6 @@ server <- function(input, output, session) {
   
   # =====
 
-# ============================================================
-# Gráfico Exercício 4
-# ============================================================
-# ============================================================
 # Dados - Exercício 4
 # ============================================================
 
@@ -14667,11 +16352,7 @@ output$texto_resultado_exercicio_4 <- renderUI({
     )
   })
   
-  
-  # ============================================================
-  # GRÁFICO – EXERCÍCIO 15
-  # A2 - Fontes entrevistadas/observadas
-  # ============================================================
+ 
   # ============================================================
   # DADOS – EXERCÍCIO 15
   # A2 - Fontes entrevistadas/observadas

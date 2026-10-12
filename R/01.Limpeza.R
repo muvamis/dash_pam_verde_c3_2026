@@ -1039,3 +1039,197 @@ PAM_VERDE_CONCLUSAO_FORMACAO <- PERFIL_PAM_VERDE_C3_2026 %>%
 # table(FINANCEIRO_TOC_NAMPULA$Periodo, FINANCEIRO_TOC_NAMPULA$Lucro_Semanal)
 
 table(PAM_VERDE_TOC_C3$Tipo_Avaliacao,PAM_VERDE_TOC_C3$Uso_de_ferramentas_de_IA)
+
+
+
+library(dplyr)
+library(stringr)
+
+# Perguntas da avaliação de género
+pergunta_fechada <- paste0(
+  "Até que ponto as actividades ligadas à questão de género ",
+  "ajudaram a compreender as desigualdades entre homens e mulheres?"
+)
+
+pergunta_aberta <- paste0(
+  "Podes dizer algo que colocaste em prática ",
+  "depois de ter tido essas actividades?"
+)
+
+# Filtrar exclusivamente Ciclo 3 - Endline
+dados_genero_c3 <- Pam_Verde_Indicadores %>%
+  filter(
+    str_detect(Ciclo, regex("Ciclo\\s*3", ignore_case = TRUE)),
+    str_detect(Tipo_Avaliacao, regex("^Endline$", ignore_case = TRUE))
+  )
+
+# 1. Confirmar o número de registos
+cat("Total de registos Ciclo 3 - Endline:",
+    nrow(dados_genero_c3), "\n")
+
+# 2. Verificar respostas válidas
+dados_genero_c3 %>%
+  summarise(
+    Total_registos = n(),
+    Participantes_identificadas = n_distinct(ID_Participante),
+    Respostas_pergunta_fechada = sum(
+      !is.na(.data[[pergunta_fechada]]) &
+        str_trim(.data[[pergunta_fechada]]) != ""
+    ),
+    Respostas_pergunta_aberta = sum(
+      !is.na(.data[[pergunta_aberta]]) &
+        str_trim(.data[[pergunta_aberta]]) != ""
+    )
+  )
+
+# 3. Distribuição das respostas à pergunta fechada
+dados_genero_c3 %>%
+  filter(
+    !is.na(.data[[pergunta_fechada]]),
+    str_trim(.data[[pergunta_fechada]]) != ""
+  ) %>%
+  count(
+    Resposta = .data[[pergunta_fechada]],
+    name = "Frequencia"
+  ) %>%
+  arrange(desc(Frequencia))
+
+# 4. Consultar as respostas abertas
+dados_genero_c3 %>%
+  filter(
+    !is.na(.data[[pergunta_aberta]]),
+    str_trim(.data[[pergunta_aberta]]) != ""
+  ) %>%
+  select(
+    ID_Participante,
+    all_of(pergunta_aberta)
+  )
+
+# 
+# library(dplyr)
+# library(plotly)
+# library(scales)
+# 
+# # ==========================================================
+# # GRÁFICO DE GÉNERO — BARRAS DE PROGRESSO MODERNAS
+# # ==========================================================
+# 
+# cor_preenchimento <- "#9442d4"
+# cor_fundo <- "#e9e3ed"
+# 
+# resumo_fechada <- resumo_fechada %>%
+#   mutate(
+#     Resposta_plot = factor(
+#       as.character(Resposta),
+#       levels = rev(ordem_respostas)
+#     )
+#   )
+# 
+# grafico_genero <- plot_ly() %>%
+#   
+#   # Fundo: trilho completo de 100%
+#   add_bars(
+#     data = resumo_fechada,
+#     x = rep(100, nrow(resumo_fechada)),
+#     y = ~Resposta_plot,
+#     orientation = "h",
+#     marker = list(
+#       color = cor_fundo,
+#       line = list(width = 0),
+#       cornerradius = 12
+#     ),
+#     width = 0.48,
+#     hoverinfo = "skip",
+#     showlegend = FALSE,
+#     name = "Fundo"
+#   ) %>%
+#   
+#   # Preenchimento proporcional
+#   add_bars(
+#     data = resumo_fechada,
+#     x = ~Percentagem,
+#     y = ~Resposta_plot,
+#     orientation = "h",
+#     marker = list(
+#       color = cor_preenchimento,
+#       line = list(width = 0)
+#     ),
+#     width = 0.48,
+#     text = ~label_direita,
+#     textposition = "outside",
+#     cliponaxis = FALSE,
+#     hoverinfo = "text",
+#     hovertext = ~tooltip_txt,
+#     showlegend = FALSE,
+#     name = "Percentagem"
+#   ) %>%
+#   
+#   layout(
+#     barmode = "overlay",
+#     paper_bgcolor = "#f5f3f4",
+#     plot_bgcolor = "#f5f3f4",
+#     
+#     margin = list(
+#       l = 150,
+#       r = 90,
+#       t = 85,
+#       b = 35
+#     ),
+#     
+#     bargap = 0.38,
+#     
+#     xaxis = list(
+#       visible = FALSE,
+#       range = c(0, 115),
+#       fixedrange = TRUE,
+#       zeroline = FALSE,
+#       showgrid = FALSE
+#     ),
+#     
+#     yaxis = list(
+#       tickfont = list(
+#         color = "#333333",
+#         size = 12,
+#         family = "Arial"
+#       ),
+#       showgrid = FALSE,
+#       zeroline = FALSE,
+#       categoryorder = "array",
+#       categoryarray = rev(ordem_respostas),
+#       automargin = TRUE
+#     ),
+#     
+#     title = list(
+#       text = paste0(
+#         "Contributo das actividades para a compreensão ",
+#         "das desigualdades"
+#       ),
+#       x = 0.02,
+#       xanchor = "left",
+#       font = list(
+#         color = "#333333",
+#         size = 17,
+#         family = "Arial"
+#       )
+#     ),
+#     
+#     font = list(
+#       color = "#333333",
+#       family = "Arial"
+#     ),
+#     
+#     hoverlabel = list(
+#       bgcolor = "#ffffff",
+#       bordercolor = cor_preenchimento,
+#       font = list(
+#         color = "#333333",
+#         size = 12
+#       )
+#     )
+#   ) %>%
+#   config(
+#     displayModeBar = FALSE,
+#     responsive = TRUE
+#   )
+# 
+# grafico_genero
