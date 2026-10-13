@@ -535,7 +535,7 @@ ui <- navbarPage(
               # ==========================================================
               
               tabPanel(
-                "Dados Qualitativos de Gênero",
+                "Qualitativo Gênero",
                 
                 br(),
                 
@@ -809,11 +809,11 @@ ui <- navbarPage(
                         )
                       ),
                       plotlyOutput("grafico_praticas_genero", height = "330px"),
-                      p(
-                        style = "font-size:12px; color:#777777; margin-top:8px;",
-                        "Esferas de mudança · nº de participantes (de 30). ",
-                        "Um depoimento pode contar em mais de uma categoria."
-                      )
+                      # p(
+                      #   style = "font-size:12px; color:#777777; margin-top:8px;",
+                      #   "Esferas de mudança · nº de participantes (de 30). ",
+                      #   "Um depoimento pode contar em mais de uma categoria."
+                      # )
                     )
                   )
                 ),
@@ -843,21 +843,21 @@ ui <- navbarPage(
                         selected = "Todos"
                       ),
                       uiOutput("depoimentos_genero")
-                    )
-                  )
-                ),
-                
-                br(),
-                
-                # Interpretação crítica
-                fluidRow(
-                  column(
-                    12,
-                    div(
-                      style = "background-color:#f5f3f4; padding:20px;
-                     border-radius:8px; margin-bottom:20px;",
-                      h4("Interpretação crítica e recomendações"),
-                      uiOutput("interpretacao_critica_genero")
+                #     )
+                #   )
+                # ),
+                # 
+                # br(),
+                # 
+                # # Interpretação crítica
+                # fluidRow(
+                #   column(
+                #     12,
+                #     div(
+                #       style = "background-color:#f5f3f4; padding:20px;
+                #      border-radius:8px; margin-bottom:20px;",
+                #       h4("Interpretação crítica e recomendações"),
+                #       uiOutput("interpretacao_critica_genero")
                     )
                   )
                 )
