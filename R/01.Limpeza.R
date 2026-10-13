@@ -6,7 +6,7 @@ packages <- c(
   "sf", "shinythemes", "lubridate", "jsonlite", "stringr", "readr", "dplyr", 
   "ggrepel", "tidyverse", "shinyjs", "plotly", "ggplot2", "DT", "shinyWidgets", 
   "shinydashboard", "shinycssloaders", "cowplot", "ggmap", "ggspatial", 
-  "rmarkdown","fontawesome", "haven", "gridExtra", "scales", 
+  "rmarkdown","fontawesome", "haven", "gridExtra", "scales", "htmlwidgets",
   "writexl", "openxlsx", "kableExtra", "rlang", "formattable", "glue", "httr2", 
   "dotenv", "RZohoCreator", "purrr"
 )

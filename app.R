@@ -2548,7 +2548,7 @@ tabPanel(
       
       box(
         width = 12,
-        title = "Matriz de Indicadores do TOC",
+        # title = "Matriz de Indicadores do TOC",
         
         div(
           style = "
@@ -11883,7 +11883,7 @@ server <- function(input, output, session) {
     # NEGÓCIO — GESTÃO E ACTIVIDADE ECONÓMICA
     padrao_negocio <- paste(
       "negocio", "negociar", "negociei", "negocio com",
-      "preco", "precos", "fixar precos", "clientes",
+      "preco", "precos", "precificar","fixar precos", "clientes",
       "vender", "vendas", "lucro", "investir",
       "investimento", "capital", "poupanca",
       "formalizar", "formalizacao", "empreender",
@@ -12147,7 +12147,7 @@ server <- function(input, output, session) {
       "Poder interior" = paste(
         "confianca", "autoconfianca", "autoestima",
         "perder o medo", "coragem", "sentir-me capaz",
-        "acreditar em mim", "acredito em mim",
+        "acreditar em mim", "acredito em mim", "me tornei capaz",
         "autonomia", "independencia", "tomar decisoes",
         "minha voz", "minha opiniao", "direitos",
         sep = "|"
@@ -25994,193 +25994,521 @@ output$texto_resultado_exercicio_4 <- renderUI({
           Estado
         
       )
+  
     
     
     
     
-    # ==========================================================
-    # 36. DATATABLE
-    # ==========================================================
+    # ============================================================
+    # 36. DATATABLE — MATRIZ TOC INTERACTIVA
+    # PAM VERDE CICLO 3
+    # ============================================================
     
-    DT::datatable(
+    tabela_widget <- DT::datatable(
       
       tabela_final_toc,
       
       rownames = FALSE,
-      
       escape = FALSE,
       
-      extensions = c(
-        "Responsive"
-      ),
+      # Não usar Responsive: queremos preservar todas as colunas
+      # e permitir a navegação horizontal.
+      extensions = "Buttons",
       
       options = list(
         
-        pageLength = 15,
+        # --------------------------------------------------------
+        # VISUALIZAÇÃO DE TODOS OS INDICADORES
+        # --------------------------------------------------------
+        
+        pageLength = -1,
+        
+        lengthMenu = list(
+          c(15, 25, 50, 100, -1),
+          c("15", "25", "50", "100", "Todos")
+        ),
         
         scrollX = TRUE,
-        
-        scrollY = "600px",
-        
+        scrollY = "65vh",
         scrollCollapse = TRUE,
         
         autoWidth = FALSE,
+        deferRender = FALSE,
+        processing = FALSE,
         
-        dom = "tip",
+        # --------------------------------------------------------
+        # BOTÕES NATIVOS
+        # --------------------------------------------------------
+        
+        dom = "Bfltip",
+        
+        buttons = list(
+          
+          list(
+            extend = "pageLength",
+            text = "Mostrar registos"
+          ),
+          
+          list(
+            extend = "copyHtml5",
+            text = "Copiar tabela"
+          ),
+          
+          list(
+            extend = "csvHtml5",
+            text = "Descarregar CSV",
+            filename = "Matriz_TOC_PAM_Verde_Ciclo3",
+            title = "Matriz de Indicadores TOC - PAM Verde Ciclo 3"
+          ),
+          
+          list(
+            extend = "excelHtml5",
+            text = "Descarregar Excel",
+            filename = "Matriz_TOC_PAM_Verde_Ciclo3",
+            title = "Matriz de Indicadores TOC - PAM Verde Ciclo 3"
+          ),
+          
+          list(
+            extend = "print",
+            text = "Imprimir tabela",
+            title = "Matriz de Indicadores TOC - PAM Verde Ciclo 3"
+          )
+        ),
+        
+        # --------------------------------------------------------
+        # LARGURA E COMPORTAMENTO DAS COLUNAS
+        # --------------------------------------------------------
         
         columnDefs = list(
-          
-          
-          # ------------------------------------------------------
-          # ID
-          # ------------------------------------------------------
           
           list(
             width = "125px",
             targets = 0
           ),
           
-          
-          # ------------------------------------------------------
-          # INDICADOR
-          # ------------------------------------------------------
-          
           list(
             width = "390px",
             targets = 1
           ),
           
-          
-          # ------------------------------------------------------
-          # BASELINE
-          # ------------------------------------------------------
-          
           list(
             width = "100px",
-            targets = 2
+            targets = 2:3
           ),
           
-          
-          # ------------------------------------------------------
-          # ENDLINE
-          # ------------------------------------------------------
-          
           list(
-            width = "100px",
-            targets = 3
-          ),
-          
-          
-          # ------------------------------------------------------
-          # VARIAÇÃO
-          # ------------------------------------------------------
-          
-          list(
-            width = "110px",
+            width = "115px",
             targets = 4
           ),
-          
-          
-          # ------------------------------------------------------
-          # META
-          # ------------------------------------------------------
           
           list(
             width = "100px",
             targets = 5
           ),
           
-          
-          # ------------------------------------------------------
-          # ALCANCE
-          # ------------------------------------------------------
-          
           list(
             width = "180px",
             targets = 6
           ),
           
-          
-          # ------------------------------------------------------
-          # ESTADO
-          # ------------------------------------------------------
-          
           list(
-            width = "145px",
+            width = "155px",
             targets = 7
           )
+        ),
+        
+        # --------------------------------------------------------
+        # IDIOMA PORTUGUÊS
+        # --------------------------------------------------------
+        
+        language = list(
           
+          search = "Pesquisar indicador:",
+          
+          lengthMenu = "Mostrar _MENU_ indicadores",
+          
+          info = "A mostrar _START_ a _END_ de _TOTAL_ indicadores",
+          
+          infoEmpty = "Sem indicadores disponíveis",
+          
+          zeroRecords = "Nenhum indicador encontrado",
+          
+          emptyTable = "Não existem dados disponíveis",
+          
+          processing = "A preparar a tabela...",
+          
+          paginate = list(
+            previous = "Anterior",
+            `next` = "Seguinte",
+            first = "Primeira",
+            last = "Última"
+          ),
+          
+          buttons = list(
+            copy = "Copiar tabela",
+            print = "Imprimir tabela",
+            pageLength = "Mostrar registos"
+          )
         )
-      )
-      
-    ) %>%
-      
-      
-      # ==========================================================
-    # FORMATAÇÃO ID
-    # ==========================================================
-    
-    DT::formatStyle(
-      
-      "ID_Indicador",
-      
-      `white-space` =
-        "normal",
-      
-      `vertical-align` =
-        "middle"
-      
-    ) %>%
-      
-      
-      # ==========================================================
-    # FORMATAÇÃO INDICADOR
-    # ==========================================================
-    
-    DT::formatStyle(
-      
-      "Indicador",
-      
-      `white-space` =
-        "normal",
-      
-      `vertical-align` =
-        "middle"
-      
-    ) %>%
-      
-      
-      # ==========================================================
-    # ALINHAMENTO
-    # ==========================================================
-    
-    DT::formatStyle(
-      
-      columns = c(
-        
-        "ID_Indicador",
-        
-        "Baseline",
-        
-        "Endline",
-        
-        "Variação",
-        
-        "Meta 2026",
-        
-        "Alcance da Meta",
-        
-        "Estado"
-        
       ),
       
-      `text-align` =
-        "center",
+      class = "display compact stripe hover"
+    ) %>%
       
-      `vertical-align` =
-        "middle"
+      # ----------------------------------------------------------
+    # FORMATAÇÃO DO ID
+    # ----------------------------------------------------------
+    
+    DT::formatStyle(
+      "ID_Indicador",
+      `white-space` = "normal",
+      `vertical-align` = "middle"
+    ) %>%
+      
+      # ----------------------------------------------------------
+    # FORMATAÇÃO DO NOME DO INDICADOR
+    # ----------------------------------------------------------
+    
+    DT::formatStyle(
+      "Indicador",
+      `white-space` = "normal",
+      `vertical-align` = "middle",
+      color = "#333333"
+    ) %>%
+      
+      # ----------------------------------------------------------
+    # ALINHAMENTO DOS VALORES
+    # ----------------------------------------------------------
+    
+    DT::formatStyle(
+      columns = c(
+        "ID_Indicador",
+        "Baseline",
+        "Endline",
+        "Variação",
+        "Meta 2026",
+        "Alcance da Meta",
+        "Estado"
+      ),
+      `text-align` = "center",
+      `vertical-align` = "middle"
+    ) %>%
+      
+      # ----------------------------------------------------------
+    # ESTILO GERAL
+    # ----------------------------------------------------------
+    
+    DT::formatStyle(
+      columns = names(tabela_final_toc),
+      fontSize = "13px",
+      padding = "9px"
+    )
+    
+    
+    # ============================================================
+    # 37. BOTÕES PERSONALIZADOS E CAPTURA PNG
+    # ============================================================
+    
+    tabela_widget <- htmlwidgets::onRender(
+      
+      tabela_widget,
+      
+      htmlwidgets::JS("
+
+  function(el, x) {
+
+    var wrapper = el.querySelector('.dataTables_wrapper');
+    var table = el.querySelector('table');
+
+    if (!wrapper || !table) return;
+
+    // Evitar criar a barra de botões mais de uma vez
+    if (wrapper.querySelector('.toolbar-toc-personalizada')) {
+      return;
+    }
+
+    var toolbar = document.createElement('div');
+
+    toolbar.className = 'toolbar-toc-personalizada';
+
+    toolbar.style.cssText =
+      'display:flex;gap:10px;flex-wrap:wrap;' +
+      'align-items:center;margin:12px 0;padding:8px 0;';
+
+    function criarBotao(texto) {
+
+      var botao = document.createElement('button');
+
+      botao.type = 'button';
+      botao.innerHTML = texto;
+
+      botao.style.cssText =
+        'background:#9442d4;color:white;border:0;' +
+        'padding:10px 15px;border-radius:6px;' +
+        'cursor:pointer;font-weight:600;';
+
+      toolbar.appendChild(botao);
+
+      return botao;
+    }
+
+    var btnPNG = criarBotao(
+      '&#128247; Guardar tabela completa em PNG'
+    );
+
+    var btnFullscreen = criarBotao(
+      '&#9974; Ecrã inteiro'
+    );
+
+    wrapper.insertBefore(toolbar, wrapper.firstChild);
+
+    // --------------------------------------------------------
+    // AJUSTAR COLUNAS
+    // --------------------------------------------------------
+
+    function ajustarTabela() {
+
+      if (window.jQuery && $.fn.dataTable) {
+
+        var api = $(table).DataTable();
+
+        setTimeout(function() {
+          api.columns.adjust().draw(false);
+        }, 250);
+      }
+    }
+
+    // --------------------------------------------------------
+    // CAPTURA PNG DA TABELA COMPLETA
+    // --------------------------------------------------------
+
+    btnPNG.addEventListener('click', function() {
+
+      if (typeof window.html2canvas !== 'function') {
+
+        var script = document.createElement('script');
+
+        script.src =
+          'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+
+        script.onload = function() {
+          btnPNG.click();
+        };
+
+        script.onerror = function() {
+          alert(
+            'Não foi possível carregar a ferramenta de captura PNG. ' +
+            'Verifique a ligação à Internet e tente novamente.'
+          );
+        };
+
+        document.head.appendChild(script);
+
+        btnPNG.disabled = true;
+
+        script.onload = function() {
+          btnPNG.disabled = false;
+          btnPNG.click();
+        };
+
+        return;
+      }
+
+      if (!window.jQuery || !$.fn.dataTable) {
+        alert('A tabela ainda não está pronta. Tente novamente.');
+        return;
+      }
+
+      var api = $(table).DataTable();
+
+      var scrollBody = wrapper.querySelector('.dataTables_scrollBody');
+      var scrollHead = wrapper.querySelector('.dataTables_scrollHead');
+      var scroll = wrapper.querySelector('.dataTables_scroll');
+
+      var estado = {
+        pageLength: api.page.len(),
+        scrollBodyHeight: scrollBody ? scrollBody.style.height : '',
+        scrollBodyMaxHeight: scrollBody ? scrollBody.style.maxHeight : '',
+        scrollBodyOverflow: scrollBody ? scrollBody.style.overflow : '',
+        scrollOverflow: scroll ? scroll.style.overflow : '',
+        wrapperWidth: wrapper.style.width
+      };
+
+      btnPNG.disabled = true;
+      btnPNG.textContent = 'A preparar imagem...';
+
+      function restaurar() {
+
+        if (scrollBody) {
+          scrollBody.style.height = estado.scrollBodyHeight;
+          scrollBody.style.maxHeight = estado.scrollBodyMaxHeight;
+          scrollBody.style.overflow = estado.scrollBodyOverflow;
+        }
+
+        if (scroll) {
+          scroll.style.overflow = estado.scrollOverflow;
+        }
+
+        wrapper.style.width = estado.wrapperWidth;
+
+        api.page.len(estado.pageLength).draw(false);
+
+        ajustarTabela();
+
+        btnPNG.disabled = false;
+        btnPNG.innerHTML =
+          '&#128247; Guardar tabela completa em PNG';
+      }
+
+      // Mostrar todos os indicadores antes de capturar
+      api.page.len(-1).draw(false);
+
+      setTimeout(function() {
+
+        if (scrollBody) {
+          scrollBody.style.height = 'auto';
+          scrollBody.style.maxHeight = 'none';
+          scrollBody.style.overflow = 'visible';
+        }
+
+        if (scroll) {
+          scroll.style.overflow = 'visible';
+        }
+
+        wrapper.style.width = 'max-content';
+
+        ajustarTabela();
+
+        setTimeout(function() {
+
+          html2canvas(wrapper, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false,
+            width: wrapper.scrollWidth,
+            height: wrapper.scrollHeight,
+            windowWidth: Math.max(
+              document.documentElement.clientWidth,
+              wrapper.scrollWidth
+            ),
+            windowHeight: Math.max(
+              document.documentElement.clientHeight,
+              wrapper.scrollHeight
+            )
+          }).then(function(canvas) {
+
+            var link = document.createElement('a');
+
+            link.download =
+              'Matriz_TOC_PAM_Verde_Ciclo3.png';
+
+            link.href = canvas.toDataURL('image/png');
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+          }).catch(function(erro) {
+
+            console.error('Erro ao gerar PNG:', erro);
+
+            alert(
+              'Não foi possível gerar a imagem completa. ' +
+              'Utilize a exportação Excel ou a opção Imprimir.'
+            );
+
+          }).finally(function() {
+
+            restaurar();
+
+          });
+
+        }, 500);
+
+      }, 350);
+
+    });
+
+    // --------------------------------------------------------
+    // ECRÃ INTEIRO
+    // --------------------------------------------------------
+
+    btnFullscreen.addEventListener('click', function() {
+
+      if (document.fullscreenElement === wrapper) {
+
+        document.exitFullscreen().catch(function(erro) {
+          console.error('Erro ao sair do ecrã inteiro:', erro);
+        });
+
+        return;
+      }
+
+      if (!wrapper.requestFullscreen) {
+
+        alert(
+          'O navegador não suporta o modo de ecrã inteiro.'
+        );
+
+        return;
+      }
+
+      wrapper.requestFullscreen().catch(function(erro) {
+
+        console.error('Erro no ecrã inteiro:', erro);
+
+        alert(
+          'Não foi possível abrir o ecrã inteiro. ' +
+          'Verifique as permissões do navegador.'
+        );
+
+      });
+    });
+
+    document.addEventListener('fullscreenchange', function() {
+
+      var ativo = document.fullscreenElement === wrapper;
+
+      btnFullscreen.innerHTML = ativo
+        ? '&#10006; Sair do ecrã inteiro'
+        : '&#9974; Ecrã inteiro';
+
+      if (ativo) {
+
+        wrapper.style.background = '#ffffff';
+        wrapper.style.padding = '15px';
+        wrapper.style.width = '100%';
+        wrapper.style.height = '100vh';
+        wrapper.style.overflow = 'auto';
+        wrapper.style.boxSizing = 'border-box';
+
+      } else {
+
+        wrapper.style.removeProperty('background');
+        wrapper.style.removeProperty('padding');
+        wrapper.style.removeProperty('width');
+        wrapper.style.removeProperty('height');
+        wrapper.style.removeProperty('overflow');
+        wrapper.style.removeProperty('box-sizing');
+      }
+
+      ajustarTabela();
+
+    });
+
+  }
+
+  ")
       
     )
+    
+    
+    # ============================================================
+    # 38. APRESENTAR A MATRIZ TOC
+    # ============================================================
+    
+    tabela_widget
     
     
   })
