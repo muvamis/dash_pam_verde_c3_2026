@@ -17502,34 +17502,55 @@ output$texto_resultado_exercicio_4 <- renderUI({
   })
   
   
- ################### PRESENCAS NAS SESSÕES  
+ ################### PRESENCAS NAS SESSÕES
+  # ============================================================
+  # DADOS FILTRADOS — PRESENÇAS COLECTIVAS
+  # ============================================================
   
   dados_filtrados_coletiva <- reactive({
     
     df <- Presencas_Colectivas_Nampula
     
     if (input$filtro_monitoria_presencas != "Todas") {
-      df <- df %>% filter(Cidade == input$filtro_monitoria_presencas)
+      df <- df %>%
+        filter(Cidade == input$filtro_monitoria_presencas)
     }
     
     if (input$mentora_coletiva != "Todas") {
-      df <- df %>% filter(Pesquisadores == input$mentora_coletiva)
+      df <- df %>%
+        filter(Pesquisadores == input$mentora_coletiva)
     }
     
     df
   })
   
+  
+  # ============================================================
+  # PREPARAÇÃO DOS DADOS PARA O GRÁFICO
+  # ============================================================
+  
   dados_plot_coletivo <- reactive({
     
     df <- dados_filtrados_coletiva()
+    
     previsto <- 43
     
     df <- df %>%
-      mutate(across(starts_with("Sessao_"), ~sapply(., function(x) {
-        if (is.null(x)) return(NA)
-        if (is.list(x)) x <- unlist(x)
-        paste0(x, collapse = ", ")
-      })))
+      mutate(
+        across(
+          starts_with("Sessao_"),
+          ~ sapply(., function(x) {
+            
+            if (is.null(x)) return(NA_character_)
+            
+            if (is.list(x)) {
+              x <- unlist(x)
+            }
+            
+            paste0(x, collapse = ", ")
+          })
+        )
+      )
     
     df_long <- df %>%
       pivot_longer(
@@ -17541,7 +17562,10 @@ output$texto_resultado_exercicio_4 <- renderUI({
     df_agg <- df_long %>%
       filter(str_detect(Presenca, "Presente")) %>%
       group_by(Sessoes) %>%
-      summarise(Count = n(), .groups = "drop") %>%
+      summarise(
+        Count = n(),
+        .groups = "drop"
+      ) %>%
       mutate(
         Previsto = previsto,
         Percentual = (Count / Previsto) * 100
@@ -17549,7 +17573,17 @@ output$texto_resultado_exercicio_4 <- renderUI({
       mutate(
         Sessoes = factor(
           Sessoes,
-          levels = unique(Sessoes)[order(as.numeric(gsub("Sessao_", "", unique(Sessoes))))]
+          levels = unique(Sessoes)[
+            order(
+              as.numeric(
+                gsub(
+                  "Sessao_",
+                  "",
+                  unique(Sessoes)
+                )
+              )
+            )
+          ]
         )
       )
     
@@ -17557,48 +17591,113 @@ output$texto_resultado_exercicio_4 <- renderUI({
   })
   
   
+  # ============================================================
+  # GRÁFICO — PRESENÇAS POR SESSÃO
+  # Letras do eixo X inclinadas em 45 graus
+  # ============================================================
+  
   output$grafico_sessoes_col <- renderPlotly({
     
     df_agg <- dados_plot_coletivo()
+    
+    # Verificar se existem dados
+    if (nrow(df_agg) == 0) {
+      
+      return(
+        plotly::plot_ly() %>%
+          layout(
+            title = "Sem dados disponíveis para os filtros seleccionados",
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
+      )
+    }
+    
     previsto <- df_agg$Previsto[1]
     
-    limite_y <- max(c(df_agg$Count, previsto)) + 7
+    limite_y <- max(
+      c(df_agg$Count, previsto),
+      na.rm = TRUE
+    ) + 7
     
-    g <- ggplot(df_agg, aes(x = Sessoes, y = Count, fill = Sessoes)) +
-      geom_bar(stat = "identity") +
+    g <- ggplot(
+      df_agg,
+      aes(
+        x = Sessoes,
+        y = Count,
+        fill = Sessoes
+      )
+    ) +
       
+      geom_col() +
+      
+      # Linha de referência: total previsto
       geom_hline(
         yintercept = previsto,
         linetype = "dashed",
         color = "purple",
-        size = 1.2
+        linewidth = 1.2
       ) +
       
+      # Valores e percentagens sobre as barras
       geom_text(
         aes(
-          label = paste0(Count, "\n(", round(Percentual, 1), "%)"),
+          label = paste0(
+            Count,
+            "\n(",
+            round(Percentual, 1),
+            "%)"
+          ),
           text = paste0(
             "Sessão: ", Sessoes,
             "<br>Presenças: ", Count,
-            "<br>Percentual: ", round(Percentual, 1), "%"
+            "<br>Percentual: ",
+            round(Percentual, 1),
+            "%"
           )
         ),
-        vjust = 1.2,
+        vjust = -0.3,
         color = "black",
         size = 4,
         fontface = "bold"
       ) +
       
       theme_stata() +
-      scale_y_continuous(limits = c(0, limite_y)) +
-      labs(x = "", y = "Presenças", title = "Presenças por Sessão")
+      
+      # Inclinar somente os nomes das sessões no eixo X
+      theme(
+        axis.text.x = element_text(
+          angle = 45,
+          hjust = 1,
+          vjust = 1
+        ),
+        legend.position = "none"
+      ) +
+      
+      scale_y_continuous(
+        limits = c(0, limite_y),
+        expand = expansion(
+          mult = c(0, 0.05)
+        )
+      ) +
+      
+      labs(
+        x = "",
+        y = "Presenças",
+        title = "Presenças por Sessão"
+      )
     
-    ggplotly(g, tooltip = "text") %>%
+    # Converter para Plotly
+    ggplotly(
+      g,
+      tooltip = "text"
+    ) %>%
       layout(
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
   })
+  
   
 
   
