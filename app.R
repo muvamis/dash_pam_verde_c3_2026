@@ -2724,7 +2724,7 @@ tabPanel(
   
   tagList(
     icon("chart-line"),
-    "PROGRESSO DA TOC"
+    "TOC Nampula"
   ),
   
   fluidPage(
@@ -2866,7 +2866,138 @@ tabPanel(
   )
 ),
 
-
+tabPanel(
+  
+  tagList(
+    icon("chart-line"),
+    "TOC Beira"
+  ),
+  
+  # ==========================================================
+  # BIBLIOTECA PARA CAPTURA DA TABELA EM PNG
+  # ==========================================================
+  
+  tags$head(
+    tags$script(
+      src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    )
+  ),
+  
+  fluidPage(
+    
+    # ==========================================================
+    # LEGENDA DOS ESTADOS
+    # ==========================================================
+    
+    fluidRow(
+      
+      box(
+        width = 12,
+        
+        div(
+          style = "
+            display:flex;
+            flex-wrap:wrap;
+            align-items:center;
+            gap:18px;
+            padding:5px 5px 15px 5px;
+            font-size:14px;
+          ",
+          
+          # Meta atingida
+          div(
+            style = "display:flex; align-items:center;",
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#28a745;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            tags$span("Meta atingida")
+          ),
+          
+          # Próximo da meta
+          div(
+            style = "display:flex; align-items:center;",
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#ffc107;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            tags$span("Próximo da meta")
+          ),
+          
+          # Em progresso
+          div(
+            style = "display:flex; align-items:center;",
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#F77333;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            tags$span("Em progresso")
+          ),
+          
+          # Abaixo da meta
+          div(
+            style = "display:flex; align-items:center;",
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#dc3545;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            tags$span("Abaixo da meta")
+          ),
+          
+          # Sem dados
+          div(
+            style = "display:flex; align-items:center;",
+            span(
+              style = "
+                display:inline-block;
+                width:14px;
+                height:14px;
+                background:#adb5bd;
+                border-radius:50%;
+                margin-right:7px;
+              "
+            ),
+            tags$span("Sem dados")
+          )
+        ),
+        
+        # ======================================================
+        # TABELA DE INDICADORES
+        # ======================================================
+        
+        DTOutput("toc_matriz_indicadores_beira")
+        
+      )
+      
+    )
+    
+  )
+  
+),
 # ==========================================================
 # PÁGINA 5 - ADMIN
 # ==========================================================
@@ -21618,7 +21749,6 @@ server <- function(input, output, session) {
   })
 
   ########################## PRESENCAS BEIRA
-  
   dados_filtrados_coletiva_beira <- reactive({
     
     df <- Presencas_Colectivas_Beira
@@ -21634,8 +21764,8 @@ server <- function(input, output, session) {
     }
     
     df
-    
   })
+  
   
   dados_plot_coletivo_beira <- reactive({
     
@@ -21675,25 +21805,32 @@ server <- function(input, output, session) {
       mutate(
         Sessoes = factor(
           Sessoes,
-          levels = unique(Sessoes)[order(as.numeric(gsub("Sessao_", "", unique(Sessoes))))]
+          levels = unique(Sessoes)[
+            order(as.numeric(gsub("Sessao_", "", unique(Sessoes))))
+          ]
         )
       )
     
     df_agg
-    
   })
   
+  
+  # Gráfico interactivo — sem legenda
   output$grafico_sessoes_col_beira <- renderPlotly({
     
     df_agg <- dados_plot_coletivo_beira()
     previsto <- df_agg$Previsto[1]
     
-    limite_y <- max(c(df_agg$Count, previsto)) + 7
+    limite_y <- max(c(df_agg$Count, previsto), na.rm = TRUE) + 7
     
-    g <- ggplot(df_agg,
-                aes(x = Sessoes,
-                    y = Count,
-                    fill = Sessoes)) +
+    g <- ggplot(
+      df_agg,
+      aes(
+        x = Sessoes,
+        y = Count,
+        fill = Sessoes
+      )
+    ) +
       
       geom_bar(stat = "identity") +
       
@@ -21725,14 +21862,25 @@ server <- function(input, output, session) {
       
       theme_stata() +
       scale_y_continuous(limits = c(0, limite_y)) +
+      
       labs(
         x = "",
         y = "Presenças",
         title = "Presenças por Sessão"
+      ) +
+      
+      theme(
+        legend.position = "none",
+        axis.text.x = element_text(
+          angle = 70,
+          hjust = 1,
+          vjust = 0.5
+        )
       )
     
     ggplotly(g, tooltip = "text") %>%
       layout(
+        showlegend = FALSE,
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       )
@@ -27786,7 +27934,960 @@ server <- function(input, output, session) {
   })
   
   
- 
+  
+  # ============================================================
+  # PAM VERDE — BEIRA CICLO 1
+  # MATRIZ TOC COMPLETA — 16 INDICADORES
+  #
+  # FORMAÇÃO: PERFIL_PAM_VERDE_BEIRA_C1
+  # GESTÃO / GÉNERO: PAM_VERDE_TOC_BEIRA_C1
+  # FINANCEIRO: FINANCEIRO_TOC_BEIRA_C1
+  #
+  # Requer: dplyr, tidyr, DT
+  # ============================================================
+  
+  output$toc_matriz_indicadores_beira <- DT::renderDT({
+    
+    # ==========================================================
+    # 1. VERIFICAR FONTES
+    # ==========================================================
+    
+    if (!exists("PAM_VERDE_PERFIL_BEIRA_C1")) {
+      return(
+        DT::datatable(
+          data.frame(
+            Mensagem = paste(
+              "Não foi encontrada a fonte",
+              "PAM_VERDE_PERFIL_BEIRA_C1."
+            )
+          ),
+          rownames = FALSE
+        )
+      )
+    }
+    
+    if (!exists("PAM_VERDE_TOC_BEIRA_C1")) {
+      return(
+        DT::datatable(
+          data.frame(
+            Mensagem = "Não foi encontrada PAM_VERDE_TOC_BEIRA_C1."
+          ),
+          rownames = FALSE
+        )
+      )
+    }
+    
+    perfil_beira <- PAM_VERDE_PERFIL_BEIRA_C1
+    toc_beira <- PAM_VERDE_TOC_BEIRA_C1
+    
+    # Fonte financeira
+    if (exists("FINANCEIRO_TOC_BEIRA_C1")) {
+      
+      financeiro_beira <- FINANCEIRO_TOC_BEIRA_C1
+      
+    } else if (exists("Financeiro_Beira")) {
+      
+      financeiro_beira <- Financeiro_Beira
+      
+    } else {
+      
+      financeiro_beira <- data.frame()
+      
+    }
+    
+    # ==========================================================
+    # 2. FUNÇÕES AUXILIARES
+    # ==========================================================
+    
+    normalizar_texto <- function(x) {
+      trimws(as.character(x))
+    }
+    
+    calcular_percentagem <- function(
+    dados,
+    coluna,
+    resposta,
+    tipo
+    ) {
+      
+      if (
+        !coluna %in% names(dados) ||
+        !"Tipo_Avaliacao" %in% names(dados)
+      ) {
+        return(NA_real_)
+      }
+      
+      avaliacao <- normalizar_texto(dados$Tipo_Avaliacao)
+      valores <- normalizar_texto(dados[[coluna]])
+      
+      validos <- !is.na(valores) &
+        valores != "" &
+        !is.na(avaliacao) &
+        avaliacao == tipo
+      
+      if (!any(validos)) {
+        return(NA_real_)
+      }
+      
+      respostas_validas <- valores[validos]
+      
+      100 * sum(respostas_validas %in% resposta) /
+        length(respostas_validas)
+    }
+    
+    calcular_estado_formacao <- function(
+    dados,
+    estados_incluidos,
+    estados_excluidos = character(0)
+    ) {
+      
+      if (!"Status" %in% names(dados)) {
+        return(NA_real_)
+      }
+      
+      status <- toupper(
+        normalizar_texto(dados$Status)
+      )
+      
+      validos <- !is.na(status) & status != ""
+      
+      if (!any(validos)) {
+        return(NA_real_)
+      }
+      
+      total <- sum(validos)
+      
+      numerador <- sum(
+        status %in% toupper(estados_incluidos) &
+          validos
+      )
+      
+      if (total == 0) {
+        return(NA_real_)
+      }
+      
+      100 * numerador / total
+    }
+    
+    formatar_numero <- function(x, casas = 1) {
+      
+      if (
+        length(x) == 0 ||
+        is.na(x) ||
+        !is.finite(x)
+      ) {
+        return("—")
+      }
+      
+      format(
+        round(x, casas),
+        big.mark = " ",
+        decimal.mark = ",",
+        nsmall = casas,
+        trim = TRUE
+      )
+    }
+    
+    # ==========================================================
+    # 3. INDICADOR 1 — PARTICIPANTES QUE INICIARAM
+    #
+    # Fonte: perfil
+    # Activa / Ativa / Desistente contam como início.
+    # Denominador: participantes com Status preenchido.
+    # ==========================================================
+    
+    inicio_formacao_EL <- calcular_estado_formacao(
+      dados = perfil_beira,
+      estados_incluidos = c(
+        "Activa",
+        "Activas",
+        "Ativa",
+        "Ativas",
+        "Desistente",
+        "Desistentes"
+      )
+    )
+    
+    # ==========================================================
+    # 4. INDICADOR 2 — PARTICIPANTES QUE COMPLETARAM
+    #
+    # Fonte: perfil
+    # Status = "Concluiu a formação".
+    # Denominador: participantes com Status preenchido.
+    # ==========================================================
+    
+    if ("Status" %in% names(perfil_beira)) {
+      
+      status_perfil <- toupper(
+        normalizar_texto(perfil_beira$Status)
+      )
+      
+      status_validos <- !is.na(status_perfil) &
+        status_perfil != ""
+      
+      if (sum(status_validos) > 0) {
+        
+        conclusao_formacao_EL <- 100 * sum(
+          status_perfil == "CONCLUIU A FORMAÇÃO" &
+            status_validos
+        ) / sum(status_validos)
+        
+      } else {
+        
+        conclusao_formacao_EL <- NA_real_
+        
+      }
+      
+    } else {
+      
+      conclusao_formacao_EL <- NA_real_
+      
+    }
+    
+    # ==========================================================
+    # 5. INDICADOR 3 — FORMALIZAÇÃO DO NEGÓCIO
+    # ID: iPAM_INT1.1
+    # ==========================================================
+    
+    coluna_formalizacao <- "Negocio_Formalizado"
+    
+    formalizacao_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_formalizacao,
+      "Iniciei o processo de formalização",
+      "Baseline"
+    )
+    
+    formalizacao_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_formalizacao,
+      "Iniciei o processo de formalização",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 6. INDICADOR 4 — SALÁRIO MENSAL PARA SI MESMA
+    # ID: iPAM_RI.2.4
+    # ==========================================================
+    
+    coluna_salario <- "Tira_Salario_Para_Si"
+    
+    salario_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_salario,
+      "Sim, retiro um valor fixo todos os meses",
+      "Baseline"
+    )
+    
+    salario_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_salario,
+      "Sim, retiro um valor fixo todos os meses",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 7. INDICADOR 5 — TOMADA DE DECISÕES
+    # ==========================================================
+    
+    coluna_decisoes <- "Quem_Toma_Decisoes_Negocio"
+    
+    decisoes_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_decisoes,
+      "Só eu",
+      "Baseline"
+    )
+    
+    decisoes_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_decisoes,
+      "Só eu",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 8. INDICADOR 6 — CONFIANÇA NA NEGOCIAÇÃO COM CLIENTES
+    # ID: iPAM_RI.2.6
+    # ==========================================================
+    
+    coluna_negociacao_clientes <- "Negociacao_Com_Clientes"
+    
+    resposta_negociacao_clientes <-
+      "Sim, sinto-me confiante e sei defender a minha posição"
+    
+    negociacao_clientes_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_negociacao_clientes,
+      resposta_negociacao_clientes,
+      "Baseline"
+    )
+    
+    negociacao_clientes_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_negociacao_clientes,
+      resposta_negociacao_clientes,
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 9. INDICADOR 7 — NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
+    # ID: iPAM_RI.5.1
+    # ==========================================================
+    
+    coluna_negociacao_3meses <-
+      "Praticou_negociação_nos_últimos_3meses"
+    
+    resposta_negociacao_3meses <-
+      "Sim, negociei e consegui um acordo favorável para o meu negócio"
+    
+    negociacao_3meses_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_negociacao_3meses,
+      resposta_negociacao_3meses,
+      "Baseline"
+    )
+    
+    negociacao_3meses_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_negociacao_3meses,
+      resposta_negociacao_3meses,
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 10. INDICADOR 8 — UTILIZAÇÃO DE FERRAMENTAS DE IA
+    # ==========================================================
+    
+    coluna_ia <- "Uso_de_ferramentas_de_IA"
+    
+    respostas_ia <- c(
+      "Sim, usei pelo menos uma vez",
+      "Sim, uso regularmente para o negócio"
+    )
+    
+    uso_ia_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_ia,
+      respostas_ia,
+      "Baseline"
+    )
+    
+    uso_ia_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_ia,
+      respostas_ia,
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 11. INDICADOR 9 — SEPARAÇÃO DAS CONTAS
+    # ==========================================================
+    
+    coluna_contas <-
+      "Faz separação das contas pessoais e do negócio"
+    
+    contas_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_contas,
+      "Sim",
+      "Baseline"
+    )
+    
+    contas_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_contas,
+      "Sim",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 12. INDICADOR 10 — SABE CALCULAR O LUCRO
+    # ==========================================================
+    
+    coluna_calculo_lucro <-
+      "Sabe calcular o lucro do negócio  (com base no exercício prático)"
+    
+    calculo_lucro_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_calculo_lucro,
+      "Sim",
+      "Baseline"
+    )
+    
+    calculo_lucro_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_calculo_lucro,
+      "Sim",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 13. INDICADOR 11 — CONTROLO DO DINHEIRO
+    # ==========================================================
+    
+    coluna_controlo <-
+      "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
+    
+    controlo_BL <- calcular_percentagem(
+      toc_beira,
+      coluna_controlo,
+      "Sim",
+      "Baseline"
+    )
+    
+    controlo_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_controlo,
+      "Sim",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 14. INDICADOR 12 — ACTIVIDADES DE GÉNERO
+    # Apenas Endline
+    # ==========================================================
+    
+    coluna_genero <- paste0(
+      "Até que ponto as actividades ligadas à questão de género ",
+      "ajudaram a compreender as desigualdades entre homens e mulheres?"
+    )
+    
+    genero_EL <- calcular_percentagem(
+      toc_beira,
+      coluna_genero,
+      "Ajudaram bastante / mudaram a minha compreensão",
+      "Endline"
+    )
+    
+    # ==========================================================
+    # 15. INDICADORES FINANCEIROS
+    # ==========================================================
+    
+    lucro_aumentou_EL <- NA_real_
+    lucro_mais_25_EL <- NA_real_
+    aumento_medio_lucro_EL <- NA_real_
+    saldo_liquido_lucro_EL <- NA_real_
+    
+    colunas_financeiras <- c(
+      "Nome_Empreendedora",
+      "Periodo",
+      "Lucro_Semanal"
+    )
+    
+    if (
+      nrow(financeiro_beira) > 0 &&
+      all(colunas_financeiras %in% names(financeiro_beira))
+    ) {
+      
+      financeiro_tratado <- financeiro_beira |>
+        dplyr::mutate(
+          Nome_Empreendedora = trimws(
+            as.character(Nome_Empreendedora)
+          ),
+          Periodo = trimws(as.character(Periodo)),
+          Lucro_Semanal = suppressWarnings(
+            as.numeric(as.character(Lucro_Semanal))
+          )
+        ) |>
+        dplyr::filter(
+          !is.na(Nome_Empreendedora),
+          Nome_Empreendedora != "",
+          Periodo %in% c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          ),
+          !is.na(Lucro_Semanal)
+        )
+      
+      # Somar os registos semanais por empreendedora e mês
+      lucro_periodo <- financeiro_tratado |>
+        dplyr::group_by(
+          Nome_Empreendedora,
+          Periodo
+        ) |>
+        dplyr::summarise(
+          Lucro = sum(Lucro_Semanal, na.rm = TRUE),
+          .groups = "drop"
+        )
+      
+      # Comparar Primeiro Mês e Terceiro Mês
+      lucro_comparacao <- lucro_periodo |>
+        tidyr::pivot_wider(
+          names_from = Periodo,
+          values_from = Lucro
+        )
+      
+      if (
+        all(
+          c("Primeiro Mês", "Terceiro Mês") %in%
+          names(lucro_comparacao)
+        )
+      ) {
+        
+        # Exigir dados nos dois meses.
+        # Não transformar ausência de registo em zero.
+        lucro_comparacao <- lucro_comparacao |>
+          dplyr::filter(
+            !is.na(`Primeiro Mês`),
+            !is.na(`Terceiro Mês`)
+          ) |>
+          dplyr::mutate(
+            Aumento_Lucro =
+              `Terceiro Mês` - `Primeiro Mês`,
+            
+            Percentual_Aumento = dplyr::if_else(
+              `Primeiro Mês` > 0,
+              Aumento_Lucro / `Primeiro Mês` * 100,
+              NA_real_
+            )
+          )
+        
+        # 13. Aumentou os lucros durante os três meses
+        base_percentual <- lucro_comparacao |>
+          dplyr::filter(!is.na(Percentual_Aumento))
+        
+        if (nrow(base_percentual) > 0) {
+          
+          lucro_aumentou_EL <- mean(
+            base_percentual$Percentual_Aumento > 0
+          ) * 100
+          
+          # 14. Aumentou o lucro em 25% ou mais
+          lucro_mais_25_EL <- mean(
+            base_percentual$Percentual_Aumento >= 25
+          ) * 100
+          
+        }
+        
+        # 15. Valor médio de aumento do lucro
+        aumentos <- lucro_comparacao$Aumento_Lucro
+        aumentos <- aumentos[!is.na(aumentos)]
+        
+        if (length(aumentos) > 0) {
+          
+          aumento_medio_lucro_EL <- mean(aumentos)
+          
+          # 16. Saldo líquido do valor adicionado
+          saldo_liquido_lucro_EL <- sum(aumentos)
+          
+        }
+      }
+    }
+    
+    # ==========================================================
+    # 16. CONSTRUIR A MATRIZ COMPLETA DOS 16 INDICADORES
+    # ==========================================================
+    
+    indicadores_toc <- data.frame(
+      
+      ID_Indicador = c(
+        "iVM1000",
+        "iVM1000",
+        "iPAM_INT1.1",
+        "iPAM_RI.2.4",
+        "OS1.1",
+        "iPAM_RI.2.6",
+        "iPAM_RI.5.1",
+        "iPAM_RI.3.1",
+        "iPAM_RI.2.2",
+        "iPAM_RI.4.1",
+        "iPAM_RI.2.2",
+        "iPAM_RI.4.2",
+        "iPAM_RI.1.1",
+        "iPAM_RI.1.2",
+        "iPAM_RI.2.1",
+        "iPAM_RI.1.3b"
+      ),
+      
+      Indicador = c(
+        "Participantes que iniciam a formação",
+        "Participantes que completam a formação",
+        "Empreendedoras que iniciam o processo de formalização",
+        "Empreendedoras que definem um salário mensal para si mesmas",
+        "Empreendedoras que tomam sozinhas as principais decisões do negócio",
+        "Empreendedoras confiantes na negociação com clientes",
+        "Empreendedoras que negociaram e conseguiram acordo favorável nos últimos 3 meses",
+        "Empreendedoras que sabem utilizar ferramentas de IA",
+        "Separa as contas pessoais das contas do negócio",
+        "Sabe calcular o lucro do negócio",
+        "Controla o dinheiro que entra e sai",
+        "Actividades de género contribuíram para compreender desigualdades",
+        "Aumentou os lucros durante os 3 meses",
+        "Aumentou o lucro em 25% ou mais",
+        "Valor médio de aumento do lucro",
+        "Saldo líquido do valor adicionado"
+      ),
+      
+      Baseline = c(
+        NA_real_,
+        NA_real_,
+        formalizacao_BL,
+        salario_BL,
+        decisoes_BL,
+        negociacao_clientes_BL,
+        negociacao_3meses_BL,
+        uso_ia_BL,
+        contas_BL,
+        calculo_lucro_BL,
+        controlo_BL,
+        NA_real_,
+        NA_real_,
+        NA_real_,
+        NA_real_,
+        NA_real_
+      ),
+      
+      Endline = c(
+        inicio_formacao_EL,
+        conclusao_formacao_EL,
+        formalizacao_EL,
+        salario_EL,
+        decisoes_EL,
+        negociacao_clientes_EL,
+        negociacao_3meses_EL,
+        uso_ia_EL,
+        contas_EL,
+        calculo_lucro_EL,
+        controlo_EL,
+        genero_EL,
+        lucro_aumentou_EL,
+        lucro_mais_25_EL,
+        aumento_medio_lucro_EL,
+        saldo_liquido_lucro_EL
+      ),
+      
+      Meta_2026 = c(
+        85,
+        80,
+        10,
+        50,
+        100,
+        70,
+        70,
+        80,
+        80,
+        85,
+        80,
+        100,
+        80,
+        50,
+        2500,
+        70000
+      ),
+      
+      stringsAsFactors = FALSE
+    )
+    
+    # ==========================================================
+    # 17. DEFINIR UNIDADE DOS INDICADORES
+    # ==========================================================
+    
+    indicadores_toc$Unidade <- ifelse(
+      seq_len(nrow(indicadores_toc)) %in% c(15, 16),
+      "MZN",
+      "%"
+    )
+    
+    # ==========================================================
+    # 18. VARIAÇÃO, ALCANCE E ESTADO
+    # ==========================================================
+    
+    indicadores_toc <- indicadores_toc |>
+      dplyr::mutate(
+        
+        # Variação apenas para indicadores percentuais
+        Variação = dplyr::if_else(
+          Unidade == "%" &
+            !is.na(Baseline) &
+            !is.na(Endline),
+          Endline - Baseline,
+          NA_real_
+        ),
+        
+        # Alcance da meta em percentagem
+        Alcance_Numerico = dplyr::if_else(
+          !is.na(Endline) &
+            !is.na(Meta_2026) &
+            Meta_2026 > 0,
+          Endline / Meta_2026 * 100,
+          NA_real_
+        ),
+        
+        # Classificação do indicador
+        Estado = dplyr::case_when(
+          is.na(Endline) ~ "Sem dados",
+          is.na(Meta_2026) ~ "Sem meta",
+          Endline >= Meta_2026 ~ "Meta alcançada",
+          TRUE ~ "Abaixo da meta"
+        )
+      )
+    
+    # ==========================================================
+    # 19. FORMATAR VALORES PARA A TABELA
+    # ==========================================================
+    
+    formatar_indicador <- function(valor, unidade) {
+      
+      if (
+        length(valor) == 0 ||
+        is.na(valor) ||
+        !is.finite(valor)
+      ) {
+        return("—")
+      }
+      
+      if (unidade == "%") {
+        return(
+          paste0(formatar_numero(valor, 1), "%")
+        )
+      }
+      
+      paste0(
+        formatar_numero(valor, 2),
+        " MT"
+      )
+    }
+    
+    indicadores_toc$Baseline_Exibicao <- mapply(
+      formatar_indicador,
+      indicadores_toc$Baseline,
+      indicadores_toc$Unidade
+    )
+    
+    indicadores_toc$Endline_Exibicao <- mapply(
+      formatar_indicador,
+      indicadores_toc$Endline,
+      indicadores_toc$Unidade
+    )
+    
+    indicadores_toc$Meta_Exibicao <- mapply(
+      formatar_indicador,
+      indicadores_toc$Meta_2026,
+      indicadores_toc$Unidade
+    )
+    
+    indicadores_toc$Variacao_Exibicao <- vapply(
+      seq_len(nrow(indicadores_toc)),
+      function(i) {
+        
+        valor <- indicadores_toc$Variação[i]
+        
+        if (is.na(valor)) {
+          return("—")
+        }
+        
+        paste0(
+          ifelse(valor > 0, "+", ""),
+          formatar_numero(valor, 1),
+          " p.p."
+        )
+      },
+      character(1)
+    )
+    
+    indicadores_toc$Alcance_Exibicao <- vapply(
+      indicadores_toc$Alcance_Numerico,
+      function(x) {
+        
+        if (is.na(x) || !is.finite(x)) {
+          return("—")
+        }
+        
+        paste0(formatar_numero(x, 1), "%")
+        
+      },
+      character(1)
+    )
+    
+    # ==========================================================
+    # 20. TABELA FINAL
+    # ==========================================================
+    
+    tabela_final <- data.frame(
+      
+      ID_Indicador = indicadores_toc$ID_Indicador,
+      
+      Indicador = indicadores_toc$Indicador,
+      
+      Baseline = indicadores_toc$Baseline_Exibicao,
+      
+      Endline = indicadores_toc$Endline_Exibicao,
+      
+      Variação = indicadores_toc$Variacao_Exibicao,
+      
+      `Meta 2026` = indicadores_toc$Meta_Exibicao,
+      
+      `Alcance da Meta` = indicadores_toc$Alcance_Exibicao,
+      
+      Estado = indicadores_toc$Estado,
+      
+      check.names = FALSE
+    )
+    
+    # ==========================================================
+    # 21. DATATABLE INTERACTIVA — MATRIZ TOC BEIRA C1
+    # ==========================================================
+    
+    DT::datatable(
+      
+      tabela_final,
+      
+      rownames = FALSE,
+      
+      extensions = c("Buttons", "FixedHeader"),
+      
+      options = list(
+        
+        pageLength = 16,
+        
+        lengthMenu = list(
+          c(15, 16, 25, 50, 100, -1),
+          c("15", "16", "25", "50", "100", "Todos")
+        ),
+        
+        scrollX = TRUE,
+        scrollY = "65vh",
+        scrollCollapse = TRUE,
+        autoWidth = FALSE,
+        fixedHeader = TRUE,
+        
+        dom = "Blfrtip",
+        
+        buttons = list(
+          list(extend = "copy", text = "Copiar"),
+          list(extend = "csv", text = "Exportar CSV"),
+          list(extend = "excel", text = "Exportar Excel")
+        ),
+        
+        columnDefs = list(
+          
+          # ID do indicador
+          list(
+            targets = 0,
+            width = "130px",
+            className = "dt-center"
+          ),
+          
+          # Indicador: permitir quebra de texto (wrap)
+          list(
+            targets = 1,
+            width = "420px",
+            className = "dt-left"
+          ),
+          
+          # Valores numéricos
+          list(
+            targets = c(2, 3, 4, 5, 6),
+            width = "145px",
+            className = "dt-center"
+          ),
+          
+          # Estado
+          list(
+            targets = 7,
+            width = "160px",
+            className = "dt-center"
+          )
+        ),
+        
+        language = list(
+          
+          search = "Pesquisar:",
+          
+          lengthMenu = "Mostrar _MENU_ indicadores",
+          
+          info = "A mostrar _START_ a _END_ de _TOTAL_ indicadores",
+          
+          infoEmpty = "Sem indicadores disponíveis",
+          
+          infoFiltered = "(filtrado de _MAX_ indicadores)",
+          
+          zeroRecords = "Nenhum indicador encontrado",
+          
+          emptyTable = "Sem dados disponíveis",
+          
+          paginate = list(
+            first = "Primeiro",
+            last = "Último",
+            `next` = "Seguinte",
+            previous = "Anterior"
+          ),
+          
+          buttons = list(
+            copy = "Copiar",
+            csv = "Exportar CSV",
+            excel = "Exportar Excel"
+          )
+        )
+      ),
+      
+      class = "display compact stripe hover",
+      
+      escape = TRUE
+    ) |>
+      
+      # --------------------------------------------------------
+    # COR DE FUNDO DA CÉLULA ESTADO
+    # --------------------------------------------------------
+    
+    DT::formatStyle(
+      "Estado",
+      
+      target = "cell",
+      
+      backgroundColor = DT::styleEqual(
+        c(
+          "Meta alcançada",
+          "Abaixo da meta",
+          "Sem dados",
+          "Sem meta"
+        ),
+        
+        c(
+          "#d4edda",
+          "#fff3cd",
+          "#f5f3f4",
+          "#eeeeee"
+        )
+      ),
+      
+      color = DT::styleEqual(
+        c(
+          "Meta alcançada",
+          "Abaixo da meta",
+          "Sem dados",
+          "Sem meta"
+        ),
+        
+        c(
+          "#155724",
+          "#856404",
+          "#666666",
+          "#666666"
+        )
+      ),
+      
+      fontWeight = "bold"
+    ) |>
+      
+      # --------------------------------------------------------
+    # ESPAÇAMENTO E ALINHAMENTO
+    # --------------------------------------------------------
+    
+    DT::formatStyle(
+      columns = names(tabela_final),
+      
+      padding = "8px",
+      
+      `white-space` = "normal",
+      
+      `vertical-align` = "middle"
+    )
+    
+  }, server = TRUE)
+  
   ########### BOTAO
   
   output$admin_ui <- renderUI({

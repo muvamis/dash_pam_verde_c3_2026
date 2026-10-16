@@ -799,57 +799,6 @@ Presencas_Individuais <- read_excel("Presenças Individuais PAM Report.xlsx")
 
 ################ DADOS FINANCEIROS
 
-# =====================================================
-# DADOS FICTÍCIOS (substitui o read_excel)
-# =====================================================
-# 
-# set.seed(123)
-# 
-# Nome_do_Pesquisador <- c("Pesquisador 1", "Pesquisador 2", "Pesquisador 3")
-# 
-# empreendedoras <- c("Iolanda F", "Silvia J", "Helena A", "Maria K", "João L")
-# cidades <- c("Nampula", "Maputo", "Beira")
-# setores <- c("Artesanato", "Boleiros", "Costura")
-# 
-# periodos <- c("Primeiro Mês", "Segundo Mês", "Terceiro Mês")
-# semanas <- c("Primeira Semana", "Segunda Semana", "Terceira Semana")
-# 
-# Projeto <- "PAM VERDE"
-# Ano_Projeto <- 2025
-# 
-# df_base <- expand.grid(
-#   Nome_do_Pesquisador = Nome_do_Pesquisador,
-#   Nome_Empreendedora = empreendedoras,
-#   Cidade = cidades,
-#   Setor_Negocio = setores,
-#   Periodo = periodos,
-#   Semanas = semanas,
-#   KEEP.OUT.ATTRS = FALSE,
-#   stringsAsFactors = FALSE
-# )
-# 
-# df_ficticio <- df_base %>%
-#   mutate(
-#     Projeto = Projeto,
-#     Ano_Projeto = Ano_Projeto,
-#     Rendimento = round(runif(n(), 900, 2500)),
-#     Custo_Operacional = round(runif(n(), 120, 900)),
-#     Custo_de_produtos_Servicos = round(runif(n(), 60, 600))
-#   ) %>%
-#   mutate(
-#     Lucro_Semanal = Rendimento - Custo_Operacional - Custo_de_produtos_Servicos
-#   ) %>%
-#   # opcional: evita lucros absurdamente negativos
-#   mutate(Lucro_Semanal = ifelse(Lucro_Semanal < -300, -50, Lucro_Semanal))
-
-# Financeiro_Report no formato que seu dashboard usa
-
-
-
-# ============================================================
-# 1. LEITURA DA BASE
-# ============================================================
-
 Financeiro_Report <- read_excel("Financeiro_Report.xlsx")
 
 Dados_Financeiros_Ciclo_3 <- read_excel("Dados_Financeiros_Ciclo_3.xlsx")
@@ -1031,9 +980,6 @@ table(PAM_VERDE_TOC_C3$Tipo_Avaliacao,PAM_VERDE_TOC_C3$Uso_de_ferramentas_de_IA)
 
 
 
-library(dplyr)
-library(stringr)
-
 # Perguntas da avaliação de género
 pergunta_fechada <- paste0(
   "Até que ponto as actividades ligadas à questão de género ",
@@ -1094,131 +1040,102 @@ dados_genero_c3 %>%
     all_of(pergunta_aberta)
   )
 
-# 
-# library(dplyr)
-# library(plotly)
-# library(scales)
-# 
-# # ==========================================================
-# # GRÁFICO DE GÉNERO — BARRAS DE PROGRESSO MODERNAS
-# # ==========================================================
-# 
-# cor_preenchimento <- "#9442d4"
-# cor_fundo <- "#e9e3ed"
-# 
-# resumo_fechada <- resumo_fechada %>%
-#   mutate(
-#     Resposta_plot = factor(
-#       as.character(Resposta),
-#       levels = rev(ordem_respostas)
-#     )
-#   )
-# 
-# grafico_genero <- plot_ly() %>%
-#   
-#   # Fundo: trilho completo de 100%
-#   add_bars(
-#     data = resumo_fechada,
-#     x = rep(100, nrow(resumo_fechada)),
-#     y = ~Resposta_plot,
-#     orientation = "h",
-#     marker = list(
-#       color = cor_fundo,
-#       line = list(width = 0),
-#       cornerradius = 12
-#     ),
-#     width = 0.48,
-#     hoverinfo = "skip",
-#     showlegend = FALSE,
-#     name = "Fundo"
-#   ) %>%
-#   
-#   # Preenchimento proporcional
-#   add_bars(
-#     data = resumo_fechada,
-#     x = ~Percentagem,
-#     y = ~Resposta_plot,
-#     orientation = "h",
-#     marker = list(
-#       color = cor_preenchimento,
-#       line = list(width = 0)
-#     ),
-#     width = 0.48,
-#     text = ~label_direita,
-#     textposition = "outside",
-#     cliponaxis = FALSE,
-#     hoverinfo = "text",
-#     hovertext = ~tooltip_txt,
-#     showlegend = FALSE,
-#     name = "Percentagem"
-#   ) %>%
-#   
-#   layout(
-#     barmode = "overlay",
-#     paper_bgcolor = "#f5f3f4",
-#     plot_bgcolor = "#f5f3f4",
-#     
-#     margin = list(
-#       l = 150,
-#       r = 90,
-#       t = 85,
-#       b = 35
-#     ),
-#     
-#     bargap = 0.38,
-#     
-#     xaxis = list(
-#       visible = FALSE,
-#       range = c(0, 115),
-#       fixedrange = TRUE,
-#       zeroline = FALSE,
-#       showgrid = FALSE
-#     ),
-#     
-#     yaxis = list(
-#       tickfont = list(
-#         color = "#333333",
-#         size = 12,
-#         family = "Arial"
-#       ),
-#       showgrid = FALSE,
-#       zeroline = FALSE,
-#       categoryorder = "array",
-#       categoryarray = rev(ordem_respostas),
-#       automargin = TRUE
-#     ),
-#     
-#     title = list(
-#       text = paste0(
-#         "Contributo das actividades para a compreensão ",
-#         "das desigualdades"
-#       ),
-#       x = 0.02,
-#       xanchor = "left",
-#       font = list(
-#         color = "#333333",
-#         size = 17,
-#         family = "Arial"
-#       )
-#     ),
-#     
-#     font = list(
-#       color = "#333333",
-#       family = "Arial"
-#     ),
-#     
-#     hoverlabel = list(
-#       bgcolor = "#ffffff",
-#       bordercolor = cor_preenchimento,
-#       font = list(
-#         color = "#333333",
-#         size = 12
-#       )
-#     )
-#   ) %>%
-#   config(
-#     displayModeBar = FALSE,
-#     responsive = TRUE
-#   )
-# 
-# grafico_genero
+
+
+
+# ============================================================
+# PAM VERDE — TOC BEIRA | CICLO 1
+# ============================================================
+
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(DT)
+library(htmltools)
+library(scales)
+
+# ------------------------------------------------------------
+# 1. AVALIAÇÕES — BEIRA, CICLO 1
+# ------------------------------------------------------------
+
+PAM_VERDE_TOC_BEIRA_C1 <- Pam_Verde_Indicadores %>%
+  mutate(
+    Cidade = str_squish(as.character(Cidade)),
+    Ciclo = str_squish(as.character(Ciclo)),
+    Tipo_Avaliacao = str_squish(as.character(Tipo_Avaliacao))
+  ) %>%
+  filter(
+    str_to_upper(Cidade) == "BEIRA",
+    str_detect(
+      Ciclo,
+      regex("^Ciclo\\s*1$", ignore_case = TRUE)
+    )
+  )
+
+# Verificar a distribuição de avaliações
+cat("\n--- BEIRA | CICLO 1 ---\n")
+
+print(table(
+  PAM_VERDE_TOC_BEIRA_C1$Tipo_Avaliacao,
+  useNA = "ifany"
+))
+
+# ------------------------------------------------------------
+# 2. PERFIL DAS PARTICIPANTES — BEIRA
+# ------------------------------------------------------------
+
+# Confirmar que a base do perfil corresponde ao Ciclo 1.
+# Não filtrar por Ciclo se a base não tiver essa coluna.
+
+PAM_VERDE_PERFIL_BEIRA_C1 <- PERFIL_PAM_VERDE_BEIRA_C3_2026
+
+if ("Ciclo" %in% names(PAM_VERDE_PERFIL_BEIRA_C1)) {
+  PAM_VERDE_PERFIL_BEIRA_C1 <- 
+    PAM_VERDE_PERFIL_BEIRA_C1 %>%
+    filter(
+      str_detect(
+        as.character(Ciclo),
+        regex("^Ciclo\\s*1$", ignore_case = TRUE)
+      )
+    )
+}
+
+if ("Status" %in% names(PAM_VERDE_PERFIL_BEIRA_C1)) {
+  PAM_VERDE_PERFIL_BEIRA_C1 <-
+    PAM_VERDE_PERFIL_BEIRA_C1 %>%
+    mutate(
+      Status_Padrao = toupper(
+        str_squish(as.character(Status))
+      )
+    )
+}
+
+# ------------------------------------------------------------
+# 3. DADOS FINANCEIROS — BEIRA, CICLO 1
+# ------------------------------------------------------------
+
+# Atenção: confirmar que Financeiro_Beira contém efectivamente
+# registos do Ciclo 1 antes de utilizar esta fonte na TOC.
+
+FINANCEIRO_TOC_BEIRA_C1 <- Financeiro_Beira
+
+cat("\nRegistos de avaliação:", 
+    nrow(PAM_VERDE_TOC_BEIRA_C1), "\n")
+
+cat("Participantes identificadas:",
+    n_distinct(PAM_VERDE_TOC_BEIRA_C1$ID_Participante),
+    "\n")
+
+cat("Registos financeiros:",
+    nrow(FINANCEIRO_TOC_BEIRA_C1), "\n")
+
+
+tryCatch(
+  {
+    parse(file = "app.R")
+    message("Sintaxe correcta.")
+  },
+  error = function(e) {
+    message("Erro de sintaxe: ", conditionMessage(e))
+  }
+)
