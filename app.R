@@ -3,10 +3,22 @@
 ui <- navbarPage(
   title = "PAM_VERDE",
   
+  
   # ------------------ Estilo e Tema ------------------
   header = tags$head(
+    
+
+    # Biblioteca para guardar tabelas como imagem PNG
+    tags$script(
+      src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    ),
+    
+    # Estilos da dashboard
     tags$style(HTML("
 
+      /* =========================
+         NAVBAR
+      ========================== */
       .navbar {
         background-color: #9442d4;
       }
@@ -38,78 +50,167 @@ ui <- navbarPage(
         background-color: #9442d4 !important;
         color: white !important;
       }
- /* =========================
-       VALUE BOXES (KPIs)
-    ========================== */
-    .value-box-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: stretch;
-      gap: 15px;
-      margin-top: 10px;
-    }
 
-    .value-box {
-      flex: 1 1 180px;
-      max-width: 220px;
-      min-width: 160px;
-
-      padding: 16px;
-      border-radius: 14px;
-      color: white;
-      font-weight: bold;
-      text-align: center;
-
-      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
-      transition: all 0.25s ease-in-out;
-    }
-
-    .value-box:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    }
-
-    /* =========================
-       CORES
-    ========================== */
-    .blue   { background-color: #6a1b9a; }
-    .green  { background-color: #5cd6c7; }
-    .orange { background-color: #f77333; }
-    .yellow { background-color: #f9a825; color: #000; }
-    .purple { background-color: #004c91; }
-
-    /* =========================
-       TEXTO
-    ========================== */
-    .value-title {
-      font-size: 13px;
-      margin-top: 6px;
-      opacity: 0.95;
-    }
-
-    .value-number {
-      font-size: 22px;
-      font-weight: 800;
-    }
-
-    /* =========================
-       RESPONSIVO
-    ========================== */
-    @media (max-width: 768px) {
-      .value-box {
-        flex: 1 1 45%;
+      /* =========================
+         VALUE BOXES (KPIs)
+      ========================== */
+      .value-box-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: stretch;
+        gap: 15px;
+        margin-top: 10px;
       }
-    }
 
-    @media (max-width: 480px) {
       .value-box {
-        flex: 1 1 100%;
+        flex: 1 1 180px;
+        max-width: 220px;
+        min-width: 160px;
+        padding: 16px;
+        border-radius: 14px;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        transition: all 0.25s ease-in-out;
       }
-    }
 
-    "))
+      .value-box:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      }
+
+      /* =========================
+         CORES
+      ========================== */
+      .blue   { background-color: #6a1b9a; }
+      .green  { background-color: #5cd6c7; }
+      .orange { background-color: #f77333; }
+      .yellow { background-color: #f9a825; color: #000; }
+      .purple { background-color: #004c91; }
+
+      /* =========================
+         TEXTO DOS KPI
+      ========================== */
+      .value-title {
+        font-size: 13px;
+        margin-top: 6px;
+        opacity: 0.95;
+      }
+
+      .value-number {
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      /* =========================
+         TABELAS TOC
+      ========================== */
+      table.dataTable {
+        font-size: 10px !important;
+        border-collapse: collapse !important;
+      }
+
+      table.dataTable thead th {
+        font-size: 10px !important;
+        padding: 5px 4px !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        line-height: 1.2 !important;
+      }
+
+      table.dataTable tbody td {
+        font-size: 10px !important;
+        padding: 4px 5px !important;
+        vertical-align: middle !important;
+        line-height: 1.25 !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+      }
+
+      /* Indicador: texto dentro da própria coluna */
+      table.dataTable thead th:nth-child(2),
+      table.dataTable tbody td:nth-child(2) {
+        text-align: left !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        word-break: normal !important;
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+      }
+
+      /* Valores numéricos */
+      table.dataTable thead th:nth-child(n+3),
+      table.dataTable tbody td:nth-child(n+3) {
+        text-align: center !important;
+        font-size: 12px !important;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Estado */
+      table.dataTable tbody td:last-child {
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        text-align: center !important;
+      }
+
+      /* Pesquisa, paginação e controlos */
+      .dataTables_wrapper .dataTables_filter,
+      .dataTables_wrapper .dataTables_length,
+      .dataTables_wrapper .dataTables_info,
+      .dataTables_wrapper .dataTables_paginate {
+        font-size: 10px !important;
+      }
+
+      .dataTables_wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      /* =========================
+         BOTÕES PNG E FULL SCREEN
+      ========================== */
+      .toc-botoes-personalizados {
+        display: flex !important;
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+        margin: 10px 0 !important;
+      }
+
+      .toc-botoes-personalizados button {
+        font-size: 12px !important;
+        font-weight: bold !important;
+        padding: 8px 12px !important;
+        border: none !important;
+        border-radius: 6px !important;
+        cursor: pointer !important;
+      }
+
+      /* =========================
+         RESPONSIVO
+      ========================== */
+      @media (max-width: 768px) {
+        .value-box {
+          flex: 1 1 45%;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .value-box {
+          flex: 1 1 100%;
+        }
+      }
+
+    ")),
+    
+    # Alternância de idioma PT/EN
+    tags$script(src = "i18n/i18n.js")
   ),
+  
+  
   
   # ==========================================================
   # PÁGINA 1 - INDICADORES_CICLO3
@@ -1982,8 +2083,8 @@ ui <- navbarPage(
             ),
             
             fluidRow(
-              column(6, plotOutput("grafico1")),
-              column(6, plotOutput("grafico2"))
+              column(6, plotlyOutput("grafico1")),
+              column(6, plotlyOutput("grafico2"))
             )
           )
         )
@@ -2353,12 +2454,12 @@ ui <- navbarPage(
             fluidRow(
               column(
                 6,
-                plotOutput("grafico1_beira")
+                plotlyOutput("grafico1_beira")
               ),
               
               column(
                 6,
-                plotOutput("grafico2_beira")
+                plotlyOutput("grafico2_beira")
               )
             )
             
@@ -4719,305 +4820,290 @@ server <- function(input, output, session) {
   output$grafico_servicos_financeiros <- renderPlotly({
     
     # =========================================================
-    # BASE ORIGINAL
+    # 1. BASE ORIGINAL
     # =========================================================
     df <- Pam_Verde_Indicadores
     
-    
     # =========================================================
-    # FILTROS
+    # 2. FILTROS
     # =========================================================
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
-        filter(
-          Cidade == input$filtro_cidade
-        )
+        filter(Cidade == input$filtro_cidade)
     }
     
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
-        filter(
-          Ciclo == input$filtro_ciclo
-        )
+        filter(Ciclo == input$filtro_ciclo)
     }
     
     if (input$filtro_tipo_avaliacao != "Todos") {
       df <- df %>%
-        filter(
-          Tipo_Avaliacao == input$filtro_tipo_avaliacao
-        )
+        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
     }
     
+    # =========================================================
+    # 3. VALIDAR DADOS
+    # =========================================================
+    if (!all(c(
+      "ID_Participante",
+      "Tipo_Avaliacao",
+      "Uso_Servicos_Financeiros"
+    ) %in% names(df))) {
+      return(plotly_empty())
+    }
     
-    # =========================================================
-    # FILTRAR DADOS VÁLIDOS
-    # =========================================================
     df <- df %>%
-      filter(
-        !is.na(Uso_Servicos_Financeiros),
-        !is.na(Tipo_Avaliacao)
-      ) %>%
-      
-      # =======================================================
-    # SEPARAR RESPOSTAS MÚLTIPLAS
-    # =======================================================
-    separate_rows(
-      Uso_Servicos_Financeiros,
-      sep = ",(?=[A-Z])"
-    ) %>%
-      
       mutate(
-        Uso_Servicos_Financeiros =
-          trimws(
-            Uso_Servicos_Financeiros
-          )
+        ID_Participante = as.character(ID_Participante),
+        Tipo_Avaliacao = trimws(as.character(Tipo_Avaliacao)),
+        resposta = trimws(as.character(Uso_Servicos_Financeiros))
+      ) %>%
+      filter(
+        !is.na(ID_Participante),
+        ID_Participante != "",
+        !is.na(Tipo_Avaliacao),
+        Tipo_Avaliacao != "",
+        !is.na(resposta),
+        resposta != ""
       )
     
-    
-    # =========================================================
-    # VERIFICAR SE EXISTEM DADOS
-    # =========================================================
     if (nrow(df) == 0) {
-      return(
-        plotly_empty()
-      )
+      return(plotly_empty())
     }
     
+    # =========================================================
+    # 4. OPÇÕES DE SERVIÇOS FINANCEIROS
+    #
+    # Procuramos cada opção pelo seu texto completo.
+    # Assim, as vírgulas existentes dentro das descrições
+    # não provocam separações incorretas.
+    # =========================================================
+    opcoes_servicos <- c(
+      "Nenhum destes serviços",
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+      "Crédito ou empréstimo bancário para o negócio",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+      "Conta bancária em nome do negócio (conta empresarial)",
+      "Conta poupança formal ligada ao negócio",
+      "Seguro (de negócio, de equipamento, de saúde...)"
+    )
     
     # =========================================================
-    # FREQUÊNCIA
+    # 5. CONSOLIDAR RESPOSTAS POR PARTICIPANTE
+    #
+    # Se uma participante tiver várias linhas na mesma
+    # avaliação, juntamos as respostas antes da análise.
     # =========================================================
-    freq_data <- df %>%
-      
+    respostas <- df %>%
       group_by(
-        Tipo_Avaliacao,
-        Uso_Servicos_Financeiros
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(
+        ID_Participante,
         Tipo_Avaliacao
       ) %>%
-      
+      summarise(
+        resposta = paste(
+          unique(resposta),
+          collapse = " | "
+        ),
+        .groups = "drop"
+      )
+    
+    # =========================================================
+    # 6. IDENTIFICAR OS SERVIÇOS SELECIONADOS
+    #
+    # Não usamos separate_rows(), porque as descrições
+    # dos serviços também podem conter vírgulas.
+    # =========================================================
+    dados_longos <- tidyr::crossing(
+      respostas,
+      servico = opcoes_servicos
+    ) %>%
+      filter(
+        stringr::str_detect(
+          resposta,
+          stringr::fixed(servico)
+        )
+      )
+    
+    # =========================================================
+    # 7. TRATAR "NENHUM DESTES SERVIÇOS"
+    #
+    # Se houver um serviço efetivamente selecionado,
+    # não contamos também a opção "Nenhum".
+    # =========================================================
+    dados_longos <- dados_longos %>%
+      group_by(
+        ID_Participante,
+        Tipo_Avaliacao
+      ) %>%
       mutate(
-        
-        # Percentagem
+        tem_servico = any(
+          servico != "Nenhum destes serviços"
+        )
+      ) %>%
+      ungroup() %>%
+      filter(
+        !(servico == "Nenhum destes serviços" &
+            tem_servico)
+      ) %>%
+      distinct(
+        ID_Participante,
+        Tipo_Avaliacao,
+        servico
+      )
+    
+    # =========================================================
+    # 8. DENOMINADOR: PARTICIPANTES COM RESPOSTA VÁLIDA
+    #
+    # Cada participante conta uma única vez em cada
+    # avaliação, independentemente do número de serviços.
+    # =========================================================
+    denominadores <- respostas %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        total_participantes = n_distinct(ID_Participante),
+        .groups = "drop"
+      )
+    
+    # =========================================================
+    # 9. FREQUÊNCIA E PERCENTAGEM POR SERVIÇO
+    # =========================================================
+    freq_data <- dados_longos %>%
+      group_by(
+        Tipo_Avaliacao,
+        servico
+      ) %>%
+      summarise(
+        n = n_distinct(ID_Participante),
+        .groups = "drop"
+      ) %>%
+      left_join(
+        denominadores,
+        by = "Tipo_Avaliacao"
+      ) %>%
+      mutate(
         percent = round(
-          n /
-            sum(n) *
-            100,
+          100 * n / total_participantes,
           1
         ),
-        
-        # Texto dentro da barra
         label = paste0(
           n,
           " (",
-          percent,
+          format(
+            percent,
+            nsmall = 1,
+            decimal.mark = ","
+          ),
           "%)"
         )
-      ) %>%
-      
-      ungroup()
+      )
     
+    # Garantir que todas as opções estão disponíveis
+    # para manter a mesma legenda entre avaliações.
+    if (nrow(freq_data) == 0) {
+      return(plotly_empty())
+    }
     
     # =========================================================
-    # ORDENAR SERVIÇOS
+    # 10. ORDENAR SERVIÇOS
     # =========================================================
     ordem_servicos <- freq_data %>%
-      
-      group_by(
-        Uso_Servicos_Financeiros
-      ) %>%
-      
+      group_by(servico) %>%
       summarise(
-        total =
-          sum(
-            percent,
-            na.rm = TRUE
-          ),
-        
+        total = sum(percent, na.rm = TRUE),
         .groups = "drop"
       ) %>%
-      
-      arrange(
-        total
-      ) %>%
-      
-      pull(
-        Uso_Servicos_Financeiros
-      )
+      arrange(total) %>%
+      pull(servico)
     
-    
-    freq_data$Uso_Servicos_Financeiros <-
-      factor(
-        freq_data$Uso_Servicos_Financeiros,
-        levels = ordem_servicos
-      )
-    
-    
-    # =========================================================
-    # CORES
-    # =========================================================
-    cores <- c(
-      
-      "Nenhum destes serviços" =
-        "#5cd6c7",
-      
-      "Carteira móvel (M-Pesa, e-Mola, Mkesh)" =
-        "#f9a825",
-      
-      "Crédito ou empréstimo bancário para o negócio" =
-        "#2ca02c",
-      
-      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)" =
-        "#bcbd22",
-      
-      "Conta bancária em nome do negócio (conta empresarial)" =
-        "#9442d4",
-      
-      "Conta poupança formal ligada ao negócio" =
-        "#ff7f0e",
-      
-      "Seguro (de negócio, de equipamento, de saúde...)" =
-        "#d62728"
+    freq_data$servico <- factor(
+      freq_data$servico,
+      levels = ordem_servicos
     )
     
+    # =========================================================
+    # 11. CORES
+    # =========================================================
+    cores <- c(
+      "Nenhum destes serviços" = "#5cd6c7",
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)" = "#f9a825",
+      "Crédito ou empréstimo bancário para o negócio" = "#2ca02c",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)" = "#bcbd22",
+      "Conta bancária em nome do negócio (conta empresarial)" = "#9442d4",
+      "Conta poupança formal ligada ao negócio" = "#ff7f0e",
+      "Seguro (de negócio, de equipamento, de saúde...)" = "#d62728"
+    )
     
     # =========================================================
-    # GRÁFICO
+    # 12. GRÁFICO
     # =========================================================
     plot_ly(
-      
       data = freq_data,
-      
       x = ~Tipo_Avaliacao,
-      
       y = ~percent,
-      
-      color = ~Uso_Servicos_Financeiros,
-      
+      color = ~servico,
       colors = cores,
-      
       type = "bar",
-      
-      
-      # =======================================================
-      # LABEL: n + %
-      # =======================================================
       text = ~label,
-      
-      textposition = "inside",
-      
-      insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
-      
-      # =======================================================
-      # HOVER
-      # =======================================================
+      textposition = "outside",
+      cliponaxis = FALSE,
       customdata = ~n,
-      
-      hovertemplate = paste(
+      hovertemplate = paste0(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
-        "Número: %{customdata}<br>",
+        "Participantes: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
-      
     ) %>%
-      
       layout(
+        # Barras agrupadas, não empilhadas
+        barmode = "group",
+        bargap = 0.25,
+        bargroupgap = 0.05,
         
-        # =====================================================
-        # BARRAS EMPILHADAS
-        # =====================================================
-        barmode = "stack",
-        
-        
-        # =====================================================
-        # EIXO Y
-        # =====================================================
         yaxis = list(
-          
-          title =
-            "Percentagem (%)",
-          
-          range =
-            c(
-              0,
-              100
-            ),
-          
-          ticksuffix =
-            "%"
+          title = "Participantes que selecionaram (%)",
+          range = c(0, 110),
+          tickvals = seq(0, 100, 20),
+          ticksuffix = "%",
+          zeroline = FALSE
         ),
         
-        
-        # =====================================================
-        # EIXO X
-        # =====================================================
         xaxis = list(
-          title = ""
+          title = "",
+          categoryorder = "array",
+          categoryarray = c("Baseline", "Endline")
         ),
         
-        
-        # =====================================================
-        # LEGENDA
-        # =====================================================
         legend = list(
-          
-          orientation =
-            "h",
-          
-          x =
-            0.5,
-          
-          xanchor =
-            "center",
-          
-          y =
-            -0.25
+          orientation = "h",
+          x = 0.5,
+          xanchor = "center",
+          y = -0.30,
+          font = list(size = 10)
         ),
         
-        
-        # =====================================================
-        # MARGENS
-        # =====================================================
         margin = list(
-          
-          l = 60,
-          
-          r = 20,
-          
-          t = 20,
-          
-          b = 150
+          l = 65,
+          r = 25,
+          t = 25,
+          b = 170
         ),
         
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
         
-        # =====================================================
-        # FUNDO
-        # =====================================================
-        paper_bgcolor =
-          "#f5f3f4",
-        
-        plot_bgcolor =
-          "#f5f3f4"
+        font = list(
+          family = "Arial",
+          size = 12
+        )
       )
   })
   
   # ============================================================
-  # TEXTO DINÂMICO – SERVIÇOS FINANCEIROS
-  # BASE ORIGINAL: Pam_Verde_Indicadores
+  # TEXTO DINÂMICO — SERVIÇOS FINANCEIROS
+  # BASE: Pam_Verde_Indicadores
+  # Percentagem de participantes por serviço
   # ============================================================
   
   output$texto_servicos <- renderUI({
@@ -5025,303 +5111,338 @@ server <- function(input, output, session) {
     # ==========================================================
     # 1. BASE ORIGINAL
     # ==========================================================
-    
     df <- Pam_Verde_Indicadores
-    
     
     # ==========================================================
     # 2. APLICAR FILTROS
     # ==========================================================
-    
-    # Filtro por cidade
     if (input$filtro_cidade != "Todas") {
-      
       df <- df %>%
-        filter(
-          Cidade == input$filtro_cidade
-        )
+        filter(Cidade == input$filtro_cidade)
     }
     
-    
-    # Filtro por ciclo
     if (input$filtro_ciclo != "Todos") {
-      
       df <- df %>%
-        filter(
-          Ciclo == input$filtro_ciclo
-        )
+        filter(Ciclo == input$filtro_ciclo)
     }
     
-    
-    # Filtro por tipo de avaliação
     if (input$filtro_tipo_avaliacao != "Todos") {
-      
       df <- df %>%
-        filter(
-          Tipo_Avaliacao == input$filtro_tipo_avaliacao
-        )
+        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
     }
     
+    # ==========================================================
+    # 3. VALIDAR COLUNAS
+    # ==========================================================
+    colunas_necessarias <- c(
+      "ID_Participante",
+      "Tipo_Avaliacao",
+      "Uso_Servicos_Financeiros"
+    )
+    
+    if (!all(colunas_necessarias %in% names(df))) {
+      return(
+        tags$p(
+          "Não foi possível gerar o texto: faltam colunas necessárias na base de dados."
+        )
+      )
+    }
     
     # ==========================================================
-    # 3. PREPARAR DADOS
+    # 4. PREPARAR RESPOSTAS
     # ==========================================================
-    
     df <- df %>%
-      filter(
-        !is.na(Uso_Servicos_Financeiros),
-        !is.na(Tipo_Avaliacao)
-      ) %>%
-      
-      # Separar respostas múltiplas
-      separate_rows(
-        Uso_Servicos_Financeiros,
-        sep = ",(?=[A-Z])"
-      ) %>%
-      
       mutate(
-        Uso_Servicos_Financeiros =
-          trimws(
-            Uso_Servicos_Financeiros
-          )
+        ID_Participante = as.character(ID_Participante),
+        Tipo_Avaliacao = trimws(as.character(Tipo_Avaliacao)),
+        resposta = trimws(as.character(Uso_Servicos_Financeiros))
+      ) %>%
+      filter(
+        !is.na(ID_Participante),
+        ID_Participante != "",
+        !is.na(Tipo_Avaliacao),
+        Tipo_Avaliacao != "",
+        !is.na(resposta),
+        resposta != ""
       )
     
-    
-    # ==========================================================
-    # 4. VERIFICAR SE EXISTEM DADOS
-    # ==========================================================
-    
-    if (
-      nrow(df) == 0
-    ) {
-      
-      return(NULL)
+    if (nrow(df) == 0) {
+      return(
+        tags$p(
+          "Não existem respostas válidas para os filtros seleccionados."
+        )
+      )
     }
     
-    
     # ==========================================================
-    # 5. CALCULAR FREQUÊNCIAS E PERCENTAGENS
+    # 5. CONSOLIDAR RESPOSTAS POR PARTICIPANTE E AVALIAÇÃO
+    #
+    # Evita contar a mesma participante várias vezes
+    # no denominador da percentagem.
     # ==========================================================
-    
-    resumo <- df %>%
-      
+    respostas <- df %>%
       group_by(
-        Tipo_Avaliacao,
-        Uso_Servicos_Financeiros
-      ) %>%
-      
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      
-      group_by(
+        ID_Participante,
         Tipo_Avaliacao
       ) %>%
-      
-      mutate(
-        perc =
-          n /
-          sum(n) *
-          100
-      ) %>%
-      
-      ungroup()
-    
+      summarise(
+        resposta = paste(
+          unique(resposta),
+          collapse = " | "
+        ),
+        .groups = "drop"
+      )
     
     # ==========================================================
-    # 6. BASELINE
+    # 6. IDENTIFICAR SERVIÇOS
+    #
+    # Os textos completos são pesquisados sem separar
+    # as descrições pelas vírgulas internas.
     # ==========================================================
+    opcoes_servicos <- c(
+      "Nenhum destes serviços",
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+      "Crédito ou empréstimo bancário para o negócio",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+      "Conta bancária em nome do negócio (conta empresarial)",
+      "Conta poupança formal ligada ao negócio",
+      "Seguro (de negócio, de equipamento, de saúde...)"
+    )
     
-    baseline <- resumo %>%
-      
+    dados_longos <- tidyr::crossing(
+      respostas,
+      servico = opcoes_servicos
+    ) %>%
       filter(
-        Tipo_Avaliacao == "Baseline"
+        stringr::str_detect(
+          resposta,
+          stringr::fixed(servico)
+        )
+      )
+    
+    # ==========================================================
+    # 7. TRATAR "NENHUM DESTES SERVIÇOS"
+    # ==========================================================
+    dados_longos <- dados_longos %>%
+      group_by(
+        ID_Participante,
+        Tipo_Avaliacao
       ) %>%
-      
+      mutate(
+        tem_servico = any(
+          servico != "Nenhum destes serviços"
+        )
+      ) %>%
+      ungroup() %>%
+      filter(
+        !(servico == "Nenhum destes serviços" & tem_servico)
+      ) %>%
+      distinct(
+        ID_Participante,
+        Tipo_Avaliacao,
+        servico
+      )
+    
+    # ==========================================================
+    # 8. DENOMINADOR POR AVALIAÇÃO
+    #
+    # Uma participante conta uma vez em cada avaliação.
+    # ==========================================================
+    denominadores <- respostas %>%
+      group_by(Tipo_Avaliacao) %>%
+      summarise(
+        total_participantes = n_distinct(ID_Participante),
+        .groups = "drop"
+      )
+    
+    # ==========================================================
+    # 9. FREQUÊNCIAS E PERCENTAGENS POR SERVIÇO
+    # ==========================================================
+    resumo <- dados_longos %>%
+      group_by(
+        Tipo_Avaliacao,
+        servico
+      ) %>%
+      summarise(
+        n = n_distinct(ID_Participante),
+        .groups = "drop"
+      ) %>%
+      left_join(
+        denominadores,
+        by = "Tipo_Avaliacao"
+      ) %>%
+      mutate(
+        perc = round(
+          100 * n / total_participantes,
+          1
+        )
+      )
+    
+    # ==========================================================
+    # 10. COMPARAR BASELINE E ENDLINE
+    # ==========================================================
+    baseline <- resumo %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
       select(
-        Uso_Servicos_Financeiros,
+        servico,
+        n_baseline = n,
         perc_baseline = perc
       )
     
-    
-    # ==========================================================
-    # 7. ENDLINE
-    # ==========================================================
-    
     endline <- resumo %>%
-      
-      filter(
-        Tipo_Avaliacao == "Endline"
-      ) %>%
-      
+      filter(Tipo_Avaliacao == "Endline") %>%
       select(
-        Uso_Servicos_Financeiros,
+        servico,
+        n_endline = n,
         perc_endline = perc
       )
     
-    
-    # ==========================================================
-    # 8. COMPARAÇÃO BASELINE × ENDLINE
-    # ==========================================================
-    
     comparacao <- full_join(
-      
       baseline,
       endline,
-      
-      by =
-        "Uso_Servicos_Financeiros"
-      
+      by = "servico"
     ) %>%
-      
       mutate(
-        
-        perc_baseline =
-          tidyr::replace_na(
-            perc_baseline,
-            0
-          ),
-        
-        perc_endline =
-          tidyr::replace_na(
-            perc_endline,
-            0
-          ),
-        
-        variacao =
-          perc_endline -
-          perc_baseline
+        variacao = perc_endline - perc_baseline
       )
     
-    
     # ==========================================================
-    # 9. TEXTO DE CADA SERVIÇO
+    # 11. CONSTRUIR TEXTO PARA CADA SERVIÇO
     # ==========================================================
-    
     texto_categorias <- lapply(
-      
-      seq_len(
-        nrow(comparacao)
-      ),
-      
+      seq_len(nrow(comparacao)),
       function(i) {
         
-        categoria <-
-          comparacao$Uso_Servicos_Financeiros[i]
+        categoria <- comparacao$servico[i]
         
-        base <-
-          round(
-            comparacao$perc_baseline[i],
-            1
+        base <- comparacao$perc_baseline[i]
+        end <- comparacao$perc_endline[i]
+        
+        n_base <- comparacao$n_baseline[i]
+        n_end <- comparacao$n_endline[i]
+        
+        variacao <- comparacao$variacao[i]
+        
+        # ------------------------------------------
+        # SEM DADOS NUMA DAS AVALIAÇÕES
+        # ------------------------------------------
+        if (is.na(base) || is.na(end)) {
+          
+          return(
+            paste0(
+              categoria,
+              ": não foi possível comparar as duas avaliações por falta de dados numa delas"
+            )
           )
+        }
         
-        end <-
-          round(
-            comparacao$perc_endline[i],
-            1
-          )
-        
-        variacao <-
-          round(
-            comparacao$variacao[i],
-            1
-          )
-        
-        
-        # ------------------------------------------------------
+        # ------------------------------------------
         # AUMENTO
-        # ------------------------------------------------------
-        
-        if (
-          variacao > 0
-        ) {
+        # ------------------------------------------
+        if (variacao > 0) {
           
           paste0(
-            
             categoria,
-            
-            " aumentou de ",
-            
-            base,
-            
-            "% no Baseline para ",
-            
-            end,
-            
-            "% no Endline (+",
-            
-            variacao,
-            
-            " p.p.)"
+            " passou de ",
+            format(base, nsmall = 1, decimal.mark = ","),
+            "% (",
+            n_base,
+            " participantes) no Baseline para ",
+            format(end, nsmall = 1, decimal.mark = ","),
+            "% (",
+            n_end,
+            " participantes) no Endline, um aumento de ",
+            format(variacao, nsmall = 1, decimal.mark = ","),
+            " pontos percentuais"
           )
-        }
-        
-        
-        # ------------------------------------------------------
-        # REDUÇÃO
-        # ------------------------------------------------------
-        
-        else if (
-          variacao < 0
-        ) {
+          
+          # ------------------------------------------
+          # REDUÇÃO
+          # ------------------------------------------
+        } else if (variacao < 0) {
           
           paste0(
-            
             categoria,
-            
-            " reduziu de ",
-            
-            base,
-            
-            "% no Baseline para ",
-            
-            end,
-            
-            "% no Endline (",
-            
-            variacao,
-            
-            " p.p.)"
+            " passou de ",
+            format(base, nsmall = 1, decimal.mark = ","),
+            "% (",
+            n_base,
+            " participantes) no Baseline para ",
+            format(end, nsmall = 1, decimal.mark = ","),
+            "% (",
+            n_end,
+            " participantes) no Endline, uma redução de ",
+            format(abs(variacao), nsmall = 1, decimal.mark = ","),
+            " pontos percentuais"
           )
-        }
-        
-        
-        # ------------------------------------------------------
-        # SEM ALTERAÇÃO
-        # ------------------------------------------------------
-        
-        else {
+          
+          # ------------------------------------------
+          # SEM ALTERAÇÃO
+          # ------------------------------------------
+        } else {
           
           paste0(
-            
             categoria,
-            
             " manteve-se em ",
-            
-            end,
-            
-            "% entre o Baseline e o Endline"
+            format(end, nsmall = 1, decimal.mark = ","),
+            "% nas duas avaliações"
           )
         }
       }
     )
     
+    # ==========================================================
+    # 12. TEXTO INTRODUTÓRIO
+    # ==========================================================
+    total_baseline <- denominadores %>%
+      filter(Tipo_Avaliacao == "Baseline") %>%
+      pull(total_participantes)
+    
+    total_endline <- denominadores %>%
+      filter(Tipo_Avaliacao == "Endline") %>%
+      pull(total_participantes)
+    
+    if (length(total_baseline) == 0) {
+      total_baseline <- NA_integer_
+    }
+    
+    if (length(total_endline) == 0) {
+      total_endline <- NA_integer_
+    }
     
     # ==========================================================
-    # 10. TEXTO FINAL
+    # 13. TEXTO FINAL
     # ==========================================================
-    
     tags$p(
-      
-      style =
-        "margin:0;text-align:justify;",
+      style = "margin:0;text-align:justify;",
       
       tags$b(
         "Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"
       ),
       
-      " A comparação entre o Baseline e o Endline permite observar a evolução do uso dos serviços financeiros. ",
+      " A análise apresenta a percentagem de participantes que seleccionou cada serviço em cada avaliação. Como era possível seleccionar mais de um serviço, as percentagens não têm de somar 100%. ",
+      
+      if (!is.na(total_baseline)) {
+        paste0(
+          "No Baseline foram consideradas ",
+          total_baseline,
+          " participantes com resposta válida"
+        )
+      } else {
+        "Não existem dados válidos do Baseline"
+      },
+      
+      if (!is.na(total_endline)) {
+        paste0(
+          " e no Endline ",
+          total_endline,
+          " participantes com resposta válida"
+        )
+      } else {
+        " e não existem dados válidos do Endline"
+      },
+      
+      ". ",
       
       paste(
         texto_categorias,
@@ -5331,6 +5452,7 @@ server <- function(input, output, session) {
       "."
     )
   })
+  
   
   #### RETIRAR SALARIO PARA SI
   
@@ -18115,7 +18237,10 @@ server <- function(input, output, session) {
   # SELECIONADAS VS INÍCIO DA FORMAÇÃO
   # ===============================================================
   
-  output$grafico1 <- renderPlot({
+  
+  output$grafico1 <- renderPlotly({
+    
+    idioma <- input$idioma %||% "pt"
     
     dados <- dados_geral()
     
@@ -18127,11 +18252,27 @@ server <- function(input, output, session) {
       ) %>%
       nrow()
     
+    # Evitar divisão por zero
+    if (total_selecionadas == 0) {
+      return(
+        plotly::plot_ly() %>%
+          plotly::layout(
+            annotations = list(
+              text = "Sem dados disponíveis",
+              x = 0.5,
+              y = 0.5,
+              showarrow = FALSE
+            ),
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
+      )
+    }
     
     grafico_df <- data.frame(
       Categoria = c(
-        "Selecionadas",
-        "Iniciaram Formação"
+        i18n_tr("Selecionadas", idioma),
+        i18n_tr("Iniciaram Formação", idioma)
       ),
       Valor = c(
         total_selecionadas,
@@ -18143,122 +18284,80 @@ server <- function(input, output, session) {
         Label = paste0(
           Valor,
           "\n(",
-          scales::percent(
-            Percentual,
-            accuracy = 1
-          ),
+          scales::percent(Percentual, accuracy = 1),
           ")"
-        )
+        ),
+        Cor = c("#ff7f0e", "#8054A2")
       )
     
-    
-    grafico_df$Categoria <- factor(
-      grafico_df$Categoria,
-      levels = c(
-        "Selecionadas",
-        "Iniciaram Formação"
-      )
+    titulo <- i18n_tr(
+      "Selecionadas vs Início da Formação",
+      idioma
     )
     
+    eixo_y <- i18n_tr("Percentagem", idioma)
     
-    ggplot(
-      grafico_df,
-      aes(
-        x = Categoria,
-        y = Percentual,
-        fill = Categoria
+    p <- plotly::plot_ly(
+      data = grafico_df,
+      x = ~Categoria,
+      y = ~Percentual,
+      type = "bar",
+      marker = list(
+        color = grafico_df$Cor
+      ),
+      text = ~Label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      textfont = list(
+        color = "white",
+        size = 16,
+        family = "Arial",
+        bold = TRUE
+      ),
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        "Total: %{customdata[0]}<br>",
+        eixo_y, ": %{y:.1%}",
+        "<extra></extra>"
+      ),
+      customdata = matrix(grafico_df$Valor, ncol = 1)
+    ) %>%
+      plotly::layout(
+        title = list(
+          text = titulo,
+          font = list(size = 18)
+        ),
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 13)
+        ),
+        yaxis = list(
+          title = eixo_y,
+          tickformat = ".0%",
+          range = c(0, 1.05),
+          dtick = 0.2
+        ),
+        showlegend = FALSE,
+        bargap = 0.4,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        margin = list(t = 70, b = 70, l = 70, r = 25)
+      ) %>%
+      plotly::config(
+        displaylogo = FALSE,
+        responsive = TRUE
       )
-    ) +
-      
-      geom_bar(
-        stat = "identity",
-        width = 0.6
-      ) +
-      
-      # ===========================================================
-    # VALORES NO MEIO DAS BARRAS
-    # ===========================================================
     
-    geom_text(
-      aes(
-        label = Label
-      ),
-      position = position_stack(
-        vjust = 0.5
-      ),
-      color = "white",
-      size = 6.5,
-      fontface = "bold"
-    ) +
-      
-      scale_y_continuous(
-        labels = scales::percent_format(
-          accuracy = 1
-        ),
-        limits = c(0, 1),
-        expand = expansion(
-          mult = c(0, 0.05)
-        )
-      ) +
-      
-      scale_fill_manual(
-        values = c(
-          "Selecionadas" = "#ff7f0e",
-          "Iniciaram Formação" = "#8054A2"
-        )
-      ) +
-      
-      labs(
-        title = "Selecionadas vs Início da Formação",
-        x = NULL,
-        y = "Percentagem"
-      ) +
-      
-      theme_stata() +
-      
-      theme(
-        plot.title = element_text(
-          size = 16,
-          face = "bold"
-        ),
-        
-        axis.text.x = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        axis.text.y = element_text(
-          size = 12
-        ),
-        
-        axis.title.y = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        legend.position = "none",
-        
-        panel.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        plot.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        )
-      )
+    p
   })
   
-  output$grafico2 <- renderPlot({
+  
+  
+  output$grafico2 <- renderPlotly({
     
-    dados <- dados_geral()
+    idioma <- input$idioma %||% "pt"
     
-    # ============================================================
-    # 1. LIMPAR E PADRONIZAR STATUS
-    # ============================================================
-    
-    dados <- dados %>%
+    dados <- dados_geral() %>%
       dplyr::mutate(
         Status = toupper(
           stringr::str_squish(
@@ -18267,210 +18366,134 @@ server <- function(input, output, session) {
         )
       )
     
-    # ============================================================
-    # 2. IDENTIFICAR OS QUE INICIARAM A FORMAÇÃO
-    # ============================================================
-    
     dados_iniciaram <- dados %>%
       dplyr::filter(
         Status %in% c(
-          "ACTIVA",
-          "ACTIVAS",
-          "ATIVA",
-          "ATIVAS",
-          "DESISTENTE",
-          "DESISTENTES"
+          "ACTIVA", "ACTIVAS",
+          "ATIVA", "ATIVAS",
+          "DESISTENTE", "DESISTENTES"
         )
       )
     
-    # ============================================================
-    # 3. TOTAL POR STATUS
-    # ============================================================
-    
     total_concluiu <- dados_iniciaram %>%
       dplyr::filter(
-        Status %in% c(
-          "ACTIVA",
-          "ACTIVAS",
-          "ATIVA",
-          "ATIVAS"
-        )
+        Status %in% c("ACTIVA", "ACTIVAS", "ATIVA", "ATIVAS")
       ) %>%
       nrow()
     
     total_desistentes <- dados_iniciaram %>%
       dplyr::filter(
-        Status %in% c(
-          "DESISTENTE",
-          "DESISTENTES"
-        )
+        Status %in% c("DESISTENTE", "DESISTENTES")
       ) %>%
       nrow()
     
-    # ============================================================
-    # 4. TOTAL DOS QUE INICIARAM
-    # ============================================================
-    
     total_iniciaram <- total_concluiu + total_desistentes
     
-    # Evitar divisão por zero
     if (total_iniciaram == 0) {
       return(
-        ggplot() +
-          annotate(
-            "text",
-            x = 1,
-            y = 1,
-            label = "Não existem dados de Concluiu a Formação ou Desistentes",
-            size = 6,
-            fontface = "bold"
-          ) +
-          theme_void()
+        plotly::plot_ly() %>%
+          plotly::layout(
+            annotations = list(
+              text = i18n_tr(
+                "Não existem dados de Concluiu a Formação ou Desistentes",
+                idioma
+              ),
+              x = 0.5,
+              y = 0.5,
+              showarrow = FALSE,
+              font = list(size = 15)
+            ),
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
       )
     }
     
-    # ============================================================
-    # 5. BASE PARA O GRÁFICO
-    # ============================================================
+    categorias_pt <- c(
+      "Concluiu a Formação",
+      "Desistentes"
+    )
+    
+    categorias <- i18n_tr(categorias_pt, idioma)
     
     resumo <- data.frame(
-      Categoria = c(
-        "Concluiu a Formação",
-        "Desistentes"
-      ),
-      
+      Categoria = categorias,
       Valor = c(
         total_concluiu,
         total_desistentes
-      )
+      ),
+      Cor = c("#8054A2", "#69C7BE")
     ) %>%
       dplyr::mutate(
-        
         Percentual = Valor / total_iniciaram,
-        
         Label = paste0(
           Valor,
           "\n",
-          scales::percent(
-            Percentual,
-            accuracy = 1
-          )
+          scales::percent(Percentual, accuracy = 1)
         )
       )
     
-    # Ordem das barras
-    resumo$Categoria <- factor(
-      resumo$Categoria,
-      levels = c(
-        "Concluiu a Formação",
-        "Desistentes"
-      )
+    titulo <- i18n_tr(
+      "Situação dos Participantes que Iniciaram a Formação",
+      idioma
     )
     
-    # ============================================================
-    # 6. GRÁFICO — BARRAS LADO A LADO
-    # ============================================================
+    eixo_y <- i18n_tr("Percentagem", idioma)
+    texto_total <- i18n_tr("Total", idioma)
     
-    ggplot(
-      resumo,
-      aes(
-        x = Categoria,
-        y = Percentual,
-        fill = Categoria
-      )
-    ) +
-      
-      # Barras lado a lado
-      geom_col(
-        width = 0.65
-      ) +
-      
-      # Valores no centro das barras
-      geom_text(
-        aes(
-          label = Label
-        ),
-        position = position_stack(
-          vjust = 0.5
-        ),
+    p <- plotly::plot_ly(
+      data = resumo,
+      x = ~Categoria,
+      y = ~Percentual,
+      type = "bar",
+      marker = list(
+        color = resumo$Cor
+      ),
+      text = ~Label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      textfont = list(
         color = "white",
-        size = 6.5,
-        fontface = "bold",
-        lineheight = 0.9
-      ) +
-      
-      # Eixo Y em percentagem
-      scale_y_continuous(
-        labels = scales::percent_format(
-          accuracy = 1
+        size = 16,
+        family = "Arial"
+      ),
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        texto_total, ": %{customdata[0]}<br>",
+        eixo_y, ": %{y:.1%}",
+        "<extra></extra>"
+      ),
+      customdata = matrix(resumo$Valor, ncol = 1)
+    ) %>%
+      plotly::layout(
+        title = list(
+          text = titulo,
+          font = list(size = 18)
         ),
-        limits = c(0, 1),
-        expand = expansion(
-          mult = c(0, 0.05)
-        )
-      ) +
-      
-      # Cores
-      scale_fill_manual(
-        values = c(
-          "Concluiu a Formação" = "#8054A2",
-          "Desistentes" = "#69C7BE"
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 14)
         ),
-        drop = FALSE
-      ) +
-      
-      # Títulos
-      labs(
-        title = "Situação dos Participantes que Iniciaram a Formação",
-        x = NULL,
-        y = "Percentagem",
-        fill = "Status"
-      ) +
-      
-      # Tema
-      theme_stata() +
-      
-      theme(
-        
-        plot.title = element_text(
-          size = 16,
-          face = "bold"
+        yaxis = list(
+          title = eixo_y,
+          tickformat = ".0%",
+          range = c(0, 1.05),
+          dtick = 0.2
         ),
-        
-        axis.text.x = element_text(
-          size = 14,
-          face = "bold"
-        ),
-        
-        axis.text.y = element_text(
-          size = 12
-        ),
-        
-        axis.title.y = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        legend.text = element_text(
-          size = 13
-        ),
-        
-        legend.title = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        panel.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        plot.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        )
+        showlegend = FALSE,
+        bargap = 0.35,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        margin = list(t = 75, b = 75, l = 70, r = 25)
+      ) %>%
+      plotly::config(
+        displaylogo = FALSE,
+        responsive = TRUE
       )
+    
+    p
   })
+  
   
   
  ################### PRESENCAS NAS SESSÕES
@@ -21439,7 +21462,10 @@ server <- function(input, output, session) {
   })
   
 
-  output$grafico1_beira <- renderPlot({
+  
+  output$grafico1_beira <- renderPlotly({
+    
+    idioma <- input$idioma %||% "pt"
     
     dados <- dados_geral_beira()
     
@@ -21451,151 +21477,120 @@ server <- function(input, output, session) {
       ) %>%
       nrow()
     
+    categorias_pt <- c(
+      "Selecionadas",
+      "Iniciaram Formação"
+    )
     
-    # =========================
-    # RESUMO
-    # =========================
+    categorias <- i18n_tr(categorias_pt, idioma)
     
     grafico_df <- data.frame(
-      Categoria = c(
-        "Selecionadas",
-        "Iniciaram Formação"
-      ),
-      
+      Categoria = categorias,
       Valor = c(
         total_selecionadas,
         total_iniciaram
-      )
+      ),
+      Cor = c("#ff7f0e", "#8054A2")
     ) %>%
       dplyr::mutate(
-        
-        # Percentagem em relação às seleccionadas
         Percentual = ifelse(
           total_selecionadas > 0,
           Valor / total_selecionadas,
           0
         ),
-        
         Label = paste0(
           Valor,
           "\n(",
-          scales::percent(
-            Percentual,
-            accuracy = 1
-          ),
+          scales::percent(Percentual, accuracy = 1),
           ")"
         )
       )
     
-    
-    grafico_df$Categoria <- factor(
-      grafico_df$Categoria,
-      levels = c(
-        "Selecionadas",
-        "Iniciaram Formação"
-      )
+    titulo <- i18n_tr(
+      "Selecionadas vs Início da Formação",
+      idioma
     )
     
+    eixo_y <- i18n_tr("Percentagem", idioma)
+    texto_total <- i18n_tr("Total", idioma)
     
-    # =========================
-    # GRÁFICO
-    # =========================
-    
-    ggplot(
-      grafico_df,
-      aes(
-        x = Categoria,
-        y = Percentual,
-        fill = Categoria
+    if (total_selecionadas == 0) {
+      return(
+        plotly::plot_ly() %>%
+          plotly::layout(
+            annotations = list(
+              text = i18n_tr("Sem dados disponíveis", idioma),
+              x = 0.5,
+              y = 0.5,
+              showarrow = FALSE
+            ),
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
       )
-    ) +
-      
-      geom_col(
-        width = 0.6
-      ) +
-      
-      # Valores no centro da barra
-      geom_text(
-        aes(label = Label),
-        position = position_stack(
-          vjust = 0.5
-        ),
+    }
+    
+    plotly::plot_ly(
+      data = grafico_df,
+      x = ~Categoria,
+      y = ~Percentual,
+      type = "bar",
+      marker = list(
+        color = grafico_df$Cor
+      ),
+      text = ~Label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      textfont = list(
         color = "white",
-        size = 6,
-        fontface = "bold"
-      ) +
-      
-      # Eixo Y em percentagem
-      scale_y_continuous(
-        labels = scales::percent_format(
-          accuracy = 1
+        size = 16,
+        family = "Arial"
+      ),
+      customdata = matrix(grafico_df$Valor, ncol = 1),
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        texto_total, ": %{customdata[0]}<br>",
+        eixo_y, ": %{y:.1%}",
+        "<extra></extra>"
+      )
+    ) %>%
+      plotly::layout(
+        title = list(
+          text = titulo,
+          font = list(size = 18)
         ),
-        limits = c(0, 1),
-        expand = expansion(
-          mult = c(0, 0.05)
-        )
-      ) +
-      
-      scale_fill_manual(
-        values = c(
-          "Selecionadas" = "#ff7f0e",
-          "Iniciaram Formação" = "#8054A2"
-        )
-      ) +
-      
-      labs(
-        title = "Selecionadas vs Início da Formação - Beira",
-        x = NULL,
-        y = "Percentagem"
-      ) +
-      
-      theme_stata() +
-      
-      theme(
-        
-        plot.title = element_text(
-          size = 16,
-          face = "bold"
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 13)
         ),
-        
-        axis.text.x = element_text(
-          size = 13,
-          face = "bold"
+        yaxis = list(
+          title = eixo_y,
+          tickformat = ".0%",
+          range = c(0, 1.05),
+          dtick = 0.2
         ),
-        
-        axis.text.y = element_text(
-          size = 12
-        ),
-        
-        axis.title.y = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        legend.position = "none",
-        
-        panel.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        plot.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        )
+        showlegend = FALSE,
+        bargap = 0.4,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        margin = list(t = 70, b = 70, l = 70, r = 25)
+      ) %>%
+      plotly::config(
+        displaylogo = FALSE,
+        responsive = TRUE
       )
     
   })
+  
 
   
   
-  output$grafico2_beira <- renderPlot({
+  
+  output$grafico2_beira <- renderPlotly({
+    
+    idioma <- input$idioma %||% "pt"
     
     dados <- dados_geral_beira()
-    
-    # ============================================================
-    # 1. CONTAGEM
-    # ============================================================
     
     total_activas <- sum(
       dados$Status == "Activa",
@@ -21607,31 +21602,41 @@ server <- function(input, output, session) {
       na.rm = TRUE
     )
     
-    # Total que iniciou a formação
     total_iniciaram <- total_activas + total_desistentes
     
+    if (total_iniciaram == 0) {
+      return(
+        plotly::plot_ly() %>%
+          plotly::layout(
+            annotations = list(
+              text = i18n_tr("Sem dados disponíveis", idioma),
+              x = 0.5,
+              y = 0.5,
+              showarrow = FALSE
+            ),
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
+      )
+    }
     
-    # ============================================================
-    # 2. RESUMO
-    # ============================================================
+    categorias_pt <- c(
+      "Activas",
+      "Desistentes"
+    )
+    
+    categorias <- i18n_tr(categorias_pt, idioma)
     
     resumo <- data.frame(
-      Categoria = c(
-        "Activas",
-        "Desistentes"
-      ),
-      
+      Categoria = categorias,
       Total = c(
         total_activas,
         total_desistentes
-      )
+      ),
+      Cor = c("#8054A2", "#69C7BE")
     ) %>%
       dplyr::mutate(
-        
-        # Percentagem de cada grupo sobre o total
         Percentagem = Total / total_iniciaram * 100,
-        
-        # Número + percentagem
         Label = paste0(
           Total,
           " (",
@@ -21640,113 +21645,69 @@ server <- function(input, output, session) {
         )
       )
     
-    
-    # ============================================================
-    # 3. ORDEM
-    # ============================================================
-    
-    resumo$Categoria <- factor(
-      resumo$Categoria,
-      levels = c(
-        "Activas",
-        "Desistentes"
-      )
+    titulo <- i18n_tr(
+      "Estado das Empreendedoras que Iniciaram a Formação",
+      idioma
     )
     
+    eixo_y <- i18n_tr(
+      "Percentagem de Empreendedoras",
+      idioma
+    )
     
-    # ============================================================
-    # 4. GRÁFICO
-    # ============================================================
+    texto_total <- i18n_tr("Total", idioma)
     
-    ggplot(
-      resumo,
-      aes(
-        x = Categoria,
-        y = Percentagem,
-        fill = Categoria
-      )
-    ) +
-      
-      geom_col(
-        width = 0.6
-      ) +
-      
-      # ==========================================================
-    # NÚMERO + % NO CENTRO DA BARRA
-    # ==========================================================
-    
-    geom_text(
-      aes(
-        label = Label
+    plotly::plot_ly(
+      data = resumo,
+      x = ~Categoria,
+      y = ~Percentagem,
+      type = "bar",
+      marker = list(
+        color = resumo$Cor
       ),
-      vjust = 0.5,
-      color = "black",
-      size = 6,
-      fontface = "bold"
-    ) +
-      
-      # ==========================================================
-    # CORES
-    # ==========================================================
-    
-    scale_fill_manual(
-      values = c(
-        "Activas" = "#8054A2",
-        "Desistentes" = "#69C7BE"
+      text = ~Label,
+      textposition = "inside",
+      insidetextanchor = "middle",
+      textfont = list(
+        color = "black",
+        size = 16,
+        family = "Arial"
+      ),
+      customdata = matrix(resumo$Total, ncol = 1),
+      hovertemplate = paste0(
+        "<b>%{x}</b><br>",
+        texto_total, ": %{customdata[0]}<br>",
+        eixo_y, ": %{y:.1f}%<extra></extra>"
       )
-    ) +
-      
-      # ==========================================================
-    # APENAS EIXO Y EM PERCENTAGEM
-    # ==========================================================
-    
-    scale_y_continuous(
-      limits = c(0, 100),
-      labels = function(x) paste0(x, "%")
-    ) +
-      
-      labs(
-        title = "Estado das Empreendedoras que Iniciaram a Formação - Beira",
-        x = NULL,
-        y = "Percentagem de Empreendedoras"
-      ) +
-      
-      theme_stata() +
-      
-      theme(
-        plot.title = element_text(
-          size = 16,
-          face = "bold"
+    ) %>%
+      plotly::layout(
+        title = list(
+          text = titulo,
+          font = list(size = 18)
         ),
-        
-        axis.text.x = element_text(
-          size = 14,
-          face = "bold"
+        xaxis = list(
+          title = "",
+          tickfont = list(size = 14)
         ),
-        
-        axis.text.y = element_text(
-          size = 12,
-          face = "bold"
+        yaxis = list(
+          title = eixo_y,
+          ticksuffix = "%",
+          range = c(0, 105),
+          dtick = 20
         ),
-        
-        axis.title.y = element_text(
-          size = 13,
-          face = "bold"
-        ),
-        
-        legend.position = "none",
-        
-        panel.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        ),
-        
-        plot.background = element_rect(
-          fill = "#f5f3f4",
-          color = NA
-        )
+        showlegend = FALSE,
+        bargap = 0.4,
+        paper_bgcolor = "#f5f3f4",
+        plot_bgcolor = "#f5f3f4",
+        margin = list(t = 75, b = 75, l = 80, r = 25)
+      ) %>%
+      plotly::config(
+        displaylogo = FALSE,
+        responsive = TRUE
       )
+    
   })
+  
 
   ########################## PRESENCAS BEIRA
   dados_filtrados_coletiva_beira <- reactive({
@@ -25060,2886 +25021,917 @@ server <- function(input, output, session) {
   
   ################### MATRIZ DOS INDICADORES
   
- 
-  
+
   # ============================================================
-  # MATRIZ DE INDICADORES TOC - PAM VERDE CICLO 3
-  #
-  # VERSÃO AJUSTADA
-  #
-  # PRINCIPAIS CORRECÇÕES:
-  #
-  # 1. BASELINE e ENDLINE são calculados separadamente.
-  # 2. Endline NÃO mistura dados de Baseline.
-  # 3. A tabela apresenta:
-  #       ID_Indicador
-  #       Indicador
-  #       Baseline
-  #       Endline
-  #       Variação
-  #       Meta 2026
-  #       Alcance da Meta
-  #       Estado
-  #
-  # 4. Alcance da Meta é calculado somente com o Endline.
-  # 5. Variação para indicadores percentuais:
-  #       Endline - Baseline
-  #
+  # PAM VERDE — NAMPULA CICLO 3
+  # MATRIZ TOC — 17 INDICADORES
   # ============================================================
   
-  
-  output$toc_matriz_indicadores <- renderDT({
+  output$toc_matriz_indicadores <- DT::renderDT({
     
+    # ----------------------------------------------------------
+    # 1. FONTES DE DADOS
+    # ----------------------------------------------------------
     
-    # ==========================================================
-    # 1. BASE PRINCIPAL DO TOC
-    # ==========================================================
-    
-    df_toc_pam_verde <-
-      PAM_VERDE_TOC_C3
-    
-    
-    
-    # ==========================================================
-    # 2. BASE ESPECÍFICA PARA MONITORIA DA FORMAÇÃO
-    # ==========================================================
-    
-    df_conclusao_formacao_pam_verde <-
-      PERFIL_PAM_VERDE_C3_2026 %>%
-      
-      dplyr::mutate(
-        
-        Status_Padrao_PAM =
-          toupper(
-            stringr::str_squish(
-              trimws(
-                as.character(Status)
-              )
-            )
-          )
-      )
-    
-    
-    
-    # ==========================================================
-    # 3. PARTICIPANTES QUE INICIARAM A FORMAÇÃO
-    #
-    # ACTIVA / ATIVA / DESISTENTE = iniciou
-    #
-    # Este indicador é de monitoria da formação e não possui
-    # Baseline/Endline tradicional.
-    # ==========================================================
-    
-    resultado_inicio_formacao_pam_verde <-
-      df_conclusao_formacao_pam_verde %>%
-      
-      dplyr::summarise(
-        
-        Total_Selecionadas =
-          dplyr::n(),
-        
-        Total_Iniciaram =
-          sum(
-            Status_Padrao_PAM %in% c(
-              "ACTIVA",
-              "ACTIVAS",
-              "ATIVA",
-              "ATIVAS",
-              "DESISTENTE",
-              "DESISTENTES"
-            ),
-            na.rm = TRUE
-          ),
-        
-        Percentagem_Iniciaram =
-          dplyr::case_when(
-            
-            Total_Selecionadas > 0 ~
-              
-              (
-                Total_Iniciaram /
-                  Total_Selecionadas
-              ) * 100,
-            
-            TRUE ~
-              NA_real_
-          )
-      )
-    
-    
-    
-    inicio_formacao_EL <-
-      resultado_inicio_formacao_pam_verde$
-      Percentagem_Iniciaram
-    
-    if (
-      length(inicio_formacao_EL) == 0 ||
-      is.na(inicio_formacao_EL)
-    ) {
-      
-      inicio_formacao_EL <-
-        NA_real_
-      
+    if (!exists("PERFIL_PAM_VERDE_C3_2026")) {
+      return(DT::datatable(
+        data.frame(Mensagem = "Fonte PERFIL_PAM_VERDE_C3_2026 não encontrada."),
+        rownames = FALSE
+      ))
     }
     
-    
-    
-    # ==========================================================
-    # 4. PARTICIPANTES QUE TERMINARAM A FORMAÇÃO
-    #
-    # Iniciaram:
-    #   ACTIVA / ATIVA / DESISTENTE
-    #
-    # Terminaram:
-    #   ACTIVA / ATIVA
-    # ==========================================================
-    
-    resultado_conclusao_formacao_pam_verde <-
-      df_conclusao_formacao_pam_verde %>%
-      
-      dplyr::filter(
-        Status_Padrao_PAM %in% c(
-          "ACTIVA",
-          "ACTIVAS",
-          "ATIVA",
-          "ATIVAS",
-          "DESISTENTE",
-          "DESISTENTES"
-        )
-      ) %>%
-      
-      dplyr::summarise(
-        
-        Total_Iniciaram =
-          dplyr::n(),
-        
-        N_Terminaram =
-          sum(
-            Status_Padrao_PAM %in% c(
-              "ACTIVA",
-              "ACTIVAS",
-              "ATIVA",
-              "ATIVAS"
-            ),
-            na.rm = TRUE
-          ),
-        
-        Percentagem_Terminaram =
-          dplyr::case_when(
-            
-            Total_Iniciaram > 0 ~
-              
-              (
-                N_Terminaram /
-                  Total_Iniciaram
-              ) * 100,
-            
-            TRUE ~
-              NA_real_
-          )
-      )
-    
-    
-    
-    conclusao_formacao_EL <-
-      resultado_conclusao_formacao_pam_verde$
-      Percentagem_Terminaram
-    
-    if (
-      length(conclusao_formacao_EL) == 0 ||
-      is.na(conclusao_formacao_EL)
-    ) {
-      
-      conclusao_formacao_EL <-
-        NA_real_
-      
+    if (!exists("PAM_VERDE_TOC_C3")) {
+      return(DT::datatable(
+        data.frame(Mensagem = "Fonte PAM_VERDE_TOC_C3 não encontrada."),
+        rownames = FALSE
+      ))
     }
     
-    
-    
-    # ==========================================================
-    # 5. FORMALIZAÇÃO DO NEGÓCIO
-    #
-    # ID:
-    # iPAM_INT1.1
-    # ==========================================================
-    
-    formalizacao <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          Negocio_Formalizado
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    formalizacao_BL <-
-      formalizacao %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    formalizacao_n_BL <-
-      formalizacao_BL %>%
-      dplyr::filter(
-        Negocio_Formalizado %in% c(
-          # "Sim",
-          "Iniciei o processo de formalização"
-        )
-      ) %>%
-      nrow()
-    
-    
-    formalizacao_total_BL <-
-      nrow(
-        formalizacao_BL
-      )
-    
-    
-    formalizacao_percentual_BL <-
-      dplyr::if_else(
-        
-        formalizacao_total_BL > 0,
-        
-        (
-          formalizacao_n_BL /
-            formalizacao_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    formalizacao_EL <-
-      formalizacao %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    formalizacao_n_EL <-
-      formalizacao_EL %>%
-      
-      dplyr::filter(
-        
-        Negocio_Formalizado %in% c(
-          # "Sim",
-          "Iniciei o processo de formalização"
-        )
-      ) %>%
-      nrow()
-    
-    
-    formalizacao_total_EL <-
-      nrow(
-        formalizacao_EL
-      )
-    
-    
-    formalizacao_percentual_EL <-
-      dplyr::if_else(
-        
-        formalizacao_total_EL > 0,
-        
-        (
-          formalizacao_n_EL /
-            formalizacao_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 6. SALÁRIO MENSAL PARA SI MESMA
-    #
-    # ID:
-    # iPAM_RI.2.4
-    # ==========================================================
-    
-    salario <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          Tira_Salario_Para_Si
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    salario_BL <-
-      salario %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    salario_total_BL <-
-      salario_BL %>%
-      
-      dplyr::filter(
-        
-        Tira_Salario_Para_Si !=
-          "Não, não retiro nenhum valor para mim mesma"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    salario_n_BL <-
-      salario_BL %>%
-      
-      dplyr::filter(
-        
-        Tira_Salario_Para_Si ==
-          "Sim, retiro um valor fixo todos os meses"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    salario_percentual_BL <-
-      dplyr::if_else(
-        
-        salario_total_BL > 0,
-        
-        (
-          salario_n_BL /
-            salario_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    salario_EL <-
-      salario %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    salario_total_EL <-
-      salario_EL %>%
-      
-      dplyr::filter(
-        
-        Tira_Salario_Para_Si !=
-          "Não, não retiro nenhum valor para mim mesma"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    salario_n_EL <-
-      salario_EL %>%
-      
-      dplyr::filter(
-        
-        Tira_Salario_Para_Si ==
-          "Sim, retiro um valor fixo todos os meses"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    salario_percentual_EL <-
-      dplyr::if_else(
-        
-        salario_total_EL > 0,
-        
-        (
-          salario_n_EL /
-            salario_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 7. TOMADA DE DECISÕES
-    #
-    # Pergunta:
-    # Quem_Toma_Decisoes_Negocio
-    #
-    # Resposta considerada:
-    # "Só eu"
-    # ==========================================================
-    
-    decisoes <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          Quem_Toma_Decisoes_Negocio
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    decisoes_BL <-
-      decisoes %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    decisoes_n_BL <-
-      decisoes_BL %>%
-      
-      dplyr::filter(
-        
-        Quem_Toma_Decisoes_Negocio ==
-          "Só eu"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    decisoes_total_BL <-
-      nrow(
-        decisoes_BL
-      )
-    
-    
-    decisoes_percentual_BL <-
-      dplyr::if_else(
-        
-        decisoes_total_BL > 0,
-        
-        (
-          decisoes_n_BL /
-            decisoes_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    decisoes_EL <-
-      decisoes %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    decisoes_n_EL <-
-      decisoes_EL %>%
-      
-      dplyr::filter(
-        
-        Quem_Toma_Decisoes_Negocio ==
-          "Só eu"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    decisoes_total_EL <-
-      nrow(
-        decisoes_EL
-      )
-    
-    
-    decisoes_percentual_EL <-
-      dplyr::if_else(
-        
-        decisoes_total_EL > 0,
-        
-        (
-          decisoes_n_EL /
-            decisoes_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 8. CONFIANÇA NA NEGOCIAÇÃO COM CLIENTES
-    #
-    # ID:
-    # iPAM_RI.2.6
-    #
-    # Resposta considerada:
-    # "Sim, sinto-me confiante e sei defender a minha posição"
-    #
-    # IMPORTANTE:
-    # Baseline e Endline são calculados separadamente.
-    # ==========================================================
-    
-    negociacao_clientes <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          Negociacao_Com_Clientes
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    negociacao_clientes_BL <-
-      negociacao_clientes %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    negociacao_clientes_confiante_BL <-
-      negociacao_clientes_BL %>%
-      
-      dplyr::filter(
-        
-        Negociacao_Com_Clientes ==
-          "Sim, sinto-me confiante e sei defender a minha posição"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    negociacao_clientes_total_BL <-
-      nrow(
-        negociacao_clientes_BL
-      )
-    
-    
-    negociacao_clientes_percentual_BL <-
-      dplyr::if_else(
-        
-        negociacao_clientes_total_BL > 0,
-        
-        (
-          negociacao_clientes_confiante_BL /
-            negociacao_clientes_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    negociacao_clientes_EL <-
-      negociacao_clientes %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    negociacao_clientes_confiante_EL <-
-      negociacao_clientes_EL %>%
-      
-      dplyr::filter(
-        
-        Negociacao_Com_Clientes ==
-          "Sim, sinto-me confiante e sei defender a minha posição"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    negociacao_clientes_total_EL <-
-      nrow(
-        negociacao_clientes_EL
-      )
-    
-    
-    negociacao_clientes_percentual_EL <-
-      dplyr::if_else(
-        
-        negociacao_clientes_total_EL > 0,
-        
-        (
-          negociacao_clientes_confiante_EL /
-            negociacao_clientes_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 9. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES
-    #
-    # ID:
-    # iPAM_RI.5.1
-    #
-    # Resposta:
-    # "Sim, negociei e consegui um acordo favorável
-    #  para o meu negócio"
-    # ==========================================================
-    
-    negociacao_3meses <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          Praticou_negociação_nos_últimos_3meses
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    negociacao_3meses_BL <-
-      negociacao_3meses %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    negociacao_3meses_n_BL <-
-      negociacao_3meses_BL %>%
-      
-      dplyr::filter(
-        
-        Praticou_negociação_nos_últimos_3meses ==
-          "Sim, negociei e consegui um acordo favorável para o meu negócio"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    negociacao_3meses_total_BL <-
-      nrow(
-        negociacao_3meses_BL
-      )
-    
-    
-    negociacao_3meses_percentual_BL <-
-      dplyr::if_else(
-        
-        negociacao_3meses_total_BL > 0,
-        
-        (
-          negociacao_3meses_n_BL /
-            negociacao_3meses_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    negociacao_3meses_EL <-
-      negociacao_3meses %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    negociacao_3meses_n_EL <-
-      negociacao_3meses_EL %>%
-      
-      dplyr::filter(
-        
-        Praticou_negociação_nos_últimos_3meses ==
-          "Sim, negociei e consegui um acordo favorável para o meu negócio"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    negociacao_3meses_total_EL <-
-      nrow(
-        negociacao_3meses_EL
-      )
-    
-    
-    negociacao_3meses_percentual_EL <-
-      dplyr::if_else(
-        
-        negociacao_3meses_total_EL > 0,
-        
-        (
-          negociacao_3meses_n_EL /
-            negociacao_3meses_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 10. UTILIZAÇÃO DE FERRAMENTAS DE IA
-    #
-    # Mede utilização geral de IA.
-    #
-    # Não atribuímos automaticamente iPAM_RI.3.1 porque esse
-    # ID refere-se especificamente à utilização da ferramenta HCD.
-    # ==========================================================
-    
-    uso_ia <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          Uso_de_ferramentas_de_IA
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    uso_ia_BL <-
-      uso_ia %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    uso_ia_n_BL <-
-      uso_ia_BL %>%
-      
-      dplyr::filter(
-        
-        Uso_de_ferramentas_de_IA %in% c(
-          
-          "Sim, usei pelo menos uma vez",
-          
-          "Sim, uso regularmente para o negócio"
-          
-        )
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    uso_ia_total_BL <-
-      nrow(
-        uso_ia_BL
-      )
-    
-    
-    uso_ia_percentual_BL <-
-      dplyr::if_else(
-        
-        uso_ia_total_BL > 0,
-        
-        (
-          uso_ia_n_BL /
-            uso_ia_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    uso_ia_EL <-
-      uso_ia %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    uso_ia_n_EL <-
-      uso_ia_EL %>%
-      
-      dplyr::filter(
-        
-        Uso_de_ferramentas_de_IA %in% c(
-          
-          "Sim, usei pelo menos uma vez",
-          
-          "Sim, uso regularmente para o negócio"
-          
-        )
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    uso_ia_total_EL <-
-      nrow(
-        uso_ia_EL
-      )
-    
-    
-    uso_ia_percentual_EL <-
-      dplyr::if_else(
-        
-        uso_ia_total_EL > 0,
-        
-        (
-          uso_ia_n_EL /
-            uso_ia_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 11. SEPARAÇÃO DAS CONTAS PESSOAIS E DO NEGÓCIO
-    # ==========================================================
-    
-    contas <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          `Faz separação das contas pessoais e do negócio`
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    contas_BL <-
-      contas %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    contas_n_BL <-
-      contas_BL %>%
-      
-      dplyr::filter(
-        
-        `Faz separação das contas pessoais e do negócio` ==
-          "Sim"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    contas_total_BL <-
-      nrow(
-        contas_BL
-      )
-    
-    
-    contas_percentual_BL <-
-      dplyr::if_else(
-        
-        contas_total_BL > 0,
-        
-        (
-          contas_n_BL /
-            contas_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    contas_EL <-
-      contas %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    contas_n_EL <-
-      contas_EL %>%
-      
-      dplyr::filter(
-        
-        `Faz separação das contas pessoais e do negócio` ==
-          "Sim"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    contas_total_EL <-
-      nrow(
-        contas_EL
-      )
-    
-    
-    contas_percentual_EL <-
-      dplyr::if_else(
-        
-        contas_total_EL > 0,
-        
-        (
-          contas_n_EL /
-            contas_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 12. SABEM CALCULAR O LUCRO
-    #
-    # ID:
-    # iPAM_RI.4.1
-    # ==========================================================
-    
-    calculo_lucro <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          `Sabe calcular o lucro do negócio  (com base no exercício prático)`
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    calculo_lucro_BL <-
-      calculo_lucro %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    calculo_lucro_n_BL <-
-      calculo_lucro_BL %>%
-      
-      dplyr::filter(
-        
-        `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
-          "Sim"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    calculo_lucro_total_BL <-
-      nrow(
-        calculo_lucro_BL
-      )
-    
-    
-    calculo_lucro_percentual_BL <-
-      dplyr::if_else(
-        
-        calculo_lucro_total_BL > 0,
-        
-        (
-          calculo_lucro_n_BL /
-            calculo_lucro_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    calculo_lucro_EL <-
-      calculo_lucro %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    calculo_lucro_n_EL <-
-      calculo_lucro_EL %>%
-      
-      dplyr::filter(
-        
-        `Sabe calcular o lucro do negócio  (com base no exercício prático)` ==
-          "Sim"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    calculo_lucro_total_EL <-
-      nrow(
-        calculo_lucro_EL
-      )
-    
-    
-    calculo_lucro_percentual_EL <-
-      dplyr::if_else(
-        
-        calculo_lucro_total_EL > 0,
-        
-        (
-          calculo_lucro_n_EL /
-            calculo_lucro_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 13. CONTROLO DO DINHEIRO QUE ENTRA E SAI
-    # ==========================================================
-    
-    controlo_dinheiro <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        !is.na(
-          `Faz controlo do dinheiro que entra e que sai (receitas e despesas)`
-        ),
-        
-        Tipo_Avaliacao %in% c(
-          "Baseline",
-          "Endline"
-        )
-      )
-    
-    
-    
-    # -------------------------
-    # BASELINE
-    # -------------------------
-    
-    controlo_dinheiro_BL <-
-      controlo_dinheiro %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Baseline"
-      )
-    
-    
-    controlo_dinheiro_n_BL <-
-      controlo_dinheiro_BL %>%
-      
-      dplyr::filter(
-        
-        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
-          "Sim"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    controlo_dinheiro_total_BL <-
-      nrow(
-        controlo_dinheiro_BL
-      )
-    
-    
-    controlo_dinheiro_percentual_BL <-
-      dplyr::if_else(
-        
-        controlo_dinheiro_total_BL > 0,
-        
-        (
-          controlo_dinheiro_n_BL /
-            controlo_dinheiro_total_BL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # -------------------------
-    # ENDLINE
-    # -------------------------
-    
-    controlo_dinheiro_EL <-
-      controlo_dinheiro %>%
-      
-      dplyr::filter(
-        Tipo_Avaliacao == "Endline"
-      )
-    
-    
-    controlo_dinheiro_n_EL <-
-      controlo_dinheiro_EL %>%
-      
-      dplyr::filter(
-        
-        `Faz controlo do dinheiro que entra e que sai (receitas e despesas)` ==
-          "Sim"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    controlo_dinheiro_total_EL <-
-      nrow(
-        controlo_dinheiro_EL
-      )
-    
-    
-    controlo_dinheiro_percentual_EL <-
-      dplyr::if_else(
-        
-        controlo_dinheiro_total_EL > 0,
-        
-        (
-          controlo_dinheiro_n_EL /
-            controlo_dinheiro_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 14. ACTIVIDADES DE GÉNERO
-    #
-    # APENAS ENDLINE
-    #
-    # Não existe Baseline equivalente nesta pergunta.
-    # ==========================================================
-    
-    genero <-
-      df_toc_pam_verde %>%
-      
-      dplyr::filter(
-        
-        Tipo_Avaliacao == "Endline",
-        
-        !is.na(
-          `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?`
-        )
-      )
-    
-    
-    genero_n_EL <-
-      genero %>%
-      
-      dplyr::filter(
-        
-        `Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?` ==
-          
-          "Ajudaram bastante / mudaram a minha compreensão"
-        
-      ) %>%
-      
-      nrow()
-    
-    
-    genero_total_EL <-
-      nrow(
-        genero
-      )
-    
-    
-    genero_percentual_EL <-
-      dplyr::if_else(
-        
-        genero_total_EL > 0,
-        
-        (
-          genero_n_EL /
-            genero_total_EL
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    
-    # ==========================================================
-    # 15. RESULTADOS FINANCEIROS
-    #
-    # Fonte:
-    # FINANCEIRO_TOC_NAMPULA
-    #
-    # Não existe Baseline/Endline convencional.
-    # O cálculo é feito a partir dos 3 meses.
-    # ==========================================================
-    
-    financeiro_pam_verde <-
-      FINANCEIRO_TOC_NAMPULA %>%
-      
-      dplyr::filter(
-        
-        Periodo %in% c(
-          "Primeiro Mês",
-          "Segundo Mês",
-          "Terceiro Mês"
-        ),
-        
-        !is.na(
-          Nome_Empreendedora
-        ),
-        
-        !is.na(
-          Lucro_Semanal
-        )
-        
-      ) %>%
-      
-      dplyr::group_by(
-        
-        Nome_Empreendedora,
-        Periodo
-        
-      ) %>%
-      
-      dplyr::summarise(
-        
-        Lucro =
-          sum(
-            Lucro_Semanal,
-            na.rm = TRUE
-          ),
-        
-        .groups = "drop"
-        
-      ) %>%
-      
-      tidyr::pivot_wider(
-        
-        names_from =
-          Periodo,
-        
-        values_from =
-          Lucro,
-        
-        values_fill = 0
-        
-      )
-    
-    
-    
-    # ==========================================================
-    # 16. AUMENTO DO LUCRO
-    # ==========================================================
-    
-    if (
-      
-      nrow(
-        financeiro_pam_verde
-      ) > 0 &&
-      
-      all(
-        c(
-          "Primeiro Mês",
-          "Terceiro Mês"
-        ) %in%
-        names(
-          financeiro_pam_verde
-        )
-      )
-      
-    ) {
-      
-      financeiro_pam_verde <-
-        financeiro_pam_verde %>%
-        
-        dplyr::mutate(
-          
-          Aumento_Lucro =
-            
-            `Terceiro Mês` -
-            `Primeiro Mês`,
-          
-          Percentual_Aumento =
-            
-            dplyr::if_else(
-              
-              `Primeiro Mês` > 0,
-              
-              (
-                Aumento_Lucro /
-                  `Primeiro Mês`
-              ) * 100,
-              
-              NA_real_
-            )
-        )
-      
+    perfil <- PERFIL_PAM_VERDE_C3_2026
+    toc <- PAM_VERDE_TOC_C3
+    
+    if (exists("FINANCEIRO_TOC_NAMPULA")) {
+      financeiro <- FINANCEIRO_TOC_NAMPULA
+    } else if (exists("Financeiro_Nampula")) {
+      financeiro <- Financeiro_Nampula
     } else {
-      
-      financeiro_pam_verde$Aumento_Lucro <-
-        numeric(
-          nrow(
-            financeiro_pam_verde
-          )
-        )
-      
-      financeiro_pam_verde$Percentual_Aumento <-
-        numeric(
-          nrow(
-            financeiro_pam_verde
-          )
-        )
+      financeiro <- data.frame()
     }
     
+    # ----------------------------------------------------------
+    # 2. FUNÇÕES AUXILIARES
+    # ----------------------------------------------------------
     
+    normalizar <- function(x) {
+      trimws(as.character(x))
+    }
     
-    # ==========================================================
-    # 17. % QUE AUMENTARAM O LUCRO
-    #
-    # ID:
-    # iPAM_RI.1.1
-    # ==========================================================
-    
-    lucro_aumentou_EL <-
-      
-      ifelse(
-        
-        nrow(
-          financeiro_pam_verde
-        ) > 0,
-        
-        mean(
-          financeiro_pam_verde$
-            Percentual_Aumento > 0,
-          na.rm = TRUE
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    if (
-      is.nan(
-        lucro_aumentou_EL
-      )
+    calcular_percentagem <- function(
+    dados, coluna, resposta, tipo
     ) {
       
-      lucro_aumentou_EL <-
-        NA_real_
-      
-    }
-    
-    
-    
-    # ==========================================================
-    # 18. % QUE AUMENTARAM O LUCRO EM 25% OU MAIS
-    #
-    # ID:
-    # iPAM_RI.1.2
-    # ==========================================================
-    
-    lucro_mais_25_EL <-
-      
-      ifelse(
-        
-        nrow(
-          financeiro_pam_verde
-        ) > 0,
-        
-        mean(
-          financeiro_pam_verde$
-            Percentual_Aumento >= 25,
-          na.rm = TRUE
-        ) * 100,
-        
-        NA_real_
-      )
-    
-    
-    if (
-      is.nan(
-        lucro_mais_25_EL
-      )
-    ) {
-      
-      lucro_mais_25_EL <-
-        NA_real_
-      
-    }
-    
-    
-    
-    # ==========================================================
-    # 19. VALOR MÉDIO DO AUMENTO DO LUCRO
-    #
-    # Mantido como valor financeiro.
-    # ==========================================================
-    
-    aumento_medio_lucro_EL <-
-      
-      ifelse(
-        
-        nrow(
-          financeiro_pam_verde
-        ) > 0,
-        
-        mean(
-          financeiro_pam_verde$
-            Aumento_Lucro,
-          na.rm = TRUE
-        ),
-        
-        NA_real_
-      )
-    
-    
-    if (
-      is.nan(
-        aumento_medio_lucro_EL
-      )
-    ) {
-      
-      aumento_medio_lucro_EL <-
-        NA_real_
-      
-    }
-    
-    
-    
-    # ==========================================================
-    # 20. SALDO LÍQUIDO DO VALOR ADICIONADO
-    # ==========================================================
-    
-    saldo_liquido_lucro_EL <-
-      
-      ifelse(
-        
-        nrow(
-          financeiro_pam_verde
-        ) > 0,
-        
-        sum(
-          financeiro_pam_verde$
-            Aumento_Lucro,
-          na.rm = TRUE
-        ),
-        
-        NA_real_
-      )
-    
-    
-    
-    # ==========================================================
-    # 21. MATRIZ DE INDICADORES
-    # ==========================================================
-    
-    indicadores_toc <-
-      
-      data.frame(
-        
-        
-        # ========================================================
-        # ID
-        # ========================================================
-        
-        ID_Indicador = c(
-          
-          "iVM1000",
-          "iVM1000",
-          
-          "iPAM_INT1.1",
-          "iPAM_RI.2.4",
-          "OS1.1",
-          "iPAM_RI.2.6",
-          "iPAM_RI.5.1",
-          "iPAM_RI.3.1",
-          "iPAM_RI.2.2",
-          "iPAM_RI.4.1",
-          "iPAM_RI.2.2",
-          
-          "iPAM_RI.4.2",
-          
-          "iPAM_RI.1.1",
-          "iPAM_RI.1.2",
-          "iPAM_RI.2.1",
-          "iPAM_RI.1.3b"
-          
-        ),
-        
-        
-        
-        # ========================================================
-        # INDICADOR
-        # ========================================================
-        
-        Indicador = c(
-          
-          # Formação
-          
-          "% de participantes que iniciam a formação",
-          
-          "% de participantes que completam a formação",
-          
-          
-          # Gestão
-          
-          "% de empreendedoras que iniciam o processo de formalização",
-          
-          "% de empreendedoras que definem um salário mensal para si mesmas",
-          
-          "% de empreendedoras que tomam sozinhas as principais decisões no negócio",
-          
-          "% de empreendedoras confiantes na negociação com clientes",
-          
-          "% participantes com maior poder de negociação em oportunidades económicas",
-          
-          "% de empreendedoras que sabem utilizar ferramentas de IA",
-          
-          "% de empreendedoras que fazem separação das contas pessoais e do negócio",
-          
-          "% de empreendedoras que sabem calcular o lucro",
-          
-          "% de empreendedoras que fazem controlo do dinheiro que entra e sai",
-          
-          
-          # Género
-          
-          "% de empreendedoras que consideram que as actividades de género ajudaram bastante / mudaram a sua compreensão",
-          
-          
-          # Financeiro
-          
-          "% de empreendedoras que aumentaram os seus lucros durante os 3 meses",
-          
-          "% de empreendedoras que aumentaram o lucro em 25% ou mais",
-          
-          "Valor médio de aumento do lucro por empreendedora",
-          
-          "Saldo líquido do valor adicionado ao final dos 3 meses"
-          
-        ),
-        
-        
-        
-        # ========================================================
-        # BASELINE
-        # ========================================================
-        
-        Baseline = c(
-          
-          # Formação
-          
-          NA_real_,
-          NA_real_,
-          
-          # Gestão
-          
-          formalizacao_percentual_BL,
-          salario_percentual_BL,
-          decisoes_percentual_BL,
-          negociacao_clientes_percentual_BL,
-          negociacao_3meses_percentual_BL,
-          uso_ia_percentual_BL,
-          contas_percentual_BL,
-          calculo_lucro_percentual_BL,
-          controlo_dinheiro_percentual_BL,
-          
-          # Género
-          
-          NA_real_,
-          
-          # Financeiro
-          
-          NA_real_,
-          NA_real_,
-          NA_real_,
-          NA_real_
-          
-        ),
-        
-        
-        
-        # ========================================================
-        # ENDLINE
-        # ========================================================
-        
-        Endline = c(
-          
-          # Formação
-          
-          inicio_formacao_EL,
-          conclusao_formacao_EL,
-          
-          # Gestão
-          
-          formalizacao_percentual_EL,
-          salario_percentual_EL,
-          decisoes_percentual_EL,
-          negociacao_clientes_percentual_EL,
-          negociacao_3meses_percentual_EL,
-          uso_ia_percentual_EL,
-          contas_percentual_EL,
-          calculo_lucro_percentual_EL,
-          controlo_dinheiro_percentual_EL,
-          
-          # Género
-          
-          genero_percentual_EL,
-          
-          # Financeiro
-          
-          lucro_aumentou_EL,
-          lucro_mais_25_EL,
-          aumento_medio_lucro_EL,
-          saldo_liquido_lucro_EL
-          
-        ),
-        
-        
-        
-        # ========================================================
-        # META 2026
-        # ========================================================
-        
-        Meta_2026 = c(
-          
-          # Formação
-          
-          85,
-          80,
-          
-          # Gestão
-          
-          10,
-          50,
-          100,
-          70,
-          70,
-          80,
-          80,
-          85,
-          80,
-          
-          # Género
-          
-          100,
-          
-          # Financeiro
-          
-          80,
-          50,
-          2500,
-          70000
-          
-        ),
-        
-        
-        stringsAsFactors = FALSE
-        
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 22. TIPO DE INDICADOR
-    # ==========================================================
-    
-    indicadores_toc$Tipo_Indicador <-
-      
-      dplyr::case_when(
-        
-        grepl(
-          "Valor médio|Saldo líquido",
-          indicadores_toc$Indicador
-        ) ~
-          "MT",
-        
-        TRUE ~
-          "%"
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 23. VARIAÇÃO BASELINE → ENDLINE
-    #
-    # Para indicadores percentuais:
-    #
-    # Variação = Endline - Baseline
-    #
-    # Resultado apresentado em pontos percentuais.
-    #
-    # Para indicadores sem Baseline:
-    # "NA"
-    # ==========================================================
-    
-    indicadores_toc$Variacao_Numerica <-
-      
-      dplyr::case_when(
-        
-        indicadores_toc$Tipo_Indicador == "%" &
-          
-          !is.na(
-            indicadores_toc$Baseline
-          ) &
-          
-          !is.na(
-            indicadores_toc$Endline
-          ) ~
-          
-          indicadores_toc$Endline -
-          indicadores_toc$Baseline,
-        
-        indicadores_toc$Tipo_Indicador == "MT" &
-          
-          !is.na(
-            indicadores_toc$Baseline
-          ) &
-          
-          !is.na(
-            indicadores_toc$Endline
-          ) ~
-          
-          indicadores_toc$Endline -
-          indicadores_toc$Baseline,
-        
-        TRUE ~
-          NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 24. ALCANCE DA META
-    #
-    # IMPORTANTE:
-    #
-    # O alcance é calculado exclusivamente sobre o ENDLINE.
-    #
-    # Não utilizamos o Baseline neste cálculo.
-    # ==========================================================
-    
-    indicadores_toc$Alcance_Numerico <-
-      
-      dplyr::case_when(
-        
-        !is.na(
-          indicadores_toc$Endline
-        ) &
-          
-          !is.na(
-            indicadores_toc$Meta_2026
-          ) &
-          
-          indicadores_toc$Meta_2026 > 0 ~
-          
-          (
-            indicadores_toc$Endline /
-              indicadores_toc$Meta_2026
-          ) * 100,
-        
-        TRUE ~
-          NA_real_
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 25. LIMITE DA BARRA DE PROGRESSO
-    # ==========================================================
-    
-    indicadores_toc$Alcance_Barra <-
-      
-      dplyr::if_else(
-        
-        is.na(
-          indicadores_toc$Alcance_Numerico
-        ),
-        
-        NA_real_,
-        
-        pmin(
-          indicadores_toc$Alcance_Numerico,
-          100
-        )
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 26. ESTADO DO INDICADOR
-    # ==========================================================
-    
-    indicadores_toc$Estado <-
-      
-      dplyr::case_when(
-        
-        is.na(
-          indicadores_toc$Alcance_Numerico
-        ) ~
-          
-          "⚪ Sem dados",
-        
-        indicadores_toc$Alcance_Numerico >= 100 ~
-          
-          "🟢 Meta atingida",
-        
-        indicadores_toc$Alcance_Numerico >= 80 ~
-          
-          "🟡 Próximo da meta",
-        
-        indicadores_toc$Alcance_Numerico >= 50 ~
-          
-          "🟠 Em progresso",
-        
-        TRUE ~
-          
-          "🔴 Abaixo da meta"
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 27. BARRA DE PROGRESSO
-    # ==========================================================
-    
-    indicadores_toc$Alcance <-
-      
-      dplyr::case_when(
-        
-        is.na(
-          indicadores_toc$Alcance_Barra
-        ) ~
-          
-          "—",
-        
-        TRUE ~
-          
-          paste0(
-            
-            '<div style="
-            width:160px;
-            background:#e9e9e9;
-            border-radius:10px;
-            height:22px;
-            overflow:hidden;
-          ">
-          
-            <div style="
-              width:',
-            
-            indicadores_toc$Alcance_Barra,
-            
-            '%;
-              background:#9442d4;
-              height:22px;
-              border-radius:10px;
-              text-align:center;
-              color:white;
-              font-size:12px;
-              line-height:22px;
-            ">',
-            
-            round(
-              indicadores_toc$Alcance_Numerico,
-              1
-            ),
-            
-            '%</div>
-          
-          </div>'
-          )
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 28. FUNÇÃO PARA FORMATAR VALORES
-    # ==========================================================
-    
-    formatar_valor <-
-      function(
-    valor,
-    tipo
+      if (
+        !coluna %in% names(dados) ||
+        !"Tipo_Avaliacao" %in% names(dados)
       ) {
+        return(NA_real_)
+      }
+      
+      avaliacao <- tolower(normalizar(dados$Tipo_Avaliacao))
+      valores <- normalizar(dados[[coluna]])
+      
+      validos <- !is.na(valores) &
+        valores != "" &
+        !is.na(avaliacao) &
+        avaliacao == tolower(tipo)
+      
+      if (!any(validos)) return(NA_real_)
+      
+      100 * sum(valores[validos] %in% resposta) / sum(validos)
+    }
+    
+    calcular_estado_formacao <- function(dados, estados) {
+      
+      if (!"Status" %in% names(dados)) return(NA_real_)
+      
+      status <- toupper(normalizar(dados$Status))
+      validos <- !is.na(status) & status != ""
+      
+      if (!any(validos)) return(NA_real_)
+      
+      100 * sum(status %in% toupper(estados) & validos) /
+        sum(validos)
+    }
+    
+    formatar_numero <- function(x, casas = 1) {
+      
+      if (
+        length(x) == 0 ||
+        is.na(x) ||
+        !is.finite(x)
+      ) {
+        return("—")
+      }
+      
+      format(
+        round(x, casas),
+        big.mark = " ",
+        decimal.mark = ",",
+        nsmall = casas,
+        trim = TRUE
+      )
+    }
+    
+    # ----------------------------------------------------------
+    # 3. INÍCIO DA FORMAÇÃO — iVM1000
+    # ----------------------------------------------------------
+    
+    inicio_formacao_EL <- calcular_estado_formacao(
+      perfil,
+      c(
+        "Activa", "Activas", "Ativa", "Ativas",
+        "Desistente", "Desistentes"
+      )
+    )
+    
+    # ----------------------------------------------------------
+    # 4. CONCLUSÃO DA FORMAÇÃO — iVM1000
+    # ----------------------------------------------------------
+    
+    conclusao_formacao_EL <- NA_real_
+    
+    if ("Status" %in% names(perfil)) {
+      
+      status <- toupper(normalizar(perfil$Status))
+      validos <- !is.na(status) & status != ""
+      
+      if (any(validos)) {
+        conclusao_formacao_EL <- 100 * sum(
+          status == "CONCLUIU A FORMAÇÃO" & validos
+        ) / sum(validos)
+      }
+    }
+    
+    # ----------------------------------------------------------
+    # 5. FORMALIZAÇÃO — iPAM_INT1.1
+    # ----------------------------------------------------------
+    
+    formalizacao_BL <- calcular_percentagem(
+      toc, "Negocio_Formalizado",
+      "Iniciei o processo de formalização", "Baseline"
+    )
+    
+    formalizacao_EL <- calcular_percentagem(
+      toc, "Negocio_Formalizado",
+      "Iniciei o processo de formalização", "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 6. SALÁRIO MENSAL — iPAM_RI.2.4
+    # ----------------------------------------------------------
+    
+    salario_BL <- calcular_percentagem(
+      toc, "Tira_Salario_Para_Si",
+      "Sim, retiro um valor fixo todos os meses", "Baseline"
+    )
+    
+    salario_EL <- calcular_percentagem(
+      toc, "Tira_Salario_Para_Si",
+      "Sim, retiro um valor fixo todos os meses", "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 7. TOMADA DE DECISÕES — OS1.1
+    # ----------------------------------------------------------
+    
+    decisoes_BL <- calcular_percentagem(
+      toc, "Quem_Toma_Decisoes_Negocio", "Só eu", "Baseline"
+    )
+    
+    decisoes_EL <- calcular_percentagem(
+      toc, "Quem_Toma_Decisoes_Negocio", "Só eu", "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 8. NEGOCIAÇÃO COM CLIENTES — iPAM_RI.2.6
+    # ----------------------------------------------------------
+    
+    resposta_clientes <-
+      "Sim, sinto-me confiante e sei defender a minha posição"
+    
+    negociacao_clientes_BL <- calcular_percentagem(
+      toc, "Negociacao_Com_Clientes",
+      resposta_clientes, "Baseline"
+    )
+    
+    negociacao_clientes_EL <- calcular_percentagem(
+      toc, "Negociacao_Com_Clientes",
+      resposta_clientes, "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 9. NEGOCIAÇÃO NOS ÚLTIMOS 3 MESES — iPAM_RI.5.1
+    # ----------------------------------------------------------
+    
+    coluna_negociacao_3meses <-
+      "Praticou_negociação_nos_últimos_3meses"
+    
+    resposta_3meses <-
+      "Sim, negociei e consegui um acordo favorável para o meu negócio"
+    
+    negociacao_3meses_BL <- calcular_percentagem(
+      toc, coluna_negociacao_3meses,
+      resposta_3meses, "Baseline"
+    )
+    
+    negociacao_3meses_EL <- calcular_percentagem(
+      toc, coluna_negociacao_3meses,
+      resposta_3meses, "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 10. FERRAMENTAS DE IA — iPAM_RI.3.1
+    # ----------------------------------------------------------
+    
+    respostas_ia <- c(
+      "Sim, usei pelo menos uma vez",
+      "Sim, uso regularmente para o negócio"
+    )
+    
+    uso_ia_BL <- calcular_percentagem(
+      toc, "Uso_de_ferramentas_de_IA",
+      respostas_ia, "Baseline"
+    )
+    
+    uso_ia_EL <- calcular_percentagem(
+      toc, "Uso_de_ferramentas_de_IA",
+      respostas_ia, "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 11. SEPARAÇÃO DAS CONTAS — iPAM_RI.2.2.b
+    # ----------------------------------------------------------
+    
+    coluna_contas <-
+      "Faz separação das contas pessoais e do negócio"
+    
+    contas_BL <- calcular_percentagem(
+      toc, coluna_contas, "Sim", "Baseline"
+    )
+    
+    contas_EL <- calcular_percentagem(
+      toc, coluna_contas, "Sim", "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 12. CÁLCULO DO LUCRO — iPAM_RI.4.1
+    # ----------------------------------------------------------
+    
+    coluna_calculo_lucro <-
+      "Sabe calcular o lucro do negócio  (com base no exercício prático)"
+    
+    calculo_lucro_BL <- calcular_percentagem(
+      toc, coluna_calculo_lucro, "Sim", "Baseline"
+    )
+    
+    calculo_lucro_EL <- calcular_percentagem(
+      toc, coluna_calculo_lucro, "Sim", "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 13. CONTROLO DO DINHEIRO — iPAM_RI.2.2.a
+    # ----------------------------------------------------------
+    
+    coluna_controlo <-
+      "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
+    
+    controlo_BL <- calcular_percentagem(
+      toc, coluna_controlo, "Sim", "Baseline"
+    )
+    
+    controlo_EL <- calcular_percentagem(
+      toc, coluna_controlo, "Sim", "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 14. ACTIVIDADES DE GÉNERO — iPAM_RI.4.2
+    # ----------------------------------------------------------
+    
+    coluna_genero <- paste0(
+      "Até que ponto as actividades ligadas à questão de género ",
+      "ajudaram a compreender as desigualdades entre homens e mulheres?"
+    )
+    
+    genero_EL <- calcular_percentagem(
+      toc, coluna_genero,
+      "Ajudaram bastante / mudaram a minha compreensão",
+      "Endline"
+    )
+    
+    # ----------------------------------------------------------
+    # 15. NOVOS SERVIÇOS FINANCEIROS — iPAM_RI.7.3
+    # ----------------------------------------------------------
+    
+    servicos_financeiros_percentual_EL <- NA_real_
+    
+    if (
+      "Uso_Servicos_Financeiros" %in% names(toc) &&
+      "ID_Participante" %in% names(toc) &&
+      "Tipo_Avaliacao" %in% names(toc)
+    ) {
+      
+      servicos <- toc |>
+        dplyr::transmute(
+          ID = trimws(as.character(ID_Participante)),
+          Tipo = tolower(trimws(as.character(Tipo_Avaliacao))),
+          Resposta = trimws(as.character(Uso_Servicos_Financeiros))
+        ) |>
+        dplyr::filter(
+          !is.na(ID), ID != "",
+          Tipo %in% c("baseline", "endline"),
+          !is.na(Resposta), Resposta != ""
+        ) |>
+        dplyr::group_by(ID, Tipo) |>
+        dplyr::summarise(
+          Resposta = paste(unique(Resposta), collapse = ";"),
+          .groups = "drop"
+        )
+      
+      separar_servicos <- function(x) {
+        if (is.na(x) || trimws(x) == "") return(character(0))
         
-        if (
-          is.na(valor)
-        ) {
-          
-          return("—")
-          
-        }
+        resultado <- unlist(strsplit(
+          x,
+          ";|\\n|\\r|\\||,(?![^()]*\\))\\s*",
+          perl = TRUE
+        ))
         
+        resultado <- tolower(trimws(resultado))
+        unique(resultado[resultado != ""])
+      }
+      
+      bl <- servicos |>
+        dplyr::filter(Tipo == "baseline") |>
+        dplyr::select(ID, Resposta_BL = Resposta)
+      
+      el <- servicos |>
+        dplyr::filter(Tipo == "endline") |>
+        dplyr::select(ID, Resposta_EL = Resposta)
+      
+      comparacao <- dplyr::inner_join(bl, el, by = "ID")
+      
+      if (nrow(comparacao) > 0) {
         
-        if (
-          tipo == "%"
-        ) {
+        comparacao$Servicos_BL <- lapply(
+          comparacao$Resposta_BL, separar_servicos
+        )
+        
+        comparacao$Servicos_EL <- lapply(
+          comparacao$Resposta_EL, separar_servicos
+        )
+        
+        comparacao <- comparacao[
+          lengths(comparacao$Servicos_BL) > 0 &
+            lengths(comparacao$Servicos_EL) > 0,
+        ]
+        
+        if (nrow(comparacao) > 0) {
           
-          return(
-            
-            paste0(
-              
-              round(
-                valor,
-                1
-              ),
-              
-              "%"
-            )
+          novos <- mapply(
+            function(bl, el) any(!el %in% bl),
+            comparacao$Servicos_BL,
+            comparacao$Servicos_EL
           )
           
-        } else {
-          
-          return(
-            
-            paste0(
-              
-              scales::comma(
-                round(
-                  valor,
-                  0
-                )
-              ),
-              
-              " MT"
-            )
-          )
+          servicos_financeiros_percentual_EL <- mean(novos) * 100
         }
       }
+    }
     
+    # ----------------------------------------------------------
+    # 16. INDICADORES FINANCEIROS
+    # ----------------------------------------------------------
     
+    lucro_aumentou_EL <- NA_real_
+    lucro_mais_25_EL <- NA_real_
+    aumento_medio_lucro_EL <- NA_real_
+    saldo_liquido_lucro_EL <- NA_real_
     
+    colunas_financeiras <- c(
+      "Nome_Empreendedora",
+      "Periodo",
+      "Lucro_Semanal"
+    )
     
-    # ==========================================================
-    # 29. BASELINE FORMATADO
-    # ==========================================================
-    
-    indicadores_toc$Baseline_Formatado <-
+    if (
+      nrow(financeiro) > 0 &&
+      all(colunas_financeiras %in% names(financeiro))
+    ) {
       
-      mapply(
-        
-        formatar_valor,
-        
-        indicadores_toc$Baseline,
-        
-        indicadores_toc$Tipo_Indicador
-        
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 30. ENDLINE FORMATADO
-    # ==========================================================
-    
-    indicadores_toc$Endline_Formatado <-
+      financeiro_tratado <- financeiro |>
+        dplyr::mutate(
+          Nome_Empreendedora = trimws(
+            as.character(Nome_Empreendedora)
+          ),
+          Periodo = trimws(as.character(Periodo)),
+          Lucro_Semanal = suppressWarnings(
+            as.numeric(as.character(Lucro_Semanal))
+          )
+        ) |>
+        dplyr::filter(
+          !is.na(Nome_Empreendedora),
+          Nome_Empreendedora != "",
+          Periodo %in% c(
+            "Primeiro Mês",
+            "Segundo Mês",
+            "Terceiro Mês"
+          ),
+          !is.na(Lucro_Semanal)
+        )
       
-      mapply(
-        
-        formatar_valor,
-        
-        indicadores_toc$Endline,
-        
-        indicadores_toc$Tipo_Indicador
-        
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 31. VARIAÇÃO FORMATADA
-    #
-    # Percentuais:
-    # +37,5 p.p.
-    #
-    # Valores monetários:
-    # +2 500 MT
-    # ==========================================================
-    
-    indicadores_toc$Variacao_Formatada <-
+      lucro_periodo <- financeiro_tratado |>
+        dplyr::group_by(Nome_Empreendedora, Periodo) |>
+        dplyr::summarise(
+          Lucro = sum(Lucro_Semanal, na.rm = TRUE),
+          .groups = "drop"
+        )
       
-      mapply(
+      comparacao_lucro <- lucro_periodo |>
+        tidyr::pivot_wider(
+          names_from = Periodo,
+          values_from = Lucro
+        )
+      
+      if (all(c("Primeiro Mês", "Terceiro Mês") %in%
+              names(comparacao_lucro))) {
         
-        function(
-    valor,
-    tipo
-        ) {
-          
-          if (
-            is.na(valor)
-          ) {
-            
-            return("—")
-            
-          }
-          
-          
-          if (
-            tipo == "%"
-          ) {
-            
-            sinal <-
-              ifelse(
-                valor > 0,
-                "+",
-                ""
-              )
-            
-            return(
-              
-              paste0(
-                
-                sinal,
-                
-                round(
-                  valor,
-                  1
-                ),
-                
-                " p.p."
-              )
+        comparacao_lucro <- comparacao_lucro |>
+          dplyr::filter(
+            !is.na(`Primeiro Mês`),
+            !is.na(`Terceiro Mês`)
+          ) |>
+          dplyr::mutate(
+            Aumento_Lucro = `Terceiro Mês` - `Primeiro Mês`,
+            Percentual_Aumento = dplyr::if_else(
+              `Primeiro Mês` > 0,
+              Aumento_Lucro / `Primeiro Mês` * 100,
+              NA_real_
             )
-            
-          } else {
-            
-            sinal <-
-              ifelse(
-                valor > 0,
-                "+",
-                ""
-              )
-            
-            return(
-              
-              paste0(
-                
-                sinal,
-                
-                scales::comma(
-                  round(
-                    valor,
-                    0
-                  )
-                ),
-                
-                " MT"
-              )
-            )
-          }
-        },
+          )
+        
+        base_percentual <- comparacao_lucro |>
+          dplyr::filter(!is.na(Percentual_Aumento))
+        
+        if (nrow(base_percentual) > 0) {
+          
+          lucro_aumentou_EL <- mean(
+            base_percentual$Percentual_Aumento > 0
+          ) * 100
+          
+          lucro_mais_25_EL <- mean(
+            base_percentual$Percentual_Aumento >= 25
+          ) * 100
+        }
+        
+        aumentos <- comparacao_lucro$Aumento_Lucro
+        aumentos <- aumentos[!is.na(aumentos)]
+        
+        if (length(aumentos) > 0) {
+          aumento_medio_lucro_EL <- mean(aumentos)
+          saldo_liquido_lucro_EL <- sum(aumentos)
+        }
+      }
+    }
     
-    indicadores_toc$Variacao_Numerica,
+    # ----------------------------------------------------------
+    # 17. MATRIZ COM OS 17 INDICADORES
+    # ----------------------------------------------------------
     
-    indicadores_toc$Tipo_Indicador
-    
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 32. META FORMATADA
-    # ==========================================================
-    
-    indicadores_toc$Meta_Formatada <-
+    indicadores_toc <- data.frame(
       
-      mapply(
-        
-        formatar_valor,
-        
-        indicadores_toc$Meta_2026,
-        
-        indicadores_toc$Tipo_Indicador
-        
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 33. ID COM HTML
-    # ==========================================================
-    
-    indicadores_toc$ID_Indicador_HTML <-
+      ID_Indicador = c(
+        "iVM1000",
+        "iVM1000",
+        "iPAM_INT1.1",
+        "iPAM_RI.2.4",
+        "OS1.1",
+        "iPAM_RI.2.6",
+        "iPAM_RI.5.1",
+        "iPAM_RI.3.1",
+        "iPAM_RI.2.2.b",
+        "iPAM_RI.4.1",
+        "iPAM_RI.2.2.a",
+        "iPAM_RI.4.2",
+        "iPAM_RI.7.3",
+        "iPAM_RI.1.1",
+        "iPAM_RI.1.2",
+        "iPAM_RI.2.1",
+        "iPAM_RI.1.3b"
+      ),
       
-      dplyr::if_else(
+      Indicador = c(
+        "Participantes que iniciam a formação",
+        "Participantes que completam a formação",
+        "Empreendedoras que iniciam o processo de formalização",
+        "Empreendedoras que definem um salário mensal para si mesmas",
+        "Empreendedoras que tomam sozinhas as principais decisões do negócio",
+        "Empreendedoras confiantes na negociação com clientes",
+        "Empreendedoras que negociaram e conseguiram acordo favorável nos últimos 3 meses",
+        "Empreendedoras que sabem utilizar ferramentas de IA",
+        "Separa as contas pessoais das contas do negócio",
+        "Sabe calcular o lucro do negócio",
+        "Controla o dinheiro que entra e sai",
+        "Actividades de género contribuíram para compreender desigualdades",
+        "Empreendedoras que passaram a utilizar pelo menos um novo serviço financeiro",
+        "Aumentou os lucros durante os 3 meses",
+        "Aumentou o lucro em 25% ou mais",
+        "Valor médio de aumento do lucro",
+        "Saldo líquido do valor adicionado"
+      ),
+      
+      Baseline = c(
+        NA_real_, NA_real_,
+        formalizacao_BL, salario_BL, decisoes_BL,
+        negociacao_clientes_BL, negociacao_3meses_BL,
+        uso_ia_BL, contas_BL, calculo_lucro_BL, controlo_BL,
+        NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_
+      ),
+      
+      Endline = c(
+        inicio_formacao_EL,
+        conclusao_formacao_EL,
+        formalizacao_EL,
+        salario_EL,
+        decisoes_EL,
+        negociacao_clientes_EL,
+        negociacao_3meses_EL,
+        uso_ia_EL,
+        contas_EL,
+        calculo_lucro_EL,
+        controlo_EL,
+        genero_EL,
+        servicos_financeiros_percentual_EL,
+        lucro_aumentou_EL,
+        lucro_mais_25_EL,
+        aumento_medio_lucro_EL,
+        saldo_liquido_lucro_EL
+      ),
+      
+      Meta_2026 = c(
+        85, 80, 10, 50, 100, 70, 70, 80, 80,
+        85, 80, 100, 40, 80, 50, 2500, 70000
+      ),
+      
+      stringsAsFactors = FALSE
+    )
+    
+    stopifnot(
+      nrow(indicadores_toc) == 17,
+      length(indicadores_toc$Baseline) == 17,
+      length(indicadores_toc$Endline) == 17,
+      length(indicadores_toc$Meta_2026) == 17
+    )
+    
+    # ----------------------------------------------------------
+    # 18. UNIDADES, VARIAÇÃO, ALCANCE E ESTADO
+    # ----------------------------------------------------------
+    
+    indicadores_toc$Unidade <- ifelse(
+      seq_len(nrow(indicadores_toc)) %in% c(16, 17),
+      "MT",
+      "%"
+    )
+    
+    indicadores_toc <- indicadores_toc |>
+      dplyr::mutate(
+        Variação = dplyr::if_else(
+          Unidade == "%" &
+            !is.na(Baseline) &
+            !is.na(Endline),
+          Endline - Baseline,
+          NA_real_
+        ),
         
-        is.na(
-          indicadores_toc$ID_Indicador
-        ) |
-          
-          indicadores_toc$ID_Indicador == "",
+        Alcance_Numerico = dplyr::if_else(
+          !is.na(Endline) &
+            !is.na(Meta_2026) &
+            Meta_2026 > 0,
+          Endline / Meta_2026 * 100,
+          NA_real_
+        ),
         
-        '<span style="
-        color:#999999;
-        font-style:italic;
-      ">Não definido</span>',
-        
-        paste0(
-          
-          '<span style="
-          font-weight:600;
-          color:#9442d4;
-        ">',
-          
-          indicadores_toc$ID_Indicador,
-          
-          '</span>'
-          
+        Estado = dplyr::case_when(
+          is.na(Endline) ~ "Sem dados",
+          is.na(Meta_2026) ~ "Sem meta",
+          Endline >= Meta_2026 ~ "Meta alcançada",
+          Endline >= Meta_2026 * 0.8 ~ "Próximo da meta",
+          Endline >= Meta_2026 * 0.5 ~ "Em progresso",
+          TRUE ~ "Abaixo da meta"
         )
       )
     
+    # ----------------------------------------------------------
+    # 19. FORMATAÇÃO DOS VALORES
+    # ----------------------------------------------------------
     
-    
-    
-    # ==========================================================
-    # 34. INDICADOR COM HTML
-    # ==========================================================
-    
-    indicadores_toc$Indicador_HTML <-
+    formatar_indicador <- function(valor, unidade) {
       
-      paste0(
-        
-        '<div style="
-        white-space:normal;
-        line-height:1.4;
-        padding:4px 0;
-      ">',
-        
-        indicadores_toc$Indicador,
-        
-        '</div>'
-        
-      )
-    
-    
-    
-    
-    # ==========================================================
-    # 35. TABELA FINAL
-    # ==========================================================
-    
-    tabela_final_toc <-
+      if (
+        length(valor) == 0 ||
+        is.na(valor) ||
+        !is.finite(valor)
+      ) return("—")
       
-      indicadores_toc %>%
+      if (unidade == "%") {
+        return(paste0(formatar_numero(valor, 1), "%"))
+      }
       
-      dplyr::select(
-        
-        ID_Indicador_HTML,
-        
-        Indicador_HTML,
-        
-        Baseline_Formatado,
-        
-        Endline_Formatado,
-        
-        Variacao_Formatada,
-        
-        Meta_Formatada,
-        
-        Alcance,
-        
-        Estado
-        
-      ) %>%
-      
-      dplyr::rename(
-        
-        `ID_Indicador` =
-          ID_Indicador_HTML,
-        
-        `Indicador` =
-          Indicador_HTML,
-        
-        `Baseline` =
-          Baseline_Formatado,
-        
-        `Endline` =
-          Endline_Formatado,
-        
-        `Variação` =
-          Variacao_Formatada,
-        
-        `Meta 2026` =
-          Meta_Formatada,
-        
-        `Alcance da Meta` =
-          Alcance,
-        
-        `Estado` =
-          Estado
-        
-      )
-  
+      paste0(formatar_numero(valor, 2), " MT")
+    }
     
+    indicadores_toc$Baseline_Exibicao <- mapply(
+      formatar_indicador,
+      indicadores_toc$Baseline,
+      indicadores_toc$Unidade
+    )
     
+    indicadores_toc$Endline_Exibicao <- mapply(
+      formatar_indicador,
+      indicadores_toc$Endline,
+      indicadores_toc$Unidade
+    )
     
+    indicadores_toc$Meta_Exibicao <- mapply(
+      formatar_indicador,
+      indicadores_toc$Meta_2026,
+      indicadores_toc$Unidade
+    )
     
-    # ============================================================
-    # 36. DATATABLE — MATRIZ TOC INTERACTIVA
-    # PAM VERDE CICLO 3
-    # ============================================================
+    indicadores_toc$Variacao_Exibicao <- vapply(
+      seq_len(nrow(indicadores_toc)),
+      function(i) {
+        valor <- indicadores_toc$Variação[i]
+        
+        if (is.na(valor)) return("—")
+        
+        paste0(
+          ifelse(valor > 0, "+", ""),
+          formatar_numero(valor, 1),
+          " p.p."
+        )
+      },
+      character(1)
+    )
     
-    tabela_widget <- DT::datatable(
-      
+    indicadores_toc$Alcance_Exibicao <- vapply(
+      indicadores_toc$Alcance_Numerico,
+      function(x) {
+        if (is.na(x) || !is.finite(x)) return("—")
+        paste0(formatar_numero(x, 1), "%")
+      },
+      character(1)
+    )
+    
+    tabela_final_toc <- data.frame(
+      ID_Indicador = indicadores_toc$ID_Indicador,
+      Indicador = indicadores_toc$Indicador,
+      Baseline = indicadores_toc$Baseline_Exibicao,
+      Endline = indicadores_toc$Endline_Exibicao,
+      Variação = indicadores_toc$Variacao_Exibicao,
+      `Meta 2026` = indicadores_toc$Meta_Exibicao,
+      `Alcance da Meta` = indicadores_toc$Alcance_Exibicao,
+      Estado = indicadores_toc$Estado,
+      check.names = FALSE
+    )
+    
+    # ----------------------------------------------------------
+    # 20. TABELA INTERACTIVA
+    # ----------------------------------------------------------
+    
+    widget <- DT::datatable(
       tabela_final_toc,
-      
       rownames = FALSE,
-      escape = FALSE,
-      
-      # Não usar Responsive: queremos preservar todas as colunas
-      # e permitir a navegação horizontal.
-      extensions = "Buttons",
-      
+      extensions = c("Buttons", "FixedHeader"),
       options = list(
-        
-        # --------------------------------------------------------
-        # VISUALIZAÇÃO DE TODOS OS INDICADORES
-        # --------------------------------------------------------
-        
-        pageLength = -1,
+        pageLength = 17,
         
         lengthMenu = list(
-          c(15, 25, 50, 100, -1),
-          c("15", "25", "50", "100", "Todos")
+          c(15, 16, 17, 25, 50, 100, -1),
+          c("15", "16", "17", "25", "50", "100", "Todos")
         ),
         
         scrollX = TRUE,
         scrollY = "65vh",
         scrollCollapse = TRUE,
-        
         autoWidth = FALSE,
-        deferRender = FALSE,
-        processing = FALSE,
-        
-        # --------------------------------------------------------
-        # BOTÕES NATIVOS
-        # --------------------------------------------------------
-        
-        dom = "Bfltip",
+        fixedHeader = TRUE,
+        dom = "Blfrtip",
         
         buttons = list(
-          
-          list(
-            extend = "pageLength",
-            text = "Mostrar registos"
-          ),
-          
-          list(
-            extend = "copyHtml5",
-            text = "Copiar tabela"
-          ),
-          
-          list(
-            extend = "csvHtml5",
-            text = "Descarregar CSV",
-            filename = "Matriz_TOC_PAM_Verde_Ciclo3",
-            title = "Matriz de Indicadores TOC - PAM Verde Ciclo 3"
-          ),
-          
-          list(
-            extend = "excelHtml5",
-            text = "Descarregar Excel",
-            filename = "Matriz_TOC_PAM_Verde_Ciclo3",
-            title = "Matriz de Indicadores TOC - PAM Verde Ciclo 3"
-          ),
-          
-          list(
-            extend = "print",
-            text = "Imprimir tabela",
-            title = "Matriz de Indicadores TOC - PAM Verde Ciclo 3"
-          )
+          list(extend = "copy", text = "Copiar"),
+          list(extend = "csv", text = "Exportar CSV"),
+          list(extend = "excel", text = "Exportar Excel")
         ),
-        
-        # --------------------------------------------------------
-        # LARGURA E COMPORTAMENTO DAS COLUNAS
-        # --------------------------------------------------------
         
         columnDefs = list(
-          
           list(
-            width = "125px",
-            targets = 0
+            targets = 0,
+            width = "130px",
+            className = "dt-center"
           ),
-          
           list(
-            width = "390px",
-            targets = 1
+            targets = 1,
+            width = "420px",
+            className = "dt-left"
           ),
-          
           list(
-            width = "100px",
-            targets = 2:3
+            targets = c(2, 3, 4, 5, 6),
+            width = "145px",
+            className = "dt-center"
           ),
-          
           list(
-            width = "115px",
-            targets = 4
-          ),
-          
-          list(
-            width = "100px",
-            targets = 5
-          ),
-          
-          list(
-            width = "180px",
-            targets = 6
-          ),
-          
-          list(
-            width = "155px",
-            targets = 7
+            targets = 7,
+            width = "160px",
+            className = "dt-center"
           )
         ),
         
-        # --------------------------------------------------------
-        # IDIOMA PORTUGUÊS
-        # --------------------------------------------------------
-        
         language = list(
-          
-          search = "Pesquisar indicador:",
-          
+          search = "Pesquisar:",
           lengthMenu = "Mostrar _MENU_ indicadores",
-          
           info = "A mostrar _START_ a _END_ de _TOTAL_ indicadores",
-          
           infoEmpty = "Sem indicadores disponíveis",
-          
+          infoFiltered = "(filtrado de _MAX_ indicadores)",
           zeroRecords = "Nenhum indicador encontrado",
-          
-          emptyTable = "Não existem dados disponíveis",
-          
-          processing = "A preparar a tabela...",
-          
+          emptyTable = "Sem dados disponíveis",
           paginate = list(
-            previous = "Anterior",
+            first = "Primeiro",
+            last = "Último",
             `next` = "Seguinte",
-            first = "Primeira",
-            last = "Última"
-          ),
-          
-          buttons = list(
-            copy = "Copiar tabela",
-            print = "Imprimir tabela",
-            pageLength = "Mostrar registos"
+            previous = "Anterior"
           )
         )
       ),
       
-      class = "display compact stripe hover"
-    ) %>%
-      
-      # ----------------------------------------------------------
-    # FORMATAÇÃO DO ID
-    # ----------------------------------------------------------
-    
-    DT::formatStyle(
-      "ID_Indicador",
-      `white-space` = "normal",
-      `vertical-align` = "middle"
-    ) %>%
-      
-      # ----------------------------------------------------------
-    # FORMATAÇÃO DO NOME DO INDICADOR
-    # ----------------------------------------------------------
-    
-    DT::formatStyle(
-      "Indicador",
-      `white-space` = "normal",
-      `vertical-align` = "middle",
-      color = "#333333"
-    ) %>%
-      
-      # ----------------------------------------------------------
-    # ALINHAMENTO DOS VALORES
-    # ----------------------------------------------------------
-    
-    DT::formatStyle(
-      columns = c(
-        "ID_Indicador",
-        "Baseline",
-        "Endline",
-        "Variação",
-        "Meta 2026",
-        "Alcance da Meta",
-        "Estado"
-      ),
-      `text-align` = "center",
-      `vertical-align` = "middle"
-    ) %>%
-      
-      # ----------------------------------------------------------
-    # ESTILO GERAL
-    # ----------------------------------------------------------
-    
-    DT::formatStyle(
-      columns = names(tabela_final_toc),
-      fontSize = "13px",
-      padding = "9px"
+      class = "display compact stripe hover",
+      escape = TRUE
     )
     
+    # ----------------------------------------------------------
+    # 21. CORES NO ESTADO
+    # ----------------------------------------------------------
     
-    # ============================================================
-    # 37. BOTÕES PERSONALIZADOS E CAPTURA PNG
-    # ============================================================
+    widget <- widget |>
+      DT::formatStyle(
+        "Estado",
+        target = "cell",
+        
+        backgroundColor = DT::styleEqual(
+          c(
+            "Meta alcançada",
+            "Próximo da meta",
+            "Em progresso",
+            "Abaixo da meta",
+            "Sem dados",
+            "Sem meta"
+          ),
+          c(
+            "#d4edda",
+            "#d1ecf1",
+            "#fff3cd",
+            "#f8d7da",
+            "#f5f3f4",
+            "#eeeeee"
+          )
+        ),
+        
+        color = DT::styleEqual(
+          c(
+            "Meta alcançada",
+            "Próximo da meta",
+            "Em progresso",
+            "Abaixo da meta",
+            "Sem dados",
+            "Sem meta"
+          ),
+          c(
+            "#155724",
+            "#0c5460",
+            "#856404",
+            "#721c24",
+            "#666666",
+            "#666666"
+          )
+        ),
+        
+        fontWeight = "bold"
+      ) |>
+      DT::formatStyle(
+        columns = names(tabela_final_toc),
+        padding = "8px",
+        `white-space` = "normal",
+        `vertical-align` = "middle"
+      )
     
-    tabela_widget <- htmlwidgets::onRender(
-      
-      tabela_widget,
-      
+    # ----------------------------------------------------------
+    # 22. BOTÕES PNG E ECRÃ INTEIRO
+    # ----------------------------------------------------------
+    
+    htmlwidgets::onRender(
+      widget,
       htmlwidgets::JS("
+    function(el, x) {
 
-  function(el, x) {
+      var container = el.parentElement;
 
-    var wrapper = el.querySelector('.dataTables_wrapper');
-    var table = el.querySelector('table');
-
-    if (!wrapper || !table) return;
-
-    // Evitar criar a barra de botões mais de uma vez
-    if (wrapper.querySelector('.toolbar-toc-personalizada')) {
-      return;
-    }
-
-    var toolbar = document.createElement('div');
-
-    toolbar.className = 'toolbar-toc-personalizada';
-
-    toolbar.style.cssText =
-      'display:flex;gap:10px;flex-wrap:wrap;' +
-      'align-items:center;margin:12px 0;padding:8px 0;';
-
-    function criarBotao(texto) {
-
-      var botao = document.createElement('button');
-
-      botao.type = 'button';
-      botao.innerHTML = texto;
-
-      botao.style.cssText =
-        'background:#9442d4;color:white;border:0;' +
-        'padding:10px 15px;border-radius:6px;' +
-        'cursor:pointer;font-weight:600;';
-
-      toolbar.appendChild(botao);
-
-      return botao;
-    }
-
-    var btnPNG = criarBotao(
-      '&#128247; Guardar tabela completa em PNG'
-    );
-
-    var btnFullscreen = criarBotao(
-      '&#9974; Ecrã inteiro'
-    );
-
-    wrapper.insertBefore(toolbar, wrapper.firstChild);
-
-    // --------------------------------------------------------
-    // AJUSTAR COLUNAS
-    // --------------------------------------------------------
-
-    function ajustarTabela() {
-
-      if (window.jQuery && $.fn.dataTable) {
-
-        var api = $(table).DataTable();
-
-        setTimeout(function() {
-          api.columns.adjust().draw(false);
-        }, 250);
-      }
-    }
-
-    // --------------------------------------------------------
-    // CAPTURA PNG DA TABELA COMPLETA
-    // --------------------------------------------------------
-
-    btnPNG.addEventListener('click', function() {
-
-      if (typeof window.html2canvas !== 'function') {
-
-        var script = document.createElement('script');
-
-        script.src =
-          'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-
-        script.onload = function() {
-          btnPNG.click();
-        };
-
-        script.onerror = function() {
-          alert(
-            'Não foi possível carregar a ferramenta de captura PNG. ' +
-            'Verifique a ligação à Internet e tente novamente.'
-          );
-        };
-
-        document.head.appendChild(script);
-
-        btnPNG.disabled = true;
-
-        script.onload = function() {
-          btnPNG.disabled = false;
-          btnPNG.click();
-        };
-
+      if (container.querySelector('.toc-custom-toolbar')) {
         return;
       }
 
-      if (!window.jQuery || !$.fn.dataTable) {
-        alert('A tabela ainda não está pronta. Tente novamente.');
-        return;
-      }
+      var toolbar = document.createElement('div');
+      toolbar.className = 'toc-custom-toolbar';
+      toolbar.style.cssText =
+        'display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px 0;';
 
-      var api = $(table).DataTable();
+      // BOTÃO PNG
+      var pngButton = document.createElement('button');
+      pngButton.type = 'button';
+      pngButton.innerHTML = '📷 Save full table as PNG';
+      pngButton.style.cssText =
+        'background:#9442d4;color:white;border:0;padding:9px 14px;' +
+        'border-radius:5px;cursor:pointer;font-weight:bold;';
 
-      var scrollBody = wrapper.querySelector('.dataTables_scrollBody');
-      var scrollHead = wrapper.querySelector('.dataTables_scrollHead');
-      var scroll = wrapper.querySelector('.dataTables_scroll');
+      // BOTÃO ECRÃ INTEIRO
+      var fullButton = document.createElement('button');
+      fullButton.type = 'button';
+      fullButton.innerHTML = '⛶ Full screen';
+      fullButton.style.cssText =
+        'background:#F37238;color:white;border:0;padding:9px 14px;' +
+        'border-radius:5px;cursor:pointer;font-weight:bold;';
 
-      var estado = {
-        pageLength: api.page.len(),
-        scrollBodyHeight: scrollBody ? scrollBody.style.height : '',
-        scrollBodyMaxHeight: scrollBody ? scrollBody.style.maxHeight : '',
-        scrollBodyOverflow: scrollBody ? scrollBody.style.overflow : '',
-        scrollOverflow: scroll ? scroll.style.overflow : '',
-        wrapperWidth: wrapper.style.width
-      };
+      toolbar.appendChild(pngButton);
+      toolbar.appendChild(fullButton);
+      container.insertBefore(toolbar, el);
 
-      btnPNG.disabled = true;
-      btnPNG.textContent = 'A preparar imagem...';
+      // ECRÃ INTEIRO
+      fullButton.addEventListener('click', function() {
+        var target = container;
 
-      function restaurar() {
+        if (!document.fullscreenElement) {
+          if (target.requestFullscreen) {
+            target.requestFullscreen();
+          }
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
 
-        if (scrollBody) {
-          scrollBody.style.height = estado.scrollBodyHeight;
-          scrollBody.style.maxHeight = estado.scrollBodyMaxHeight;
-          scrollBody.style.overflow = estado.scrollBodyOverflow;
+      // EXPORTAR TABELA COMPLETA COMO PNG
+      pngButton.addEventListener('click', function() {
+
+        if (typeof html2canvas === 'undefined') {
+          alert('A biblioteca html2canvas não está carregada.');
+          return;
         }
 
-        if (scroll) {
-          scroll.style.overflow = estado.scrollOverflow;
+        var table = window.jQuery
+          ? window.jQuery(el).DataTable()
+          : null;
+
+        if (!table) {
+          alert('Não foi possível localizar a tabela.');
+          return;
         }
 
-        wrapper.style.width = estado.wrapperWidth;
+        var oldPageLength = table.page.len();
+        var oldPage = table.page();
 
-        api.page.len(estado.pageLength).draw(false);
-
-        ajustarTabela();
-
-        btnPNG.disabled = false;
-        btnPNG.innerHTML =
-          '&#128247; Guardar tabela completa em PNG';
-      }
-
-      // Mostrar todos os indicadores antes de capturar
-      api.page.len(-1).draw(false);
-
-      setTimeout(function() {
-
-        if (scrollBody) {
-          scrollBody.style.height = 'auto';
-          scrollBody.style.maxHeight = 'none';
-          scrollBody.style.overflow = 'visible';
-        }
-
-        if (scroll) {
-          scroll.style.overflow = 'visible';
-        }
-
-        wrapper.style.width = 'max-content';
-
-        ajustarTabela();
+        table.page.len(-1).draw();
 
         setTimeout(function() {
 
-          html2canvas(wrapper, {
+          html2canvas(container, {
             scale: 2,
-            backgroundColor: '#ffffff',
             useCORS: true,
-            logging: false,
-            width: wrapper.scrollWidth,
-            height: wrapper.scrollHeight,
-            windowWidth: Math.max(
-              document.documentElement.clientWidth,
-              wrapper.scrollWidth
-            ),
-            windowHeight: Math.max(
-              document.documentElement.clientHeight,
-              wrapper.scrollHeight
-            )
+            backgroundColor: '#ffffff',
+            logging: false
           }).then(function(canvas) {
 
             var link = document.createElement('a');
-
-            link.download =
-              'Matriz_TOC_PAM_Verde_Ciclo3.png';
-
+            link.download = 'Matriz_TOC_PAM_Verde_Nampula_C3.png';
             link.href = canvas.toDataURL('image/png');
-
-            document.body.appendChild(link);
             link.click();
-            link.remove();
 
-          }).catch(function(erro) {
+          }).catch(function(error) {
 
-            console.error('Erro ao gerar PNG:', erro);
-
-            alert(
-              'Não foi possível gerar a imagem completa. ' +
-              'Utilize a exportação Excel ou a opção Imprimir.'
-            );
+            console.error(error);
+            alert('Não foi possível gerar a imagem PNG.');
 
           }).finally(function() {
 
-            restaurar();
+            table.page.len(oldPageLength).draw();
+
+            setTimeout(function() {
+              table.page(oldPage).draw('page');
+            }, 100);
 
           });
 
-        }, 500);
-
-      }, 350);
-
-    });
-
-    // --------------------------------------------------------
-    // ECRÃ INTEIRO
-    // --------------------------------------------------------
-
-    btnFullscreen.addEventListener('click', function() {
-
-      if (document.fullscreenElement === wrapper) {
-
-        document.exitFullscreen().catch(function(erro) {
-          console.error('Erro ao sair do ecrã inteiro:', erro);
-        });
-
-        return;
-      }
-
-      if (!wrapper.requestFullscreen) {
-
-        alert(
-          'O navegador não suporta o modo de ecrã inteiro.'
-        );
-
-        return;
-      }
-
-      wrapper.requestFullscreen().catch(function(erro) {
-
-        console.error('Erro no ecrã inteiro:', erro);
-
-        alert(
-          'Não foi possível abrir o ecrã inteiro. ' +
-          'Verifique as permissões do navegador.'
-        );
-
+        }, 700);
       });
-    });
-
-    document.addEventListener('fullscreenchange', function() {
-
-      var ativo = document.fullscreenElement === wrapper;
-
-      btnFullscreen.innerHTML = ativo
-        ? '&#10006; Sair do ecrã inteiro'
-        : '&#9974; Ecrã inteiro';
-
-      if (ativo) {
-
-        wrapper.style.background = '#ffffff';
-        wrapper.style.padding = '15px';
-        wrapper.style.width = '100%';
-        wrapper.style.height = '100vh';
-        wrapper.style.overflow = 'auto';
-        wrapper.style.boxSizing = 'border-box';
-
-      } else {
-
-        wrapper.style.removeProperty('background');
-        wrapper.style.removeProperty('padding');
-        wrapper.style.removeProperty('width');
-        wrapper.style.removeProperty('height');
-        wrapper.style.removeProperty('overflow');
-        wrapper.style.removeProperty('box-sizing');
-      }
-
-      ajustarTabela();
-
-    });
-
-  }
-
+    }
   ")
-      
     )
     
-    
-    # ============================================================
-    # 38. APRESENTAR A MATRIZ TOC
-    # ============================================================
-    
-    tabela_widget
-    
-    
-  })
+  }, server = TRUE)
   
   
   
   # ============================================================
   # PAM VERDE — BEIRA CICLO 1
-  # MATRIZ TOC COMPLETA — 16 INDICADORES
+  # MATRIZ TOC COMPLETA — 17 INDICADORES
   #
-  # FORMAÇÃO: PERFIL_PAM_VERDE_BEIRA_C1
+  # FORMAÇÃO: PAM_VERDE_PERFIL_BEIRA_C1
   # GESTÃO / GÉNERO: PAM_VERDE_TOC_BEIRA_C1
   # FINANCEIRO: FINANCEIRO_TOC_BEIRA_C1
   #
@@ -27953,46 +25945,30 @@ server <- function(input, output, session) {
     # ==========================================================
     
     if (!exists("PAM_VERDE_PERFIL_BEIRA_C1")) {
-      return(
-        DT::datatable(
-          data.frame(
-            Mensagem = paste(
-              "Não foi encontrada a fonte",
-              "PAM_VERDE_PERFIL_BEIRA_C1."
-            )
-          ),
-          rownames = FALSE
-        )
-      )
+      return(DT::datatable(
+        data.frame(Mensagem =
+                     "Não foi encontrada a fonte PAM_VERDE_PERFIL_BEIRA_C1."),
+        rownames = FALSE
+      ))
     }
     
     if (!exists("PAM_VERDE_TOC_BEIRA_C1")) {
-      return(
-        DT::datatable(
-          data.frame(
-            Mensagem = "Não foi encontrada PAM_VERDE_TOC_BEIRA_C1."
-          ),
-          rownames = FALSE
-        )
-      )
+      return(DT::datatable(
+        data.frame(Mensagem =
+                     "Não foi encontrada PAM_VERDE_TOC_BEIRA_C1."),
+        rownames = FALSE
+      ))
     }
     
     perfil_beira <- PAM_VERDE_PERFIL_BEIRA_C1
     toc_beira <- PAM_VERDE_TOC_BEIRA_C1
     
-    # Fonte financeira
     if (exists("FINANCEIRO_TOC_BEIRA_C1")) {
-      
       financeiro_beira <- FINANCEIRO_TOC_BEIRA_C1
-      
     } else if (exists("Financeiro_Beira")) {
-      
       financeiro_beira <- Financeiro_Beira
-      
     } else {
-      
       financeiro_beira <- data.frame()
-      
     }
     
     # ==========================================================
@@ -28004,10 +25980,7 @@ server <- function(input, output, session) {
     }
     
     calcular_percentagem <- function(
-    dados,
-    coluna,
-    resposta,
-    tipo
+    dados, coluna, resposta, tipo
     ) {
       
       if (
@@ -28017,56 +25990,37 @@ server <- function(input, output, session) {
         return(NA_real_)
       }
       
-      avaliacao <- normalizar_texto(dados$Tipo_Avaliacao)
+      avaliacao <- tolower(normalizar_texto(
+        dados$Tipo_Avaliacao
+      ))
+      
       valores <- normalizar_texto(dados[[coluna]])
       
       validos <- !is.na(valores) &
         valores != "" &
         !is.na(avaliacao) &
-        avaliacao == tipo
+        avaliacao == tolower(tipo)
       
-      if (!any(validos)) {
-        return(NA_real_)
-      }
+      if (!any(validos)) return(NA_real_)
       
-      respostas_validas <- valores[validos]
-      
-      100 * sum(respostas_validas %in% resposta) /
-        length(respostas_validas)
+      100 * sum(valores[validos] %in% resposta) /
+        sum(validos)
     }
     
     calcular_estado_formacao <- function(
-    dados,
-    estados_incluidos,
-    estados_excluidos = character(0)
+    dados, estados_incluidos
     ) {
       
-      if (!"Status" %in% names(dados)) {
-        return(NA_real_)
-      }
+      if (!"Status" %in% names(dados)) return(NA_real_)
       
-      status <- toupper(
-        normalizar_texto(dados$Status)
-      )
-      
+      status <- toupper(normalizar_texto(dados$Status))
       validos <- !is.na(status) & status != ""
       
-      if (!any(validos)) {
-        return(NA_real_)
-      }
+      if (!any(validos)) return(NA_real_)
       
-      total <- sum(validos)
-      
-      numerador <- sum(
-        status %in% toupper(estados_incluidos) &
-          validos
-      )
-      
-      if (total == 0) {
-        return(NA_real_)
-      }
-      
-      100 * numerador / total
+      100 * sum(
+        status %in% toupper(estados_incluidos) & validos
+      ) / sum(validos)
     }
     
     formatar_numero <- function(x, casas = 1) {
@@ -28089,32 +26043,22 @@ server <- function(input, output, session) {
     }
     
     # ==========================================================
-    # 3. INDICADOR 1 — PARTICIPANTES QUE INICIARAM
-    #
-    # Fonte: perfil
-    # Activa / Ativa / Desistente contam como início.
-    # Denominador: participantes com Status preenchido.
+    # 3. INDICADOR 1 — INÍCIO DA FORMAÇÃO
     # ==========================================================
     
     inicio_formacao_EL <- calcular_estado_formacao(
-      dados = perfil_beira,
-      estados_incluidos = c(
-        "Activa",
-        "Activas",
-        "Ativa",
-        "Ativas",
-        "Desistente",
-        "Desistentes"
+      perfil_beira,
+      c(
+        "Activa", "Activas", "Ativa", "Ativas",
+        "Desistente", "Desistentes"
       )
     )
     
     # ==========================================================
-    # 4. INDICADOR 2 — PARTICIPANTES QUE COMPLETARAM
-    #
-    # Fonte: perfil
-    # Status = "Concluiu a formação".
-    # Denominador: participantes com Status preenchido.
+    # 4. INDICADOR 2 — CONCLUSÃO DA FORMAÇÃO
     # ==========================================================
+    
+    conclusao_formacao_EL <- NA_real_
     
     if ("Status" %in% names(perfil_beira)) {
       
@@ -28122,112 +26066,77 @@ server <- function(input, output, session) {
         normalizar_texto(perfil_beira$Status)
       )
       
-      status_validos <- !is.na(status_perfil) &
+      validos <- !is.na(status_perfil) &
         status_perfil != ""
       
-      if (sum(status_validos) > 0) {
-        
+      if (any(validos)) {
         conclusao_formacao_EL <- 100 * sum(
-          status_perfil == "CONCLUIU A FORMAÇÃO" &
-            status_validos
-        ) / sum(status_validos)
-        
-      } else {
-        
-        conclusao_formacao_EL <- NA_real_
-        
+          status_perfil == "CONCLUIU A FORMAÇÃO" & validos
+        ) / sum(validos)
       }
-      
-    } else {
-      
-      conclusao_formacao_EL <- NA_real_
-      
     }
     
     # ==========================================================
-    # 5. INDICADOR 3 — FORMALIZAÇÃO DO NEGÓCIO
+    # 5. INDICADOR 3 — FORMALIZAÇÃO
     # ID: iPAM_INT1.1
     # ==========================================================
     
-    coluna_formalizacao <- "Negocio_Formalizado"
-    
     formalizacao_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_formalizacao,
-      "Iniciei o processo de formalização",
-      "Baseline"
+      toc_beira, "Negocio_Formalizado",
+      "Iniciei o processo de formalização", "Baseline"
     )
     
     formalizacao_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_formalizacao,
-      "Iniciei o processo de formalização",
-      "Endline"
+      toc_beira, "Negocio_Formalizado",
+      "Iniciei o processo de formalização", "Endline"
     )
     
     # ==========================================================
-    # 6. INDICADOR 4 — SALÁRIO MENSAL PARA SI MESMA
+    # 6. INDICADOR 4 — SALÁRIO MENSAL
     # ID: iPAM_RI.2.4
     # ==========================================================
     
-    coluna_salario <- "Tira_Salario_Para_Si"
-    
     salario_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_salario,
-      "Sim, retiro um valor fixo todos os meses",
-      "Baseline"
+      toc_beira, "Tira_Salario_Para_Si",
+      "Sim, retiro um valor fixo todos os meses", "Baseline"
     )
     
     salario_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_salario,
-      "Sim, retiro um valor fixo todos os meses",
-      "Endline"
+      toc_beira, "Tira_Salario_Para_Si",
+      "Sim, retiro um valor fixo todos os meses", "Endline"
     )
     
     # ==========================================================
     # 7. INDICADOR 5 — TOMADA DE DECISÕES
+    # ID: OS1.1
     # ==========================================================
     
-    coluna_decisoes <- "Quem_Toma_Decisoes_Negocio"
-    
     decisoes_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_decisoes,
-      "Só eu",
-      "Baseline"
+      toc_beira, "Quem_Toma_Decisoes_Negocio",
+      "Só eu", "Baseline"
     )
     
     decisoes_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_decisoes,
-      "Só eu",
-      "Endline"
+      toc_beira, "Quem_Toma_Decisoes_Negocio",
+      "Só eu", "Endline"
     )
     
     # ==========================================================
-    # 8. INDICADOR 6 — CONFIANÇA NA NEGOCIAÇÃO COM CLIENTES
+    # 8. INDICADOR 6 — NEGOCIAÇÃO COM CLIENTES
     # ID: iPAM_RI.2.6
     # ==========================================================
-    
-    coluna_negociacao_clientes <- "Negociacao_Com_Clientes"
     
     resposta_negociacao_clientes <-
       "Sim, sinto-me confiante e sei defender a minha posição"
     
     negociacao_clientes_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_negociacao_clientes,
-      resposta_negociacao_clientes,
-      "Baseline"
+      toc_beira, "Negociacao_Com_Clientes",
+      resposta_negociacao_clientes, "Baseline"
     )
     
     negociacao_clientes_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_negociacao_clientes,
-      resposta_negociacao_clientes,
-      "Endline"
+      toc_beira, "Negociacao_Com_Clientes",
+      resposta_negociacao_clientes, "Endline"
     )
     
     # ==========================================================
@@ -28242,24 +26151,19 @@ server <- function(input, output, session) {
       "Sim, negociei e consegui um acordo favorável para o meu negócio"
     
     negociacao_3meses_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_negociacao_3meses,
-      resposta_negociacao_3meses,
-      "Baseline"
+      toc_beira, coluna_negociacao_3meses,
+      resposta_negociacao_3meses, "Baseline"
     )
     
     negociacao_3meses_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_negociacao_3meses,
-      resposta_negociacao_3meses,
-      "Endline"
+      toc_beira, coluna_negociacao_3meses,
+      resposta_negociacao_3meses, "Endline"
     )
     
     # ==========================================================
     # 10. INDICADOR 8 — UTILIZAÇÃO DE FERRAMENTAS DE IA
+    # ID: iPAM_RI.3.1
     # ==========================================================
-    
-    coluna_ia <- "Uso_de_ferramentas_de_IA"
     
     respostas_ia <- c(
       "Sim, usei pelo menos uma vez",
@@ -28267,85 +26171,66 @@ server <- function(input, output, session) {
     )
     
     uso_ia_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_ia,
-      respostas_ia,
-      "Baseline"
+      toc_beira, "Uso_de_ferramentas_de_IA",
+      respostas_ia, "Baseline"
     )
     
     uso_ia_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_ia,
-      respostas_ia,
-      "Endline"
+      toc_beira, "Uso_de_ferramentas_de_IA",
+      respostas_ia, "Endline"
     )
     
     # ==========================================================
     # 11. INDICADOR 9 — SEPARAÇÃO DAS CONTAS
+    # ID: iPAM_RI.2.2.b
     # ==========================================================
     
     coluna_contas <-
       "Faz separação das contas pessoais e do negócio"
     
     contas_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_contas,
-      "Sim",
-      "Baseline"
+      toc_beira, coluna_contas, "Sim", "Baseline"
     )
     
     contas_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_contas,
-      "Sim",
-      "Endline"
+      toc_beira, coluna_contas, "Sim", "Endline"
     )
     
     # ==========================================================
-    # 12. INDICADOR 10 — SABE CALCULAR O LUCRO
+    # 12. INDICADOR 10 — CÁLCULO DO LUCRO
+    # ID: iPAM_RI.4.1
     # ==========================================================
     
     coluna_calculo_lucro <-
       "Sabe calcular o lucro do negócio  (com base no exercício prático)"
     
     calculo_lucro_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_calculo_lucro,
-      "Sim",
-      "Baseline"
+      toc_beira, coluna_calculo_lucro, "Sim", "Baseline"
     )
     
     calculo_lucro_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_calculo_lucro,
-      "Sim",
-      "Endline"
+      toc_beira, coluna_calculo_lucro, "Sim", "Endline"
     )
     
     # ==========================================================
     # 13. INDICADOR 11 — CONTROLO DO DINHEIRO
+    # ID: iPAM_RI.2.2.a
     # ==========================================================
     
     coluna_controlo <-
       "Faz controlo do dinheiro que entra e que sai (receitas e despesas)"
     
     controlo_BL <- calcular_percentagem(
-      toc_beira,
-      coluna_controlo,
-      "Sim",
-      "Baseline"
+      toc_beira, coluna_controlo, "Sim", "Baseline"
     )
     
     controlo_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_controlo,
-      "Sim",
-      "Endline"
+      toc_beira, coluna_controlo, "Sim", "Endline"
     )
     
     # ==========================================================
     # 14. INDICADOR 12 — ACTIVIDADES DE GÉNERO
-    # Apenas Endline
+    # ID: iPAM_RI.4.2
     # ==========================================================
     
     coluna_genero <- paste0(
@@ -28354,14 +26239,144 @@ server <- function(input, output, session) {
     )
     
     genero_EL <- calcular_percentagem(
-      toc_beira,
-      coluna_genero,
+      toc_beira, coluna_genero,
       "Ajudaram bastante / mudaram a minha compreensão",
       "Endline"
     )
     
     # ==========================================================
-    # 15. INDICADORES FINANCEIROS
+    # 15. INDICADOR 13 — NOVOS SERVIÇOS FINANCEIROS
+    # ID: iPAM_RI.7.3
+    # Meta: 40%
+    #
+    # Compara Baseline e Endline por participante.
+    # Considera sucesso quando existe pelo menos um serviço
+    # no Endline que não constava no Baseline.
+    # Não considera registos vazios como "Não".
+    # ==========================================================
+    
+    servicos_financeiros_percentual_EL <- NA_real_
+    
+    coluna_servicos <- intersect(
+      c(
+        "Uso_Servicos_Financeiros",
+        "Uso_de_Servicos_Financeiros",
+        "Servicos_Financeiros",
+        "Serviços_Financeiros",
+        "Servicos_financeiros"
+      ),
+      names(toc_beira)
+    )
+    
+    coluna_id <- intersect(
+      c(
+        "ID_Participante",
+        "ID_MUVA",
+        "ID",
+        "Codigo_Participante",
+        "Nome_Empreendedora"
+      ),
+      names(toc_beira)
+    )
+    
+    if (
+      length(coluna_servicos) > 0 &&
+      length(coluna_id) > 0 &&
+      "Tipo_Avaliacao" %in% names(toc_beira)
+    ) {
+      
+      coluna_servicos <- coluna_servicos[1]
+      coluna_id <- coluna_id[1]
+      
+      servicos_base <- toc_beira |>
+        dplyr::transmute(
+          ID = trimws(as.character(.data[[coluna_id]])),
+          Tipo = tolower(trimws(as.character(Tipo_Avaliacao))),
+          Resposta = trimws(as.character(.data[[coluna_servicos]]))
+        ) |>
+        dplyr::filter(
+          !is.na(ID), ID != "",
+          Tipo %in% c("baseline", "endline"),
+          !is.na(Resposta), Resposta != ""
+        ) |>
+        dplyr::group_by(ID, Tipo) |>
+        dplyr::summarise(
+          Resposta = paste(unique(Resposta), collapse = ";"),
+          .groups = "drop"
+        )
+      
+      # Separar serviços por ponto e vírgula, quebra de linha,
+      # barra vertical ou vírgula fora de parênteses.
+      separar_servicos <- function(x) {
+        
+        if (
+          length(x) == 0 ||
+          is.na(x) ||
+          trimws(x) == ""
+        ) {
+          return(character(0))
+        }
+        
+        itens <- unlist(strsplit(
+          x,
+          ";|\\n|\\r|\\||,(?![^()]*\\))\\s*",
+          perl = TRUE
+        ))
+        
+        itens <- tolower(trimws(itens))
+        itens <- itens[!is.na(itens) & itens != ""]
+        
+        unique(itens)
+      }
+      
+      base_servicos <- servicos_base |>
+        dplyr::filter(Tipo == "baseline") |>
+        dplyr::select(ID, Resposta_BL = Resposta)
+      
+      endline_servicos <- servicos_base |>
+        dplyr::filter(Tipo == "endline") |>
+        dplyr::select(ID, Resposta_EL = Resposta)
+      
+      comparacao_servicos <- dplyr::inner_join(
+        base_servicos,
+        endline_servicos,
+        by = "ID"
+      )
+      
+      if (nrow(comparacao_servicos) > 0) {
+        
+        comparacao_servicos <- comparacao_servicos |>
+          dplyr::mutate(
+            Servicos_BL = lapply(
+              Resposta_BL, separar_servicos
+            ),
+            Servicos_EL = lapply(
+              Resposta_EL, separar_servicos
+            )
+          ) |>
+          dplyr::filter(
+            lengths(Servicos_BL) > 0,
+            lengths(Servicos_EL) > 0
+          )
+        
+        if (nrow(comparacao_servicos) > 0) {
+          
+          novos_servicos <- mapply(
+            function(bl, el) {
+              any(!el %in% bl)
+            },
+            comparacao_servicos$Servicos_BL,
+            comparacao_servicos$Servicos_EL
+          )
+          
+          servicos_financeiros_percentual_EL <-
+            mean(novos_servicos) * 100
+        }
+      }
+    }
+    
+    # ==========================================================
+    # 16. INDICADORES FINANCEIROS
     # ==========================================================
     
     lucro_aumentou_EL <- NA_real_
@@ -28401,18 +26416,13 @@ server <- function(input, output, session) {
           !is.na(Lucro_Semanal)
         )
       
-      # Somar os registos semanais por empreendedora e mês
       lucro_periodo <- financeiro_tratado |>
-        dplyr::group_by(
-          Nome_Empreendedora,
-          Periodo
-        ) |>
+        dplyr::group_by(Nome_Empreendedora, Periodo) |>
         dplyr::summarise(
           Lucro = sum(Lucro_Semanal, na.rm = TRUE),
           .groups = "drop"
         )
       
-      # Comparar Primeiro Mês e Terceiro Mês
       lucro_comparacao <- lucro_periodo |>
         tidyr::pivot_wider(
           names_from = Periodo,
@@ -28420,14 +26430,10 @@ server <- function(input, output, session) {
         )
       
       if (
-        all(
-          c("Primeiro Mês", "Terceiro Mês") %in%
-          names(lucro_comparacao)
-        )
+        all(c("Primeiro Mês", "Terceiro Mês") %in%
+            names(lucro_comparacao))
       ) {
         
-        # Exigir dados nos dois meses.
-        # Não transformar ausência de registo em zero.
         lucro_comparacao <- lucro_comparacao |>
           dplyr::filter(
             !is.na(`Primeiro Mês`),
@@ -28436,7 +26442,6 @@ server <- function(input, output, session) {
           dplyr::mutate(
             Aumento_Lucro =
               `Terceiro Mês` - `Primeiro Mês`,
-            
             Percentual_Aumento = dplyr::if_else(
               `Primeiro Mês` > 0,
               Aumento_Lucro / `Primeiro Mês` * 100,
@@ -28444,7 +26449,6 @@ server <- function(input, output, session) {
             )
           )
         
-        # 13. Aumentou os lucros durante os três meses
         base_percentual <- lucro_comparacao |>
           dplyr::filter(!is.na(Percentual_Aumento))
         
@@ -28454,30 +26458,23 @@ server <- function(input, output, session) {
             base_percentual$Percentual_Aumento > 0
           ) * 100
           
-          # 14. Aumentou o lucro em 25% ou mais
           lucro_mais_25_EL <- mean(
             base_percentual$Percentual_Aumento >= 25
           ) * 100
-          
         }
         
-        # 15. Valor médio de aumento do lucro
         aumentos <- lucro_comparacao$Aumento_Lucro
         aumentos <- aumentos[!is.na(aumentos)]
         
         if (length(aumentos) > 0) {
-          
           aumento_medio_lucro_EL <- mean(aumentos)
-          
-          # 16. Saldo líquido do valor adicionado
           saldo_liquido_lucro_EL <- sum(aumentos)
-          
         }
       }
     }
     
     # ==========================================================
-    # 16. CONSTRUIR A MATRIZ COMPLETA DOS 16 INDICADORES
+    # 17. CONSTRUIR A MATRIZ TOC — 17 INDICADORES
     # ==========================================================
     
     indicadores_toc <- data.frame(
@@ -28491,10 +26488,11 @@ server <- function(input, output, session) {
         "iPAM_RI.2.6",
         "iPAM_RI.5.1",
         "iPAM_RI.3.1",
-        "iPAM_RI.2.2",
+        "iPAM_RI.2.2.b",
         "iPAM_RI.4.1",
-        "iPAM_RI.2.2",
+        "iPAM_RI.2.2.a",
         "iPAM_RI.4.2",
+        "iPAM_RI.7.3",
         "iPAM_RI.1.1",
         "iPAM_RI.1.2",
         "iPAM_RI.2.1",
@@ -28514,6 +26512,7 @@ server <- function(input, output, session) {
         "Sabe calcular o lucro do negócio",
         "Controla o dinheiro que entra e sai",
         "Actividades de género contribuíram para compreender desigualdades",
+        "Empreendedoras que passaram a utilizar pelo menos um novo serviço financeiro",
         "Aumentou os lucros durante os 3 meses",
         "Aumentou o lucro em 25% ou mais",
         "Valor médio de aumento do lucro",
@@ -28536,6 +26535,7 @@ server <- function(input, output, session) {
         NA_real_,
         NA_real_,
         NA_real_,
+        NA_real_,
         NA_real_
       ),
       
@@ -28552,6 +26552,7 @@ server <- function(input, output, session) {
         calculo_lucro_EL,
         controlo_EL,
         genero_EL,
+        servicos_financeiros_percentual_EL,
         lucro_aumentou_EL,
         lucro_mais_25_EL,
         aumento_medio_lucro_EL,
@@ -28571,6 +26572,7 @@ server <- function(input, output, session) {
         85,
         80,
         100,
+        40,
         80,
         50,
         2500,
@@ -28580,24 +26582,35 @@ server <- function(input, output, session) {
       stringsAsFactors = FALSE
     )
     
+    # Validar os 17 indicadores
+    stopifnot(
+      length(indicadores_toc$ID_Indicador) == 17,
+      length(indicadores_toc$Indicador) == 17,
+      length(indicadores_toc$Baseline) == 17,
+      length(indicadores_toc$Endline) == 17,
+      length(indicadores_toc$Meta_2026) == 17
+    )
+    
     # ==========================================================
-    # 17. DEFINIR UNIDADE DOS INDICADORES
+    # 18. DEFINIR UNIDADE DOS INDICADORES
+    # Indicadores 15, 16 e 17? Não:
+    # Os indicadores financeiros começam na posição 14.
+    # 14 e 15 são percentagens; 16 e 17 são valores em MT.
     # ==========================================================
     
     indicadores_toc$Unidade <- ifelse(
-      seq_len(nrow(indicadores_toc)) %in% c(15, 16),
-      "MZN",
+      seq_len(nrow(indicadores_toc)) %in% c(16, 17),
+      "MT",
       "%"
     )
     
     # ==========================================================
-    # 18. VARIAÇÃO, ALCANCE E ESTADO
+    # 19. VARIAÇÃO, ALCANCE E ESTADO
     # ==========================================================
     
     indicadores_toc <- indicadores_toc |>
       dplyr::mutate(
         
-        # Variação apenas para indicadores percentuais
         Variação = dplyr::if_else(
           Unidade == "%" &
             !is.na(Baseline) &
@@ -28606,7 +26619,6 @@ server <- function(input, output, session) {
           NA_real_
         ),
         
-        # Alcance da meta em percentagem
         Alcance_Numerico = dplyr::if_else(
           !is.na(Endline) &
             !is.na(Meta_2026) &
@@ -28615,7 +26627,6 @@ server <- function(input, output, session) {
           NA_real_
         ),
         
-        # Classificação do indicador
         Estado = dplyr::case_when(
           is.na(Endline) ~ "Sem dados",
           is.na(Meta_2026) ~ "Sem meta",
@@ -28625,7 +26636,7 @@ server <- function(input, output, session) {
       )
     
     # ==========================================================
-    # 19. FORMATAR VALORES PARA A TABELA
+    # 20. FORMATAR VALORES
     # ==========================================================
     
     formatar_indicador <- function(valor, unidade) {
@@ -28639,15 +26650,10 @@ server <- function(input, output, session) {
       }
       
       if (unidade == "%") {
-        return(
-          paste0(formatar_numero(valor, 1), "%")
-        )
+        return(paste0(formatar_numero(valor, 1), "%"))
       }
       
-      paste0(
-        formatar_numero(valor, 2),
-        " MT"
-      )
+      paste0(formatar_numero(valor, 2), " MT")
     }
     
     indicadores_toc$Baseline_Exibicao <- mapply(
@@ -28674,9 +26680,7 @@ server <- function(input, output, session) {
         
         valor <- indicadores_toc$Variação[i]
         
-        if (is.na(valor)) {
-          return("—")
-        }
+        if (is.na(valor)) return("—")
         
         paste0(
           ifelse(valor > 0, "+", ""),
@@ -28691,43 +26695,34 @@ server <- function(input, output, session) {
       indicadores_toc$Alcance_Numerico,
       function(x) {
         
-        if (is.na(x) || !is.finite(x)) {
-          return("—")
-        }
+        if (is.na(x) || !is.finite(x)) return("—")
         
         paste0(formatar_numero(x, 1), "%")
-        
       },
       character(1)
     )
     
     # ==========================================================
-    # 20. TABELA FINAL
+    # 21. TABELA FINAL
     # ==========================================================
     
     tabela_final <- data.frame(
       
       ID_Indicador = indicadores_toc$ID_Indicador,
-      
       Indicador = indicadores_toc$Indicador,
-      
       Baseline = indicadores_toc$Baseline_Exibicao,
-      
       Endline = indicadores_toc$Endline_Exibicao,
-      
       Variação = indicadores_toc$Variacao_Exibicao,
-      
       `Meta 2026` = indicadores_toc$Meta_Exibicao,
-      
       `Alcance da Meta` = indicadores_toc$Alcance_Exibicao,
-      
       Estado = indicadores_toc$Estado,
       
       check.names = FALSE
     )
     
+    
     # ==========================================================
-    # 21. DATATABLE INTERACTIVA — MATRIZ TOC BEIRA C1
+    # 22. DATATABLE INTERACTIVA — BEIRA CICLO 1
     # ==========================================================
     
     DT::datatable(
@@ -28740,11 +26735,11 @@ server <- function(input, output, session) {
       
       options = list(
         
-        pageLength = 16,
+        pageLength = 17,
         
         lengthMenu = list(
-          c(15, 16, 25, 50, 100, -1),
-          c("15", "16", "25", "50", "100", "Todos")
+          c(15, 16, 17, 25, 50, 100, -1),
+          c("15", "16", "17", "25", "50", "100", "Todos")
         ),
         
         scrollX = TRUE,
@@ -28763,28 +26758,24 @@ server <- function(input, output, session) {
         
         columnDefs = list(
           
-          # ID do indicador
           list(
             targets = 0,
             width = "130px",
             className = "dt-center"
           ),
           
-          # Indicador: permitir quebra de texto (wrap)
           list(
             targets = 1,
             width = "420px",
             className = "dt-left"
           ),
           
-          # Valores numéricos
           list(
             targets = c(2, 3, 4, 5, 6),
             width = "145px",
             className = "dt-center"
           ),
           
-          # Estado
           list(
             targets = 7,
             width = "160px",
@@ -28795,17 +26786,11 @@ server <- function(input, output, session) {
         language = list(
           
           search = "Pesquisar:",
-          
           lengthMenu = "Mostrar _MENU_ indicadores",
-          
           info = "A mostrar _START_ a _END_ de _TOTAL_ indicadores",
-          
           infoEmpty = "Sem indicadores disponíveis",
-          
           infoFiltered = "(filtrado de _MAX_ indicadores)",
-          
           zeroRecords = "Nenhum indicador encontrado",
-          
           emptyTable = "Sem dados disponíveis",
           
           paginate = list(
@@ -28824,17 +26809,16 @@ server <- function(input, output, session) {
       ),
       
       class = "display compact stripe hover",
-      
       escape = TRUE
+      
     ) |>
       
       # --------------------------------------------------------
-    # COR DE FUNDO DA CÉLULA ESTADO
+    # 23. CORES DO ESTADO
     # --------------------------------------------------------
     
     DT::formatStyle(
       "Estado",
-      
       target = "cell",
       
       backgroundColor = DT::styleEqual(
@@ -28844,7 +26828,6 @@ server <- function(input, output, session) {
           "Sem dados",
           "Sem meta"
         ),
-        
         c(
           "#d4edda",
           "#fff3cd",
@@ -28860,7 +26843,6 @@ server <- function(input, output, session) {
           "Sem dados",
           "Sem meta"
         ),
-        
         c(
           "#155724",
           "#856404",
@@ -28873,20 +26855,158 @@ server <- function(input, output, session) {
     ) |>
       
       # --------------------------------------------------------
-    # ESPAÇAMENTO E ALINHAMENTO
+    # 24. FORMATAÇÃO DAS CÉLULAS
     # --------------------------------------------------------
     
     DT::formatStyle(
       columns = names(tabela_final),
-      
-      padding = "8px",
-      
+      padding = "6px",
       `white-space` = "normal",
-      
       `vertical-align` = "middle"
+    ) |>
+      
+      # --------------------------------------------------------
+    # 25. BOTÕES PNG E ECRÃ INTEIRO
+    # --------------------------------------------------------
+    
+    htmlwidgets::onRender(
+      htmlwidgets::JS("
+          function(el, x) {
+
+            var container = el.parentElement;
+
+            if (!container ||
+                container.querySelector('.toc-custom-toolbar')) {
+              return;
+            }
+
+            var toolbar = document.createElement('div');
+            toolbar.className = 'toc-custom-toolbar';
+
+            toolbar.style.cssText =
+              'display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px 0;';
+
+            // BOTÃO PNG
+            var pngButton = document.createElement('button');
+            pngButton.type = 'button';
+            pngButton.innerHTML = '📷 Save full table as PNG';
+
+            pngButton.style.cssText =
+              'background:#9442d4;color:white;border:0;padding:9px 14px;' +
+              'border-radius:5px;cursor:pointer;font-weight:bold;';
+
+            // BOTÃO ECRÃ INTEIRO
+            var fullButton = document.createElement('button');
+            fullButton.type = 'button';
+            fullButton.innerHTML = '⛶ Full screen';
+
+            fullButton.style.cssText =
+              'background:#F37238;color:white;border:0;padding:9px 14px;' +
+              'border-radius:5px;cursor:pointer;font-weight:bold;';
+
+            toolbar.appendChild(pngButton);
+            toolbar.appendChild(fullButton);
+
+            container.insertBefore(toolbar, el);
+
+            // ECRÃ INTEIRO
+            fullButton.addEventListener('click', function() {
+
+              if (!document.fullscreenElement) {
+                if (container.requestFullscreen) {
+                  container.requestFullscreen();
+                }
+              } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+              }
+
+            });
+
+            // EXPORTAR PNG
+            pngButton.addEventListener('click', function() {
+
+              if (typeof html2canvas === 'undefined') {
+                alert('A biblioteca html2canvas não está carregada.');
+                return;
+              }
+
+              var $ = window.jQuery;
+
+              if (!$ || !$.fn.DataTable.isDataTable(el)) {
+                alert('Não foi possível localizar a tabela.');
+                return;
+              }
+
+              var dt = $(el).DataTable();
+              var oldLength = dt.page.len();
+              var oldPage = dt.page();
+
+              pngButton.disabled = true;
+              pngButton.innerHTML = 'A preparar imagem...';
+
+              dt.page.len(-1).draw();
+
+              setTimeout(function() {
+
+                var scrollBody =
+                  container.querySelector('.dataTables_scrollBody');
+
+                var oldHeight = scrollBody ? scrollBody.style.height : '';
+                var oldMaxHeight = scrollBody ? scrollBody.style.maxHeight : '';
+                var oldOverflow = scrollBody ? scrollBody.style.overflow : '';
+
+                if (scrollBody) {
+                  scrollBody.style.height = 'auto';
+                  scrollBody.style.maxHeight = 'none';
+                  scrollBody.style.overflow = 'visible';
+                }
+
+                html2canvas(container, {
+                  scale: 2,
+                  useCORS: true,
+                  backgroundColor: '#ffffff',
+                  logging: false
+                }).then(function(canvas) {
+
+                  var link = document.createElement('a');
+                  link.download = 'Matriz_TOC_PAM_Verde_Beira_Ciclo1.png';
+                  link.href = canvas.toDataURL('image/png');
+                  link.click();
+
+                }).catch(function(error) {
+
+                  console.error(error);
+                  alert('Não foi possível gerar a imagem PNG.');
+
+                }).finally(function() {
+
+                  if (scrollBody) {
+                    scrollBody.style.height = oldHeight;
+                    scrollBody.style.maxHeight = oldMaxHeight;
+                    scrollBody.style.overflow = oldOverflow;
+                  }
+
+                  dt.page.len(oldLength).draw();
+
+                  setTimeout(function() {
+                    dt.page(oldPage).draw('page');
+                    pngButton.disabled = false;
+                    pngButton.innerHTML = '📷 Save full table as PNG';
+                  }, 100);
+
+                });
+
+              }, 700);
+
+            });
+
+          }
+        ")
     )
     
   }, server = TRUE)
+  
+  
   
   ########### BOTAO
   

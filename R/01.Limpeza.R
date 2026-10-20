@@ -1080,6 +1080,44 @@ print(table(
   useNA = "ifany"
 ))
 
+# 
+# table(PAM_VERDE_TOC_BEIRA_C1$Uso_Servicos_Financeiros, PAM_VERDE_TOC_BEIRA_C1$ID_Participante)
+# 
+# 
+# head(
+#   PAM_VERDE_TOC_BEIRA_C1[
+#     ,
+#     c(
+#       "ID_Participante",
+#       "Tipo_Avaliacao",
+#       "Uso_Servicos_Financeiros"
+#     )
+#   ],
+#   15
+# )
+# 
+# 
+# library(dplyr)
+# 
+# # Ver as opções de serviços financeiros por avaliação
+# PAM_VERDE_TOC_BEIRA_C1 %>%
+#   filter(
+#     !is.na(Uso_Servicos_Financeiros),
+#     Uso_Servicos_Financeiros != ""
+#   ) %>%
+#   count(
+#     Tipo_Avaliacao,
+#     Uso_Servicos_Financeiros,
+#     sort = TRUE
+#   ) %>%
+#   print(n = Inf)
+# 
+# # Ver se existem várias linhas por participante e avaliação
+# PAM_VERDE_TOC_BEIRA_C1 %>%
+#   count(ID_Participante, Tipo_Avaliacao) %>%
+#   filter(n > 1)
+# 
+
 # ------------------------------------------------------------
 # 2. PERFIL DAS PARTICIPANTES — BEIRA
 # ------------------------------------------------------------
