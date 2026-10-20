@@ -351,16 +351,9 @@ ui <- navbarPage(
             fluidRow(uiOutput("kpi_boxes_financas")),
             
             fluidRow(
+              
               column(
-                6,
-                div(
-                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
-                  uiOutput("texto_formalizacao")
-                ),
-                plotlyOutput("grafico_formalizacao")
-              ),
-              column(
-                6,
+                12,
                 div(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
                   uiOutput("texto_servicos")
@@ -404,7 +397,14 @@ ui <- navbarPage(
                        DTOutput("tabela_local_venda")
                      )),
               tags$h4(""),
-              column(6, plotlyOutput("grafico_salario"))
+              column(
+                6,
+                div(
+                  style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+                  uiOutput("texto_formalizacao")
+                ),
+                plotlyOutput("grafico_formalizacao")
+              )
             )
           ),
           
