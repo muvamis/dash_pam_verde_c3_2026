@@ -615,11 +615,11 @@ Webinars_Base <- bind_rows(
       
       Nome_Sessao ==
         "Sessao20 – Webinar2 Práticas sustentáveis" ~
-        "Sessao_20",
+        "Sessao_21",
       
       Nome_Sessao ==
         "Sessao21 – Webinar3 Marketing Digital" ~
-        "Sessao_21",
+        "Sessao_20",
       
       TRUE ~ Nome_Sessao
     )
@@ -700,7 +700,7 @@ Feiras_Base <- bind_rows(
       
       Nome_Sessao ==
         "Sessao22 – Feira empresarial" ~
-        "Sessao_22",
+        "Sessao_21",
       
       TRUE ~ Nome_Sessao
     )

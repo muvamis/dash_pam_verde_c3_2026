@@ -25867,58 +25867,150 @@ server <- function(input, output, session) {
       });
 
       // EXPORTAR TABELA COMPLETA COMO PNG
-      pngButton.addEventListener('click', function() {
+      // EXPORTAR TABELA COMPLETA COMO PNG
+pngButton.addEventListener('click', async function() {
 
-        if (typeof html2canvas === 'undefined') {
-          alert('A biblioteca html2canvas não está carregada.');
-          return;
+  var $ = window.jQuery;
+
+  // 1. Verificar se a biblioteca está carregada
+  if (typeof window.html2canvas === 'undefined') {
+    alert(
+      'A biblioteca html2canvas não está carregada. ' +
+      'Verifica a ligação à Internet e o script no UI.'
+    );
+    return;
+  }
+
+  // 2. Localizar o elemento HTML da tabela
+  var tableElement = el.querySelector('table');
+
+  if (
+    !$ ||
+    !$.fn.DataTable ||
+    !tableElement ||
+    !$.fn.DataTable.isDataTable(tableElement)
+  ) {
+    console.error('Tabela DataTables não encontrada.', el);
+    alert('Não foi possível localizar a tabela DataTables.');
+    return;
+  }
+
+  var dt = $(tableElement).DataTable();
+
+  // 3. Guardar o estado original
+  var oldPageLength = dt.page.len();
+  var oldPage = dt.page();
+
+  var scrollBody = container.querySelector(
+    '.dataTables_scrollBody'
+  );
+
+  var oldScrollStyle = scrollBody
+    ? scrollBody.getAttribute('style')
+    : null;
+
+  var oldOverflow = container.style.overflow;
+
+  pngButton.disabled = true;
+  pngButton.innerHTML = 'A preparar imagem...';
+
+  try {
+
+    // 4. Mostrar todas as linhas
+    dt.page.len(-1).draw();
+
+    await new Promise(function(resolve) {
+      setTimeout(resolve, 500);
+    });
+
+    // 5. Retirar temporariamente os limites de scroll
+    if (scrollBody) {
+      scrollBody.style.height = 'auto';
+      scrollBody.style.maxHeight = 'none';
+      scrollBody.style.overflow = 'visible';
+    }
+
+    container.style.overflow = 'visible';
+
+    await new Promise(function(resolve) {
+      setTimeout(resolve, 300);
+    });
+
+    // 6. Capturar a tabela
+    var canvas = await window.html2canvas(container, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: true,
+      width: Math.max(
+        container.scrollWidth,
+        container.clientWidth
+      ),
+      windowWidth: Math.max(
+        document.documentElement.clientWidth,
+        container.scrollWidth
+      ),
+      onclone: function(doc) {
+        var clonedScroll = doc.querySelector(
+          '.dataTables_scrollBody'
+        );
+
+        if (clonedScroll) {
+          clonedScroll.style.height = 'auto';
+          clonedScroll.style.maxHeight = 'none';
+          clonedScroll.style.overflow = 'visible';
         }
+      }
+    });
 
-        var table = window.jQuery
-          ? window.jQuery(el).DataTable()
-          : null;
+    // 7. Criar e descarregar o PNG
+    var link = document.createElement('a');
 
-        if (!table) {
-          alert('Não foi possível localizar a tabela.');
-          return;
-        }
+    link.download =
+      'Matriz_TOC_PAM_Verde_Nampula_C3.png';
 
-        var oldPageLength = table.page.len();
-        var oldPage = table.page();
+    link.href = canvas.toDataURL('image/png');
 
-        table.page.len(-1).draw();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-        setTimeout(function() {
+  } catch (error) {
 
-          html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false
-          }).then(function(canvas) {
+    console.error(
+      'Erro ao exportar a tabela para PNG:',
+      error
+    );
 
-            var link = document.createElement('a');
-            link.download = 'Matriz_TOC_PAM_Verde_Nampula_C3.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+    alert(
+      'Falha ao gerar o PNG. Abre a consola do navegador ' +
+      '(F12) para consultar o erro.'
+    );
 
-          }).catch(function(error) {
+  } finally {
 
-            console.error(error);
-            alert('Não foi possível gerar a imagem PNG.');
+    // 8. Restaurar o estado original da tabela
+    if (scrollBody) {
+      if (oldScrollStyle === null) {
+        scrollBody.removeAttribute('style');
+      } else {
+        scrollBody.setAttribute('style', oldScrollStyle);
+      }
+    }
 
-          }).finally(function() {
+    container.style.overflow = oldOverflow;
 
-            table.page.len(oldPageLength).draw();
+    dt.page.len(oldPageLength).draw();
 
-            setTimeout(function() {
-              table.page(oldPage).draw('page');
-            }, 100);
+    setTimeout(function() {
+      dt.page(oldPage).draw('page');
+    }, 100);
 
-          });
+    pngButton.disabled = false;
+    pngButton.innerHTML = '📷 Save full table as PNG';
+  }
 
-        }, 700);
-      });
+});
     }
   ")
     )
@@ -26869,140 +26961,173 @@ server <- function(input, output, session) {
     # 25. BOTÕES PNG E ECRÃ INTEIRO
     # --------------------------------------------------------
     
+    
     htmlwidgets::onRender(
       htmlwidgets::JS("
-          function(el, x) {
+    function(el, x) {
 
-            var container = el.parentElement;
+      var container = el.parentElement;
 
-            if (!container ||
-                container.querySelector('.toc-custom-toolbar')) {
-              return;
-            }
+      if (!container ||
+          container.querySelector('.toc-custom-toolbar')) {
+        return;
+      }
 
-            var toolbar = document.createElement('div');
-            toolbar.className = 'toc-custom-toolbar';
+      var toolbar = document.createElement('div');
+      toolbar.className = 'toc-custom-toolbar';
+      toolbar.style.cssText =
+        'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;';
 
-            toolbar.style.cssText =
-              'display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px 0;';
+      var pngButton = document.createElement('button');
+      pngButton.type = 'button';
+      pngButton.textContent = '📷 Save full table as PNG';
+      pngButton.style.cssText =
+        'background:#9442d4;color:white;border:0;padding:9px 14px;' +
+        'border-radius:5px;cursor:pointer;font-weight:bold;';
 
-            // BOTÃO PNG
-            var pngButton = document.createElement('button');
-            pngButton.type = 'button';
-            pngButton.innerHTML = '📷 Save full table as PNG';
+      var fullButton = document.createElement('button');
+      fullButton.type = 'button';
+      fullButton.textContent = '⛶ Full screen';
+      fullButton.style.cssText =
+        'background:#F37238;color:white;border:0;padding:9px 14px;' +
+        'border-radius:5px;cursor:pointer;font-weight:bold;';
 
-            pngButton.style.cssText =
-              'background:#9442d4;color:white;border:0;padding:9px 14px;' +
-              'border-radius:5px;cursor:pointer;font-weight:bold;';
+      toolbar.appendChild(pngButton);
+      toolbar.appendChild(fullButton);
+      container.insertBefore(toolbar, el);
 
-            // BOTÃO ECRÃ INTEIRO
-            var fullButton = document.createElement('button');
-            fullButton.type = 'button';
-            fullButton.innerHTML = '⛶ Full screen';
-
-            fullButton.style.cssText =
-              'background:#F37238;color:white;border:0;padding:9px 14px;' +
-              'border-radius:5px;cursor:pointer;font-weight:bold;';
-
-            toolbar.appendChild(pngButton);
-            toolbar.appendChild(fullButton);
-
-            container.insertBefore(toolbar, el);
-
-            // ECRÃ INTEIRO
-            fullButton.addEventListener('click', function() {
-
-              if (!document.fullscreenElement) {
-                if (container.requestFullscreen) {
-                  container.requestFullscreen();
-                }
-              } else if (document.exitFullscreen) {
-                document.exitFullscreen();
-              }
-
-            });
-
-            // EXPORTAR PNG
-            pngButton.addEventListener('click', function() {
-
-              if (typeof html2canvas === 'undefined') {
-                alert('A biblioteca html2canvas não está carregada.');
-                return;
-              }
-
-              var $ = window.jQuery;
-
-              if (!$ || !$.fn.DataTable.isDataTable(el)) {
-                alert('Não foi possível localizar a tabela.');
-                return;
-              }
-
-              var dt = $(el).DataTable();
-              var oldLength = dt.page.len();
-              var oldPage = dt.page();
-
-              pngButton.disabled = true;
-              pngButton.innerHTML = 'A preparar imagem...';
-
-              dt.page.len(-1).draw();
-
-              setTimeout(function() {
-
-                var scrollBody =
-                  container.querySelector('.dataTables_scrollBody');
-
-                var oldHeight = scrollBody ? scrollBody.style.height : '';
-                var oldMaxHeight = scrollBody ? scrollBody.style.maxHeight : '';
-                var oldOverflow = scrollBody ? scrollBody.style.overflow : '';
-
-                if (scrollBody) {
-                  scrollBody.style.height = 'auto';
-                  scrollBody.style.maxHeight = 'none';
-                  scrollBody.style.overflow = 'visible';
-                }
-
-                html2canvas(container, {
-                  scale: 2,
-                  useCORS: true,
-                  backgroundColor: '#ffffff',
-                  logging: false
-                }).then(function(canvas) {
-
-                  var link = document.createElement('a');
-                  link.download = 'Matriz_TOC_PAM_Verde_Beira_Ciclo1.png';
-                  link.href = canvas.toDataURL('image/png');
-                  link.click();
-
-                }).catch(function(error) {
-
-                  console.error(error);
-                  alert('Não foi possível gerar a imagem PNG.');
-
-                }).finally(function() {
-
-                  if (scrollBody) {
-                    scrollBody.style.height = oldHeight;
-                    scrollBody.style.maxHeight = oldMaxHeight;
-                    scrollBody.style.overflow = oldOverflow;
-                  }
-
-                  dt.page.len(oldLength).draw();
-
-                  setTimeout(function() {
-                    dt.page(oldPage).draw('page');
-                    pngButton.disabled = false;
-                    pngButton.innerHTML = '📷 Save full table as PNG';
-                  }, 100);
-
-                });
-
-              }, 700);
-
-            });
-
+      // ECRÃ INTEIRO
+      fullButton.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+          if (container.requestFullscreen) {
+            container.requestFullscreen();
           }
-        ")
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      });
+
+      // EXPORTAR PNG
+      pngButton.addEventListener('click', async function() {
+
+        var $ = window.jQuery;
+        var table = el.querySelector('table');
+
+        if (typeof html2canvas === 'undefined') {
+          alert('A biblioteca html2canvas não está carregada.');
+          return;
+        }
+
+        if (!table || !$ || !$.fn.DataTable ||
+            !$.fn.DataTable.isDataTable(table)) {
+          alert('Não foi possível localizar a tabela DataTables.');
+          return;
+        }
+
+        var dt = $(table).DataTable();
+        var oldLength = dt.page.len();
+        var oldPage = dt.page();
+
+        var scrollBody =
+          container.querySelector('.dataTables_scrollBody');
+
+        var oldHeight = scrollBody ? scrollBody.style.height : '';
+        var oldMaxHeight = scrollBody ? scrollBody.style.maxHeight : '';
+        var oldOverflow = scrollBody ? scrollBody.style.overflow : '';
+
+        pngButton.disabled = true;
+        pngButton.textContent = 'A preparar imagem...';
+
+        try {
+
+          // Mostrar todas as linhas
+          dt.page.len(-1).draw();
+
+          await new Promise(function(resolve) {
+            setTimeout(resolve, 500);
+          });
+
+          // Remover temporariamente o limite de altura
+          if (scrollBody) {
+            scrollBody.style.height = 'auto';
+            scrollBody.style.maxHeight = 'none';
+            scrollBody.style.overflow = 'visible';
+          }
+
+          // Capturar o conteúdo completo da matriz
+          var canvas = await html2canvas(container, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: true,
+            windowWidth: Math.max(
+              document.documentElement.clientWidth,
+              container.scrollWidth
+            ),
+            onclone: function(doc) {
+              var clonedContainer = doc.querySelector(
+                '.toc-custom-toolbar'
+              );
+              if (clonedContainer) {
+                clonedContainer.style.display = 'flex';
+              }
+            }
+          });
+
+          // Criar o ficheiro PNG
+          var blob = await new Promise(function(resolve) {
+            canvas.toBlob(resolve, 'image/png');
+          });
+
+          if (!blob) {
+            throw new Error('Não foi possível criar o ficheiro PNG.');
+          }
+
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement('a');
+
+          link.href = url;
+          link.download = 'Matriz_TOC_PAM_Verde_Beira_Ciclo1.png';
+
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+          setTimeout(function() {
+            URL.revokeObjectURL(url);
+          }, 3000);
+
+        } catch (error) {
+
+          console.error('Erro na exportação PNG:', error);
+          alert(
+            'Falha ao gerar o PNG. Consulte a consola do navegador ' +
+            '(F12 > Console) para ver o erro.'
+          );
+
+        } finally {
+
+          // Restaurar o estado original
+          if (scrollBody) {
+            scrollBody.style.height = oldHeight;
+            scrollBody.style.maxHeight = oldMaxHeight;
+            scrollBody.style.overflow = oldOverflow;
+          }
+
+          dt.page.len(oldLength).draw();
+
+          setTimeout(function() {
+            dt.page(oldPage).draw('page');
+            pngButton.disabled = false;
+            pngButton.textContent = '📷 Save full table as PNG';
+          }, 200);
+        }
+
+      });
+    }
+  ")
     )
+    
     
   }, server = TRUE)
   
