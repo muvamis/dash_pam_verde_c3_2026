@@ -1177,3 +1177,133 @@ tryCatch(
     message("Erro de sintaxe: ", conditionMessage(e))
   }
 )
+# 
+# # ============================================================
+# # FUNÇÃO — TABELA BINÁRIA DE SERVIÇOS FINANCEIROS
+# # 0 = Não utiliza
+# # 1 = Utiliza
+# # ============================================================
+# 
+# criar_tabela_servicos_financeiros <- function(base) {
+#   
+#   servicos <- c(
+#     "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+#     "Crédito ou empréstimo bancário para o negócio",
+#     "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+#     "Conta bancária em nome do negócio (conta empresarial)",
+#     "Conta poupança formal ligada ao negócio",
+#     "Seguro (de negócio, de equipamento, de saúde...)"
+#   )
+#   
+#   coluna_id <- intersect(
+#     c("ID_Participante", "ID_MUVA", "ID", "Codigo_Participante"),
+#     names(base)
+#   )[1]
+#   
+#   coluna_resposta <- intersect(
+#     c(
+#       "Uso_Servicos_Financeiros",
+#       "Uso_de_Servicos_Financeiros",
+#       "Servicos_Financeiros",
+#       "Serviços_Financeiros",
+#       "Servicos_financeiros"
+#     ),
+#     names(base)
+#   )[1]
+#   
+#   if (
+#     is.na(coluna_id) ||
+#     is.na(coluna_resposta) ||
+#     !all(c("Tipo_Avaliacao") %in% names(base))
+#   ) {
+#     stop("Não foram encontradas as colunas necessárias.")
+#   }
+#   
+#   # Respostas válidas por participante e avaliação
+#   respostas <- base |>
+#     dplyr::transmute(
+#       ID = trimws(as.character(.data[[coluna_id]])),
+#       Tipo = tolower(trimws(as.character(Tipo_Avaliacao))),
+#       Resposta = trimws(as.character(.data[[coluna_resposta]]))
+#     ) |>
+#     dplyr::filter(
+#       !is.na(ID), ID != "",
+#       Tipo %in% c("baseline", "endline"),
+#       !is.na(Resposta), Resposta != ""
+#     ) |>
+#     dplyr::group_by(ID, Tipo) |>
+#     dplyr::summarise(
+#       Resposta = paste(unique(Resposta), collapse = " | "),
+#       .groups = "drop"
+#     )
+#   
+#   # Uma linha por participante e avaliação;
+#   # um indicador 0/1 por serviço
+#   binarios <- tidyr::crossing(
+#     respostas,
+#     servico = servicos
+#   ) |>
+#     dplyr::mutate(
+#       utiliza = as.integer(
+#         stringr::str_detect(
+#           Resposta,
+#           stringr::fixed(servico, ignore_case = TRUE)
+#         )
+#       )
+#     ) |>
+#     dplyr::select(ID, Tipo, servico, utiliza) |>
+#     tidyr::pivot_wider(
+#       names_from = c(servico, Tipo),
+#       values_from = utiliza,
+#       names_glue = "{servico}_{Tipo}"
+#     )
+#   
+#   colunas_BL <- paste0(servicos, "_baseline")
+#   colunas_EL <- paste0(servicos, "_endline")
+#   
+#   # Garantir todas as colunas, mesmo quando uma avaliação
+#   # não existe na base seleccionada
+#   for (col in c(colunas_BL, colunas_EL)) {
+#     if (!col %in% names(binarios)) {
+#       binarios[[col]] <- NA_integer_
+#     }
+#   }
+#   
+#   # Só comparar participantes com as duas avaliações completas
+#   validos <- binarios |>
+#     dplyr::filter(
+#       dplyr::if_all(
+#         dplyr::all_of(c(colunas_BL, colunas_EL)),
+#         ~ !is.na(.x)
+#       )
+#     )
+#   
+#   if (nrow(validos) == 0) {
+#     validos$Novos_Servicos <- integer(0)
+#     validos$Servicos_Deixou_Usar <- integer(0)
+#     validos$Aumentou_Uso <- character(0)
+#     return(validos)
+#   }
+#   
+#   # Quantificar mudanças por participante
+#   validos$Novos_Servicos <- rowSums(
+#     as.data.frame(validos[colunas_BL]) == 0 &
+#       as.data.frame(validos[colunas_EL]) == 1
+#   )
+#   
+#   validos$Servicos_Deixou_Usar <- rowSums(
+#     as.data.frame(validos[colunas_BL]) == 1 &
+#       as.data.frame(validos[colunas_EL]) == 0
+#   )
+#   
+#   validos$Aumentou_Uso <- ifelse(
+#     validos$Novos_Servicos > 0,
+#     "Sim",
+#     "Não"
+#   )
+#   
+#   # Renomear o identificador
+#   names(validos)[names(validos) == "ID"] <- "ID_Participante"
+#   
+#   validos
+# }

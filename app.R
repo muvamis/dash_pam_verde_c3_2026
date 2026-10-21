@@ -358,9 +358,23 @@ ui <- navbarPage(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
                   uiOutput("texto_servicos")
                 ),
+                DT::DTOutput("tabela_novos_servicos_financeiros"),
+                br(),
                 plotlyOutput("grafico_servicos_financeiros")
               )
             ),
+            # fluidRow(
+            #   
+            # #   column(
+            # #     12,
+            # #     div(
+            # #       style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
+            # #       uiOutput("texto_servicos")
+            # #     ),
+            # #     plotlyOutput("grafico_servicos_financeiros")
+            # #   )
+            # # ),
+            # 
             br(),
             fluidRow(
               column(
@@ -5453,6 +5467,447 @@ server <- function(input, output, session) {
     )
   })
   
+  
+  # ============================================================
+  # PAM VERDE — UTILIZAÇÃO DE SERVIÇOS FINANCEIROS
+  # Indicador TOC: iPAM_RI.7.3
+  #
+  # Objectivo:
+  # Percentagem de empreendedoras que começaram a utilizar
+  # pelo menos um serviço financeiro novo entre Baseline e Endline.
+  #
+  # Regras:
+  # - "Nenhum destes serviços" = 0 em todos os serviços.
+  # - Resposta ausente = NA, não deve ser convertida em zero.
+  # - Só entram no indicador participantes com Baseline e Endline
+  #   válidos para os seis serviços.
+  # - Novo serviço = Baseline 0 e Endline 1.
+  # ============================================================
+  
+  
+  # ------------------------------------------------------------
+  # 1. LISTA DOS SERVIÇOS FINANCEIROS
+  # ------------------------------------------------------------
+  
+  servicos_financeiros <- data.frame(
+    servico_id = paste0("S", 1:6),
+    servico = c(
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+      "Crédito ou empréstimo bancário para o negócio",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+      "Conta bancária em nome do negócio (conta empresarial)",
+      "Conta poupança formal ligada ao negócio",
+      "Seguro (de negócio, de equipamento, de saúde...)"
+    ),
+    stringsAsFactors = FALSE
+  )
+  
+  
+  # ------------------------------------------------------------
+  # 2. FUNÇÃO PARA CRIAR A BASE COM OS SERVIÇOS FINANCEIROS
+  # ------------------------------------------------------------
+  
+  criar_tabela_servicos_financeiros <- function(df) {
+    
+    # Verificar se existem as colunas necessárias
+    colunas_necessarias <- c(
+      "ID_Participante",
+      "Tipo_Avaliacao",
+      "Uso_Servicos_Financeiros"
+    )
+    
+    if (!all(colunas_necessarias %in% names(df))) {
+      stop(
+        paste(
+          "Faltam colunas na base:",
+          paste(
+            setdiff(colunas_necessarias, names(df)),
+            collapse = ", "
+          )
+        )
+      )
+    }
+    
+    # Garantir que os campos são tratados como texto
+    df <- df %>%
+      dplyr::mutate(
+        ID_Participante = as.character(ID_Participante),
+        Tipo_Avaliacao = trimws(as.character(Tipo_Avaliacao)),
+        resposta = trimws(as.character(Uso_Servicos_Financeiros))
+      )
+    
+    # Uniformizar Baseline e Endline
+    df <- df %>%
+      dplyr::mutate(
+        Tipo_Avaliacao = dplyr::case_when(
+          tolower(Tipo_Avaliacao) == "baseline" ~ "Baseline",
+          tolower(Tipo_Avaliacao) == "endline"  ~ "Endline",
+          TRUE ~ NA_character_
+        )
+      )
+    
+    # Remover registos sem identificação ou avaliação reconhecida
+    df <- df %>%
+      dplyr::filter(
+        !is.na(ID_Participante),
+        ID_Participante != "",
+        !is.na(Tipo_Avaliacao)
+      )
+    
+    # Se não houver registos, devolver uma tabela vazia
+    if (nrow(df) == 0) {
+      return(data.frame())
+    }
+    
+    # ----------------------------------------------------------
+    # 2.1. Consolidar respostas por participante e avaliação
+    # ----------------------------------------------------------
+    
+    respostas <- df %>%
+      dplyr::filter(
+        !is.na(resposta),
+        resposta != ""
+      ) %>%
+      dplyr::group_by(
+        ID_Participante,
+        Tipo_Avaliacao
+      ) %>%
+      dplyr::summarise(
+        resposta = paste(unique(resposta), collapse = " | "),
+        .groups = "drop"
+      )
+    
+    if (nrow(respostas) == 0) {
+      return(data.frame())
+    }
+    
+    # ----------------------------------------------------------
+    # 2.2. Criar uma linha por participante, avaliação e serviço
+    # ----------------------------------------------------------
+    
+    dados_binarios <- tidyr::crossing(
+      respostas,
+      servicos_financeiros
+    ) %>%
+      dplyr::mutate(
+        # Garantir que os textos usados na pesquisa são character
+        resposta = as.character(resposta),
+        servico = as.character(servico),
+        
+        # Verificar se a resposta contém o nome do serviço
+        utiliza = as.integer(
+          vapply(
+            seq_len(nrow(dplyr::pick(dplyr::everything()))),
+            function(i) {
+              grepl(
+                servico[i],
+                resposta[i],
+                fixed = TRUE,
+                ignore.case = TRUE
+              )
+            },
+            logical(1)
+          )
+        )
+      ) %>%
+      dplyr::select(
+        ID_Participante,
+        Tipo_Avaliacao,
+        servico_id,
+        utiliza
+      )
+    
+    # ----------------------------------------------------------
+    # 2.3. Organizar os serviços em colunas
+    # ----------------------------------------------------------
+    
+    tabela <- dados_binarios %>%
+      tidyr::pivot_wider(
+        id_cols = ID_Participante,
+        names_from = c(servico_id, Tipo_Avaliacao),
+        values_from = utiliza,
+        names_glue = "{servico_id}_{tolower(Tipo_Avaliacao)}"
+      )
+    
+    # Garantir que todas as colunas existem
+    colunas_baseline <- paste0("S", 1:6, "_baseline")
+    colunas_endline  <- paste0("S", 1:6, "_endline")
+    
+    todas_colunas <- c(colunas_baseline, colunas_endline)
+    
+    for (col in todas_colunas) {
+      if (!col %in% names(tabela)) {
+        tabela[[col]] <- NA_integer_
+      }
+    }
+    
+    # ----------------------------------------------------------
+    # 2.4. Validar a comparação Baseline-Endline
+    # ----------------------------------------------------------
+    
+    tabela$Comparacao_Valida <-
+      rowSums(
+        is.na(tabela[, colunas_baseline, drop = FALSE])
+      ) == 0 &
+      rowSums(
+        is.na(tabela[, colunas_endline, drop = FALSE])
+      ) == 0
+    
+    # ----------------------------------------------------------
+    # 2.5. Calcular novos serviços e serviços deixados de usar
+    # ----------------------------------------------------------
+    
+    tabela$Novos_Servicos <- 0L
+    tabela$Servicos_Deixou_Usar <- 0L
+    
+    for (i in seq_len(6)) {
+      
+      b <- colunas_baseline[i]
+      e <- colunas_endline[i]
+      
+      novo <- !is.na(tabela[[b]]) &
+        !is.na(tabela[[e]]) &
+        tabela[[b]] == 0 &
+        tabela[[e]] == 1
+      
+      deixou <- !is.na(tabela[[b]]) &
+        !is.na(tabela[[e]]) &
+        tabela[[b]] == 1 &
+        tabela[[e]] == 0
+      
+      tabela$Novos_Servicos <-
+        tabela$Novos_Servicos + as.integer(novo)
+      
+      tabela$Servicos_Deixou_Usar <-
+        tabela$Servicos_Deixou_Usar + as.integer(deixou)
+    }
+    
+    # Não calcular diferenças quando a comparação não é válida
+    tabela$Novos_Servicos[
+      !tabela$Comparacao_Valida
+    ] <- NA_integer_
+    
+    tabela$Servicos_Deixou_Usar[
+      !tabela$Comparacao_Valida
+    ] <- NA_integer_
+    
+    # ----------------------------------------------------------
+    # 2.6. Classificar a evolução da utilização
+    # ----------------------------------------------------------
+    
+    tabela$Aumentou_Uso <- dplyr::case_when(
+      !tabela$Comparacao_Valida ~ "Sem comparação",
+      tabela$Novos_Servicos > 0 ~ "Sim",
+      TRUE ~ "Não"
+    )
+    
+    # ----------------------------------------------------------
+    # 2.7. Preparar a tabela final
+    # ----------------------------------------------------------
+    
+    tabela_final <- tabela %>%
+      dplyr::select(
+        ID_Participante,
+        dplyr::all_of(colunas_baseline),
+        dplyr::all_of(colunas_endline),
+        Novos_Servicos,
+        Servicos_Deixou_Usar,
+        Aumentou_Uso
+      )
+    
+    names(tabela_final) <- c(
+      "ID da Empreendedora",
+      paste0("B | ", 1:6),
+      paste0("E | ", 1:6),
+      "Novos serviços",
+      "Serviços que deixou de usar",
+      "Aumentou uso?"
+    )
+    
+    tabela_final
+  }
+  
+  
+  # ------------------------------------------------------------
+  # 3. BASE REACTIVA PARTILHADA
+  # ------------------------------------------------------------
+  
+  tabela_servicos_financeiros <- shiny::reactive({
+    
+    df <- Pam_Verde_Indicadores
+    
+    # Filtro por cidade
+    if (
+      !is.null(input$filtro_cidade) &&
+      length(input$filtro_cidade) == 1 &&
+      input$filtro_cidade != "Todas"
+    ) {
+      df <- df %>%
+        dplyr::filter(Cidade == input$filtro_cidade)
+    }
+    
+    # Filtro por ciclo
+    if (
+      !is.null(input$filtro_ciclo) &&
+      length(input$filtro_ciclo) == 1 &&
+      input$filtro_ciclo != "Todos"
+    ) {
+      df <- df %>%
+        dplyr::filter(Ciclo == input$filtro_ciclo)
+    }
+    
+    criar_tabela_servicos_financeiros(df)
+  })
+  
+  
+  # ------------------------------------------------------------
+  # 4. MOSTRAR A TABELA NO DASHBOARD
+  # ------------------------------------------------------------
+  
+  output$tabela_novos_servicos_financeiros <- DT::renderDT({
+    
+    tabela_final <- tabela_servicos_financeiros()
+    
+    if (nrow(tabela_final) == 0) {
+      return(
+        DT::datatable(
+          data.frame(
+            Mensagem = "Não existem respostas válidas para os filtros seleccionados."
+          ),
+          rownames = FALSE,
+          options = list(
+            dom = "t"
+          )
+        )
+      )
+    }
+    
+    DT::datatable(
+      tabela_final,
+      rownames = FALSE,
+      filter = "top",
+      extensions = "Buttons",
+      options = list(
+        pageLength = 10,
+        scrollX = TRUE,
+        autoWidth = FALSE,
+        dom = "Bfrtip",
+        buttons = c("copy", "csv", "excel"),
+        columnDefs = list(
+          list(
+            targets = 0,
+            width = "140px"
+          )
+        ),
+        language = list(
+          search = "Pesquisar:",
+          lengthMenu = "Mostrar _MENU_ registos",
+          info = "A mostrar _START_ a _END_ de _TOTAL_ empreendedoras",
+          infoEmpty = "Sem registos",
+          zeroRecords = "Nenhuma empreendedora encontrada",
+          paginate = list(
+            previous = "Anterior",
+            `next` = "Seguinte"
+          )
+        )
+      ),
+      class = "display compact stripe hover"
+    )
+  }, server = FALSE)
+  
+  # 
+  # # ------------------------------------------------------------
+  # # 5. CÁLCULO DO INDICADOR TOC iPAM_RI.7.3
+  # # ------------------------------------------------------------
+  # #
+  # # Numerador:
+  # # Participantes com pelo menos um novo serviço financeiro.
+  # #
+  # # Denominador:
+  # # Participantes com comparação válida em Baseline e Endline.
+  # #
+  # # Fórmula:
+  # # (Numerador / Denominador) * 100
+  # # ------------------------------------------------------------
+  # 
+  # resultado_indicador_servicos_financeiros <- shiny::reactive({
+  #   
+  #   tabela_indicador <- tabela_servicos_financeiros()
+  #   
+  #   if (nrow(tabela_indicador) == 0) {
+  #     return(
+  #       list(
+  #         numerador = 0L,
+  #         denominador = 0L,
+  #         percentual = NA_real_,
+  #         meta = 40,
+  #         estado = "Sem dados"
+  #       )
+  #     )
+  #   }
+  #   
+  #   classificacao <- tabela_indicador[["Aumentou uso?"]]
+  #   
+  #   # Numerador: participantes que começaram a usar pelo menos
+  #   # um serviço financeiro novo
+  #   total_sim <- sum(
+  #     classificacao == "Sim",
+  #     na.rm = TRUE
+  #   )
+  #   
+  #   # Denominador: comparações válidas
+  #   total_validos <- sum(
+  #     classificacao %in% c("Sim", "Não"),
+  #     na.rm = TRUE
+  #   )
+  #   
+  #   percentual <- if (total_validos > 0) {
+  #     total_sim / total_validos * 100
+  #   } else {
+  #     NA_real_
+  #   }
+  #   
+  #   list(
+  #     numerador = as.integer(total_sim),
+  #     denominador = as.integer(total_validos),
+  #     percentual = percentual,
+  #     meta = 40,
+  #     estado = if (total_validos > 0) {
+  #       if (percentual >= 40) "Meta alcançada" else "Abaixo da meta"
+  #     } else {
+  #       "Sem dados"
+  #     }
+  #   )
+  # })
+  # 
+  # 
+  # # ------------------------------------------------------------
+  # # 6. EXEMPLO DE OUTPUT PARA O INDICADOR
+  # # ------------------------------------------------------------
+  # #
+  # # Mantém este output se quiser mostrar o indicador como texto.
+  # # Se já tens um valueBox ou outro output, podes usar a mesma
+  # # função resultado_indicador_servicos_financeiros() nele.
+  # # ------------------------------------------------------------
+  # 
+  # output$texto_indicador_servicos_financeiros <- shiny::renderText({
+  #   
+  #   resultado <- resultado_indicador_servicos_financeiros()
+  #   
+  #   if (is.na(resultado$percentual)) {
+  #     return("Sem dados válidos para calcular o indicador.")
+  #   }
+  #   
+  #   paste0(
+  #     sprintf("%.1f%%", resultado$percentual),
+  #     " (",
+  #     resultado$numerador,
+  #     "/",
+  #     resultado$denominador,
+  #     ")"
+  #   )
+  # })
+  # 
   
   #### RETIRAR SALARIO PARA SI
   
@@ -25308,17 +25763,38 @@ server <- function(input, output, session) {
       "Endline"
     )
     
+    
     # ----------------------------------------------------------
     # 15. NOVOS SERVIÇOS FINANCEIROS — iPAM_RI.7.3
+    # BASELINE VS ENDLINE POR EMPREENDEDORA
     # ----------------------------------------------------------
     
     servicos_financeiros_percentual_EL <- NA_real_
+    servicos_financeiros_novos <- 0L
+    servicos_financeiros_validos <- 0L
     
-    if (
-      "Uso_Servicos_Financeiros" %in% names(toc) &&
-      "ID_Participante" %in% names(toc) &&
-      "Tipo_Avaliacao" %in% names(toc)
-    ) {
+    # Lista fixa dos serviços financeiros considerados no indicador
+    lista_servicos_financeiros <- c(
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+      "Crédito ou empréstimo bancário para o negócio",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+      "Conta bancária em nome do negócio (conta empresarial)",
+      "Conta poupança formal ligada ao negócio",
+      "Seguro (de negócio, de equipamento, de saúde...)"
+    )
+    
+    # Verificar se existem as colunas necessárias
+    colunas_necessarias <- c(
+      "ID_Participante",
+      "Tipo_Avaliacao",
+      "Uso_Servicos_Financeiros"
+    )
+    
+    if (all(colunas_necessarias %in% names(toc))) {
+      
+      # --------------------------------------------------------
+      # 15.1. Preparar as respostas
+      # --------------------------------------------------------
       
       servicos <- toc |>
         dplyr::transmute(
@@ -25327,67 +25803,134 @@ server <- function(input, output, session) {
           Resposta = trimws(as.character(Uso_Servicos_Financeiros))
         ) |>
         dplyr::filter(
-          !is.na(ID), ID != "",
-          Tipo %in% c("baseline", "endline"),
-          !is.na(Resposta), Resposta != ""
+          !is.na(ID),
+          ID != "",
+          Tipo %in% c("baseline", "endline")
         ) |>
         dplyr::group_by(ID, Tipo) |>
         dplyr::summarise(
-          Resposta = paste(unique(Resposta), collapse = ";"),
+          Resposta = {
+            x <- unique(Resposta[!is.na(Resposta) & trimws(Resposta) != ""])
+            if (length(x) == 0) NA_character_ else paste(x, collapse = " | ")
+          },
           .groups = "drop"
         )
       
-      separar_servicos <- function(x) {
-        if (is.na(x) || trimws(x) == "") return(character(0))
-        
-        resultado <- unlist(strsplit(
-          x,
-          ";|\\n|\\r|\\||,(?![^()]*\\))\\s*",
-          perl = TRUE
-        ))
-        
-        resultado <- tolower(trimws(resultado))
-        unique(resultado[resultado != ""])
-      }
+      # --------------------------------------------------------
+      # 15.2. Separar Baseline e Endline
+      # --------------------------------------------------------
       
-      bl <- servicos |>
+      baseline <- servicos |>
         dplyr::filter(Tipo == "baseline") |>
-        dplyr::select(ID, Resposta_BL = Resposta)
+        dplyr::transmute(
+          ID,
+          Resposta_BL = Resposta
+        )
       
-      el <- servicos |>
+      endline <- servicos |>
         dplyr::filter(Tipo == "endline") |>
-        dplyr::select(ID, Resposta_EL = Resposta)
+        dplyr::transmute(
+          ID,
+          Resposta_EL = Resposta
+        )
       
-      comparacao <- dplyr::inner_join(bl, el, by = "ID")
+      # Considerar apenas participantes presentes nas duas avaliações
+      comparacao <- dplyr::inner_join(
+        baseline,
+        endline,
+        by = "ID"
+      )
+      
+      # --------------------------------------------------------
+      # 15.3. Validar as respostas das duas avaliações
+      # --------------------------------------------------------
       
       if (nrow(comparacao) > 0) {
         
-        comparacao$Servicos_BL <- lapply(
-          comparacao$Resposta_BL, separar_servicos
-        )
+        comparacao <- comparacao |>
+          dplyr::filter(
+            !is.na(Resposta_BL),
+            trimws(Resposta_BL) != "",
+            !is.na(Resposta_EL),
+            trimws(Resposta_EL) != ""
+          )
         
-        comparacao$Servicos_EL <- lapply(
-          comparacao$Resposta_EL, separar_servicos
-        )
+      }
+      
+      # --------------------------------------------------------
+      # 15.4. Identificar a utilização de cada serviço
+      # 1 = utiliza; 0 = não utiliza
+      # --------------------------------------------------------
+      
+      if (nrow(comparacao) > 0) {
         
-        comparacao <- comparacao[
-          lengths(comparacao$Servicos_BL) > 0 &
-            lengths(comparacao$Servicos_EL) > 0,
-        ]
-        
-        if (nrow(comparacao) > 0) {
+        for (i in seq_along(lista_servicos_financeiros)) {
           
-          novos <- mapply(
-            function(bl, el) any(!el %in% bl),
-            comparacao$Servicos_BL,
-            comparacao$Servicos_EL
+          servico <- lista_servicos_financeiros[i]
+          
+          # Verificar cada serviço no Baseline
+          comparacao[[paste0("BL_", i)]] <- as.integer(
+            grepl(
+              servico,
+              comparacao$Resposta_BL,
+              fixed = TRUE,
+              ignore.case = TRUE
+            )
           )
           
-          servicos_financeiros_percentual_EL <- mean(novos) * 100
+          # Verificar cada serviço no Endline
+          comparacao[[paste0("EL_", i)]] <- as.integer(
+            grepl(
+              servico,
+              comparacao$Resposta_EL,
+              fixed = TRUE,
+              ignore.case = TRUE
+            )
+          )
         }
+        
+        # ------------------------------------------------------
+        # 15.5. Contar novos serviços por empreendedora
+        # ------------------------------------------------------
+        
+        colunas_BL <- paste0("BL_", seq_along(lista_servicos_financeiros))
+        colunas_EL <- paste0("EL_", seq_along(lista_servicos_financeiros))
+        
+        # Novo serviço: Baseline = 0 e Endline = 1
+        matriz_BL <- as.matrix(comparacao[, colunas_BL, drop = FALSE])
+        matriz_EL <- as.matrix(comparacao[, colunas_EL, drop = FALSE])
+        
+        novos_por_servico <- (matriz_BL == 0L) & (matriz_EL == 1L)
+        
+        # Número de serviços novos por participante
+        comparacao$Novos_Servicos <- rowSums(novos_por_servico)
+        
+        # Indicador binário: começou a utilizar pelo menos um serviço novo
+        comparacao$Novo_Servico <- comparacao$Novos_Servicos > 0
+        
+        # ------------------------------------------------------
+        # 15.6. Calcular o indicador iPAM_RI.7.3
+        # ------------------------------------------------------
+        
+        servicos_financeiros_validos <- nrow(comparacao)
+        
+        servicos_financeiros_novos <- sum(
+          comparacao$Novo_Servico,
+          na.rm = TRUE
+        )
+        
+        if (servicos_financeiros_validos > 0) {
+          
+          servicos_financeiros_percentual_EL <-
+            (servicos_financeiros_novos /
+               servicos_financeiros_validos) * 100
+          
+        }
+        
       }
     }
     
+
     # ----------------------------------------------------------
     # 16. INDICADORES FINANCEIROS
     # ----------------------------------------------------------
@@ -25813,207 +26356,207 @@ server <- function(input, output, session) {
         `vertical-align` = "middle"
       )
     
-    # ----------------------------------------------------------
-    # 22. BOTÕES PNG E ECRÃ INTEIRO
-    # ----------------------------------------------------------
-    
-    htmlwidgets::onRender(
-      widget,
-      htmlwidgets::JS("
-    function(el, x) {
-
-      var container = el.parentElement;
-
-      if (container.querySelector('.toc-custom-toolbar')) {
-        return;
-      }
-
-      var toolbar = document.createElement('div');
-      toolbar.className = 'toc-custom-toolbar';
-      toolbar.style.cssText =
-        'display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px 0;';
-
-      // BOTÃO PNG
-      var pngButton = document.createElement('button');
-      pngButton.type = 'button';
-      pngButton.innerHTML = '📷 Save full table as PNG';
-      pngButton.style.cssText =
-        'background:#9442d4;color:white;border:0;padding:9px 14px;' +
-        'border-radius:5px;cursor:pointer;font-weight:bold;';
-
-      // BOTÃO ECRÃ INTEIRO
-      var fullButton = document.createElement('button');
-      fullButton.type = 'button';
-      fullButton.innerHTML = '⛶ Full screen';
-      fullButton.style.cssText =
-        'background:#F37238;color:white;border:0;padding:9px 14px;' +
-        'border-radius:5px;cursor:pointer;font-weight:bold;';
-
-      toolbar.appendChild(pngButton);
-      toolbar.appendChild(fullButton);
-      container.insertBefore(toolbar, el);
-
-      // ECRÃ INTEIRO
-      fullButton.addEventListener('click', function() {
-        var target = container;
-
-        if (!document.fullscreenElement) {
-          if (target.requestFullscreen) {
-            target.requestFullscreen();
-          }
-        } else if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      });
-
-      // EXPORTAR TABELA COMPLETA COMO PNG
-      // EXPORTAR TABELA COMPLETA COMO PNG
-pngButton.addEventListener('click', async function() {
-
-  var $ = window.jQuery;
-
-  // 1. Verificar se a biblioteca está carregada
-  if (typeof window.html2canvas === 'undefined') {
-    alert(
-      'A biblioteca html2canvas não está carregada. ' +
-      'Verifica a ligação à Internet e o script no UI.'
-    );
-    return;
-  }
-
-  // 2. Localizar o elemento HTML da tabela
-  var tableElement = el.querySelector('table');
-
-  if (
-    !$ ||
-    !$.fn.DataTable ||
-    !tableElement ||
-    !$.fn.DataTable.isDataTable(tableElement)
-  ) {
-    console.error('Tabela DataTables não encontrada.', el);
-    alert('Não foi possível localizar a tabela DataTables.');
-    return;
-  }
-
-  var dt = $(tableElement).DataTable();
-
-  // 3. Guardar o estado original
-  var oldPageLength = dt.page.len();
-  var oldPage = dt.page();
-
-  var scrollBody = container.querySelector(
-    '.dataTables_scrollBody'
-  );
-
-  var oldScrollStyle = scrollBody
-    ? scrollBody.getAttribute('style')
-    : null;
-
-  var oldOverflow = container.style.overflow;
-
-  pngButton.disabled = true;
-  pngButton.innerHTML = 'A preparar imagem...';
-
-  try {
-
-    // 4. Mostrar todas as linhas
-    dt.page.len(-1).draw();
-
-    await new Promise(function(resolve) {
-      setTimeout(resolve, 500);
-    });
-
-    // 5. Retirar temporariamente os limites de scroll
-    if (scrollBody) {
-      scrollBody.style.height = 'auto';
-      scrollBody.style.maxHeight = 'none';
-      scrollBody.style.overflow = 'visible';
-    }
-
-    container.style.overflow = 'visible';
-
-    await new Promise(function(resolve) {
-      setTimeout(resolve, 300);
-    });
-
-    // 6. Capturar a tabela
-    var canvas = await window.html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: true,
-      width: Math.max(
-        container.scrollWidth,
-        container.clientWidth
-      ),
-      windowWidth: Math.max(
-        document.documentElement.clientWidth,
-        container.scrollWidth
-      ),
-      onclone: function(doc) {
-        var clonedScroll = doc.querySelector(
-          '.dataTables_scrollBody'
-        );
-
-        if (clonedScroll) {
-          clonedScroll.style.height = 'auto';
-          clonedScroll.style.maxHeight = 'none';
-          clonedScroll.style.overflow = 'visible';
-        }
-      }
-    });
-
-    // 7. Criar e descarregar o PNG
-    var link = document.createElement('a');
-
-    link.download =
-      'Matriz_TOC_PAM_Verde_Nampula_C3.png';
-
-    link.href = canvas.toDataURL('image/png');
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-  } catch (error) {
-
-    console.error(
-      'Erro ao exportar a tabela para PNG:',
-      error
-    );
-
-    alert(
-      'Falha ao gerar o PNG. Abre a consola do navegador ' +
-      '(F12) para consultar o erro.'
-    );
-
-  } finally {
-
-    // 8. Restaurar o estado original da tabela
-    if (scrollBody) {
-      if (oldScrollStyle === null) {
-        scrollBody.removeAttribute('style');
-      } else {
-        scrollBody.setAttribute('style', oldScrollStyle);
-      }
-    }
-
-    container.style.overflow = oldOverflow;
-
-    dt.page.len(oldPageLength).draw();
-
-    setTimeout(function() {
-      dt.page(oldPage).draw('page');
-    }, 100);
-
-    pngButton.disabled = false;
-    pngButton.innerHTML = '📷 Save full table as PNG';
-  }
-
-});
-    }
-  ")
-    )
+# #     # ----------------------------------------------------------
+# #     # 22. BOTÕES PNG E ECRÃ INTEIRO
+# #     # ----------------------------------------------------------
+# #     
+# #     htmlwidgets::onRender(
+# #       widget,
+# #       htmlwidgets::JS("
+# #     function(el, x) {
+# # 
+# #       var container = el.parentElement;
+# # 
+# #       if (container.querySelector('.toc-custom-toolbar')) {
+# #         return;
+# #       }
+# # 
+# #       var toolbar = document.createElement('div');
+# #       toolbar.className = 'toc-custom-toolbar';
+# #       toolbar.style.cssText =
+# #         'display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px 0;';
+# # 
+# #       // BOTÃO PNG
+# #       var pngButton = document.createElement('button');
+# #       pngButton.type = 'button';
+# #       pngButton.innerHTML = '📷 Save full table as PNG';
+# #       pngButton.style.cssText =
+# #         'background:#9442d4;color:white;border:0;padding:9px 14px;' +
+# #         'border-radius:5px;cursor:pointer;font-weight:bold;';
+# # 
+# #       // BOTÃO ECRÃ INTEIRO
+# #       var fullButton = document.createElement('button');
+# #       fullButton.type = 'button';
+# #       fullButton.innerHTML = '⛶ Full screen';
+# #       fullButton.style.cssText =
+# #         'background:#F37238;color:white;border:0;padding:9px 14px;' +
+# #         'border-radius:5px;cursor:pointer;font-weight:bold;';
+# # 
+# #       toolbar.appendChild(pngButton);
+# #       toolbar.appendChild(fullButton);
+# #       container.insertBefore(toolbar, el);
+# # 
+# #       // ECRÃ INTEIRO
+# #       fullButton.addEventListener('click', function() {
+# #         var target = container;
+# # 
+# #         if (!document.fullscreenElement) {
+# #           if (target.requestFullscreen) {
+# #             target.requestFullscreen();
+# #           }
+# #         } else if (document.exitFullscreen) {
+# #           document.exitFullscreen();
+# #         }
+# #       });
+# # 
+# #       
+# #       // EXPORTAR TABELA COMPLETA COMO PNG
+# # pngButton.addEventListener('click', async function() {
+# # 
+# #   var $ = window.jQuery;
+# # 
+# #   // 1. Verificar se a biblioteca está carregada
+# #   if (typeof window.html2canvas === 'undefined') {
+# #     alert(
+# #       'A biblioteca html2canvas não está carregada. ' +
+# #       'Verifica a ligação à Internet e o script no UI.'
+# #     );
+# #     return;
+# #   }
+# # 
+# #   // 2. Localizar o elemento HTML da tabela
+# #   var tableElement = el.querySelector('table');
+# # 
+# #   if (
+# #     !$ ||
+# #     !$.fn.DataTable ||
+# #     !tableElement ||
+# #     !$.fn.DataTable.isDataTable(tableElement)
+# #   ) {
+# #     console.error('Tabela DataTables não encontrada.', el);
+# #     alert('Não foi possível localizar a tabela DataTables.');
+# #     return;
+# #   }
+# # 
+# #   var dt = $(tableElement).DataTable();
+# # 
+# #   // 3. Guardar o estado original
+# #   var oldPageLength = dt.page.len();
+# #   var oldPage = dt.page();
+# # 
+# #   var scrollBody = container.querySelector(
+# #     '.dataTables_scrollBody'
+# #   );
+# # 
+# #   var oldScrollStyle = scrollBody
+# #     ? scrollBody.getAttribute('style')
+# #     : null;
+# # 
+# #   var oldOverflow = container.style.overflow;
+# # 
+# #   pngButton.disabled = true;
+# #   pngButton.innerHTML = 'A preparar imagem...';
+# # 
+# #   try {
+# # 
+# #     // 4. Mostrar todas as linhas
+# #     dt.page.len(-1).draw();
+# # 
+# #     await new Promise(function(resolve) {
+# #       setTimeout(resolve, 500);
+# #     });
+# # 
+# #     // 5. Retirar temporariamente os limites de scroll
+# #     if (scrollBody) {
+# #       scrollBody.style.height = 'auto';
+# #       scrollBody.style.maxHeight = 'none';
+# #       scrollBody.style.overflow = 'visible';
+# #     }
+# # 
+# #     container.style.overflow = 'visible';
+# # 
+# #     await new Promise(function(resolve) {
+# #       setTimeout(resolve, 300);
+# #     });
+# # 
+# #     // 6. Capturar a tabela
+# #     var canvas = await window.html2canvas(container, {
+# #       scale: 2,
+# #       useCORS: true,
+# #       backgroundColor: '#ffffff',
+# #       logging: true,
+# #       width: Math.max(
+# #         container.scrollWidth,
+# #         container.clientWidth
+# #       ),
+# #       windowWidth: Math.max(
+# #         document.documentElement.clientWidth,
+# #         container.scrollWidth
+# #       ),
+# #       onclone: function(doc) {
+# #         var clonedScroll = doc.querySelector(
+# #           '.dataTables_scrollBody'
+# #         );
+# # 
+# #         if (clonedScroll) {
+# #           clonedScroll.style.height = 'auto';
+# #           clonedScroll.style.maxHeight = 'none';
+# #           clonedScroll.style.overflow = 'visible';
+# #         }
+# #       }
+# #     });
+# # 
+# #     // 7. Criar e descarregar o PNG
+# #     var link = document.createElement('a');
+# # 
+# #     link.download =
+# #       'Matriz_TOC_PAM_Verde_Nampula_C3.png';
+# # 
+# #     link.href = canvas.toDataURL('image/png');
+# # 
+# #     document.body.appendChild(link);
+# #     link.click();
+# #     link.remove();
+# # 
+# #   } catch (error) {
+# # 
+# #     console.error(
+# #       'Erro ao exportar a tabela para PNG:',
+# #       error
+# #     );
+# # 
+# #     alert(
+# #       'Falha ao gerar o PNG. Abre a consola do navegador ' +
+# #       '(F12) para consultar o erro.'
+# #     );
+# # 
+# #   } finally {
+# # 
+# #     // 8. Restaurar o estado original da tabela
+# #     if (scrollBody) {
+# #       if (oldScrollStyle === null) {
+# #         scrollBody.removeAttribute('style');
+# #       } else {
+# #         scrollBody.setAttribute('style', oldScrollStyle);
+# #       }
+# #     }
+# # 
+# #     container.style.overflow = oldOverflow;
+# # 
+# #     dt.page.len(oldPageLength).draw();
+# # 
+# #     setTimeout(function() {
+# #       dt.page(oldPage).draw('page');
+# #     }, 100);
+# # 
+# #     pngButton.disabled = false;
+# #     pngButton.innerHTML = '📷 Save full table as PNG';
+# #   }
+# # 
+# # });
+# #     }
+# #   ")
+#     )
     
   }, server = TRUE)
   
@@ -26336,135 +26879,120 @@ pngButton.addEventListener('click', async function() {
       "Endline"
     )
     
+    
     # ==========================================================
     # 15. INDICADOR 13 — NOVOS SERVIÇOS FINANCEIROS
+    # BEIRA | PAM VERDE
     # ID: iPAM_RI.7.3
     # Meta: 40%
     #
-    # Compara Baseline e Endline por participante.
-    # Considera sucesso quando existe pelo menos um serviço
-    # no Endline que não constava no Baseline.
-    # Não considera registos vazios como "Não".
+    # Numerador: participantes com Aumentou_Uso = "Sim"
+    # Denominador: participantes com Aumentou_Uso = "Sim" ou "Não"
     # ==========================================================
     
     servicos_financeiros_percentual_EL <- NA_real_
+    servicos_financeiros_total_sim <- 0L
+    servicos_financeiros_total_validos <- 0L
     
-    coluna_servicos <- intersect(
-      c(
-        "Uso_Servicos_Financeiros",
-        "Uso_de_Servicos_Financeiros",
-        "Servicos_Financeiros",
-        "Serviços_Financeiros",
-        "Servicos_financeiros"
-      ),
-      names(toc_beira)
-    )
+    # ----------------------------------------------------------
+    # 15.1. Verificar a existência da tabela
+    # ----------------------------------------------------------
     
-    coluna_id <- intersect(
-      c(
-        "ID_Participante",
-        "ID_MUVA",
-        "ID",
-        "Codigo_Participante",
-        "Nome_Empreendedora"
-      ),
-      names(toc_beira)
-    )
-    
-    if (
-      length(coluna_servicos) > 0 &&
-      length(coluna_id) > 0 &&
-      "Tipo_Avaliacao" %in% names(toc_beira)
-    ) {
+    if (exists("tabela_servicos_financeiros", inherits = TRUE)) {
       
-      coluna_servicos <- coluna_servicos[1]
-      coluna_id <- coluna_id[1]
-      
-      servicos_base <- toc_beira |>
-        dplyr::transmute(
-          ID = trimws(as.character(.data[[coluna_id]])),
-          Tipo = tolower(trimws(as.character(Tipo_Avaliacao))),
-          Resposta = trimws(as.character(.data[[coluna_servicos]]))
-        ) |>
-        dplyr::filter(
-          !is.na(ID), ID != "",
-          Tipo %in% c("baseline", "endline"),
-          !is.na(Resposta), Resposta != ""
-        ) |>
-        dplyr::group_by(ID, Tipo) |>
-        dplyr::summarise(
-          Resposta = paste(unique(Resposta), collapse = ";"),
-          .groups = "drop"
-        )
-      
-      # Separar serviços por ponto e vírgula, quebra de linha,
-      # barra vertical ou vírgula fora de parênteses.
-      separar_servicos <- function(x) {
-        
-        if (
-          length(x) == 0 ||
-          is.na(x) ||
-          trimws(x) == ""
-        ) {
-          return(character(0))
-        }
-        
-        itens <- unlist(strsplit(
-          x,
-          ";|\\n|\\r|\\||,(?![^()]*\\))\\s*",
-          perl = TRUE
-        ))
-        
-        itens <- tolower(trimws(itens))
-        itens <- itens[!is.na(itens) & itens != ""]
-        
-        unique(itens)
-      }
-      
-      base_servicos <- servicos_base |>
-        dplyr::filter(Tipo == "baseline") |>
-        dplyr::select(ID, Resposta_BL = Resposta)
-      
-      endline_servicos <- servicos_base |>
-        dplyr::filter(Tipo == "endline") |>
-        dplyr::select(ID, Resposta_EL = Resposta)
-      
-      comparacao_servicos <- dplyr::inner_join(
-        base_servicos,
-        endline_servicos,
-        by = "ID"
+      tabela_indicador <- get(
+        "tabela_servicos_financeiros",
+        inherits = TRUE
       )
       
-      if (nrow(comparacao_servicos) > 0) {
+      # Se for uma tabela Reactiva do Shiny, obter os dados
+      if (is.function(tabela_indicador)) {
+        tabela_indicador <- tabela_indicador()
+      }
+      
+      # --------------------------------------------------------
+      # 15.2. Validar a coluna de classificação
+      # --------------------------------------------------------
+      
+      if (
+        is.data.frame(tabela_indicador) &&
+        "Aumentou_Uso" %in% names(tabela_indicador)
+      ) {
         
-        comparacao_servicos <- comparacao_servicos |>
-          dplyr::mutate(
-            Servicos_BL = lapply(
-              Resposta_BL, separar_servicos
-            ),
-            Servicos_EL = lapply(
-              Resposta_EL, separar_servicos
-            )
-          ) |>
-          dplyr::filter(
-            lengths(Servicos_BL) > 0,
-            lengths(Servicos_EL) > 0
-          )
+        classificacao <- trimws(
+          as.character(tabela_indicador$Aumentou_Uso)
+        )
         
-        if (nrow(comparacao_servicos) > 0) {
-          
-          novos_servicos <- mapply(
-            function(bl, el) {
-              any(!el %in% bl)
-            },
-            comparacao_servicos$Servicos_BL,
-            comparacao_servicos$Servicos_EL
-          )
+        # Numerador: participantes que começaram a usar
+        # pelo menos um serviço financeiro novo
+        servicos_financeiros_total_sim <- sum(
+          classificacao == "Sim",
+          na.rm = TRUE
+        )
+        
+        # Denominador: participantes com comparação válida
+        servicos_financeiros_total_validos <- sum(
+          classificacao %in% c("Sim", "Não"),
+          na.rm = TRUE
+        )
+        
+        # ------------------------------------------------------
+        # 15.3. Calcular o indicador
+        # ------------------------------------------------------
+        
+        if (servicos_financeiros_total_validos > 0) {
           
           servicos_financeiros_percentual_EL <-
-            mean(novos_servicos) * 100
+            servicos_financeiros_total_sim /
+            servicos_financeiros_total_validos * 100
+          
         }
+        
+        # ------------------------------------------------------
+        # 15.4. Registo para validação
+        # ------------------------------------------------------
+        
+        message(
+          "\n==========================================",
+          "\nBEIRA — PAM VERDE",
+          "\nIndicador: iPAM_RI.7.3",
+          "\nNovos Serviços Financeiros",
+          "\n------------------------------------------",
+          "\nNumerador (Sim): ",
+          servicos_financeiros_total_sim,
+          "\nDenominador (comparações válidas): ",
+          servicos_financeiros_total_validos,
+          "\nPercentagem: ",
+          if (
+            is.na(servicos_financeiros_percentual_EL)
+          ) {
+            "NA"
+          } else {
+            paste0(
+              round(servicos_financeiros_percentual_EL, 1),
+              "%"
+            )
+          },
+          "\nMeta: 40%",
+          "\n==========================================\n"
+        )
+        
+      } else {
+        
+        warning(
+          "Beira: a tabela não contém a coluna Aumentou_Uso ",
+          "ou não é um data.frame válido."
+        )
+        
       }
+      
+    } else {
+      
+      warning(
+        "Beira: o objecto tabela_servicos_financeiros ",
+        "não foi encontrado."
+      )
+      
     }
     
     # ==========================================================
