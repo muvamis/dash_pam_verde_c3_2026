@@ -358,7 +358,7 @@ ui <- navbarPage(
                   style="background-color:#f5f3f4; padding:12px; border-radius:6px; margin-bottom:20px;",
                   uiOutput("texto_servicos")
                 ),
-                DT::DTOutput("tabela_novos_servicos_financeiros"),
+                # DT::DTOutput("tabela_novos_servicos_financeiros"),
                 br(),
                 plotlyOutput("grafico_servicos_financeiros")
               )
@@ -3124,7 +3124,7 @@ tabPanel(
   ),
   
   fluidPage(
-    uiOutput("admin_ui")
+    # uiOutput("admin_ui")
   )
 )
 
@@ -4831,69 +4831,120 @@ server <- function(input, output, session) {
   })
   
   
-  output$grafico_servicos_financeiros <- renderPlotly({
+  # ============================================================
+  # NOVA TABELA DE APOIO AO GRÁFICO
+  # UTILIZAÇÃO DE SERVIÇOS FINANCEIROS
+  # 7 CATEGORIAS — BASELINE VS ENDLINE
+  # Independente da tabela do indicador iPAM_RI.7.3
+  # ============================================================
+  
+  dados_grafico_servicos_financeiros <- shiny::reactive({
     
-    # =========================================================
+    # ----------------------------------------------------------
     # 1. BASE ORIGINAL
-    # =========================================================
+    # ----------------------------------------------------------
+    
     df <- Pam_Verde_Indicadores
     
-    # =========================================================
-    # 2. FILTROS
-    # =========================================================
-    if (input$filtro_cidade != "Todas") {
+    # ----------------------------------------------------------
+    # 2. APLICAR FILTROS
+    # ----------------------------------------------------------
+    
+    if (!is.null(input$filtro_cidade) &&
+        length(input$filtro_cidade) == 1 &&
+        input$filtro_cidade != "Todas") {
+      
       df <- df %>%
-        filter(Cidade == input$filtro_cidade)
+        dplyr::filter(Cidade == input$filtro_cidade)
     }
     
-    if (input$filtro_ciclo != "Todos") {
+    if (!is.null(input$filtro_ciclo) &&
+        length(input$filtro_ciclo) == 1 &&
+        input$filtro_ciclo != "Todos") {
+      
       df <- df %>%
-        filter(Ciclo == input$filtro_ciclo)
+        dplyr::filter(Ciclo == input$filtro_ciclo)
     }
     
-    if (input$filtro_tipo_avaliacao != "Todos") {
+    if (!is.null(input$filtro_tipo_avaliacao) &&
+        length(input$filtro_tipo_avaliacao) == 1 &&
+        input$filtro_tipo_avaliacao != "Todos") {
+      
       df <- df %>%
-        filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
+        dplyr::filter(
+          Tipo_Avaliacao == input$filtro_tipo_avaliacao
+        )
     }
     
-    # =========================================================
-    # 3. VALIDAR DADOS
-    # =========================================================
-    if (!all(c(
+    # ----------------------------------------------------------
+    # 3. VALIDAR COLUNAS
+    # ----------------------------------------------------------
+    
+    colunas_necessarias <- c(
       "ID_Participante",
       "Tipo_Avaliacao",
       "Uso_Servicos_Financeiros"
-    ) %in% names(df))) {
-      return(plotly_empty())
+    )
+    
+    if (!all(colunas_necessarias %in% names(df))) {
+      return(data.frame())
     }
     
+    # ----------------------------------------------------------
+    # 4. PREPARAR RESPOSTAS
+    # ----------------------------------------------------------
+    
     df <- df %>%
-      mutate(
-        ID_Participante = as.character(ID_Participante),
-        Tipo_Avaliacao = trimws(as.character(Tipo_Avaliacao)),
-        resposta = trimws(as.character(Uso_Servicos_Financeiros))
+      dplyr::mutate(
+        ID_Participante = trimws(
+          as.character(ID_Participante)
+        ),
+        Tipo_Avaliacao = trimws(
+          as.character(Tipo_Avaliacao)
+        ),
+        resposta = trimws(
+          as.character(Uso_Servicos_Financeiros)
+        ),
+        Tipo_Avaliacao = dplyr::case_when(
+          tolower(Tipo_Avaliacao) == "baseline" ~ "Baseline",
+          tolower(Tipo_Avaliacao) == "endline"  ~ "Endline",
+          TRUE ~ NA_character_
+        )
       ) %>%
-      filter(
+      dplyr::filter(
         !is.na(ID_Participante),
         ID_Participante != "",
         !is.na(Tipo_Avaliacao),
-        Tipo_Avaliacao != "",
         !is.na(resposta),
         resposta != ""
       )
     
     if (nrow(df) == 0) {
-      return(plotly_empty())
+      return(data.frame())
     }
     
-    # =========================================================
-    # 4. OPÇÕES DE SERVIÇOS FINANCEIROS
-    #
-    # Procuramos cada opção pelo seu texto completo.
-    # Assim, as vírgulas existentes dentro das descrições
-    # não provocam separações incorretas.
-    # =========================================================
-    opcoes_servicos <- c(
+    # ----------------------------------------------------------
+    # 5. CONSOLIDAR POR PARTICIPANTE E AVALIAÇÃO
+    # ----------------------------------------------------------
+    
+    respostas <- df %>%
+      dplyr::group_by(
+        ID_Participante,
+        Tipo_Avaliacao
+      ) %>%
+      dplyr::summarise(
+        resposta = paste(
+          unique(resposta),
+          collapse = " | "
+        ),
+        .groups = "drop"
+      )
+    
+    # ----------------------------------------------------------
+    # 6. DEFINIR TODAS AS CATEGORIAS
+    # ----------------------------------------------------------
+    
+    opcoes_servicos_grafico <- c(
       "Nenhum destes serviços",
       "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
       "Crédito ou empréstimo bancário para o negócio",
@@ -4903,103 +4954,100 @@ server <- function(input, output, session) {
       "Seguro (de negócio, de equipamento, de saúde...)"
     )
     
-    # =========================================================
-    # 5. CONSOLIDAR RESPOSTAS POR PARTICIPANTE
-    #
-    # Se uma participante tiver várias linhas na mesma
-    # avaliação, juntamos as respostas antes da análise.
-    # =========================================================
-    respostas <- df %>%
-      group_by(
-        ID_Participante,
-        Tipo_Avaliacao
-      ) %>%
-      summarise(
-        resposta = paste(
-          unique(resposta),
-          collapse = " | "
-        ),
-        .groups = "drop"
-      )
+    # ----------------------------------------------------------
+    # 7. IDENTIFICAR AS CATEGORIAS SELECCIONADAS
+    # ----------------------------------------------------------
     
-    # =========================================================
-    # 6. IDENTIFICAR OS SERVIÇOS SELECIONADOS
-    #
-    # Não usamos separate_rows(), porque as descrições
-    # dos serviços também podem conter vírgulas.
-    # =========================================================
     dados_longos <- tidyr::crossing(
       respostas,
-      servico = opcoes_servicos
+      servico = opcoes_servicos_grafico
     ) %>%
-      filter(
+      dplyr::filter(
         stringr::str_detect(
           resposta,
           stringr::fixed(servico)
         )
       )
     
-    # =========================================================
-    # 7. TRATAR "NENHUM DESTES SERVIÇOS"
-    #
-    # Se houver um serviço efetivamente selecionado,
-    # não contamos também a opção "Nenhum".
-    # =========================================================
+    # ----------------------------------------------------------
+    # 8. NÃO CONTAR "NENHUM" QUANDO EXISTE OUTRO SERVIÇO
+    # ----------------------------------------------------------
+    
     dados_longos <- dados_longos %>%
-      group_by(
+      dplyr::group_by(
         ID_Participante,
         Tipo_Avaliacao
       ) %>%
-      mutate(
-        tem_servico = any(
+      dplyr::mutate(
+        tem_outro_servico = any(
           servico != "Nenhum destes serviços"
         )
       ) %>%
-      ungroup() %>%
-      filter(
-        !(servico == "Nenhum destes serviços" &
-            tem_servico)
+      dplyr::ungroup() %>%
+      dplyr::filter(
+        !(
+          servico == "Nenhum destes serviços" &
+            tem_outro_servico
+        )
       ) %>%
-      distinct(
+      dplyr::distinct(
         ID_Participante,
         Tipo_Avaliacao,
         servico
       )
     
-    # =========================================================
-    # 8. DENOMINADOR: PARTICIPANTES COM RESPOSTA VÁLIDA
-    #
-    # Cada participante conta uma única vez em cada
-    # avaliação, independentemente do número de serviços.
-    # =========================================================
+    # ----------------------------------------------------------
+    # 9. DENOMINADOR: PARTICIPANTES COM RESPOSTA VÁLIDA
+    # ----------------------------------------------------------
+    
     denominadores <- respostas %>%
-      group_by(Tipo_Avaliacao) %>%
-      summarise(
-        total_participantes = n_distinct(ID_Participante),
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::summarise(
+        total_participantes = dplyr::n_distinct(
+          ID_Participante
+        ),
         .groups = "drop"
       )
     
-    # =========================================================
-    # 9. FREQUÊNCIA E PERCENTAGEM POR SERVIÇO
-    # =========================================================
-    freq_data <- dados_longos %>%
-      group_by(
+    # ----------------------------------------------------------
+    # 10. CONTAR PARTICIPANTES POR CATEGORIA
+    # ----------------------------------------------------------
+    
+    frequencias <- dados_longos %>%
+      dplyr::group_by(
         Tipo_Avaliacao,
         servico
       ) %>%
-      summarise(
-        n = n_distinct(ID_Participante),
+      dplyr::summarise(
+        n = dplyr::n_distinct(ID_Participante),
         .groups = "drop"
+      )
+    
+    # ----------------------------------------------------------
+    # 11. GARANTIR AS 7 CATEGORIAS EM CADA AVALIAÇÃO
+    # Mesmo quando uma categoria tem zero respostas
+    # ----------------------------------------------------------
+    
+    resultado <- tidyr::crossing(
+      Tipo_Avaliacao = denominadores$Tipo_Avaliacao,
+      servico = opcoes_servicos_grafico
+    ) %>%
+      dplyr::left_join(
+        frequencias,
+        by = c("Tipo_Avaliacao", "servico")
       ) %>%
-      left_join(
+      dplyr::left_join(
         denominadores,
         by = "Tipo_Avaliacao"
       ) %>%
-      mutate(
-        percent = round(
+      dplyr::mutate(
+        n = tidyr::replace_na(n, 0L),
+        percent = dplyr::if_else(
+          total_participantes > 0,
           100 * n / total_participantes,
-          1
+          NA_real_
         ),
+        percent = round(percent, 1),
         label = paste0(
           n,
           " (",
@@ -5010,34 +5058,52 @@ server <- function(input, output, session) {
           ),
           "%)"
         )
+      ) %>%
+      dplyr::arrange(
+        factor(
+          servico,
+          levels = opcoes_servicos_grafico
+        ),
+        factor(
+          Tipo_Avaliacao,
+          levels = c("Baseline", "Endline")
+        )
       )
     
-    # Garantir que todas as opções estão disponíveis
-    # para manter a mesma legenda entre avaliações.
-    if (nrow(freq_data) == 0) {
-      return(plotly_empty())
+    resultado
+  })
+  
+  
+  # ============================================================
+  # GRÁFICO — TODAS AS CATEGORIAS DE SERVIÇOS FINANCEIROS
+  # Fonte: dados_grafico_servicos_financeiros()
+  # ============================================================
+  
+  output$grafico_servicos_financeiros <- plotly::renderPlotly({
+    
+    freq_data <- dados_grafico_servicos_financeiros()
+    
+    if (is.null(freq_data) || nrow(freq_data) == 0) {
+      return(plotly::plotly_empty())
     }
     
-    # =========================================================
-    # 10. ORDENAR SERVIÇOS
-    # =========================================================
-    ordem_servicos <- freq_data %>%
-      group_by(servico) %>%
-      summarise(
-        total = sum(percent, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(servico)
+    # Ordenar serviços pela ordem definida na tabela
+    ordem_servicos <- c(
+      "Nenhum destes serviços",
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+      "Crédito ou empréstimo bancário para o negócio",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+      "Conta bancária em nome do negócio (conta empresarial)",
+      "Conta poupança formal ligada ao negócio",
+      "Seguro (de negócio, de equipamento, de saúde...)"
+    )
     
     freq_data$servico <- factor(
       freq_data$servico,
       levels = ordem_servicos
     )
     
-    # =========================================================
-    # 11. CORES
-    # =========================================================
+    # Cores das sete categorias
     cores <- c(
       "Nenhum destes serviços" = "#5cd6c7",
       "Carteira móvel (M-Pesa, e-Mola, Mkesh)" = "#f9a825",
@@ -5048,10 +5114,21 @@ server <- function(input, output, session) {
       "Seguro (de negócio, de equipamento, de saúde...)" = "#d62728"
     )
     
-    # =========================================================
-    # 12. GRÁFICO
-    # =========================================================
-    plot_ly(
+    total_texto <- paste0(
+      "Participantes com resposta válida: ",
+      paste(
+        unique(
+          paste0(
+            freq_data$Tipo_Avaliacao,
+            " = ",
+            freq_data$total_participantes
+          )
+        ),
+        collapse = " | "
+      )
+    )
+    
+    plotly::plot_ly(
       data = freq_data,
       x = ~Tipo_Avaliacao,
       y = ~percent,
@@ -5069,14 +5146,13 @@ server <- function(input, output, session) {
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
     ) %>%
-      layout(
-        # Barras agrupadas, não empilhadas
+      plotly::layout(
         barmode = "group",
         bargap = 0.25,
         bargroupgap = 0.05,
         
         yaxis = list(
-          title = "Participantes que selecionaram (%)",
+          title = "Participantes por categoria (%)",
           range = c(0, 110),
           tickvals = seq(0, 100, 20),
           ticksuffix = "%",
@@ -5100,8 +5176,20 @@ server <- function(input, output, session) {
         margin = list(
           l = 65,
           r = 25,
-          t = 25,
-          b = 170
+          t = 55,
+          b = 190
+        ),
+        
+        annotations = list(
+          list(
+            x = 0.5,
+            y = 1.12,
+            xref = "paper",
+            yref = "paper",
+            text = total_texto,
+            showarrow = FALSE,
+            font = list(size = 10)
+          )
         ),
         
         paper_bgcolor = "#f5f3f4",
@@ -5114,19 +5202,20 @@ server <- function(input, output, session) {
       )
   })
   
+
   # ============================================================
   # TEXTO DINÂMICO — SERVIÇOS FINANCEIROS
   # BASE: Pam_Verde_Indicadores
   # Percentagem de participantes por serviço
   # ============================================================
-  
+
   output$texto_servicos <- renderUI({
-    
+
     # ==========================================================
     # 1. BASE ORIGINAL
     # ==========================================================
     df <- Pam_Verde_Indicadores
-    
+
     # ==========================================================
     # 2. APLICAR FILTROS
     # ==========================================================
@@ -5134,17 +5223,17 @@ server <- function(input, output, session) {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-    
+
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-    
+
     if (input$filtro_tipo_avaliacao != "Todos") {
       df <- df %>%
         filter(Tipo_Avaliacao == input$filtro_tipo_avaliacao)
     }
-    
+
     # ==========================================================
     # 3. VALIDAR COLUNAS
     # ==========================================================
@@ -5153,7 +5242,7 @@ server <- function(input, output, session) {
       "Tipo_Avaliacao",
       "Uso_Servicos_Financeiros"
     )
-    
+
     if (!all(colunas_necessarias %in% names(df))) {
       return(
         tags$p(
@@ -5161,7 +5250,7 @@ server <- function(input, output, session) {
         )
       )
     }
-    
+
     # ==========================================================
     # 4. PREPARAR RESPOSTAS
     # ==========================================================
@@ -5179,7 +5268,7 @@ server <- function(input, output, session) {
         !is.na(resposta),
         resposta != ""
       )
-    
+
     if (nrow(df) == 0) {
       return(
         tags$p(
@@ -5187,7 +5276,7 @@ server <- function(input, output, session) {
         )
       )
     }
-    
+
     # ==========================================================
     # 5. CONSOLIDAR RESPOSTAS POR PARTICIPANTE E AVALIAÇÃO
     #
@@ -5206,7 +5295,7 @@ server <- function(input, output, session) {
         ),
         .groups = "drop"
       )
-    
+
     # ==========================================================
     # 6. IDENTIFICAR SERVIÇOS
     #
@@ -5222,7 +5311,7 @@ server <- function(input, output, session) {
       "Conta poupança formal ligada ao negócio",
       "Seguro (de negócio, de equipamento, de saúde...)"
     )
-    
+
     dados_longos <- tidyr::crossing(
       respostas,
       servico = opcoes_servicos
@@ -5233,7 +5322,7 @@ server <- function(input, output, session) {
           stringr::fixed(servico)
         )
       )
-    
+
     # ==========================================================
     # 7. TRATAR "NENHUM DESTES SERVIÇOS"
     # ==========================================================
@@ -5256,7 +5345,7 @@ server <- function(input, output, session) {
         Tipo_Avaliacao,
         servico
       )
-    
+
     # ==========================================================
     # 8. DENOMINADOR POR AVALIAÇÃO
     #
@@ -5268,7 +5357,7 @@ server <- function(input, output, session) {
         total_participantes = n_distinct(ID_Participante),
         .groups = "drop"
       )
-    
+
     # ==========================================================
     # 9. FREQUÊNCIAS E PERCENTAGENS POR SERVIÇO
     # ==========================================================
@@ -5291,7 +5380,7 @@ server <- function(input, output, session) {
           1
         )
       )
-    
+
     # ==========================================================
     # 10. COMPARAR BASELINE E ENDLINE
     # ==========================================================
@@ -5302,7 +5391,7 @@ server <- function(input, output, session) {
         n_baseline = n,
         perc_baseline = perc
       )
-    
+
     endline <- resumo %>%
       filter(Tipo_Avaliacao == "Endline") %>%
       select(
@@ -5310,7 +5399,7 @@ server <- function(input, output, session) {
         n_endline = n,
         perc_endline = perc
       )
-    
+
     comparacao <- full_join(
       baseline,
       endline,
@@ -5319,29 +5408,29 @@ server <- function(input, output, session) {
       mutate(
         variacao = perc_endline - perc_baseline
       )
-    
+
     # ==========================================================
     # 11. CONSTRUIR TEXTO PARA CADA SERVIÇO
     # ==========================================================
     texto_categorias <- lapply(
       seq_len(nrow(comparacao)),
       function(i) {
-        
+
         categoria <- comparacao$servico[i]
-        
+
         base <- comparacao$perc_baseline[i]
         end <- comparacao$perc_endline[i]
-        
+
         n_base <- comparacao$n_baseline[i]
         n_end <- comparacao$n_endline[i]
-        
+
         variacao <- comparacao$variacao[i]
-        
+
         # ------------------------------------------
         # SEM DADOS NUMA DAS AVALIAÇÕES
         # ------------------------------------------
         if (is.na(base) || is.na(end)) {
-          
+
           return(
             paste0(
               categoria,
@@ -5349,12 +5438,12 @@ server <- function(input, output, session) {
             )
           )
         }
-        
+
         # ------------------------------------------
         # AUMENTO
         # ------------------------------------------
         if (variacao > 0) {
-          
+
           paste0(
             categoria,
             " passou de ",
@@ -5369,12 +5458,12 @@ server <- function(input, output, session) {
             format(variacao, nsmall = 1, decimal.mark = ","),
             " pontos percentuais"
           )
-          
+
           # ------------------------------------------
           # REDUÇÃO
           # ------------------------------------------
         } else if (variacao < 0) {
-          
+
           paste0(
             categoria,
             " passou de ",
@@ -5389,12 +5478,12 @@ server <- function(input, output, session) {
             format(abs(variacao), nsmall = 1, decimal.mark = ","),
             " pontos percentuais"
           )
-          
+
           # ------------------------------------------
           # SEM ALTERAÇÃO
           # ------------------------------------------
         } else {
-          
+
           paste0(
             categoria,
             " manteve-se em ",
@@ -5404,38 +5493,38 @@ server <- function(input, output, session) {
         }
       }
     )
-    
+
     # ==========================================================
     # 12. TEXTO INTRODUTÓRIO
     # ==========================================================
     total_baseline <- denominadores %>%
       filter(Tipo_Avaliacao == "Baseline") %>%
       pull(total_participantes)
-    
+
     total_endline <- denominadores %>%
       filter(Tipo_Avaliacao == "Endline") %>%
       pull(total_participantes)
-    
+
     if (length(total_baseline) == 0) {
       total_baseline <- NA_integer_
     }
-    
+
     if (length(total_endline) == 0) {
       total_endline <- NA_integer_
     }
-    
+
     # ==========================================================
     # 13. TEXTO FINAL
     # ==========================================================
     tags$p(
       style = "margin:0;text-align:justify;",
-      
+
       tags$b(
         "Utiliza actualmente algum dos seguintes serviços financeiros para o seu negócio?"
       ),
-      
+
       " A análise apresenta a percentagem de participantes que seleccionou cada serviço em cada avaliação. Como era possível seleccionar mais de um serviço, as percentagens não têm de somar 100%. ",
-      
+
       if (!is.na(total_baseline)) {
         paste0(
           "No Baseline foram consideradas ",
@@ -5445,7 +5534,7 @@ server <- function(input, output, session) {
       } else {
         "Não existem dados válidos do Baseline"
       },
-      
+
       if (!is.na(total_endline)) {
         paste0(
           " e no Endline ",
@@ -5455,18 +5544,18 @@ server <- function(input, output, session) {
       } else {
         " e não existem dados válidos do Endline"
       },
-      
+
       ". ",
-      
+
       paste(
         texto_categorias,
         collapse = "; "
       ),
-      
+
       "."
     )
   })
-  
+
   
   # ============================================================
   # PAM VERDE — UTILIZAÇÃO DE SERVIÇOS FINANCEIROS
@@ -5814,6 +5903,9 @@ server <- function(input, output, session) {
       class = "display compact stripe hover"
     )
   }, server = FALSE)
+  
+  
+
   
   # 
   # # ------------------------------------------------------------
@@ -25591,19 +25683,38 @@ server <- function(input, output, session) {
     
     # ----------------------------------------------------------
     # 4. CONCLUSÃO DA FORMAÇÃO — iVM1000
+    # Numerador: participantes Activas
+    # Denominador: Activas + Desistentes
     # ----------------------------------------------------------
     
     conclusao_formacao_EL <- NA_real_
     
     if ("Status" %in% names(perfil)) {
       
-      status <- toupper(normalizar(perfil$Status))
-      validos <- !is.na(status) & status != ""
+      status <- toupper(trimws(as.character(perfil$Status)))
       
-      if (any(validos)) {
-        conclusao_formacao_EL <- 100 * sum(
-          status == "CONCLUIU A FORMAÇÃO" & validos
-        ) / sum(validos)
+      # Identificar participantes activas e desistentes
+      activas <- status %in% c(
+        "ACTIVA", "ACTIVAS",
+        "ATIVA", "ATIVAS"
+      )
+      
+      desistentes <- status %in% c(
+        "DESISTENTE", "DESISTENTES"
+      )
+      
+      # Denominador: participantes que iniciaram a formação
+      iniciaram <- activas | desistentes
+      
+      total_iniciaram <- sum(iniciaram, na.rm = TRUE)
+      
+      # Calcular percentagem de conclusão
+      if (total_iniciaram > 0) {
+        
+        conclusao_formacao_EL <- 100 *
+          sum(activas, na.rm = TRUE) /
+          total_iniciaram
+        
       }
     }
     
@@ -26356,207 +26467,419 @@ server <- function(input, output, session) {
         `vertical-align` = "middle"
       )
     
-# #     # ----------------------------------------------------------
-# #     # 22. BOTÕES PNG E ECRÃ INTEIRO
-# #     # ----------------------------------------------------------
-# #     
-# #     htmlwidgets::onRender(
-# #       widget,
-# #       htmlwidgets::JS("
-# #     function(el, x) {
-# # 
-# #       var container = el.parentElement;
-# # 
-# #       if (container.querySelector('.toc-custom-toolbar')) {
-# #         return;
-# #       }
-# # 
-# #       var toolbar = document.createElement('div');
-# #       toolbar.className = 'toc-custom-toolbar';
-# #       toolbar.style.cssText =
-# #         'display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px 0;';
-# # 
-# #       // BOTÃO PNG
-# #       var pngButton = document.createElement('button');
-# #       pngButton.type = 'button';
-# #       pngButton.innerHTML = '📷 Save full table as PNG';
-# #       pngButton.style.cssText =
-# #         'background:#9442d4;color:white;border:0;padding:9px 14px;' +
-# #         'border-radius:5px;cursor:pointer;font-weight:bold;';
-# # 
-# #       // BOTÃO ECRÃ INTEIRO
-# #       var fullButton = document.createElement('button');
-# #       fullButton.type = 'button';
-# #       fullButton.innerHTML = '⛶ Full screen';
-# #       fullButton.style.cssText =
-# #         'background:#F37238;color:white;border:0;padding:9px 14px;' +
-# #         'border-radius:5px;cursor:pointer;font-weight:bold;';
-# # 
-# #       toolbar.appendChild(pngButton);
-# #       toolbar.appendChild(fullButton);
-# #       container.insertBefore(toolbar, el);
-# # 
-# #       // ECRÃ INTEIRO
-# #       fullButton.addEventListener('click', function() {
-# #         var target = container;
-# # 
-# #         if (!document.fullscreenElement) {
-# #           if (target.requestFullscreen) {
-# #             target.requestFullscreen();
-# #           }
-# #         } else if (document.exitFullscreen) {
-# #           document.exitFullscreen();
-# #         }
-# #       });
-# # 
-# #       
-# #       // EXPORTAR TABELA COMPLETA COMO PNG
-# # pngButton.addEventListener('click', async function() {
-# # 
-# #   var $ = window.jQuery;
-# # 
-# #   // 1. Verificar se a biblioteca está carregada
-# #   if (typeof window.html2canvas === 'undefined') {
-# #     alert(
-# #       'A biblioteca html2canvas não está carregada. ' +
-# #       'Verifica a ligação à Internet e o script no UI.'
-# #     );
-# #     return;
-# #   }
-# # 
-# #   // 2. Localizar o elemento HTML da tabela
-# #   var tableElement = el.querySelector('table');
-# # 
-# #   if (
-# #     !$ ||
-# #     !$.fn.DataTable ||
-# #     !tableElement ||
-# #     !$.fn.DataTable.isDataTable(tableElement)
-# #   ) {
-# #     console.error('Tabela DataTables não encontrada.', el);
-# #     alert('Não foi possível localizar a tabela DataTables.');
-# #     return;
-# #   }
-# # 
-# #   var dt = $(tableElement).DataTable();
-# # 
-# #   // 3. Guardar o estado original
-# #   var oldPageLength = dt.page.len();
-# #   var oldPage = dt.page();
-# # 
-# #   var scrollBody = container.querySelector(
-# #     '.dataTables_scrollBody'
-# #   );
-# # 
-# #   var oldScrollStyle = scrollBody
-# #     ? scrollBody.getAttribute('style')
-# #     : null;
-# # 
-# #   var oldOverflow = container.style.overflow;
-# # 
-# #   pngButton.disabled = true;
-# #   pngButton.innerHTML = 'A preparar imagem...';
-# # 
-# #   try {
-# # 
-# #     // 4. Mostrar todas as linhas
-# #     dt.page.len(-1).draw();
-# # 
-# #     await new Promise(function(resolve) {
-# #       setTimeout(resolve, 500);
-# #     });
-# # 
-# #     // 5. Retirar temporariamente os limites de scroll
-# #     if (scrollBody) {
-# #       scrollBody.style.height = 'auto';
-# #       scrollBody.style.maxHeight = 'none';
-# #       scrollBody.style.overflow = 'visible';
-# #     }
-# # 
-# #     container.style.overflow = 'visible';
-# # 
-# #     await new Promise(function(resolve) {
-# #       setTimeout(resolve, 300);
-# #     });
-# # 
-# #     // 6. Capturar a tabela
-# #     var canvas = await window.html2canvas(container, {
-# #       scale: 2,
-# #       useCORS: true,
-# #       backgroundColor: '#ffffff',
-# #       logging: true,
-# #       width: Math.max(
-# #         container.scrollWidth,
-# #         container.clientWidth
-# #       ),
-# #       windowWidth: Math.max(
-# #         document.documentElement.clientWidth,
-# #         container.scrollWidth
-# #       ),
-# #       onclone: function(doc) {
-# #         var clonedScroll = doc.querySelector(
-# #           '.dataTables_scrollBody'
-# #         );
-# # 
-# #         if (clonedScroll) {
-# #           clonedScroll.style.height = 'auto';
-# #           clonedScroll.style.maxHeight = 'none';
-# #           clonedScroll.style.overflow = 'visible';
-# #         }
-# #       }
-# #     });
-# # 
-# #     // 7. Criar e descarregar o PNG
-# #     var link = document.createElement('a');
-# # 
-# #     link.download =
-# #       'Matriz_TOC_PAM_Verde_Nampula_C3.png';
-# # 
-# #     link.href = canvas.toDataURL('image/png');
-# # 
-# #     document.body.appendChild(link);
-# #     link.click();
-# #     link.remove();
-# # 
-# #   } catch (error) {
-# # 
-# #     console.error(
-# #       'Erro ao exportar a tabela para PNG:',
-# #       error
-# #     );
-# # 
-# #     alert(
-# #       'Falha ao gerar o PNG. Abre a consola do navegador ' +
-# #       '(F12) para consultar o erro.'
-# #     );
-# # 
-# #   } finally {
-# # 
-# #     // 8. Restaurar o estado original da tabela
-# #     if (scrollBody) {
-# #       if (oldScrollStyle === null) {
-# #         scrollBody.removeAttribute('style');
-# #       } else {
-# #         scrollBody.setAttribute('style', oldScrollStyle);
-# #       }
-# #     }
-# # 
-# #     container.style.overflow = oldOverflow;
-# # 
-# #     dt.page.len(oldPageLength).draw();
-# # 
-# #     setTimeout(function() {
-# #       dt.page(oldPage).draw('page');
-# #     }, 100);
-# # 
-# #     pngButton.disabled = false;
-# #     pngButton.innerHTML = '📷 Save full table as PNG';
-# #   }
-# # 
-# # });
-# #     }
-# #   ")
-#     )
+    
+    # ----------------------------------------------------------
+    # 22. BOTÕES PERSONALIZADOS E CAPTURA PNG
+    # PAM VERDE — NAMPULA CICLO 3
+    # ----------------------------------------------------------
+    
+    widget <- htmlwidgets::onRender(
+      
+      widget,
+      
+      htmlwidgets::JS("
+
+      function(el, x) {
+
+        var wrapper = el.querySelector('.dataTables_wrapper');
+
+if (!wrapper) return;
+
+// Seleccionar a tabela real do corpo, não a cópia do cabeçalho
+var table = wrapper.querySelector(
+  '.dataTables_scrollBody table'
+);
+
+if (!table) {
+  table = wrapper.querySelector('table.dataTable');
+}
+
+if (!table) {
+  console.error('Tabela DataTables não encontrada.', el);
+  return;
+}
+
+        if (!wrapper || !table) return;
+
+        // Evitar duplicação dos botões
+        if (wrapper.querySelector('.toolbar-toc-personalizada')) {
+          return;
+        }
+
+        // ------------------------------------------------------
+        // CRIAR BARRA DE BOTÕES
+        // ------------------------------------------------------
+
+        var toolbar = document.createElement('div');
+
+        toolbar.className = 'toolbar-toc-personalizada';
+
+        toolbar.style.cssText =
+          'display:flex;gap:10px;flex-wrap:wrap;' +
+          'align-items:center;margin:12px 0;padding:8px 0;';
+
+        function criarBotao(texto, cor) {
+
+          var botao = document.createElement('button');
+
+          botao.type = 'button';
+          botao.innerHTML = texto;
+
+          botao.style.cssText =
+            'background:' + cor + ';color:white;border:0;' +
+            'padding:10px 15px;border-radius:6px;' +
+            'cursor:pointer;font-weight:600;';
+
+          toolbar.appendChild(botao);
+
+          return botao;
+        }
+
+        var btnPNG = criarBotao(
+          '&#128247; Guardar tabela completa em PNG',
+          '#9442d4'
+        );
+
+        var btnFullscreen = criarBotao(
+          '&#9974; Ecrã inteiro',
+          '#F37238'
+        );
+
+        wrapper.insertBefore(toolbar, wrapper.firstChild);
+
+        // ------------------------------------------------------
+        // AJUSTAR COLUNAS
+        // ------------------------------------------------------
+
+        function ajustarTabela() {
+
+          if (window.jQuery && $.fn.dataTable) {
+
+            var api = $(table).DataTable();
+
+            setTimeout(function() {
+              api.columns.adjust().draw(false);
+            }, 250);
+          }
+        }
+
+        // ------------------------------------------------------
+        // EXPORTAR A TABELA COMPLETA PARA PNG
+        // ------------------------------------------------------
+
+        btnPNG.addEventListener('click', function() {
+
+          if (typeof window.html2canvas !== 'function') {
+
+            if (document.querySelector(
+              'script[data-html2canvas-toc]'
+            )) {
+              alert(
+                'A ferramenta de captura está a carregar. ' +
+                'Tente novamente dentro de alguns segundos.'
+              );
+              return;
+            }
+
+            var script = document.createElement('script');
+
+            script.src =
+              'https://cdnjs.cloudflare.com/ajax/libs/' +
+              'html2canvas/1.4.1/html2canvas.min.js';
+
+            script.setAttribute('data-html2canvas-toc', 'true');
+
+            btnPNG.disabled = true;
+            btnPNG.textContent = 'A carregar ferramenta...';
+
+            script.onload = function() {
+              btnPNG.disabled = false;
+              btnPNG.innerHTML =
+                '&#128247; Guardar tabela completa em PNG';
+              btnPNG.click();
+            };
+
+            script.onerror = function() {
+              btnPNG.disabled = false;
+              btnPNG.innerHTML =
+                '&#128247; Guardar tabela completa em PNG';
+
+              alert(
+                'Não foi possível carregar a ferramenta PNG. ' +
+                'Verifique a ligação à Internet.'
+              );
+            };
+
+            document.head.appendChild(script);
+
+            return;
+          }
+
+          if (!window.jQuery || !$.fn.dataTable) {
+            alert('A tabela ainda não está pronta.');
+            return;
+          }
+
+          var api = $(table).DataTable();
+
+          var scrollBody = wrapper.querySelector(
+            '.dataTables_scrollBody'
+          );
+
+          var scroll = wrapper.querySelector(
+            '.dataTables_scroll'
+          );
+
+          var estado = {
+            pageLength: api.page.len(),
+            page: api.page(),
+            scrollBodyStyle: scrollBody
+              ? scrollBody.getAttribute('style')
+              : null,
+            scrollStyle: scroll
+              ? scroll.getAttribute('style')
+              : null,
+            wrapperStyle: wrapper.getAttribute('style')
+          };
+
+          btnPNG.disabled = true;
+          btnPNG.textContent = 'A preparar imagem...';
+
+          function restaurarAtributo(elemento, valor) {
+
+            if (!elemento) return;
+
+            if (valor === null) {
+              elemento.removeAttribute('style');
+            } else {
+              elemento.setAttribute('style', valor);
+            }
+          }
+
+          function restaurar() {
+
+            restaurarAtributo(
+              scrollBody,
+              estado.scrollBodyStyle
+            );
+
+            restaurarAtributo(
+              scroll,
+              estado.scrollStyle
+            );
+
+            restaurarAtributo(
+              wrapper,
+              estado.wrapperStyle
+            );
+
+            api.page.len(estado.pageLength).draw(false);
+
+            setTimeout(function() {
+
+              api.page(estado.page).draw('page');
+
+              ajustarTabela();
+
+              btnPNG.disabled = false;
+              btnPNG.innerHTML =
+                '&#128247; Guardar tabela completa em PNG';
+
+            }, 300);
+          }
+
+          // Mostrar todas as linhas temporariamente
+          api.page.len(-1).draw(false);
+
+          setTimeout(function() {
+
+            if (scrollBody) {
+              scrollBody.style.height = 'auto';
+              scrollBody.style.maxHeight = 'none';
+              scrollBody.style.overflow = 'visible';
+            }
+
+            if (scroll) {
+              scroll.style.height = 'auto';
+              scroll.style.maxHeight = 'none';
+              scroll.style.overflow = 'visible';
+            }
+
+            wrapper.style.width = 'max-content';
+            wrapper.style.maxWidth = 'none';
+            wrapper.style.overflow = 'visible';
+
+            ajustarTabela();
+
+            setTimeout(function() {
+
+              var largura = Math.max(
+                wrapper.scrollWidth,
+                wrapper.offsetWidth
+              );
+
+              var altura = Math.max(
+                wrapper.scrollHeight,
+                wrapper.offsetHeight
+              );
+
+        window.html2canvas(wrapper, {
+  scale: 2,
+  backgroundColor: '#ffffff',
+  useCORS: true,
+  logging: true,
+  width: wrapper.scrollWidth,
+  height: wrapper.scrollHeight,
+  windowWidth: Math.max(
+    document.documentElement.clientWidth,
+    wrapper.scrollWidth
+  ),
+  windowHeight: Math.max(
+    document.documentElement.clientHeight,
+    wrapper.scrollHeight
+  ),
+  onclone: function(doc) {
+
+    var clonedWrapper = doc.querySelector(
+      '.toolbar-toc-personalizada'
+    );
+
+    if (clonedWrapper) {
+      clonedWrapper.style.display = 'none';
+    }
+
+    var clonedBodies = doc.querySelectorAll(
+      '.dataTables_scrollBody'
+    );
+
+    clonedBodies.forEach(function(body) {
+      body.style.height = 'auto';
+      body.style.maxHeight = 'none';
+      body.style.overflow = 'visible';
+      body.style.width = 'auto';
+    });
+
+    var clonedScrolls = doc.querySelectorAll(
+      '.dataTables_scroll'
+    );
+
+    clonedScrolls.forEach(function(scroll) {
+      scroll.style.height = 'auto';
+      scroll.style.maxHeight = 'none';
+      scroll.style.overflow = 'visible';
+      scroll.style.width = 'max-content';
+    });
+  }
+}).then(function(canvas) {
+
+                var link = document.createElement('a');
+
+                link.download =
+                  'Matriz_TOC_PAM_Verde_Nampula_C3.png';
+
+                link.href = canvas.toDataURL('image/png');
+
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+
+              }).catch(function(erro) {
+
+                console.error('Erro ao gerar PNG:', erro);
+
+                alert(
+                  'Não foi possível gerar o PNG completo. ' +
+                  'Verifique a consola do navegador (F12).'
+                );
+
+              }).finally(function() {
+
+                restaurar();
+
+              });
+
+            }, 500);
+
+          }, 350);
+
+        });
+
+        // ------------------------------------------------------
+        // MODO DE ECRÃ INTEIRO
+        // ------------------------------------------------------
+
+        btnFullscreen.addEventListener('click', function() {
+
+          if (document.fullscreenElement === wrapper) {
+
+            document.exitFullscreen().catch(function(erro) {
+              console.error('Erro ao sair do ecrã inteiro:', erro);
+            });
+
+            return;
+          }
+
+          if (!wrapper.requestFullscreen) {
+            alert(
+              'O navegador não suporta o modo de ecrã inteiro.'
+            );
+            return;
+          }
+
+          wrapper.requestFullscreen().catch(function(erro) {
+            console.error('Erro no ecrã inteiro:', erro);
+
+            alert(
+              'Não foi possível abrir o ecrã inteiro.'
+            );
+          });
+
+        });
+
+        document.addEventListener('fullscreenchange', function() {
+
+          var ativo = document.fullscreenElement === wrapper;
+
+          btnFullscreen.innerHTML = ativo
+            ? '&#10006; Sair do ecrã inteiro'
+            : '&#9974; Ecrã inteiro';
+
+          if (ativo) {
+
+            wrapper.style.background = '#ffffff';
+            wrapper.style.padding = '15px';
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100vh';
+            wrapper.style.overflow = 'auto';
+            wrapper.style.boxSizing = 'border-box';
+
+          } else {
+
+            wrapper.style.removeProperty('background');
+            wrapper.style.removeProperty('padding');
+            wrapper.style.removeProperty('width');
+            wrapper.style.removeProperty('height');
+            wrapper.style.removeProperty('overflow');
+            wrapper.style.removeProperty('box-sizing');
+
+          }
+
+          ajustarTabela();
+
+        });
+
+      }
+
+      ")
+      
+    )
+    
+    # ----------------------------------------------------------
+    # 23. DEVOLVER A TABELA COM OS BOTÕES
+    # ----------------------------------------------------------
+    
+    widget
+    
     
   }, server = TRUE)
   
@@ -26698,16 +27021,34 @@ server <- function(input, output, session) {
     if ("Status" %in% names(perfil_beira)) {
       
       status_perfil <- toupper(
-        normalizar_texto(perfil_beira$Status)
+        trimws(as.character(
+          normalizar_texto(perfil_beira$Status)
+        ))
       )
       
-      validos <- !is.na(status_perfil) &
-        status_perfil != ""
+      # Participantes que iniciaram:
+      # Activas + Desistentes
+      iniciaram <- !is.na(status_perfil) &
+        status_perfil %in% c(
+          "ACTIVA", "ACTIVAS",
+          "ATIVA", "ATIVAS",
+          "DESISTENTE", "DESISTENTES"
+        )
       
-      if (any(validos)) {
-        conclusao_formacao_EL <- 100 * sum(
-          status_perfil == "CONCLUIU A FORMAÇÃO" & validos
-        ) / sum(validos)
+      # Participantes activas, consideradas como concluintes
+      activas <- !is.na(status_perfil) &
+        status_perfil %in% c(
+          "ACTIVA", "ACTIVAS",
+          "ATIVA", "ATIVAS"
+        )
+      
+      total_iniciaram <- sum(iniciaram)
+      total_activas <- sum(activas)
+      
+      # Percentagem de conclusão
+      if (total_iniciaram > 0) {
+        conclusao_formacao_EL <-
+          (total_activas / total_iniciaram) * 100
       }
     }
     
@@ -27485,175 +27826,268 @@ server <- function(input, output, session) {
       `vertical-align` = "middle"
     ) |>
       
+      
       # --------------------------------------------------------
-    # 25. BOTÕES PNG E ECRÃ INTEIRO
+    # 25. BOTÕES PNG E ECRÃ INTEIRO — BEIRA CICLO 1
     # --------------------------------------------------------
-    
     
     htmlwidgets::onRender(
       htmlwidgets::JS("
-    function(el, x) {
+        function(el, x) {
 
-      var container = el.parentElement;
+          var container = el.parentElement;
 
-      if (!container ||
-          container.querySelector('.toc-custom-toolbar')) {
-        return;
-      }
-
-      var toolbar = document.createElement('div');
-      toolbar.className = 'toc-custom-toolbar';
-      toolbar.style.cssText =
-        'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;';
-
-      var pngButton = document.createElement('button');
-      pngButton.type = 'button';
-      pngButton.textContent = '📷 Save full table as PNG';
-      pngButton.style.cssText =
-        'background:#9442d4;color:white;border:0;padding:9px 14px;' +
-        'border-radius:5px;cursor:pointer;font-weight:bold;';
-
-      var fullButton = document.createElement('button');
-      fullButton.type = 'button';
-      fullButton.textContent = '⛶ Full screen';
-      fullButton.style.cssText =
-        'background:#F37238;color:white;border:0;padding:9px 14px;' +
-        'border-radius:5px;cursor:pointer;font-weight:bold;';
-
-      toolbar.appendChild(pngButton);
-      toolbar.appendChild(fullButton);
-      container.insertBefore(toolbar, el);
-
-      // ECRÃ INTEIRO
-      fullButton.addEventListener('click', function() {
-        if (!document.fullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          }
-        } else if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      });
-
-      // EXPORTAR PNG
-      pngButton.addEventListener('click', async function() {
-
-        var $ = window.jQuery;
-        var table = el.querySelector('table');
-
-        if (typeof html2canvas === 'undefined') {
-          alert('A biblioteca html2canvas não está carregada.');
-          return;
-        }
-
-        if (!table || !$ || !$.fn.DataTable ||
-            !$.fn.DataTable.isDataTable(table)) {
-          alert('Não foi possível localizar a tabela DataTables.');
-          return;
-        }
-
-        var dt = $(table).DataTable();
-        var oldLength = dt.page.len();
-        var oldPage = dt.page();
-
-        var scrollBody =
-          container.querySelector('.dataTables_scrollBody');
-
-        var oldHeight = scrollBody ? scrollBody.style.height : '';
-        var oldMaxHeight = scrollBody ? scrollBody.style.maxHeight : '';
-        var oldOverflow = scrollBody ? scrollBody.style.overflow : '';
-
-        pngButton.disabled = true;
-        pngButton.textContent = 'A preparar imagem...';
-
-        try {
-
-          // Mostrar todas as linhas
-          dt.page.len(-1).draw();
-
-          await new Promise(function(resolve) {
-            setTimeout(resolve, 500);
-          });
-
-          // Remover temporariamente o limite de altura
-          if (scrollBody) {
-            scrollBody.style.height = 'auto';
-            scrollBody.style.maxHeight = 'none';
-            scrollBody.style.overflow = 'visible';
+          if (!container ||
+              container.querySelector('.toc-custom-toolbar')) {
+            return;
           }
 
-          // Capturar o conteúdo completo da matriz
-          var canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: true,
-            windowWidth: Math.max(
-              document.documentElement.clientWidth,
-              container.scrollWidth
-            ),
-            onclone: function(doc) {
-              var clonedContainer = doc.querySelector(
-                '.toc-custom-toolbar'
-              );
-              if (clonedContainer) {
-                clonedContainer.style.display = 'flex';
+          // --------------------------------------------------
+          // CRIAR BARRA DE BOTÕES
+          // --------------------------------------------------
+
+          var toolbar = document.createElement('div');
+          toolbar.className = 'toc-custom-toolbar';
+          toolbar.style.cssText =
+            'display:flex;gap:10px;flex-wrap:wrap;' +
+            'margin-bottom:12px;';
+
+          function criarBotao(texto, cor) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = texto;
+            btn.style.cssText =
+              'background:' + cor + ';color:white;border:0;' +
+              'padding:9px 14px;border-radius:5px;' +
+              'cursor:pointer;font-weight:bold;';
+            return btn;
+          }
+
+          var pngButton = criarBotao(
+            '📷 Guardar tabela completa em PNG',
+            '#9442d4'
+          );
+
+          var fullButton = criarBotao(
+            '⛶ Ecrã inteiro',
+            '#F37238'
+          );
+
+          toolbar.appendChild(pngButton);
+          toolbar.appendChild(fullButton);
+          container.insertBefore(toolbar, el);
+
+          // --------------------------------------------------
+          // ECRÃ INTEIRO
+          // --------------------------------------------------
+
+          fullButton.addEventListener('click', function() {
+            if (!document.fullscreenElement) {
+              if (container.requestFullscreen) {
+                container.requestFullscreen();
               }
+            } else if (document.exitFullscreen) {
+              document.exitFullscreen();
             }
           });
 
-          // Criar o ficheiro PNG
-          var blob = await new Promise(function(resolve) {
-            canvas.toBlob(resolve, 'image/png');
+          // --------------------------------------------------
+          // EXPORTAR A MATRIZ COMPLETA EM PNG
+          // --------------------------------------------------
+
+          pngButton.addEventListener('click', async function() {
+
+            var $ = window.jQuery;
+
+            if (typeof window.html2canvas !== 'function') {
+              alert(
+                'A biblioteca html2canvas não está carregada. ' +
+                'Verifique a inclusão do script no UI.'
+              );
+              return;
+            }
+
+            // Procurar a tabela real, dentro do corpo DataTables.
+            // Com scrollX, o cabeçalho e o corpo podem ter tabelas
+            // HTML diferentes.
+            var table =
+              el.querySelector('.dataTables_scrollBody table.dataTable');
+
+            if (!table) {
+              table = el.querySelector('table.dataTable');
+            }
+
+            if (!table || !$ || !$.fn.DataTable ||
+                !$.fn.DataTable.isDataTable(table)) {
+              alert(
+                'Não foi possível localizar a tabela DataTables ' +
+                'para exportação.'
+              );
+              return;
+            }
+
+            var dt = $(table).DataTable();
+            var oldLength = dt.page.len();
+            var oldPage = dt.page();
+
+            var wrapper = el.querySelector('.dataTables_wrapper');
+            if (!wrapper) {
+              wrapper = el;
+            }
+
+            var scrollBody =
+              wrapper.querySelector('.dataTables_scrollBody');
+
+            var oldScrollHeight =
+              scrollBody ? scrollBody.style.height : '';
+            var oldScrollMaxHeight =
+              scrollBody ? scrollBody.style.maxHeight : '';
+            var oldScrollOverflow =
+              scrollBody ? scrollBody.style.overflow : '';
+
+            pngButton.disabled = true;
+            pngButton.textContent = 'A preparar PNG...';
+
+            try {
+
+              // Mostrar todas as linhas da tabela.
+              dt.page.len(-1).draw();
+
+              // Dar tempo ao DataTables para actualizar a tabela.
+              await new Promise(function(resolve) {
+                setTimeout(resolve, 500);
+              });
+
+              // Retirar temporariamente o limite de altura.
+              if (scrollBody) {
+                scrollBody.style.height = 'auto';
+                scrollBody.style.maxHeight = 'none';
+                scrollBody.style.overflow = 'visible';
+              }
+
+              await new Promise(function(resolve) {
+                setTimeout(resolve, 200);
+              });
+
+              // Capturar a matriz completa.
+              var canvas = await window.html2canvas(wrapper, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false,
+                width: wrapper.scrollWidth,
+                height: wrapper.scrollHeight,
+                windowWidth: Math.max(
+                  document.documentElement.clientWidth,
+                  wrapper.scrollWidth
+                ),
+                windowHeight: Math.max(
+                  document.documentElement.clientHeight,
+                  wrapper.scrollHeight
+                ),
+
+                onclone: function(doc) {
+
+                  // Esconder os botões na imagem exportada.
+                  var clonedToolbar =
+                    doc.querySelector('.toc-custom-toolbar');
+
+                  if (clonedToolbar) {
+                    clonedToolbar.style.display = 'none';
+                  }
+
+                  // Permitir que todas as linhas sejam renderizadas.
+                  var clonedBodies =
+                    doc.querySelectorAll('.dataTables_scrollBody');
+
+                  clonedBodies.forEach(function(body) {
+                    body.style.height = 'auto';
+                    body.style.maxHeight = 'none';
+                    body.style.overflow = 'visible';
+                    body.style.overflowY = 'visible';
+                    body.style.overflowX = 'visible';
+                  });
+
+                  var clonedScrolls =
+                    doc.querySelectorAll('.dataTables_scroll');
+
+                  clonedScrolls.forEach(function(scroll) {
+                    scroll.style.height = 'auto';
+                    scroll.style.maxHeight = 'none';
+                    scroll.style.overflow = 'visible';
+                  });
+
+                  var clonedWrappers =
+                    doc.querySelectorAll('.dataTables_wrapper');
+
+                  clonedWrappers.forEach(function(w) {
+                    w.style.height = 'auto';
+                    w.style.maxHeight = 'none';
+                    w.style.overflow = 'visible';
+                  });
+                }
+              });
+
+              // Criar o ficheiro PNG.
+              var blob = await new Promise(function(resolve) {
+                canvas.toBlob(resolve, 'image/png');
+              });
+
+              if (!blob) {
+                throw new Error(
+                  'Não foi possível criar o ficheiro PNG.'
+                );
+              }
+
+              var url = URL.createObjectURL(blob);
+              var link = document.createElement('a');
+
+              link.href = url;
+              link.download =
+                'Matriz_TOC_PAM_Verde_Beira_Ciclo1.png';
+
+              document.body.appendChild(link);
+              link.click();
+              link.remove();
+
+              setTimeout(function() {
+                URL.revokeObjectURL(url);
+              }, 3000);
+
+            } catch (error) {
+
+              console.error(
+                'Erro na exportação PNG da matriz Beira C1:',
+                error
+              );
+
+              alert(
+                'Não foi possível gerar o PNG. ' +
+                'Abra F12 > Console para consultar o erro.'
+              );
+
+            } finally {
+
+              // Restaurar a altura e o comportamento do scroll.
+              if (scrollBody) {
+                scrollBody.style.height = oldScrollHeight;
+                scrollBody.style.maxHeight = oldScrollMaxHeight;
+                scrollBody.style.overflow = oldScrollOverflow;
+              }
+
+              // Restaurar a paginação original.
+              dt.page.len(oldLength).draw();
+
+              setTimeout(function() {
+                dt.page(oldPage).draw('page');
+                pngButton.disabled = false;
+                pngButton.textContent =
+                  '📷 Guardar tabela completa em PNG';
+              }, 250);
+            }
           });
-
-          if (!blob) {
-            throw new Error('Não foi possível criar o ficheiro PNG.');
-          }
-
-          var url = URL.createObjectURL(blob);
-          var link = document.createElement('a');
-
-          link.href = url;
-          link.download = 'Matriz_TOC_PAM_Verde_Beira_Ciclo1.png';
-
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-
-          setTimeout(function() {
-            URL.revokeObjectURL(url);
-          }, 3000);
-
-        } catch (error) {
-
-          console.error('Erro na exportação PNG:', error);
-          alert(
-            'Falha ao gerar o PNG. Consulte a consola do navegador ' +
-            '(F12 > Console) para ver o erro.'
-          );
-
-        } finally {
-
-          // Restaurar o estado original
-          if (scrollBody) {
-            scrollBody.style.height = oldHeight;
-            scrollBody.style.maxHeight = oldMaxHeight;
-            scrollBody.style.overflow = oldOverflow;
-          }
-
-          dt.page.len(oldLength).draw();
-
-          setTimeout(function() {
-            dt.page(oldPage).draw('page');
-            pngButton.disabled = false;
-            pngButton.textContent = '📷 Save full table as PNG';
-          }, 200);
         }
-
-      });
-    }
-  ")
+      ")
     )
     
     
@@ -27662,119 +28096,119 @@ server <- function(input, output, session) {
   
   
   ########### BOTAO
-  
-  output$admin_ui <- renderUI({
-    sidebarLayout(
-      sidebarPanel(
-        actionButton("botao_atualizar", "📥 Carregar/Actualizar Dados", class = "btn btn-warning")
-      ),
-      mainPanel(
-        tags$h5("Clique no botão à esquerda para actualizar os dados do sistema."),
-        verbatimTextOutput("status_atualizacao")
-      )
-    )
-  })
-
-  # Função principal de atualização
-  atualiza_dados <- function() {
-    tryCatch({
-      # Autenticação com Zoho
-      client_id <- Sys.getenv("CLIENT_ID")
-      client_secret <- Sys.getenv("CLIENT_SECRET")
-      refresh_token <- Sys.getenv("REFRESH_TOKEN")
-
-      access_token <- RZohoCreator::refresh_access_token(
-        client_id, client_secret, refresh_token
-      )$access_token
-
-      ## 1. Presenças Coletivas
-      Presencas_colectivas <- RZohoCreator::get_records(
-        "associacaomuva", "monitoria", "Presen_as_PAM_VERDE_Report", access_token
-      ) %>%
-        data.frame()
-
-
-      write_xlsx(Presencas_colectivas, "Presencas_colectivas.xlsx")
-
-      # ## 2. Presenças Individuais
-      # Presencas_Individuais <- RZohoCreator::get_records(
-      #   "associacaomuva", "monitoria", "Presen_as_Individuais_PAM_Report", access_token
-      # ) %>%
-      #   data.frame()
-      # 
-      # write_xlsx(Presencas_Individuais, "Presencas_Individuais.xlsx")
-
-      ## 3. Dados Financeiros
-      Financeiro_Report <- RZohoCreator::get_records(
-        "associacaomuva", "app-empreendedorismo", "Dados_Financeiros_Report", access_token
-      )
-
-      write_xlsx(Financeiro_Report, "Financeiro_Report.xlsx")
-
-      # # ## 4. Recursos Humanos
-      # RH_Empreendedoras <- RZohoCreator::get_records(
-      #   "associacaomuva", "app-empreendedorismo", "RH_Empreendedoras_Report", access_token
-      # ) %>%
-      #   data.frame()
-      # 
-      # 
-      # write_xlsx(RH_Empreendedoras, "RH_Empreendedoras.xlsx")
-
-      ## Retornar os objetos (opcional)
-      return(list(
-        # dados = dados,
-        # Presencas_Individuais = Presencas_Individuais,
-        Financeiro_Report = Financeiro_Report
-        # RH_Empreendedoras = RH_Empreendedoras
-      ))
-    }, error = function(e) {
-      message("Erro ao atualizar dados: ", e$message)
-      return(NULL)
-    })
-  }
-  #
-  # # Evento ao clicar no botão
-  dados_atualizados <- eventReactive(input$botao_atualizar, {
-    # Criar log da ação
-    log_entry <- data.frame(
-      usuario = "admin",  # como não há mais login, colocar fixo
-      acao = "Atualizou os dados",
-      hora = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
-      stringsAsFactors = FALSE
-    )
-
-    # Ler e combinar com logs antigos
-    if (file.exists("log_acoes.xlsx")) {
-      log_existente <- readxl::read_excel("log_acoes.xlsx")
-      log_total <- dplyr::bind_rows(log_existente, log_entry)
-    } else {
-      log_total <- log_entry
-    }
-
-    # Salvar o novo log
-    writexl::write_xlsx(log_total, path = "log_acoes.xlsx")
-
-    # Rodar atualização
-    atualiza_dados()
-  })
-
-  # Mensagem de status
-  output$status_atualizacao <- renderText({
-    if (input$botao_atualizar > 0) {
-      if (!is.null(dados_atualizados())) {
-        paste0(
-          "✅ Dados actualizados com sucesso em ",
-          format(Sys.time(), "%d/%m/%Y %H:%M:%S"),
-          ". Por favor, actualize (refresh) a página no navegador para ver as mudanças."
-        )
-      } else {
-        "⚠️ Erro ao actualizar os dados. Verifique o log."
-      }
-    } else {
-      "⏳ Aguardando actualização..."
-    }
-  })
-  
+  # 
+  # output$admin_ui <- renderUI({
+  #   sidebarLayout(
+  #     sidebarPanel(
+  #       actionButton("botao_atualizar", "📥 Carregar/Actualizar Dados", class = "btn btn-warning")
+  #     ),
+  #     mainPanel(
+  #       tags$h5("Clique no botão à esquerda para actualizar os dados do sistema."),
+  #       verbatimTextOutput("status_atualizacao")
+  #     )
+  #   )
+  # })
+  # 
+  # # Função principal de atualização
+  # atualiza_dados <- function() {
+  #   tryCatch({
+  #     # Autenticação com Zoho
+  #     client_id <- Sys.getenv("CLIENT_ID")
+  #     client_secret <- Sys.getenv("CLIENT_SECRET")
+  #     refresh_token <- Sys.getenv("REFRESH_TOKEN")
+  # 
+  #     access_token <- RZohoCreator::refresh_access_token(
+  #       client_id, client_secret, refresh_token
+  #     )$access_token
+  # 
+  #     ## 1. Presenças Coletivas
+  #     Presencas_colectivas <- RZohoCreator::get_records(
+  #       "associacaomuva", "monitoria", "Presen_as_PAM_VERDE_Report", access_token
+  #     ) %>%
+  #       data.frame()
+  # 
+  # 
+  #     write_xlsx(Presencas_colectivas, "Presencas_colectivas.xlsx")
+  # 
+  #     # ## 2. Presenças Individuais
+  #     # Presencas_Individuais <- RZohoCreator::get_records(
+  #     #   "associacaomuva", "monitoria", "Presen_as_Individuais_PAM_Report", access_token
+  #     # ) %>%
+  #     #   data.frame()
+  #     # 
+  #     # write_xlsx(Presencas_Individuais, "Presencas_Individuais.xlsx")
+  # 
+  #     ## 3. Dados Financeiros
+  #     Financeiro_Report <- RZohoCreator::get_records(
+  #       "associacaomuva", "app-empreendedorismo", "Dados_Financeiros_Report", access_token
+  #     )
+  # 
+  #     write_xlsx(Financeiro_Report, "Financeiro_Report.xlsx")
+  # 
+  #     # # ## 4. Recursos Humanos
+  #     # RH_Empreendedoras <- RZohoCreator::get_records(
+  #     #   "associacaomuva", "app-empreendedorismo", "RH_Empreendedoras_Report", access_token
+  #     # ) %>%
+  #     #   data.frame()
+  #     # 
+  #     # 
+  #     # write_xlsx(RH_Empreendedoras, "RH_Empreendedoras.xlsx")
+  # 
+  #     ## Retornar os objetos (opcional)
+  #     return(list(
+  #       # dados = dados,
+  #       # Presencas_Individuais = Presencas_Individuais,
+  #       Financeiro_Report = Financeiro_Report
+  #       # RH_Empreendedoras = RH_Empreendedoras
+  #     ))
+  #   }, error = function(e) {
+  #     message("Erro ao atualizar dados: ", e$message)
+  #     return(NULL)
+  #   })
+  # }
+  # #
+  # # # Evento ao clicar no botão
+  # dados_atualizados <- eventReactive(input$botao_atualizar, {
+  #   # Criar log da ação
+  #   log_entry <- data.frame(
+  #     usuario = "admin",  # como não há mais login, colocar fixo
+  #     acao = "Atualizou os dados",
+  #     hora = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+  #     stringsAsFactors = FALSE
+  #   )
+  # 
+  #   # Ler e combinar com logs antigos
+  #   if (file.exists("log_acoes.xlsx")) {
+  #     log_existente <- readxl::read_excel("log_acoes.xlsx")
+  #     log_total <- dplyr::bind_rows(log_existente, log_entry)
+  #   } else {
+  #     log_total <- log_entry
+  #   }
+  # 
+  #   # Salvar o novo log
+  #   writexl::write_xlsx(log_total, path = "log_acoes.xlsx")
+  # 
+  #   # Rodar atualização
+  #   atualiza_dados()
+  # })
+  # 
+  # # Mensagem de status
+  # output$status_atualizacao <- renderText({
+  #   if (input$botao_atualizar > 0) {
+  #     if (!is.null(dados_atualizados())) {
+  #       paste0(
+  #         "✅ Dados actualizados com sucesso em ",
+  #         format(Sys.time(), "%d/%m/%Y %H:%M:%S"),
+  #         ". Por favor, actualize (refresh) a página no navegador para ver as mudanças."
+  #       )
+  #     } else {
+  #       "⚠️ Erro ao actualizar os dados. Verifique o log."
+  #     }
+  #   } else {
+  #     "⏳ Aguardando actualização..."
+  #   }
+  # })
+  # 
 }
 
 

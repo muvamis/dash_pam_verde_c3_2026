@@ -974,9 +974,9 @@ PAM_VERDE_CONCLUSAO_FORMACAO <- PERFIL_PAM_VERDE_C3_2026 %>%
     )
   )
 
-# table(FINANCEIRO_TOC_NAMPULA$Periodo, FINANCEIRO_TOC_NAMPULA$Lucro_Semanal)
+ 
 
-table(PAM_VERDE_TOC_C3$Tipo_Avaliacao,PAM_VERDE_TOC_C3$Uso_de_ferramentas_de_IA)
+# table()
 
 
 
@@ -1080,43 +1080,6 @@ print(table(
   useNA = "ifany"
 ))
 
-# 
-# table(PAM_VERDE_TOC_BEIRA_C1$Uso_Servicos_Financeiros, PAM_VERDE_TOC_BEIRA_C1$ID_Participante)
-# 
-# 
-# head(
-#   PAM_VERDE_TOC_BEIRA_C1[
-#     ,
-#     c(
-#       "ID_Participante",
-#       "Tipo_Avaliacao",
-#       "Uso_Servicos_Financeiros"
-#     )
-#   ],
-#   15
-# )
-# 
-# 
-# library(dplyr)
-# 
-# # Ver as opções de serviços financeiros por avaliação
-# PAM_VERDE_TOC_BEIRA_C1 %>%
-#   filter(
-#     !is.na(Uso_Servicos_Financeiros),
-#     Uso_Servicos_Financeiros != ""
-#   ) %>%
-#   count(
-#     Tipo_Avaliacao,
-#     Uso_Servicos_Financeiros,
-#     sort = TRUE
-#   ) %>%
-#   print(n = Inf)
-# 
-# # Ver se existem várias linhas por participante e avaliação
-# PAM_VERDE_TOC_BEIRA_C1 %>%
-#   count(ID_Participante, Tipo_Avaliacao) %>%
-#   filter(n > 1)
-# 
 
 # ------------------------------------------------------------
 # 2. PERFIL DAS PARTICIPANTES — BEIRA
@@ -1178,132 +1141,228 @@ tryCatch(
   }
 )
 # 
-# # ============================================================
-# # FUNÇÃO — TABELA BINÁRIA DE SERVIÇOS FINANCEIROS
-# # 0 = Não utiliza
-# # 1 = Utiliza
-# # ============================================================
-# 
-# criar_tabela_servicos_financeiros <- function(base) {
-#   
-#   servicos <- c(
-#     "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
-#     "Crédito ou empréstimo bancário para o negócio",
-#     "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
-#     "Conta bancária em nome do negócio (conta empresarial)",
-#     "Conta poupança formal ligada ao negócio",
-#     "Seguro (de negócio, de equipamento, de saúde...)"
-#   )
-#   
-#   coluna_id <- intersect(
-#     c("ID_Participante", "ID_MUVA", "ID", "Codigo_Participante"),
-#     names(base)
-#   )[1]
-#   
-#   coluna_resposta <- intersect(
-#     c(
-#       "Uso_Servicos_Financeiros",
-#       "Uso_de_Servicos_Financeiros",
-#       "Servicos_Financeiros",
-#       "Serviços_Financeiros",
-#       "Servicos_financeiros"
-#     ),
-#     names(base)
-#   )[1]
-#   
-#   if (
-#     is.na(coluna_id) ||
-#     is.na(coluna_resposta) ||
-#     !all(c("Tipo_Avaliacao") %in% names(base))
-#   ) {
-#     stop("Não foram encontradas as colunas necessárias.")
-#   }
-#   
-#   # Respostas válidas por participante e avaliação
-#   respostas <- base |>
-#     dplyr::transmute(
-#       ID = trimws(as.character(.data[[coluna_id]])),
-#       Tipo = tolower(trimws(as.character(Tipo_Avaliacao))),
-#       Resposta = trimws(as.character(.data[[coluna_resposta]]))
-#     ) |>
-#     dplyr::filter(
-#       !is.na(ID), ID != "",
-#       Tipo %in% c("baseline", "endline"),
-#       !is.na(Resposta), Resposta != ""
-#     ) |>
-#     dplyr::group_by(ID, Tipo) |>
-#     dplyr::summarise(
-#       Resposta = paste(unique(Resposta), collapse = " | "),
-#       .groups = "drop"
-#     )
-#   
-#   # Uma linha por participante e avaliação;
-#   # um indicador 0/1 por serviço
-#   binarios <- tidyr::crossing(
-#     respostas,
-#     servico = servicos
-#   ) |>
-#     dplyr::mutate(
-#       utiliza = as.integer(
-#         stringr::str_detect(
-#           Resposta,
-#           stringr::fixed(servico, ignore_case = TRUE)
-#         )
-#       )
-#     ) |>
-#     dplyr::select(ID, Tipo, servico, utiliza) |>
-#     tidyr::pivot_wider(
-#       names_from = c(servico, Tipo),
-#       values_from = utiliza,
-#       names_glue = "{servico}_{Tipo}"
-#     )
-#   
-#   colunas_BL <- paste0(servicos, "_baseline")
-#   colunas_EL <- paste0(servicos, "_endline")
-#   
-#   # Garantir todas as colunas, mesmo quando uma avaliação
-#   # não existe na base seleccionada
-#   for (col in c(colunas_BL, colunas_EL)) {
-#     if (!col %in% names(binarios)) {
-#       binarios[[col]] <- NA_integer_
-#     }
-#   }
-#   
-#   # Só comparar participantes com as duas avaliações completas
-#   validos <- binarios |>
-#     dplyr::filter(
-#       dplyr::if_all(
-#         dplyr::all_of(c(colunas_BL, colunas_EL)),
-#         ~ !is.na(.x)
-#       )
-#     )
-#   
-#   if (nrow(validos) == 0) {
-#     validos$Novos_Servicos <- integer(0)
-#     validos$Servicos_Deixou_Usar <- integer(0)
-#     validos$Aumentou_Uso <- character(0)
-#     return(validos)
-#   }
-#   
-#   # Quantificar mudanças por participante
-#   validos$Novos_Servicos <- rowSums(
-#     as.data.frame(validos[colunas_BL]) == 0 &
-#       as.data.frame(validos[colunas_EL]) == 1
-#   )
-#   
-#   validos$Servicos_Deixou_Usar <- rowSums(
-#     as.data.frame(validos[colunas_BL]) == 1 &
-#       as.data.frame(validos[colunas_EL]) == 0
-#   )
-#   
-#   validos$Aumentou_Uso <- ifelse(
-#     validos$Novos_Servicos > 0,
-#     "Sim",
-#     "Não"
-#   )
-#   
-#   # Renomear o identificador
-#   names(validos)[names(validos) == "ID"] <- "ID_Participante"
-#   
-#   validos
-# }
+
+# ============================================================
+# BEIRA | CICLO 1
+# INDICADOR iPAM_RI.7.3 — NOVOS SERVIÇOS FINANCEIROS
+# Tabela de comparação individual Baseline vs Endline
+# ============================================================
+
+criar_tabela_servicos_financeiros <- function(base) {
+  
+  # ----------------------------------------------------------
+  # 1. Lista dos seis serviços financeiros
+  # ----------------------------------------------------------
+  
+  lista_servicos_financeiros <- c(
+    "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+    "Crédito ou empréstimo bancário para o negócio",
+    "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+    "Conta bancária em nome do negócio (conta empresarial)",
+    "Conta poupança formal ligada ao negócio",
+    "Seguro (de negócio, de equipamento, de saúde...)"
+  )
+  
+  # ----------------------------------------------------------
+  # 2. Validar as colunas necessárias
+  # ----------------------------------------------------------
+  
+  colunas_necessarias <- c(
+    "ID_Participante",
+    "Tipo_Avaliacao",
+    "Uso_Servicos_Financeiros"
+  )
+  
+  faltantes <- setdiff(colunas_necessarias, names(base))
+  
+  if (length(faltantes) > 0) {
+    stop(
+      "Faltam colunas na base da Beira: ",
+      paste(faltantes, collapse = ", ")
+    )
+  }
+  
+  # ----------------------------------------------------------
+  # 3. Preparar e consolidar respostas
+  # ----------------------------------------------------------
+  
+  respostas <- base |>
+    dplyr::transmute(
+      ID = trimws(as.character(ID_Participante)),
+      Tipo = tolower(
+        stringr::str_squish(as.character(Tipo_Avaliacao))
+      ),
+      Resposta = trimws(
+        as.character(Uso_Servicos_Financeiros)
+      )
+    ) |>
+    dplyr::filter(
+      !is.na(ID),
+      ID != "",
+      Tipo %in% c("baseline", "endline"),
+      !is.na(Resposta),
+      Resposta != ""
+    ) |>
+    dplyr::group_by(ID, Tipo) |>
+    dplyr::summarise(
+      Resposta = paste(unique(Resposta), collapse = " | "),
+      .groups = "drop"
+    )
+  
+  # ----------------------------------------------------------
+  # 4. Identificar os seis serviços em cada avaliação
+  #
+  # 1 = utiliza o serviço
+  # 0 = não utiliza o serviço
+  # ----------------------------------------------------------
+  
+  if (nrow(respostas) == 0) {
+    resultado <- data.frame(
+      ID_Participante = character(),
+      Novos_Servicos = integer(),
+      Servicos_Deixou_Usar = integer(),
+      Aumentou_Uso = character(),
+      stringsAsFactors = FALSE
+    )
+    
+    return(resultado)
+  }
+  
+  binarios <- tidyr::crossing(
+    respostas,
+    servico = lista_servicos_financeiros
+  ) |>
+    dplyr::mutate(
+      utiliza = as.integer(
+        stringr::str_detect(
+          Resposta,
+          stringr::fixed(
+            servico,
+            ignore_case = TRUE
+          )
+        )
+      )
+    ) |>
+    dplyr::select(
+      ID,
+      Tipo,
+      servico,
+      utiliza
+    ) |>
+    tidyr::pivot_wider(
+      id_cols = ID,
+      names_from = c(servico, Tipo),
+      values_from = utiliza,
+      names_glue = "{servico}_{Tipo}"
+    )
+  
+  # ----------------------------------------------------------
+  # 5. Garantir as colunas de Baseline e Endline
+  # ----------------------------------------------------------
+  
+  colunas_BL <- paste0(
+    lista_servicos_financeiros,
+    "_baseline"
+  )
+  
+  colunas_EL <- paste0(
+    lista_servicos_financeiros,
+    "_endline"
+  )
+  
+  for (col in c(colunas_BL, colunas_EL)) {
+    if (!col %in% names(binarios)) {
+      binarios[[col]] <- NA_integer_
+    }
+  }
+  
+  # ----------------------------------------------------------
+  # 6. Manter participantes com as duas avaliações válidas
+  # ----------------------------------------------------------
+  
+  validos <- binarios |>
+    dplyr::filter(
+      dplyr::if_all(
+        dplyr::all_of(c(colunas_BL, colunas_EL)),
+        ~ !is.na(.x)
+      )
+    )
+  
+  # ----------------------------------------------------------
+  # 7. Calcular serviços novos e serviços deixados de usar
+  # ----------------------------------------------------------
+  
+  if (nrow(validos) == 0) {
+    
+    validos$Novos_Servicos <- integer(0)
+    validos$Servicos_Deixou_Usar <- integer(0)
+    validos$Aumentou_Uso <- character(0)
+    
+    names(validos)[names(validos) == "ID"] <-
+      "ID_Participante"
+    
+    return(validos)
+  }
+  
+  matriz_BL <- as.matrix(
+    validos[, colunas_BL, drop = FALSE]
+  )
+  
+  matriz_EL <- as.matrix(
+    validos[, colunas_EL, drop = FALSE]
+  )
+  
+  # Serviço novo: Baseline = 0 e Endline = 1
+  novos <- (matriz_BL == 0L) & (matriz_EL == 1L)
+  
+  # Serviço deixado de usar: Baseline = 1 e Endline = 0
+  deixados <- (matriz_BL == 1L) & (matriz_EL == 0L)
+  
+  validos$Novos_Servicos <- as.integer(
+    rowSums(novos)
+  )
+  
+  validos$Servicos_Deixou_Usar <- as.integer(
+    rowSums(deixados)
+  )
+  
+  # Classificação para o indicador
+  validos$Aumentou_Uso <- ifelse(
+    validos$Novos_Servicos > 0,
+    "Sim",
+    "Não"
+  )
+  
+  # Renomear identificador
+  names(validos)[names(validos) == "ID"] <-
+    "ID_Participante"
+  
+  validos
+}
+
+
+# ============================================================
+# 8. CRIAR A TABELA EXCLUSIVAMENTE PARA BEIRA | CICLO 1
+# ============================================================
+
+tabela_servicos_financeiros <-
+  criar_tabela_servicos_financeiros(
+    PAM_VERDE_TOC_BEIRA_C1
+  )
+
+# Verificação da tabela
+cat("\n============================================\n")
+cat("BEIRA | CICLO 1 — SERVIÇOS FINANCEIROS\n")
+cat("Participantes com comparação válida:",
+    nrow(tabela_servicos_financeiros), "\n")
+
+if (nrow(tabela_servicos_financeiros) > 0) {
+  print(
+    table(
+      tabela_servicos_financeiros$Aumentou_Uso,
+      useNA = "ifany"
+    )
+  )
+}
+
+cat("============================================\n")
