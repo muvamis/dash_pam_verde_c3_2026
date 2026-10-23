@@ -22010,118 +22010,343 @@ server <- function(input, output, session) {
   
 
   
-  output$grafico1_beira <- renderPlotly({
+  # ==========================================================
+  # DADOS GERAIS — MONITORIA BEIRA
+  # SELECIONADAS VS INÍCIO DA FORMAÇÃO
+  # ==========================================================
+  
+  dados_geral_beira <- reactive({
+    
+    df <- PERFIL_PAM_VERDE_BEIRA_C3_2026
+    
+    # Filtro por província de residência
+    if (!is.null(input$filtro_monitoria_geral_beira) &&
+        input$filtro_monitoria_geral_beira != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(
+          `Provincia de residencia` ==
+            input$filtro_monitoria_geral_beira
+        )
+    }
+    
+    df
+    
+  })
+  
+  
+
+  # ==========================================================
+  # DADOS GERAIS — MONITORIA BEIRA
+  # ==========================================================
+  
+  dados_geral_beira <- reactive({
+    
+    df <- PERFIL_PAM_VERDE_BEIRA_C3_2026
+    
+    # --------------------------------------------------------
+    # FILTRO POR PROVÍNCIA DE RESIDÊNCIA
+    # --------------------------------------------------------
+    
+    if (!is.null(input$filtro_monitoria_geral_beira) &&
+        input$filtro_monitoria_geral_beira != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(
+          `Provincia de residencia` ==
+            input$filtro_monitoria_geral_beira
+        )
+    }
+    
+    df
+    
+  })
+  
+  
+  
+  # ==========================================================
+  # DADOS GERAIS — MONITORIA BEIRA
+  # ==========================================================
+  
+  dados_geral_beira <- reactive({
+    
+    df <- PERFIL_PAM_VERDE_BEIRA_C3_2026
+    
+    # Filtro por província de residência
+    if (!is.null(input$filtro_monitoria_geral_beira) &&
+        input$filtro_monitoria_geral_beira != "Todos") {
+      
+      df <- df %>%
+        dplyr::filter(
+          `Provincia de residencia` ==
+            input$filtro_monitoria_geral_beira
+        )
+    }
+    
+    df
+    
+  })
+  
+  
+  # ==========================================================
+  # GRÁFICO 1 — SELECIONADAS VS INÍCIO DA FORMAÇÃO
+  # ORDEM: SELECIONADAS | INICIARAM FORMAÇÃO
+  # ==========================================================
+  
+  output$grafico1_beira <- plotly::renderPlotly({
     
     idioma <- input$idioma %||% "pt"
     
     dados <- dados_geral_beira()
     
+    # --------------------------------------------------------
+    # 1. TOTAL DE PARTICIPANTES SELECIONADAS
+    # --------------------------------------------------------
+    
     total_selecionadas <- nrow(dados)
+    
+    # --------------------------------------------------------
+    # 2. TOTAL QUE INICIOU A FORMAÇÃO
+    # Activa + Desistente
+    # --------------------------------------------------------
     
     total_iniciaram <- dados %>%
       dplyr::filter(
-        Status %in% c("Activa", "Desistente")
+        trimws(as.character(Status)) %in%
+          c("Activa", "Desistente")
       ) %>%
       nrow()
     
-    categorias_pt <- c(
+    # --------------------------------------------------------
+    # 3. TOTAL QUE NÃO INICIOU
+    # --------------------------------------------------------
+    
+    total_nao_iniciaram <- dados %>%
+      dplyr::filter(
+        trimws(as.character(Status)) == "Não Iniciou"
+      ) %>%
+      nrow()
+    
+    # --------------------------------------------------------
+    # 4. CÁLCULO DAS PERCENTAGENS
+    # Denominador: total de selecionadas
+    # --------------------------------------------------------
+    
+    percentagem_selecionadas <- if (total_selecionadas > 0) {
+      1
+    } else {
+      0
+    }
+    
+    percentagem_iniciaram <- if (total_selecionadas > 0) {
+      total_iniciaram / total_selecionadas
+    } else {
+      0
+    }
+    
+    # --------------------------------------------------------
+    # 5. CATEGORIAS — ORDEM FIXA
+    # PRIMEIRA: SELECIONADAS
+    # SEGUNDA: INICIARAM FORMAÇÃO
+    # --------------------------------------------------------
+    
+    categoria_selecionadas <- i18n_tr(
       "Selecionadas",
-      "Iniciaram Formação"
+      idioma
     )
     
-    categorias <- i18n_tr(categorias_pt, idioma)
+    categoria_iniciaram <- i18n_tr(
+      "Iniciaram Formação",
+      idioma
+    )
+    
+    categorias <- c(
+      categoria_selecionadas,
+      categoria_iniciaram
+    )
+    
+    # --------------------------------------------------------
+    # 6. PREPARAR DADOS DO GRÁFICO
+    # --------------------------------------------------------
     
     grafico_df <- data.frame(
       Categoria = categorias,
+      
       Valor = c(
         total_selecionadas,
         total_iniciaram
       ),
-      Cor = c("#ff7f0e", "#8054A2")
-    ) %>%
-      dplyr::mutate(
-        Percentual = ifelse(
-          total_selecionadas > 0,
-          Valor / total_selecionadas,
-          0
-        ),
-        Label = paste0(
-          Valor,
-          "\n(",
-          scales::percent(Percentual, accuracy = 1),
-          ")"
-        )
-      )
+      
+      Percentual = c(
+        percentagem_selecionadas,
+        percentagem_iniciaram
+      ),
+      
+      Cor = c(
+        "#ff7f0e",
+        "#8054A2"
+      ),
+      
+      stringsAsFactors = FALSE
+    )
+    
+    # Fixar explicitamente a ordem das categorias
+    grafico_df$Categoria <- factor(
+      grafico_df$Categoria,
+      levels = categorias,
+      ordered = TRUE
+    )
+    
+    # Rótulos das barras
+    grafico_df$Label <- paste0(
+      grafico_df$Valor,
+      "\n(",
+      scales::percent(
+        grafico_df$Percentual,
+        accuracy = 0.1
+      ),
+      ")"
+    )
+    
+    # --------------------------------------------------------
+    # 7. TÍTULOS E TEXTOS
+    # --------------------------------------------------------
     
     titulo <- i18n_tr(
       "Selecionadas vs Início da Formação",
       idioma
     )
     
-    eixo_y <- i18n_tr("Percentagem", idioma)
-    texto_total <- i18n_tr("Total", idioma)
+    eixo_y <- i18n_tr(
+      "Percentagem das selecionadas",
+      idioma
+    )
+    
+    texto_total <- i18n_tr(
+      "Total",
+      idioma
+    )
+    
+    texto_sem_dados <- i18n_tr(
+      "Sem dados disponíveis",
+      idioma
+    )
+    
+    # --------------------------------------------------------
+    # 8. VERIFICAR SE EXISTEM DADOS
+    # --------------------------------------------------------
     
     if (total_selecionadas == 0) {
+      
       return(
         plotly::plot_ly() %>%
           plotly::layout(
             annotations = list(
-              text = i18n_tr("Sem dados disponíveis", idioma),
-              x = 0.5,
-              y = 0.5,
-              showarrow = FALSE
+              list(
+                text = texto_sem_dados,
+                x = 0.5,
+                y = 0.5,
+                xref = "paper",
+                yref = "paper",
+                showarrow = FALSE,
+                font = list(size = 16)
+              )
             ),
+            xaxis = list(visible = FALSE),
+            yaxis = list(visible = FALSE),
             paper_bgcolor = "#f5f3f4",
             plot_bgcolor = "#f5f3f4"
+          ) %>%
+          plotly::config(
+            displaylogo = FALSE,
+            responsive = TRUE
           )
       )
     }
     
+    # --------------------------------------------------------
+    # 9. CONSTRUIR GRÁFICO
+    # --------------------------------------------------------
+    
     plotly::plot_ly(
       data = grafico_df,
+      
       x = ~Categoria,
+      
       y = ~Percentual,
+      
       type = "bar",
+      
       marker = list(
         color = grafico_df$Cor
       ),
+      
       text = ~Label,
+      
       textposition = "inside",
+      
       insidetextanchor = "middle",
+      
       textfont = list(
         color = "white",
         size = 16,
         family = "Arial"
       ),
-      customdata = matrix(grafico_df$Valor, ncol = 1),
+      
+      customdata = grafico_df$Valor,
+      
       hovertemplate = paste0(
         "<b>%{x}</b><br>",
-        texto_total, ": %{customdata[0]}<br>",
-        eixo_y, ": %{y:.1%}",
+        texto_total,
+        ": %{customdata}<br>",
+        eixo_y,
+        ": %{y:.1%}",
         "<extra></extra>"
       )
+      
     ) %>%
+      
       plotly::layout(
+        
         title = list(
           text = titulo,
           font = list(size = 18)
         ),
+        
+        # Ordem explícita da esquerda para a direita
         xaxis = list(
           title = "",
+          type = "category",
+          categoryorder = "array",
+          categoryarray = categorias,
           tickfont = list(size = 13)
         ),
+        
+        # Escala percentual
         yaxis = list(
           title = eixo_y,
           tickformat = ".0%",
           range = c(0, 1.05),
           dtick = 0.2
         ),
+        
         showlegend = FALSE,
+        
+        # Barras lado a lado
+        barmode = "group",
         bargap = 0.4,
+        
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4",
-        margin = list(t = 70, b = 70, l = 70, r = 25)
+        
+        margin = list(
+          t = 70,
+          b = 70,
+          l = 70,
+          r = 25
+        )
       ) %>%
+      
       plotly::config(
         displaylogo = FALSE,
         responsive = TRUE
