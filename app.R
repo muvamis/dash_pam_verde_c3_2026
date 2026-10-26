@@ -6,7 +6,30 @@ ui <- navbarPage(
   
   # ------------------ Estilo e Tema ------------------
   header = tags$head(
-    
+    tags$head(
+  tags$style(HTML("
+    #filtro_tema_qualitativo .btn {
+      border-color: #8054A2 !important;
+      color: #8054A2 !important;
+      background-color: #ffffff !important;
+      margin: 3px;
+      border-radius: 6px !important;
+    }
+
+    #filtro_tema_qualitativo .btn.active,
+    #filtro_tema_qualitativo .btn:active {
+      background-color: #8054A2 !important;
+      border-color: #8054A2 !important;
+      color: #ffffff !important;
+    }
+
+    #filtro_tema_qualitativo .btn:hover {
+      background-color: #9442d4 !important;
+      border-color: #9442d4 !important;
+      color: #ffffff !important;
+    }
+  "))
+),
 
     # Biblioteca para guardar tabelas como imagem PNG
     tags$script(
@@ -705,7 +728,7 @@ ui <- navbarPage(
           margin-bottom:18px;
         ",
                         paste0(
-                          "Resultados de duas perguntas feitas às 30 participantes ",
+                          "Resultados de duas perguntas feitas às 60 participantes ",
                           "que concluíram o ciclo: em que medida as actividades ",
                           "ajudaram a compreender as desigualdades entre homens ",
                           "e mulheres, e o que colocaram em prática depois dessas actividades."
@@ -730,7 +753,7 @@ ui <- navbarPage(
                 font-size:25px;
                 font-weight:700;
               ",
-                              "30"
+                              "60"
                             ),
                             tags$p(
                               style = "
@@ -789,7 +812,7 @@ ui <- navbarPage(
                 font-weight:700;
                 padding-top:5px;
               ",
-                              "Ciclo 3 · Endline"
+                              "Ciclo  1 Beira e Ciclo 3 Nampula · Endline"
                             ),
                             tags$p(
                               style = "
@@ -840,6 +863,7 @@ ui <- navbarPage(
                 # ==========================================================
                 # RESUMO DA ANÁLISE QUALITATIVA
                 # ==========================================================
+                
                 fluidRow(
                   column(
                     width = 12,
@@ -943,9 +967,9 @@ ui <- navbarPage(
                       style = "background-color:#f5f3f4; padding:20px;
                      border-radius:8px; margin-bottom:20px;",
                       h4("Vozes das participantes"),
-                      selectInput(
-                        "filtro_tema_qualitativo",
-                        "Seleccionar tema:",
+                      shinyWidgets::radioGroupButtons(
+                        inputId = "filtro_tema_qualitativo",
+                        label = "Seleccionar tema:",
                         choices = c(
                           "Todos",
                           "Trabalho doméstico",
@@ -955,8 +979,17 @@ ui <- navbarPage(
                           "Estereótipos ocupacionais",
                           "Tensões"
                         ),
-                        selected = "Todos"
+                        selected = "Todos",
+                        justified = FALSE,
+                        individual = TRUE,
+                        status = "primary",
+                        size = "sm",
+                        checkIcon = list(
+                          yes = icon("check"),
+                          no = NULL
+                        )
                       ),
+                      
                       uiOutput("depoimentos_genero")
                 #     )
                 #   )
@@ -2843,140 +2876,9 @@ tabPanel(
   ),
   
   fluidPage(
-    
-    # ==========================================================
-    # LEGENDA DOS ESTADOS
-    # ==========================================================
-    
-    fluidRow(
-      
-      box(
-        width = 12,
-        # title = "Matriz de Indicadores do TOC",
-        
-        div(
-          style = "
-            display:flex;
-            flex-wrap:wrap;
-            align-items:center;
-            gap:18px;
-            padding:5px 5px 15px 5px;
-            font-size:14px;
-          ",
-          
-          # Meta atingida
-          div(
-            style = "display:flex; align-items:center;",
-            
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#28a745;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            
-            tags$span(
-              "Meta atingida"
-            )
-          ),
-          
-          # Próximo da meta
-          div(
-            style = "display:flex; align-items:center;",
-            
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#ffc107;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            
-            tags$span(
-              "Próximo da meta"
-            )
-          ),
-          
-          # Em progresso
-          div(
-            style = "display:flex; align-items:center;",
-            
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#F77333;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            
-            tags$span(
-              "Em progresso"
-            )
-          ),
-          
-          # Abaixo da meta
-          div(
-            style = "display:flex; align-items:center;",
-            
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#dc3545;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            
-            tags$span(
-              "Abaixo da meta"
-            )
-          ),
-          
-          # Sem dados
-          div(
-            style = "display:flex; align-items:center;",
-            
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#adb5bd;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            
-            tags$span(
-              "Sem dados"
-            )
-          )
-        ),
-        
-        
-        # ======================================================
-        # TABELA
-        # ======================================================
-        
         DTOutput(
           "toc_matriz_indicadores"
         )
-        
-      )
-      
-    )
     
   )
 ),
@@ -2999,116 +2901,7 @@ tabPanel(
   ),
   
   fluidPage(
-    
-    # ==========================================================
-    # LEGENDA DOS ESTADOS
-    # ==========================================================
-    
-    fluidRow(
-      
-      box(
-        width = 12,
-        
-        div(
-          style = "
-            display:flex;
-            flex-wrap:wrap;
-            align-items:center;
-            gap:18px;
-            padding:5px 5px 15px 5px;
-            font-size:14px;
-          ",
-          
-          # Meta atingida
-          div(
-            style = "display:flex; align-items:center;",
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#28a745;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            tags$span("Meta atingida")
-          ),
-          
-          # Próximo da meta
-          div(
-            style = "display:flex; align-items:center;",
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#ffc107;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            tags$span("Próximo da meta")
-          ),
-          
-          # Em progresso
-          div(
-            style = "display:flex; align-items:center;",
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#F77333;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            tags$span("Em progresso")
-          ),
-          
-          # Abaixo da meta
-          div(
-            style = "display:flex; align-items:center;",
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#dc3545;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            tags$span("Abaixo da meta")
-          ),
-          
-          # Sem dados
-          div(
-            style = "display:flex; align-items:center;",
-            span(
-              style = "
-                display:inline-block;
-                width:14px;
-                height:14px;
-                background:#adb5bd;
-                border-radius:50%;
-                margin-right:7px;
-              "
-            ),
-            tags$span("Sem dados")
-          )
-        ),
-        
-        # ======================================================
-        # TABELA DE INDICADORES
-        # ======================================================
-        
         DTOutput("toc_matriz_indicadores_beira")
-        
-      )
-      
-    )
     
   )
   
@@ -12106,10 +11899,29 @@ server <- function(input, output, session) {
   
   
   # ==========================================================
-  # AVALIAÇÃO DE GÉNERO — CICLO 3 / ENDLINE
+  # AVALIAÇÃO DE GÉNERO — CICLOS 1 E 3 / ENDLINE
+  # PAM VERDE | META: 60 EMPREENDEDORAS
+  #
+  # Inclui:
+  # 1. Preparação e validação da base
+  # 2. Indicadores de respostas abertas e fechadas
+  # 3. Resumo qualitativo
+  # 4. Quatro cartões KPI
+  # 5. Gráfico de compreensão das desigualdades
+  # 6. Gráfico de práticas e esferas de mudança
+  # 7. Classificação temática dos depoimentos
+  # 8. Cartões individuais de depoimentos
+  #
+  # NOTA:
+  # Os resultados são calculados a partir dos dados disponíveis.
+  # A meta de 60 não é utilizada como denominador artificial.
   # ==========================================================
   
-  # Perguntas utilizadas na análise
+  
+  # ==========================================================
+  # 0. PERGUNTAS DA AVALIAÇÃO
+  # ==========================================================
+  
   pergunta_fechada <- paste0(
     "Até que ponto as actividades ligadas à questão de género ",
     "ajudaram a compreender as desigualdades entre homens e mulheres?"
@@ -12120,28 +11932,180 @@ server <- function(input, output, session) {
     "depois de ter tido essas actividades?"
   )
   
-  # ----------------------------------------------------------
-  # 1. PREPARAR A BASE DA ANÁLISE
-  # ----------------------------------------------------------
+  pergunta_praticas <-
+    "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
   
-  dados_genero_c3 <- Pam_Verde_Indicadores %>%
-    dplyr::filter(
-      stringr::str_detect(
-        Ciclo,
-        stringr::regex("Ciclo\\s*3", ignore_case = TRUE)
-      ),
-      stringr::str_detect(
-        Tipo_Avaliacao,
-        stringr::regex("^Endline$", ignore_case = TRUE)
+  meta_empreendedoras <- 60
+  
+  
+  # ==========================================================
+  # 1. IDENTIFICAR A COLUNA DE ID
+  # ==========================================================
+  
+  colunas_id_possiveis <- c(
+    "ID_Participante",
+    "id_participante",
+    "ID_participante",
+    "ID",
+    "id",
+    "Codigo_Participante",
+    "Código_Participante",
+    "ID_MUVA"
+  )
+  
+  coluna_id_encontrada <- intersect(
+    colunas_id_possiveis,
+    names(Pam_Verde_Indicadores)
+  )
+  
+  if (length(coluna_id_encontrada) == 0) {
+    stop(
+      paste0(
+        "Não foi encontrada uma coluna de identificação em ",
+        "Pam_Verde_Indicadores. Verifica names(Pam_Verde_Indicadores) ",
+        "e actualiza colunas_id_possiveis."
       )
     )
+  }
   
-  # Remover respostas vazias e preparar o texto
-  respostas_genero <- dados_genero_c3 %>%
+  coluna_id_encontrada <- coluna_id_encontrada[1]
+  
+  
+  # ==========================================================
+  # 2. VALIDAR AS COLUNAS OBRIGATÓRIAS
+  # ==========================================================
+  
+  colunas_obrigatorias <- c(
+    "Ciclo",
+    "Tipo_Avaliacao",
+    pergunta_fechada,
+    pergunta_aberta
+  )
+  
+  colunas_em_falta <- setdiff(
+    colunas_obrigatorias,
+    names(Pam_Verde_Indicadores)
+  )
+  
+  if (length(colunas_em_falta) > 0) {
+    stop(
+      paste0(
+        "Faltam as seguintes colunas na base: ",
+        paste(colunas_em_falta, collapse = "; ")
+      )
+    )
+  }
+  
+  
+  # ==========================================================
+  # 3. FILTRAR CICLOS 1 E 3 — ENDLINE
+  # ==========================================================
+  
+  dados_genero_c3 <- Pam_Verde_Indicadores %>%
     dplyr::mutate(
-      resposta_aberta = as.character(.data[[pergunta_aberta]]),
-      resposta_fechada = as.character(.data[[pergunta_fechada]]),
-      resposta_aberta = stringr::str_squish(resposta_aberta)
+      ID_Participante = stringr::str_squish(
+        as.character(.data[[coluna_id_encontrada]])
+      ),
+      Ciclo_texto = stringr::str_squish(
+        as.character(Ciclo)
+      ),
+      Tipo_Avaliacao_texto = stringr::str_squish(
+        as.character(Tipo_Avaliacao)
+      )
+    ) %>%
+    dplyr::filter(
+      stringr::str_detect(
+        Ciclo_texto,
+        stringr::regex(
+          "^Ciclo\\s*(1|3)\\b",
+          ignore_case = TRUE
+        )
+      ),
+      stringr::str_detect(
+        Tipo_Avaliacao_texto,
+        stringr::regex(
+          "^Endline$",
+          ignore_case = TRUE
+        )
+      ),
+      !is.na(ID_Participante),
+      ID_Participante != ""
+    )
+  
+  
+  # ==========================================================
+  # 4. BASE ÚNICA POR EMPREENDEDORA
+  # ==========================================================
+  # Para os indicadores de participantes, cada ID conta uma vez.
+  # Se houver vários registos por participante, conserva-se o
+  # primeiro registo disponível após o filtro.
+  #
+  # Confirma que a base tem uma única resposta Endline por ID.
+  # Se existirem várias respostas legítimas por ID, é necessário
+  # definir uma regra específica para consolidá-las.
+  
+  dados_genero_unicos <- dados_genero_c3 %>%
+    dplyr::distinct(
+      ID_Participante,
+      .keep_all = TRUE
+    )
+  
+  total_empreendedoras <- dplyr::n_distinct(
+    dados_genero_unicos$ID_Participante
+  )
+  
+  total_ciclo_1 <- dados_genero_unicos %>%
+    dplyr::filter(
+      stringr::str_detect(
+        Ciclo_texto,
+        stringr::regex("^Ciclo\\s*1\\b", ignore_case = TRUE)
+      )
+    ) %>%
+    dplyr::summarise(N = dplyr::n_distinct(ID_Participante)) %>%
+    dplyr::pull(N)
+  
+  total_ciclo_3 <- dados_genero_unicos %>%
+    dplyr::filter(
+      stringr::str_detect(
+        Ciclo_texto,
+        stringr::regex("^Ciclo\\s*3\\b", ignore_case = TRUE)
+      )
+    ) %>%
+    dplyr::summarise(N = dplyr::n_distinct(ID_Participante)) %>%
+    dplyr::pull(N)
+  
+  message("========================================")
+  message("AVALIAÇÃO DE GÉNERO — ENDLINE")
+  message("Ciclo 1: ", total_ciclo_1)
+  message("Ciclo 3: ", total_ciclo_3)
+  message("Total de empreendedoras únicas: ", total_empreendedoras)
+  message("Meta de participantes: ", meta_empreendedoras)
+  message("========================================")
+  
+  if (total_empreendedoras != meta_empreendedoras) {
+    warning(
+      paste0(
+        "A base contém ", total_empreendedoras,
+        " empreendedoras únicas, em vez da meta de ",
+        meta_empreendedoras,
+        ". Os indicadores serão calculados com base nos dados reais."
+      )
+    )
+  }
+  
+  
+  # ==========================================================
+  # 5. PREPARAR RESPOSTAS ABERTAS
+  # ==========================================================
+  
+  respostas_genero <- dados_genero_unicos %>%
+    dplyr::mutate(
+      resposta_aberta = stringr::str_squish(
+        as.character(.data[[pergunta_aberta]])
+      ),
+      resposta_fechada = stringr::str_squish(
+        as.character(.data[[pergunta_fechada]])
+      )
     ) %>%
     dplyr::filter(
       !is.na(resposta_aberta),
@@ -12150,7 +12114,6 @@ server <- function(input, output, session) {
     dplyr::mutate(
       texto_busca = stringr::str_to_lower(resposta_aberta),
       
-      # Mudanças concretas ou acções relatadas
       menciona_pratica = stringr::str_detect(
         texto_busca,
         paste(
@@ -12181,7 +12144,6 @@ server <- function(input, output, session) {
         )
       ),
       
-      # Mudanças no contexto doméstico ou familiar
       menciona_casa = stringr::str_detect(
         texto_busca,
         paste(
@@ -12208,7 +12170,6 @@ server <- function(input, output, session) {
         )
       ),
       
-      # Autoconfiança, autonomia e capacidade de decisão
       menciona_autoconfianca = stringr::str_detect(
         texto_busca,
         paste(
@@ -12239,11 +12200,14 @@ server <- function(input, output, session) {
       )
     )
   
-  # ----------------------------------------------------------
-  # 2. CALCULAR INDICADORES
-  # ----------------------------------------------------------
   
-  n_participantes <- nrow(respostas_genero)
+  # ==========================================================
+  # 6. INDICADORES DAS RESPOSTAS ABERTAS
+  # ==========================================================
+  
+  n_participantes <- dplyr::n_distinct(
+    respostas_genero$ID_Participante
+  )
   
   n_praticas <- sum(
     respostas_genero$menciona_pratica,
@@ -12260,33 +12224,52 @@ server <- function(input, output, session) {
     na.rm = TRUE
   )
   
-  # Resumo da pergunta fechada
-  resumo_fechada <- dados_genero_c3 %>%
-    dplyr::filter(
-      !is.na(.data[[pergunta_fechada]]),
-      trimws(as.character(.data[[pergunta_fechada]])) != ""
+  
+  # ==========================================================
+  # 7. RESUMO DA PERGUNTA FECHADA
+  # ==========================================================
+  
+  dados_fechada <- dados_genero_unicos %>%
+    dplyr::mutate(
+      resposta = stringr::str_squish(
+        as.character(.data[[pergunta_fechada]])
+      )
     ) %>%
+    dplyr::filter(
+      !is.na(resposta),
+      resposta != ""
+    )
+  
+  resumo_fechada <- dados_fechada %>%
     dplyr::count(
-      resposta = as.character(.data[[pergunta_fechada]]),
+      resposta,
       name = "N"
     ) %>%
     dplyr::mutate(
-      Percentagem = N / sum(N) * 100
+      Percentagem = if (sum(N) > 0) {
+        N / sum(N) * 100
+      } else {
+        0
+      }
     )
   
-  # Percentagem que indica maior contribuição
+  n_fechadas <- sum(
+    resumo_fechada$N,
+    na.rm = TRUE
+  )
+  
   n_bastante <- resumo_fechada %>%
     dplyr::filter(
       resposta == "Ajudaram bastante / mudaram a minha compreensão"
     ) %>%
-    dplyr::summarise(total = sum(N)) %>%
+    dplyr::summarise(
+      total = sum(N, na.rm = TRUE)
+    ) %>%
     dplyr::pull(total)
   
   if (length(n_bastante) == 0 || is.na(n_bastante)) {
     n_bastante <- 0
   }
-  
-  n_fechadas <- sum(resumo_fechada$N)
   
   pct_bastante <- if (n_fechadas > 0) {
     round(n_bastante / n_fechadas * 100, 1)
@@ -12294,9 +12277,10 @@ server <- function(input, output, session) {
     0
   }
   
-  # ----------------------------------------------------------
-  # 3. CAIXA — ANÁLISE DAS EXPERIÊNCIAS
-  # ----------------------------------------------------------
+  
+  # ==========================================================
+  # 8. RESUMO QUALITATIVO
+  # ==========================================================
   
   output$texto_resumo_qualitativo <- renderUI({
     
@@ -12304,12 +12288,16 @@ server <- function(input, output, session) {
       return(
         tags$p(
           style = "color:#777777;",
-          "Não existem respostas abertas válidas para analisar no Ciclo 3 — Endline."
+          paste(
+            "Não existem respostas abertas válidas",
+            "para analisar nos Ciclos 1 e 3 — Endline."
+          )
         )
       )
     }
     
     tags$div(
+      
       tags$p(
         style = "font-size:15px; line-height:1.8; color:#444444;",
         tags$strong("Compreensão das desigualdades. "),
@@ -12332,8 +12320,8 @@ server <- function(input, output, session) {
           "Foram identificadas ",
           n_praticas,
           " respostas com palavras ou expressões associadas à aplicação ",
-          "de mudanças no quotidiano. Estas referências devem ser ",
-          "interpretadas à luz do conteúdo integral de cada resposta."
+          "de mudanças no quotidiano. A classificação é automática e ",
+          "deve ser validada através da leitura dos depoimentos."
         )
       ),
       
@@ -12342,8 +12330,8 @@ server <- function(input, output, session) {
         tags$strong("Relações familiares e domésticas. "),
         paste0(
           n_casa,
-          " respostas mencionam palavras ou expressões relacionadas ",
-          "com a família, o parceiro ou a divisão de tarefas domésticas."
+          " respostas mencionam expressões relacionadas com a família, ",
+          "o parceiro ou a divisão das tarefas domésticas."
         )
       ),
       
@@ -12365,6 +12353,7 @@ server <- function(input, output, session) {
         style = "font-size:12px; color:#777777; line-height:1.6;",
         tags$em(
           paste0(
+            "Universo: empreendedoras com avaliação Endline nos Ciclos 1 e 3. ",
             "Enquadramento: Triângulo do Poder, Jogo das 24h e ",
             "Seja homem, seja mulher. A classificação temática é ",
             "automática, baseada em palavras-chave, e requer validação ",
@@ -12375,13 +12364,11 @@ server <- function(input, output, session) {
     )
   })
   
-  # ----------------------------------------------------------
-  # 4. KPI — PARTICIPANTES COM RESPOSTA ABERTA
-  # ----------------------------------------------------------
-
-  # =========================
-  # BOX 1 — AVALIAÇÃO POSITIVA
-  # =========================
+  
+  # ==========================================================
+  # 9. KPI 1 — AVALIAÇÃO POSITIVA
+  # ==========================================================
+  
   output$box_avaliacao_positiva <- renderUI({
     
     n_positivas <- resumo_fechada %>%
@@ -12391,14 +12378,19 @@ server <- function(input, output, session) {
           "Ajudaram moderadamente"
         )
       ) %>%
-      dplyr::summarise(total = sum(N, na.rm = TRUE)) %>%
+      dplyr::summarise(
+        total = sum(N, na.rm = TRUE)
+      ) %>%
       dplyr::pull(total)
     
     if (length(n_positivas) == 0 || is.na(n_positivas)) {
       n_positivas <- 0
     }
     
-    total_respostas <- sum(resumo_fechada$N, na.rm = TRUE)
+    total_respostas <- sum(
+      resumo_fechada$N,
+      na.rm = TRUE
+    )
     
     pct_positiva <- if (total_respostas > 0) {
       round(n_positivas / total_respostas * 100, 1)
@@ -12411,31 +12403,28 @@ server <- function(input, output, session) {
       
       div(
         class = "kpi-icon",
-        style = "font-size: 30px;",
+        style = "font-size:30px;",
         icon("check-circle")
       ),
       
-      # Percentagem em destaque
       div(
         class = "kpi-value",
-        style = "font-size: 30px; font-weight: 200; line-height: 1.1;",
+        style = "font-size:30px;font-weight:200;line-height:1.1;",
         paste0(
           format(pct_positiva, nsmall = 1, decimal.mark = ","),
           "%"
         )
       ),
       
-      # Título abaixo da percentagem
       div(
         class = "kpi-title",
-        style = "font-size: 16px;",
+        style = "font-size:16px;",
         "Avaliação positiva"
       ),
       
-      # Descrição abaixo do título
       div(
         class = "kpi-detail",
-        style = "font-size: 14px;",
+        style = "font-size:14px;",
         paste0(
           n_positivas, " de ", total_respostas,
           " · Bastante + Moderadamente"
@@ -12445,25 +12434,31 @@ server <- function(input, output, session) {
   })
   
   
-  # =========================
-  # BOX 2 — AJUDARAM BASTANTE
-  # =========================
+  # ==========================================================
+  # 10. KPI 2 — AJUDARAM BASTANTE
+  # ==========================================================
+  
   output$box_praticas <- renderUI({
     
     total_bastante <- resumo_fechada %>%
       dplyr::filter(
         resposta == "Ajudaram bastante / mudaram a minha compreensão"
       ) %>%
-      dplyr::summarise(total = sum(N, na.rm = TRUE)) %>%
+      dplyr::summarise(
+        total = sum(N, na.rm = TRUE)
+      ) %>%
       dplyr::pull(total)
     
     if (length(total_bastante) == 0 || is.na(total_bastante)) {
       total_bastante <- 0
     }
     
-    total_respostas <- sum(resumo_fechada$N, na.rm = TRUE)
+    total_respostas <- sum(
+      resumo_fechada$N,
+      na.rm = TRUE
+    )
     
-    pct_bastante <- if (total_respostas > 0) {
+    pct_bastante_kpi <- if (total_respostas > 0) {
       round(total_bastante / total_respostas * 100, 1)
     } else {
       0
@@ -12471,43 +12466,48 @@ server <- function(input, output, session) {
     
     div(
       class = "value-box green",
+      
       div(
         class = "kpi-icon",
-        style = "font-size: 30px;",
+        style = "font-size:30px;",
         icon("lightbulb")
       ),
+      
       div(
         class = "kpi-value",
-        style = "font-size: 30px; font-weight: 500; line-height: 1.1;",
+        style = "font-size:30px;font-weight:500;line-height:1.1;",
         paste0(
-          format(pct_bastante, nsmall = 1, decimal.mark = ","),
+          format(pct_bastante_kpi, nsmall = 1, decimal.mark = ","),
           "%"
         )
       ),
+      
       div(
         class = "kpi-title",
-        style = "font-size: 16px;",
+        style = "font-size:16px;",
         "Ajudaram bastante"
       ),
+      
       div(
         class = "kpi-detail",
-        style = "font-size: 14px;",
+        style = "font-size:14px;",
         paste0(
           total_bastante, " de ", total_respostas,
-          " · mudaram a sua compreensão"
+          " · Mudaram a sua compreensão"
         )
       )
     )
   })
   
   
-  # =========================
-  # BOX 3 — PRÁTICA NOVA
-  # =========================
+  # ==========================================================
+  # 11. KPI 3 — PRÁTICA NOVA
+  # ==========================================================
+  
   output$box_casa <- renderUI({
     
     total_praticas <- n_praticas
-    total_participantes <- nrow(dados_genero_c3)
+    total_participantes <- n_participantes
     
     pct_praticas <- if (total_participantes > 0) {
       round(total_praticas / total_participantes * 100, 1)
@@ -12520,13 +12520,13 @@ server <- function(input, output, session) {
       
       div(
         class = "kpi-icon",
-        style = "font-size: 30px;",
+        style = "font-size:30px;",
         icon("check-square")
       ),
       
       div(
         class = "kpi-value",
-        style = "font-size: 30px; font-weight: 500; line-height: 1.1;",
+        style = "font-size:30px;font-weight:500;line-height:1.1;",
         paste0(
           format(pct_praticas, nsmall = 1, decimal.mark = ","),
           "%"
@@ -12535,29 +12535,30 @@ server <- function(input, output, session) {
       
       div(
         class = "kpi-title",
-        style = "font-size: 16px;",
+        style = "font-size:16px;",
         "Descrevem uma prática nova"
       ),
       
       div(
         class = "kpi-detail",
-        style = "font-size: 14px;",
+        style = "font-size:14px;",
         paste0(
           total_praticas, " de ", total_participantes,
-          " participantes"
+          " participantes com resposta aberta"
         )
       )
     )
   })
   
   
-  # =========================
-  # BOX 4 — FAMÍLIA E TAREFAS DOMÉSTICAS
-  # =========================
+  # ==========================================================
+  # 12. KPI 4 — FAMÍLIA E TAREFAS DOMÉSTICAS
+  # ==========================================================
+  
   output$box_autoconfianca <- renderUI({
     
     total_referencias <- n_casa
-    total_participantes <- nrow(dados_genero_c3)
+    total_participantes <- n_participantes
     
     pct_casa <- if (total_participantes > 0) {
       round(total_referencias / total_participantes * 100, 1)
@@ -12570,13 +12571,13 @@ server <- function(input, output, session) {
       
       div(
         class = "kpi-icon",
-        style = "font-size: 30px;",
+        style = "font-size:30px;",
         icon("home")
       ),
       
       div(
         class = "kpi-value",
-        style = "font-size: 30px; font-weight: 500; line-height: 1.1;",
+        style = "font-size:30px;font-weight:500;line-height:1.1;",
         paste0(
           format(pct_casa, nsmall = 1, decimal.mark = ","),
           "%"
@@ -12585,26 +12586,25 @@ server <- function(input, output, session) {
       
       div(
         class = "kpi-title",
-        style = "font-size: 15px; line-height: 1.4;",
-        "Respostas com referências à família e às tarefas domésticas"
+        style = "font-size:15px;line-height:1.4;",
+        "Referências à família e às tarefas domésticas"
       ),
       
       div(
         class = "kpi-detail",
-        style = "font-size: 14px;",
+        style = "font-size:14px;",
         paste0(
           total_referencias, " de ", total_participantes,
-          " participantes"
+          " participantes com resposta aberta"
         )
       )
     )
   })
   
   
-  
   # ==========================================================
-  # GRÁFICO DE GÉNERO — BARRAS DE PROGRESSO
-  # CICLO 3 · ENDLINE
+  # 13. GRÁFICO — COMPREENSÃO DAS DESIGUALDADES
+  # CICLOS 1 E 3 · ENDLINE
   # ==========================================================
   
   output$grafico_esferas_mudanca <- renderPlotly({
@@ -12618,15 +12618,13 @@ server <- function(input, output, session) {
       "Não ajudaram"
     )
     
-    # Preparar e normalizar as respostas
     dados_observados <- resumo_fechada %>%
       dplyr::mutate(
         Resposta_plot = dplyr::case_when(
-          as.character(resposta) ==
+          resposta ==
             "Ajudaram bastante / mudaram a minha compreensão" ~
             "Ajudaram bastante",
-          
-          TRUE ~ as.character(resposta)
+          TRUE ~ resposta
         )
       ) %>%
       dplyr::group_by(Resposta_plot) %>%
@@ -12635,7 +12633,6 @@ server <- function(input, output, session) {
         .groups = "drop"
       )
     
-    # Incluir todas as categorias, mesmo as que têm zero respostas
     dados_grafico <- tibble::tibble(
       Resposta_plot = ordem_respostas
     ) %>%
@@ -12647,7 +12644,10 @@ server <- function(input, output, session) {
         N = dplyr::coalesce(N, 0)
       )
     
-    total_respostas <- sum(dados_grafico$N, na.rm = TRUE)
+    total_respostas <- sum(
+      dados_grafico$N,
+      na.rm = TRUE
+    )
     
     dados_grafico <- dados_grafico %>%
       dplyr::mutate(
@@ -12680,8 +12680,10 @@ server <- function(input, output, session) {
           "<br>Percentagem: ", label_direita
         ),
         
-        # Posição do rótulo mesmo quando a percentagem é zero
-        posicao_label = pmin(Percentagem + 2, 103),
+        posicao_label = pmin(
+          Percentagem + 2,
+          103
+        ),
         
         Resposta_plot = factor(
           Resposta_plot,
@@ -12690,10 +12692,8 @@ server <- function(input, output, session) {
       ) %>%
       dplyr::arrange(Resposta_plot)
     
-    # Gráfico
     plot_ly() %>%
       
-      # Trilho de fundo: 100%
       add_bars(
         data = dados_grafico,
         x = rep(100, nrow(dados_grafico)),
@@ -12709,7 +12709,6 @@ server <- function(input, output, session) {
         name = "Fundo"
       ) %>%
       
-      # Barras preenchidas por categoria
       add_bars(
         data = dados_grafico,
         x = ~Percentagem,
@@ -12726,7 +12725,6 @@ server <- function(input, output, session) {
         name = "Respostas"
       ) %>%
       
-      # Rótulos independentes para garantir a visibilidade
       add_trace(
         data = dados_grafico,
         x = ~posicao_label,
@@ -12803,49 +12801,38 @@ server <- function(input, output, session) {
   })
   
   
-  
   # ==========================================================
-  # GRÁFICO — O QUE AS PARTICIPANTES PUSERAM EM PRÁTICA
-  # CLASSIFICAÇÃO AUTOMÁTICA DAS RESPOSTAS ABERTAS
-  # CICLO 3 · ENDLINE
+  # 14. GRÁFICO — PRÁTICAS COLOCADAS EM PRÁTICA
+  # CICLOS 1 E 3 · ENDLINE
   # ==========================================================
   
   output$grafico_praticas_genero <- renderPlotly({
     
     cor_fundo <- "#e9e3ed"
     
-    # --------------------------------------------------------
-    # 1. Ler os depoimentos da variável da base de dados
-    # --------------------------------------------------------
-    respostas <- dados_genero_c3 %>%
+    respostas <- dados_genero_unicos %>%
       dplyr::transmute(
-        depoimento = as.character(.data[[
-          "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
-        ]])
-      ) %>%
-      dplyr::mutate(
-        depoimento = stringr::str_squish(depoimento)
+        ID_Participante,
+        depoimento = stringr::str_squish(
+          as.character(.data[[pergunta_praticas]])
+        )
       ) %>%
       dplyr::filter(
         !is.na(depoimento),
         depoimento != ""
       ) %>%
+      dplyr::distinct(ID_Participante, .keep_all = TRUE) %>%
       dplyr::mutate(
-        # Normalizar acentos para facilitar a pesquisa de palavras
         texto = stringi::stri_trans_general(
           stringr::str_to_lower(depoimento),
           "Latin-ASCII"
         )
       )
     
-    # Total de participantes na avaliação
-    total_participantes <- nrow(dados_genero_c3)
+    total_participantes <- dplyr::n_distinct(
+      respostas$ID_Participante
+    )
     
-    # --------------------------------------------------------
-    # 2. Identificar automaticamente as esferas de mudança
-    # --------------------------------------------------------
-    
-    # CASA E FAMÍLIA
     padrao_casa <- paste(
       "casa", "familia", "marido", "esposo", "parceiro",
       "companheiro", "filhos", "tarefas domesticas",
@@ -12856,7 +12843,6 @@ server <- function(input, output, session) {
       sep = "|"
     )
     
-    # EU — AUTOCONFIANÇA E AUTONOMIA
     padrao_eu <- paste(
       "confianca", "confiante", "perder o medo",
       "perdi o medo", "sem medo", "coragem",
@@ -12869,11 +12855,10 @@ server <- function(input, output, session) {
       sep = "|"
     )
     
-    # NEGÓCIO — GESTÃO E ACTIVIDADE ECONÓMICA
     padrao_negocio <- paste(
       "negocio", "negociar", "negociei", "negocio com",
-      "preco", "precos", "precificar","fixar precos", "clientes",
-      "vender", "vendas", "lucro", "investir",
+      "preco", "precos", "precificar", "fixar precos",
+      "clientes", "vender", "vendas", "lucro", "investir",
       "investimento", "capital", "poupanca",
       "formalizar", "formalizacao", "empreender",
       "comprar mercadoria", "gestao", "contabilidade",
@@ -12881,7 +12866,6 @@ server <- function(input, output, session) {
       sep = "|"
     )
     
-    # TEMPO — CONCILIAÇÃO DE RESPONSABILIDADES
     padrao_tempo <- paste(
       "tempo", "conciliar", "organizacao do tempo",
       "gerir o tempo", "gestao do tempo",
@@ -12893,27 +12877,14 @@ server <- function(input, output, session) {
       sep = "|"
     )
     
-    # Classificar cada depoimento.
-    # Um depoimento pode pertencer a várias esferas.
     respostas_classificadas <- respostas %>%
       dplyr::mutate(
-        Casa_familia = stringr::str_detect(
-          texto, padrao_casa
-        ),
-        Eu = stringr::str_detect(
-          texto, padrao_eu
-        ),
-        Negocio = stringr::str_detect(
-          texto, padrao_negocio
-        ),
-        Tempo = stringr::str_detect(
-          texto, padrao_tempo
-        )
+        Casa_familia = stringr::str_detect(texto, padrao_casa),
+        Eu = stringr::str_detect(texto, padrao_eu),
+        Negocio = stringr::str_detect(texto, padrao_negocio),
+        Tempo = stringr::str_detect(texto, padrao_tempo)
       )
     
-    # --------------------------------------------------------
-    # 3. Calcular automaticamente os totais por esfera
-    # --------------------------------------------------------
     dados_praticas <- tibble::tibble(
       Esfera = c(
         "Casa e família",
@@ -12921,18 +12892,21 @@ server <- function(input, output, session) {
         "Negócio",
         "Tempo"
       ),
+      
       Descricao = c(
         "Redistribuir tarefas, negociar com parceiro ou família",
         "Autoconfiança, perder o medo, sentir-se capaz",
         "Negociar, fixar preços, investir, formalizar",
         "Conciliar o negócio e a família"
       ),
+      
       N = c(
         sum(respostas_classificadas$Casa_familia, na.rm = TRUE),
         sum(respostas_classificadas$Eu, na.rm = TRUE),
         sum(respostas_classificadas$Negocio, na.rm = TRUE),
         sum(respostas_classificadas$Tempo, na.rm = TRUE)
       ),
+      
       Cor = c(
         "#6A1B9A",
         "#7E3FB2",
@@ -12946,12 +12920,17 @@ server <- function(input, output, session) {
         } else {
           0
         },
-        Rotulo = paste0(N, " de ", total_participantes),
+        
+        Rotulo = paste0(
+          N, " de ", total_participantes
+        ),
+        
         Tooltip = paste0(
           "<b>", Esfera, "</b>",
           "<br>", Descricao,
           "<br>Depoimentos identificados: ", N,
-          "<br>Participantes avaliadas: ", total_participantes,
+          "<br>Participantes com resposta aberta: ",
+          total_participantes,
           "<br>Percentagem: ",
           format(
             round(Percentagem, 1),
@@ -12960,6 +12939,7 @@ server <- function(input, output, session) {
           ),
           "%"
         ),
+        
         Esfera = factor(
           Esfera,
           levels = rev(c(
@@ -12972,12 +12952,8 @@ server <- function(input, output, session) {
       ) %>%
       dplyr::arrange(Esfera)
     
-    # --------------------------------------------------------
-    # 4. Construir as barras de progresso
-    # --------------------------------------------------------
     plot_ly() %>%
       
-      # Trilho de fundo: representa o total de participantes
       add_bars(
         data = dados_praticas,
         x = rep(total_participantes, nrow(dados_praticas)),
@@ -12993,7 +12969,6 @@ server <- function(input, output, session) {
         name = "Total de participantes"
       ) %>%
       
-      # Preenchimento: número de depoimentos identificados
       add_bars(
         data = dados_praticas,
         x = ~N,
@@ -13010,7 +12985,6 @@ server <- function(input, output, session) {
         name = "Esferas identificadas"
       ) %>%
       
-      # Valores fora das barras, incluindo quando N = 0
       add_trace(
         data = dados_praticas,
         x = ~pmin(N + 0.7, total_participantes + 1),
@@ -13045,7 +13019,10 @@ server <- function(input, output, session) {
         
         xaxis = list(
           visible = FALSE,
-          range = c(0, max(total_participantes + 5, 10)),
+          range = c(
+            0,
+            max(total_participantes + 5, 10)
+          ),
           fixedrange = TRUE,
           zeroline = FALSE,
           showgrid = FALSE
@@ -13094,18 +13071,8 @@ server <- function(input, output, session) {
   
   
   # ============================================================
-  # VOZES DAS PARTICIPANTES — PREPARAÇÃO DOS DEPOIMENTOS
-  # Apenas a pergunta aberta sobre práticas colocadas em prática
-  # Identificação exclusiva por ID
+  # 15. CLASSIFICAÇÃO TEMÁTICA DOS DEPOIMENTOS
   # ============================================================
-  
-  pergunta_praticas <-
-    "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
-  
-  
-  # ------------------------------------------------------------
-  # 1. Classificação temática
-  # ------------------------------------------------------------
   
   classificar_tema_genero <- function(texto) {
     
@@ -13136,27 +13103,27 @@ server <- function(input, output, session) {
       "Poder interior" = paste(
         "confianca", "autoconfianca", "autoestima",
         "perder o medo", "coragem", "sentir-me capaz",
-        "acreditar em mim", "acredito em mim", "me tornei capaz",
-        "autonomia", "independencia", "tomar decisoes",
-        "minha voz", "minha opiniao", "direitos",
+        "acreditar em mim", "acredito em mim",
+        "me tornei capaz", "autonomia", "independencia",
+        "tomar decisoes", "minha voz", "minha opiniao",
+        "direitos",
         sep = "|"
       ),
       
       "Negociar e fixar preços" = paste(
         "negociar", "negociei", "negociacao",
         "fixar precos", "preco", "precos",
-        "clientes", "vendas", "vender",
-        "lucro", "investir", "capital",
-        "formalizar", "formalizacao",
+        "clientes", "vendas", "vender", "lucro",
+        "investir", "capital", "formalizar", "formalizacao",
         sep = "|"
       ),
       
       "Relações de poder" = paste(
         "poder de decisao", "tomada de decisao",
-        "decisao conjunta", "igualdade",
-        "desigualdade", "respeito", "direitos",
-        "voz na familia", "ser ouvida",
-        "participar nas decisoes", "relacao de poder",
+        "decisao conjunta", "igualdade", "desigualdade",
+        "respeito", "direitos", "voz na familia",
+        "ser ouvida", "participar nas decisoes",
+        "relacao de poder",
         sep = "|"
       ),
       
@@ -13195,63 +13162,20 @@ server <- function(input, output, session) {
       return("Tema não classificado")
     }
     
+    # Mantém o primeiro tema encontrado, tal como na lógica original.
     temas_encontrados[1]
   }
   
   
-  # ------------------------------------------------------------
-  # 2. Identificar a coluna do ID
-  # ------------------------------------------------------------
+  # ============================================================
+  # 16. PREPARAR OS DEPOIMENTOS POR ID
+  # ============================================================
   
-  colunas_id_possiveis <- c(
-    "ID_Participante",
-    "id_participante",
-    "ID_participante",
-    "ID",
-    "id",
-    "Codigo_Participante",
-    "Código_Participante"
-  )
-  
-  coluna_id_encontrada <- intersect(
-    colunas_id_possiveis,
-    names(dados_genero_c3)
-  )
-  
-  if (length(coluna_id_encontrada) == 0) {
-    stop(
-      paste(
-        "Não foi encontrada a coluna do ID em dados_genero_c3.",
-        "Verifica names(dados_genero_c3) e acrescenta o nome",
-        "correcto à lista colunas_id_possiveis."
-      )
-    )
-  }
-  
-  coluna_id_encontrada <- coluna_id_encontrada[1]
-  
-  
-  # ------------------------------------------------------------
-  # 3. Verificar a pergunta aberta e preparar os dados
-  # ------------------------------------------------------------
-  
-  if (!pergunta_praticas %in% names(dados_genero_c3)) {
-    stop(
-      paste(
-        "A pergunta aberta não foi encontrada em dados_genero_c3:",
-        pergunta_praticas
-      )
-    )
-  }
-  
-  dados_depoimentos_genero <- tibble::tibble(
-    ID_Participante = as.character(
-      dados_genero_c3[[coluna_id_encontrada]]
-    ),
-    Texto_original = as.character(
-      dados_genero_c3[[pergunta_praticas]]
-    )
-  ) %>%
+  dados_depoimentos_genero <- dados_genero_unicos %>%
+    dplyr::transmute(
+      ID_Participante = as.character(ID_Participante),
+      Texto_original = as.character(.data[[pergunta_praticas]])
+    ) %>%
     dplyr::mutate(
       ID_Participante = stringr::str_squish(ID_Participante),
       texto_verificacao = stringr::str_squish(Texto_original)
@@ -13261,6 +13185,10 @@ server <- function(input, output, session) {
       ID_Participante != "",
       !is.na(Texto_original),
       texto_verificacao != ""
+    ) %>%
+    dplyr::distinct(
+      ID_Participante,
+      .keep_all = TRUE
     ) %>%
     dplyr::mutate(
       Depoimento = Texto_original,
@@ -13278,22 +13206,8 @@ server <- function(input, output, session) {
     )
   
   
-  # ------------------------------------------------------------
-  # 4. Tabela opcional para futuras correcções ortográficas
-  # ------------------------------------------------------------
-  # Por defeito, não altera qualquer depoimento.
-  # As correcções devem ser revistas e registadas manualmente.
-  #
-  # Exemplo:
-  # correcoes_ortograficas <- tibble::tribble(
-  #   ~ID_Participante, ~Texto_original, ~Texto_corrigido,
-  #   "P001", "texto original", "texto corrigido"
-  # )
-  
-  
-  
   # ============================================================
-  # VOZES DAS PARTICIPANTES — CARTÕES INDIVIDUAIS
+  # 17. CARTÕES INDIVIDUAIS — VOZES DAS PARTICIPANTES
   # ============================================================
   
   output$depoimentos_genero <- renderUI({
@@ -13302,7 +13216,11 @@ server <- function(input, output, session) {
     
     tema_selecionado <- input$filtro_tema_qualitativo
     
-    if (is.null(tema_selecionado) || tema_selecionado == "") {
+    if (
+      is.null(tema_selecionado) ||
+      length(tema_selecionado) == 0 ||
+      tema_selecionado == ""
+    ) {
       tema_selecionado <- "Todos"
     }
     
@@ -13376,7 +13294,10 @@ server <- function(input, output, session) {
           tema <- registo$Tema[[1]]
           cor_tema <- unname(cores_temas[tema])
           
-          if (length(cor_tema) == 0 || is.na(cor_tema)) {
+          if (
+            length(cor_tema) == 0 ||
+            is.na(cor_tema)
+          ) {
             cor_tema <- "#999999"
           }
           
@@ -13430,10 +13351,15 @@ server <- function(input, output, session) {
                   "font-size:11px;",
                   "color:#777777;"
                 ),
+                
                 icon("user"),
+                
                 span(
                   style = "margin-left:5px;",
-                  paste("ID:", registo$ID_Participante[[1]])
+                  paste(
+                    "ID:",
+                    registo$ID_Participante[[1]]
+                  )
                 )
               )
             )
@@ -25793,7 +25719,8 @@ server <- function(input, output, session) {
   
   ################### MATRIZ DOS INDICADORES
   
-
+  
+  
   # ============================================================
   # PAM VERDE — NAMPULA CICLO 3
   # MATRIZ TOC — 17 INDICADORES
@@ -26266,7 +26193,7 @@ server <- function(input, output, session) {
       }
     }
     
-
+    
     # ----------------------------------------------------------
     # 16. INDICADORES FINANCEIROS
     # ----------------------------------------------------------
@@ -26490,81 +26417,113 @@ server <- function(input, output, session) {
       )
     
     # ----------------------------------------------------------
-    # 19. FORMATAÇÃO DOS VALORES
+    # 19. FORMATAR VALORES E PREPARAR CÉLULAS VISUAIS
+    # Estilo adaptado da matriz TOC de Beira — Ciclo 1
     # ----------------------------------------------------------
     
     formatar_indicador <- function(valor, unidade) {
-      
-      if (
-        length(valor) == 0 ||
-        is.na(valor) ||
-        !is.finite(valor)
-      ) return("—")
-      
+      if (length(valor) == 0 || is.na(valor) || !is.finite(valor)) {
+        return("—")
+      }
       if (unidade == "%") {
         return(paste0(formatar_numero(valor, 1), "%"))
       }
-      
       paste0(formatar_numero(valor, 2), " MT")
     }
     
     indicadores_toc$Baseline_Exibicao <- mapply(
-      formatar_indicador,
-      indicadores_toc$Baseline,
-      indicadores_toc$Unidade
+      formatar_indicador, indicadores_toc$Baseline, indicadores_toc$Unidade
     )
-    
     indicadores_toc$Endline_Exibicao <- mapply(
-      formatar_indicador,
-      indicadores_toc$Endline,
-      indicadores_toc$Unidade
+      formatar_indicador, indicadores_toc$Endline, indicadores_toc$Unidade
     )
-    
     indicadores_toc$Meta_Exibicao <- mapply(
-      formatar_indicador,
-      indicadores_toc$Meta_2026,
-      indicadores_toc$Unidade
+      formatar_indicador, indicadores_toc$Meta_2026, indicadores_toc$Unidade
     )
     
     indicadores_toc$Variacao_Exibicao <- vapply(
-      seq_len(nrow(indicadores_toc)),
-      function(i) {
+      seq_len(nrow(indicadores_toc)), function(i) {
         valor <- indicadores_toc$Variação[i]
-        
-        if (is.na(valor)) return("—")
-        
-        paste0(
-          ifelse(valor > 0, "+", ""),
-          formatar_numero(valor, 1),
-          " p.p."
-        )
-      },
-      character(1)
+        if (is.na(valor) || !is.finite(valor)) return("—")
+        paste0(ifelse(valor > 0, "+", ""), formatar_numero(valor, 1), " p.p.")
+      }, character(1)
     )
     
     indicadores_toc$Alcance_Exibicao <- vapply(
-      indicadores_toc$Alcance_Numerico,
-      function(x) {
+      indicadores_toc$Alcance_Numerico, function(x) {
         if (is.na(x) || !is.finite(x)) return("—")
         paste0(formatar_numero(x, 1), "%")
-      },
-      character(1)
+      }, character(1)
     )
+    
+    # ----------------------------------------------------------
+    # 20. BOTÕES VISUAIS PARA VALORES
+    # ----------------------------------------------------------
+    
+    botao_percentual <- function(valor, unidade = "%", texto = NULL) {
+      if (is.null(texto)) texto <- formatar_indicador(valor, unidade)
+      if (is.na(valor) || !is.finite(valor)) {
+        return('<span class="toc-sem-medicao">—</span>')
+      }
+      
+      if (unidade == "%") {
+        intensidade <- max(0, min(100, valor)) / 100
+        claro <- c(235, 224, 242)
+        escuro <- c(66, 43, 79)
+        rgb_cor <- round(claro + (escuro - claro) * intensidade)
+        fundo <- sprintf("#%02X%02X%02X", rgb_cor[1], rgb_cor[2], rgb_cor[3])
+        cor_texto <- if (intensidade >= 0.62) "#FFFFFF" else "#4B315B"
+        return(sprintf(
+          '<span class="toc-valor-botao" style="background-color:%s;color:%s;" title="%s">%s</span>',
+          fundo, cor_texto, htmltools::htmlEscape(texto), htmltools::htmlEscape(texto)
+        ))
+      }
+      
+      sprintf('<span class="toc-valor-neutro">%s</span>', htmltools::htmlEscape(texto))
+    }
+    
+    botao_estado <- function(estado) {
+      if (is.na(estado) || estado == "") return('<span class="toc-sem-medicao">—</span>')
+      estilos <- switch(
+        estado,
+        "Meta alcançada" = "background:#422B4F;color:#FFFFFF;",
+        "Próximo da meta" = "background:#D9C6E5;color:#4B315B;",
+        "Em progresso" = "background:#CDB8DB;color:#4B315B;",
+        "Abaixo da meta" = "background:#E9DDF0;color:#4B315B;",
+        "Sem dados" = "background:#F5F3F4;color:#666666;",
+        "Sem meta" = "background:#EEEEEE;color:#666666;",
+        "background:#EEEEEE;color:#666666;"
+      )
+      sprintf('<span class="toc-valor-botao" style="%s">%s</span>', estilos, htmltools::htmlEscape(estado))
+    }
     
     tabela_final_toc <- data.frame(
       ID_Indicador = indicadores_toc$ID_Indicador,
       Indicador = indicadores_toc$Indicador,
-      Baseline = indicadores_toc$Baseline_Exibicao,
-      Endline = indicadores_toc$Endline_Exibicao,
-      Variação = indicadores_toc$Variacao_Exibicao,
-      `Meta 2026` = indicadores_toc$Meta_Exibicao,
-      `Alcance da Meta` = indicadores_toc$Alcance_Exibicao,
-      Estado = indicadores_toc$Estado,
-      check.names = FALSE
+      Baseline = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(indicadores_toc$Baseline[i], indicadores_toc$Unidade[i], indicadores_toc$Baseline_Exibicao[i])
+      }, character(1)),
+      Endline = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(indicadores_toc$Endline[i], indicadores_toc$Unidade[i], indicadores_toc$Endline_Exibicao[i])
+      }, character(1)),
+      Variação = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        valor <- indicadores_toc$Variação[i]
+        if (is.na(valor) || !is.finite(valor)) return('<span class="toc-sem-medicao">—</span>')
+        botao_percentual(indicadores_toc$Endline[i], indicadores_toc$Unidade[i], indicadores_toc$Variacao_Exibicao[i])
+      }, character(1)),
+      `Meta 2026` = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(indicadores_toc$Meta_2026[i], indicadores_toc$Unidade[i], indicadores_toc$Meta_Exibicao[i])
+      }, character(1)),
+      `Alcance da Meta` = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(indicadores_toc$Alcance_Numerico[i], "%", indicadores_toc$Alcance_Exibicao[i])
+      }, character(1)),
+      Estado = vapply(indicadores_toc$Estado, botao_estado, character(1)),
+      check.names = FALSE,
+      stringsAsFactors = FALSE
     )
     
     # ----------------------------------------------------------
-    # 20. TABELA INTERACTIVA
+    # 21. DATATABLE INTERACTIVA
     # ----------------------------------------------------------
     
     widget <- DT::datatable(
@@ -26573,48 +26532,24 @@ server <- function(input, output, session) {
       extensions = c("Buttons", "FixedHeader"),
       options = list(
         pageLength = 17,
-        
-        lengthMenu = list(
-          c(15, 16, 17, 25, 50, 100, -1),
-          c("15", "16", "17", "25", "50", "100", "Todos")
-        ),
-        
+        lengthMenu = list(c(15, 16, 17, 25, 50, 100, -1), c("15", "16", "17", "25", "50", "100", "Todos")),
         scrollX = TRUE,
         scrollY = "65vh",
         scrollCollapse = TRUE,
         autoWidth = FALSE,
         fixedHeader = TRUE,
         dom = "Blfrtip",
-        
         buttons = list(
           list(extend = "copy", text = "Copiar"),
           list(extend = "csv", text = "Exportar CSV"),
           list(extend = "excel", text = "Exportar Excel")
         ),
-        
         columnDefs = list(
-          list(
-            targets = 0,
-            width = "130px",
-            className = "dt-center"
-          ),
-          list(
-            targets = 1,
-            width = "420px",
-            className = "dt-left"
-          ),
-          list(
-            targets = c(2, 3, 4, 5, 6),
-            width = "145px",
-            className = "dt-center"
-          ),
-          list(
-            targets = 7,
-            width = "160px",
-            className = "dt-center"
-          )
+          list(targets = 0, width = "130px", className = "dt-center"),
+          list(targets = 1, width = "420px", className = "dt-left"),
+          list(targets = c(2, 3, 4, 5, 6), width = "145px", className = "dt-center"),
+          list(targets = 7, width = "160px", className = "dt-center")
         ),
-        
         language = list(
           search = "Pesquisar:",
           lengthMenu = "Mostrar _MENU_ indicadores",
@@ -26623,490 +26558,166 @@ server <- function(input, output, session) {
           infoFiltered = "(filtrado de _MAX_ indicadores)",
           zeroRecords = "Nenhum indicador encontrado",
           emptyTable = "Sem dados disponíveis",
-          paginate = list(
-            first = "Primeiro",
-            last = "Último",
-            `next` = "Seguinte",
-            previous = "Anterior"
-          )
+          paginate = list(first = "Primeiro", last = "Último", `next` = "Seguinte", previous = "Anterior"),
+          buttons = list(copy = "Copiar", csv = "Exportar CSV", excel = "Exportar Excel")
         )
       ),
-      
       class = "display compact stripe hover",
-      escape = TRUE
-    )
-    
-    # ----------------------------------------------------------
-    # 21. CORES NO ESTADO
-    # ----------------------------------------------------------
-    
-    widget <- widget |>
-      DT::formatStyle(
-        "Estado",
-        target = "cell",
-        
-        backgroundColor = DT::styleEqual(
-          c(
-            "Meta alcançada",
-            "Próximo da meta",
-            "Em progresso",
-            "Abaixo da meta",
-            "Sem dados",
-            "Sem meta"
-          ),
-          c(
-            "#d4edda",
-            "#d1ecf1",
-            "#fff3cd",
-            "#f8d7da",
-            "#f5f3f4",
-            "#eeeeee"
-          )
-        ),
-        
-        color = DT::styleEqual(
-          c(
-            "Meta alcançada",
-            "Próximo da meta",
-            "Em progresso",
-            "Abaixo da meta",
-            "Sem dados",
-            "Sem meta"
-          ),
-          c(
-            "#155724",
-            "#0c5460",
-            "#856404",
-            "#721c24",
-            "#666666",
-            "#666666"
-          )
-        ),
-        
-        fontWeight = "bold"
-      ) |>
+      escape = FALSE
+    ) |>
       DT::formatStyle(
         columns = names(tabela_final_toc),
-        padding = "8px",
+        padding = "6px",
         `white-space` = "normal",
         `vertical-align` = "middle"
       )
     
-    
     # ----------------------------------------------------------
-    # 22. BOTÕES PERSONALIZADOS E CAPTURA PNG
-    # PAM VERDE — NAMPULA CICLO 3
+    # 22. LEGENDA, BOTÕES PNG E ECRÃ INTEIRO
+    # Adaptado da matriz de Beira; mantém os dados de Nampula
     # ----------------------------------------------------------
     
-    widget <- htmlwidgets::onRender(
-      
-      widget,
-      
-      htmlwidgets::JS("
-
+    widget <- htmlwidgets::onRender(widget, htmlwidgets::JS("
       function(el, x) {
-
-        var wrapper = el.querySelector('.dataTables_wrapper');
-
-if (!wrapper) return;
-
-// Seleccionar a tabela real do corpo, não a cópia do cabeçalho
-var table = wrapper.querySelector(
-  '.dataTables_scrollBody table'
-);
-
-if (!table) {
-  table = wrapper.querySelector('table.dataTable');
-}
-
-if (!table) {
-  console.error('Tabela DataTables não encontrada.', el);
-  return;
-}
-
-        if (!wrapper || !table) return;
-
-        // Evitar duplicação dos botões
-        if (wrapper.querySelector('.toolbar-toc-personalizada')) {
-          return;
+        if (!document.getElementById('toc-matriz-botoes-css-nampula')) {
+          var style = document.createElement('style');
+          style.id = 'toc-matriz-botoes-css-nampula';
+          style.textContent =
+            '.toc-valor-botao{display:inline-block;min-width:76px;padding:8px 10px;border-radius:5px;text-align:center;font-weight:700;font-size:12px;white-space:nowrap;box-sizing:border-box;}' +
+            '.toc-sem-medicao{display:inline-block;min-width:76px;padding:8px 10px;border-radius:5px;text-align:center;background:#F5F3F4;color:#777;font-weight:600;box-sizing:border-box;}' +
+            '.toc-valor-neutro{display:inline-block;padding:8px 10px;color:#4B315B;font-weight:600;white-space:nowrap;}';
+          document.head.appendChild(style);
         }
 
-        // ------------------------------------------------------
-        // CRIAR BARRA DE BOTÕES
-        // ------------------------------------------------------
+        var container = el.parentElement;
+        if (!container || container.querySelector('.toc-custom-toolbar-nampula')) return;
 
         var toolbar = document.createElement('div');
-
-        toolbar.className = 'toolbar-toc-personalizada';
-
-        toolbar.style.cssText =
-          'display:flex;gap:10px;flex-wrap:wrap;' +
-          'align-items:center;margin:12px 0;padding:8px 0;';
+        toolbar.className = 'toc-custom-toolbar-nampula';
+        toolbar.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;';
 
         function criarBotao(texto, cor) {
-
-          var botao = document.createElement('button');
-
-          botao.type = 'button';
-          botao.innerHTML = texto;
-
-          botao.style.cssText =
-            'background:' + cor + ';color:white;border:0;' +
-            'padding:10px 15px;border-radius:6px;' +
-            'cursor:pointer;font-weight:600;';
-
-          toolbar.appendChild(botao);
-
-          return botao;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = texto;
+          btn.style.cssText = 'background:' + cor + ';color:white;border:0;padding:9px 14px;border-radius:5px;cursor:pointer;font-weight:bold;';
+          return btn;
         }
 
-        var btnPNG = criarBotao(
-          '&#128247; Guardar tabela completa em PNG',
-          '#9442d4'
-        );
+        var pngButton = criarBotao('📷 Guardar tabela completa em PNG', '#9442d4');
+        var fullButton = criarBotao('⛶ Ecrã inteiro', '#F37238');
+        toolbar.appendChild(pngButton);
+        toolbar.appendChild(fullButton);
 
-        var btnFullscreen = criarBotao(
-          '&#9974; Ecrã inteiro',
-          '#F37238'
-        );
+        var legenda = document.createElement('div');
+        legenda.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px 0;font-size:12px;color:#555;';
+        var menos = document.createElement('span'); menos.textContent = 'Menos cumprida'; legenda.appendChild(menos);
+        var escala = document.createElement('div'); escala.style.cssText = 'display:flex;gap:3px;align-items:center;';
+        ['#EBE0F2','#CDB8DB','#A98ABD','#805F96','#422B4F'].forEach(function(cor) {
+          var q = document.createElement('span');
+          q.style.cssText = 'display:inline-block;width:22px;height:12px;border-radius:2px;background:' + cor + ';';
+          escala.appendChild(q);
+        });
+        legenda.appendChild(escala);
+        var mais = document.createElement('span'); mais.textContent = 'Mais cumprida'; legenda.appendChild(mais);
+        var sem = document.createElement('span'); sem.style.cssText = 'display:inline-block;width:18px;height:12px;border-radius:2px;background:#F5F3F4;border:1px solid #E0DDE0;margin-left:8px;'; legenda.appendChild(sem);
+        var textoSem = document.createElement('span'); textoSem.textContent = 'Sem medição'; legenda.appendChild(textoSem);
 
-        wrapper.insertBefore(toolbar, wrapper.firstChild);
+        container.insertBefore(toolbar, el);
+        container.insertBefore(legenda, el);
 
-        // ------------------------------------------------------
-        // AJUSTAR COLUNAS
-        // ------------------------------------------------------
+        function obterTabela() {
+          var table = el.querySelector('.dataTables_scrollBody table.dataTable');
+          if (!table) table = el.querySelector('table.dataTable');
+          return table;
+        }
 
-        function ajustarTabela() {
-
-          if (window.jQuery && $.fn.dataTable) {
-
-            var api = $(table).DataTable();
-
-            setTimeout(function() {
-              api.columns.adjust().draw(false);
-            }, 250);
+        fullButton.addEventListener('click', function() {
+          if (document.fullscreenElement) {
+            if (document.exitFullscreen) document.exitFullscreen();
+          } else if (container.requestFullscreen) {
+            container.requestFullscreen();
+          } else {
+            alert('O navegador não suporta o modo de ecrã inteiro.');
           }
-        }
+        });
 
-        // ------------------------------------------------------
-        // EXPORTAR A TABELA COMPLETA PARA PNG
-        // ------------------------------------------------------
-
-        btnPNG.addEventListener('click', function() {
-
+        pngButton.addEventListener('click', async function() {
+          var $ = window.jQuery;
           if (typeof window.html2canvas !== 'function') {
-
-            if (document.querySelector(
-              'script[data-html2canvas-toc]'
-            )) {
-              alert(
-                'A ferramenta de captura está a carregar. ' +
-                'Tente novamente dentro de alguns segundos.'
-              );
-              return;
-            }
-
-            var script = document.createElement('script');
-
-            script.src =
-              'https://cdnjs.cloudflare.com/ajax/libs/' +
-              'html2canvas/1.4.1/html2canvas.min.js';
-
-            script.setAttribute('data-html2canvas-toc', 'true');
-
-            btnPNG.disabled = true;
-            btnPNG.textContent = 'A carregar ferramenta...';
-
-            script.onload = function() {
-              btnPNG.disabled = false;
-              btnPNG.innerHTML =
-                '&#128247; Guardar tabela completa em PNG';
-              btnPNG.click();
-            };
-
-            script.onerror = function() {
-              btnPNG.disabled = false;
-              btnPNG.innerHTML =
-                '&#128247; Guardar tabela completa em PNG';
-
-              alert(
-                'Não foi possível carregar a ferramenta PNG. ' +
-                'Verifique a ligação à Internet.'
-              );
-            };
-
-            document.head.appendChild(script);
-
+            alert('A biblioteca html2canvas não está carregada. Inclua-a no UI ou verifique a ligação à Internet.');
             return;
           }
-
-          if (!window.jQuery || !$.fn.dataTable) {
-            alert('A tabela ainda não está pronta.');
+          var table = obterTabela();
+          if (!table || !$ || !$.fn.DataTable || !$.fn.DataTable.isDataTable(table)) {
+            alert('Não foi possível localizar a tabela DataTables para exportação.');
             return;
           }
-
-          var api = $(table).DataTable();
-
-          var scrollBody = wrapper.querySelector(
-            '.dataTables_scrollBody'
-          );
-
-          var scroll = wrapper.querySelector(
-            '.dataTables_scroll'
-          );
-
-          var estado = {
-            pageLength: api.page.len(),
-            page: api.page(),
-            scrollBodyStyle: scrollBody
-              ? scrollBody.getAttribute('style')
-              : null,
-            scrollStyle: scroll
-              ? scroll.getAttribute('style')
-              : null,
-            wrapperStyle: wrapper.getAttribute('style')
-          };
-
-          btnPNG.disabled = true;
-          btnPNG.textContent = 'A preparar imagem...';
-
-          function restaurarAtributo(elemento, valor) {
-
-            if (!elemento) return;
-
-            if (valor === null) {
-              elemento.removeAttribute('style');
-            } else {
-              elemento.setAttribute('style', valor);
-            }
-          }
-
-          function restaurar() {
-
-            restaurarAtributo(
-              scrollBody,
-              estado.scrollBodyStyle
-            );
-
-            restaurarAtributo(
-              scroll,
-              estado.scrollStyle
-            );
-
-            restaurarAtributo(
-              wrapper,
-              estado.wrapperStyle
-            );
-
-            api.page.len(estado.pageLength).draw(false);
-
-            setTimeout(function() {
-
-              api.page(estado.page).draw('page');
-
-              ajustarTabela();
-
-              btnPNG.disabled = false;
-              btnPNG.innerHTML =
-                '&#128247; Guardar tabela completa em PNG';
-
-            }, 300);
-          }
-
-          // Mostrar todas as linhas temporariamente
-          api.page.len(-1).draw(false);
-
-          setTimeout(function() {
-
+          var dt = $(table).DataTable();
+          var oldLength = dt.page.len();
+          var oldPage = dt.page();
+          var wrapper = el.querySelector('.dataTables_wrapper') || el;
+          var scrollBody = wrapper.querySelector('.dataTables_scrollBody');
+          var oldStyle = scrollBody ? scrollBody.getAttribute('style') : null;
+          pngButton.disabled = true;
+          pngButton.textContent = 'A preparar PNG...';
+          try {
+            dt.page.len(-1).draw();
+            await new Promise(function(resolve) { setTimeout(resolve, 500); });
             if (scrollBody) {
               scrollBody.style.height = 'auto';
               scrollBody.style.maxHeight = 'none';
               scrollBody.style.overflow = 'visible';
             }
-
-            if (scroll) {
-              scroll.style.height = 'auto';
-              scroll.style.maxHeight = 'none';
-              scroll.style.overflow = 'visible';
-            }
-
-            wrapper.style.width = 'max-content';
-            wrapper.style.maxWidth = 'none';
-            wrapper.style.overflow = 'visible';
-
-            ajustarTabela();
-
-            setTimeout(function() {
-
-              var largura = Math.max(
-                wrapper.scrollWidth,
-                wrapper.offsetWidth
-              );
-
-              var altura = Math.max(
-                wrapper.scrollHeight,
-                wrapper.offsetHeight
-              );
-
-        window.html2canvas(wrapper, {
-  scale: 2,
-  backgroundColor: '#ffffff',
-  useCORS: true,
-  logging: true,
-  width: wrapper.scrollWidth,
-  height: wrapper.scrollHeight,
-  windowWidth: Math.max(
-    document.documentElement.clientWidth,
-    wrapper.scrollWidth
-  ),
-  windowHeight: Math.max(
-    document.documentElement.clientHeight,
-    wrapper.scrollHeight
-  ),
-  onclone: function(doc) {
-
-    var clonedWrapper = doc.querySelector(
-      '.toolbar-toc-personalizada'
-    );
-
-    if (clonedWrapper) {
-      clonedWrapper.style.display = 'none';
-    }
-
-    var clonedBodies = doc.querySelectorAll(
-      '.dataTables_scrollBody'
-    );
-
-    clonedBodies.forEach(function(body) {
-      body.style.height = 'auto';
-      body.style.maxHeight = 'none';
-      body.style.overflow = 'visible';
-      body.style.width = 'auto';
-    });
-
-    var clonedScrolls = doc.querySelectorAll(
-      '.dataTables_scroll'
-    );
-
-    clonedScrolls.forEach(function(scroll) {
-      scroll.style.height = 'auto';
-      scroll.style.maxHeight = 'none';
-      scroll.style.overflow = 'visible';
-      scroll.style.width = 'max-content';
-    });
-  }
-}).then(function(canvas) {
-
-                var link = document.createElement('a');
-
-                link.download =
-                  'Matriz_TOC_PAM_Verde_Nampula_C3.png';
-
-                link.href = canvas.toDataURL('image/png');
-
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-
-              }).catch(function(erro) {
-
-                console.error('Erro ao gerar PNG:', erro);
-
-                alert(
-                  'Não foi possível gerar o PNG completo. ' +
-                  'Verifique a consola do navegador (F12).'
-                );
-
-              }).finally(function() {
-
-                restaurar();
-
-              });
-
-            }, 500);
-
-          }, 350);
-
-        });
-
-        // ------------------------------------------------------
-        // MODO DE ECRÃ INTEIRO
-        // ------------------------------------------------------
-
-        btnFullscreen.addEventListener('click', function() {
-
-          if (document.fullscreenElement === wrapper) {
-
-            document.exitFullscreen().catch(function(erro) {
-              console.error('Erro ao sair do ecrã inteiro:', erro);
+            await new Promise(function(resolve) { setTimeout(resolve, 250); });
+            var canvas = await window.html2canvas(wrapper, {
+              scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false,
+              width: wrapper.scrollWidth, height: wrapper.scrollHeight,
+              windowWidth: Math.max(document.documentElement.clientWidth, wrapper.scrollWidth),
+              windowHeight: Math.max(document.documentElement.clientHeight, wrapper.scrollHeight),
+              onclone: function(doc) {
+                var t = doc.querySelector('.toc-custom-toolbar-nampula');
+                if (t) t.style.display = 'none';
+                var legends = doc.querySelectorAll('div');
+                legends.forEach(function(node) {
+                  if (node.textContent && node.textContent.indexOf('Sem medição') !== -1 && node.style.display !== 'none') node.style.display = 'none';
+                });
+                doc.querySelectorAll('.dataTables_scrollBody').forEach(function(body) {
+                  body.style.height = 'auto'; body.style.maxHeight = 'none'; body.style.overflow = 'visible';
+                });
+                doc.querySelectorAll('.dataTables_scroll,.dataTables_wrapper').forEach(function(node) {
+                  node.style.height = 'auto'; node.style.maxHeight = 'none'; node.style.overflow = 'visible';
+                });
+              }
             });
-
-            return;
+            var link = document.createElement('a');
+            link.download = 'Matriz_TOC_PAM_Verde_Nampula_Ciclo3.png';
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link); link.click(); link.remove();
+          } catch (error) {
+            console.error('Erro na exportação PNG da matriz Nampula C3:', error);
+            alert('Não foi possível gerar o PNG. Abra F12 > Console para consultar o erro.');
+          } finally {
+            if (scrollBody) {
+              if (oldStyle === null) scrollBody.removeAttribute('style');
+              else scrollBody.setAttribute('style', oldStyle);
+            }
+            dt.page.len(oldLength).draw();
+            setTimeout(function() {
+              dt.page(oldPage).draw('page');
+              pngButton.disabled = false;
+              pngButton.textContent = '📷 Guardar tabela completa em PNG';
+            }, 300);
           }
-
-          if (!wrapper.requestFullscreen) {
-            alert(
-              'O navegador não suporta o modo de ecrã inteiro.'
-            );
-            return;
-          }
-
-          wrapper.requestFullscreen().catch(function(erro) {
-            console.error('Erro no ecrã inteiro:', erro);
-
-            alert(
-              'Não foi possível abrir o ecrã inteiro.'
-            );
-          });
-
         });
-
-        document.addEventListener('fullscreenchange', function() {
-
-          var ativo = document.fullscreenElement === wrapper;
-
-          btnFullscreen.innerHTML = ativo
-            ? '&#10006; Sair do ecrã inteiro'
-            : '&#9974; Ecrã inteiro';
-
-          if (ativo) {
-
-            wrapper.style.background = '#ffffff';
-            wrapper.style.padding = '15px';
-            wrapper.style.width = '100%';
-            wrapper.style.height = '100vh';
-            wrapper.style.overflow = 'auto';
-            wrapper.style.boxSizing = 'border-box';
-
-          } else {
-
-            wrapper.style.removeProperty('background');
-            wrapper.style.removeProperty('padding');
-            wrapper.style.removeProperty('width');
-            wrapper.style.removeProperty('height');
-            wrapper.style.removeProperty('overflow');
-            wrapper.style.removeProperty('box-sizing');
-
-          }
-
-          ajustarTabela();
-
-        });
-
       }
-
-      ")
-      
-    )
-    
-    # ----------------------------------------------------------
-    # 23. DEVOLVER A TABELA COM OS BOTÕES
-    # ----------------------------------------------------------
+    "))
     
     widget
     
-    
   }, server = TRUE)
+  
+  
   
   
   
@@ -27446,120 +27057,377 @@ if (!table) {
     )
     
     
-    # ==========================================================
-    # 15. INDICADOR 13 — NOVOS SERVIÇOS FINANCEIROS
-    # BEIRA | PAM VERDE
-    # ID: iPAM_RI.7.3
-    # Meta: 40%
+    
+    # ============================================================
+    # PAM VERDE — BEIRA | CICLO 1
+    # INDICADOR iPAM_RI.7.3
+    # EMPREENDEDORAS QUE PASSARAM A UTILIZAR PELO MENOS
+    # UM NOVO SERVIÇO FINANCEIRO
     #
-    # Numerador: participantes com Aumentou_Uso = "Sim"
-    # Denominador: participantes com Aumentou_Uso = "Sim" ou "Não"
-    # ==========================================================
+    # Meta 2026: 40%
+    #
+    # Numerador:
+    # Participantes que passaram a utilizar pelo menos um
+    # novo serviço financeiro entre Baseline e Endline.
+    #
+    # Denominador:
+    # Participantes com informação válida para os seis serviços
+    # nas duas avaliações.
+    #
+    # Fonte: PAM_VERDE_TOC_BEIRA_C1
+    # Requer: dplyr, tidyr, stringr
+    # ============================================================
     
-    servicos_financeiros_percentual_EL <- NA_real_
-    servicos_financeiros_total_sim <- 0L
-    servicos_financeiros_total_validos <- 0L
     
-    # ----------------------------------------------------------
-    # 15.1. Verificar a existência da tabela
-    # ----------------------------------------------------------
+    # ============================================================
+    # 1. VALIDAR A BASE DE ORIGEM
+    # ============================================================
     
-    if (exists("tabela_servicos_financeiros", inherits = TRUE)) {
-      
-      tabela_indicador <- get(
-        "tabela_servicos_financeiros",
-        inherits = TRUE
+    if (!exists("PAM_VERDE_TOC_BEIRA_C1")) {
+      stop(
+        "A base PAM_VERDE_TOC_BEIRA_C1 não foi encontrada."
       )
-      
-      # Se for uma tabela Reactiva do Shiny, obter os dados
-      if (is.function(tabela_indicador)) {
-        tabela_indicador <- tabela_indicador()
-      }
-      
-      # --------------------------------------------------------
-      # 15.2. Validar a coluna de classificação
-      # --------------------------------------------------------
-      
-      if (
-        is.data.frame(tabela_indicador) &&
-        "Aumentou_Uso" %in% names(tabela_indicador)
-      ) {
+    }
+    
+    base_servicos_beira <- PAM_VERDE_TOC_BEIRA_C1
+    
+    colunas_necessarias <- c(
+      "ID_Participante",
+      "Tipo_Avaliacao",
+      "Uso_Servicos_Financeiros"
+    )
+    
+    colunas_faltantes <- setdiff(
+      colunas_necessarias,
+      names(base_servicos_beira)
+    )
+    
+    if (length(colunas_faltantes) > 0) {
+      stop(
+        "Faltam as seguintes colunas na base: ",
+        paste(colunas_faltantes, collapse = ", ")
+      )
+    }
+    
+    
+    # ============================================================
+    # 2. LISTA DOS SEIS SERVIÇOS FINANCEIROS
+    # ============================================================
+    
+    lista_servicos_financeiros <- c(
+      "Carteira móvel (M-Pesa, e-Mola, Mkesh)",
+      "Crédito ou empréstimo bancário para o negócio",
+      "Microcrédito (ex: GAPI, FDC, IMF, cooperativa de crédito...)",
+      "Conta bancária em nome do negócio (conta empresarial)",
+      "Conta poupança formal ligada ao negócio",
+      "Seguro (de negócio, de equipamento, de saúde...)"
+    )
+    
+    
+    # ============================================================
+    # 3. PREPARAR AS RESPOSTAS
+    # ============================================================
+    
+    respostas_servicos <- base_servicos_beira |>
+      dplyr::transmute(
+        ID_Participante = stringr::str_squish(
+          as.character(ID_Participante)
+        ),
         
-        classificacao <- trimws(
-          as.character(tabela_indicador$Aumentou_Uso)
+        Tipo_Avaliacao = stringr::str_to_lower(
+          stringr::str_squish(
+            as.character(Tipo_Avaliacao)
+          )
+        ),
+        
+        Resposta = stringr::str_squish(
+          as.character(Uso_Servicos_Financeiros)
         )
-        
-        # Numerador: participantes que começaram a usar
-        # pelo menos um serviço financeiro novo
-        servicos_financeiros_total_sim <- sum(
-          classificacao == "Sim",
-          na.rm = TRUE
+      ) |>
+      dplyr::filter(
+        !is.na(ID_Participante),
+        ID_Participante != "",
+        Tipo_Avaliacao %in% c("baseline", "endline"),
+        !is.na(Resposta),
+        Resposta != ""
+      ) |>
+      dplyr::mutate(
+        Tipo_Avaliacao = dplyr::case_when(
+          Tipo_Avaliacao == "baseline" ~ "Baseline",
+          Tipo_Avaliacao == "endline" ~ "Endline"
         )
-        
-        # Denominador: participantes com comparação válida
-        servicos_financeiros_total_validos <- sum(
-          classificacao %in% c("Sim", "Não"),
-          na.rm = TRUE
-        )
-        
-        # ------------------------------------------------------
-        # 15.3. Calcular o indicador
-        # ------------------------------------------------------
-        
-        if (servicos_financeiros_total_validos > 0) {
-          
-          servicos_financeiros_percentual_EL <-
-            servicos_financeiros_total_sim /
-            servicos_financeiros_total_validos * 100
-          
-        }
-        
-        # ------------------------------------------------------
-        # 15.4. Registo para validação
-        # ------------------------------------------------------
-        
-        message(
-          "\n==========================================",
-          "\nBEIRA — PAM VERDE",
-          "\nIndicador: iPAM_RI.7.3",
-          "\nNovos Serviços Financeiros",
-          "\n------------------------------------------",
-          "\nNumerador (Sim): ",
-          servicos_financeiros_total_sim,
-          "\nDenominador (comparações válidas): ",
-          servicos_financeiros_total_validos,
-          "\nPercentagem: ",
-          if (
-            is.na(servicos_financeiros_percentual_EL)
-          ) {
-            "NA"
-          } else {
-            paste0(
-              round(servicos_financeiros_percentual_EL, 1),
-              "%"
-            )
-          },
-          "\nMeta: 40%",
-          "\n==========================================\n"
-        )
-        
-      } else {
-        
-        warning(
-          "Beira: a tabela não contém a coluna Aumentou_Uso ",
-          "ou não é um data.frame válido."
-        )
-        
-      }
+      ) |>
+      dplyr::group_by(
+        ID_Participante,
+        Tipo_Avaliacao
+      ) |>
+      dplyr::summarise(
+        Resposta = paste(
+          unique(Resposta),
+          collapse = " | "
+        ),
+        .groups = "drop"
+      )
+    
+    
+    # ============================================================
+    # 4. IDENTIFICAR A UTILIZAÇÃO DE CADA SERVIÇO
+    #
+    # 1 = utiliza o serviço
+    # 0 = não utiliza o serviço
+    #
+    # ATENÇÃO:
+    # Este bloco pressupõe que as respostas contêm os nomes
+    # dos serviços tal como aparecem na lista acima.
+    # ============================================================
+    
+    if (nrow(respostas_servicos) == 0) {
       
-    } else {
-      
-      warning(
-        "Beira: o objecto tabela_servicos_financeiros ",
-        "não foi encontrado."
+      stop(
+        "Não existem respostas válidas de Baseline e Endline ",
+        "na coluna Uso_Servicos_Financeiros."
       )
       
     }
+    
+    binarios_servicos <- tidyr::crossing(
+      respostas_servicos,
+      servico = lista_servicos_financeiros
+    ) |>
+      dplyr::mutate(
+        utiliza = as.integer(
+          stringr::str_detect(
+            stringr::str_to_lower(Resposta),
+            stringr::fixed(
+              stringr::str_to_lower(servico)
+            )
+          )
+        )
+      ) |>
+      dplyr::select(
+        ID_Participante,
+        Tipo_Avaliacao,
+        servico,
+        utiliza
+      ) |>
+      tidyr::pivot_wider(
+        id_cols = ID_Participante,
+        names_from = c(servico, Tipo_Avaliacao),
+        values_from = utiliza,
+        names_glue = "{servico}_{Tipo_Avaliacao}"
+      )
+    
+    
+    # ============================================================
+    # 5. DEFINIR AS COLUNAS DE BASELINE E ENDLINE
+    # ============================================================
+    
+    colunas_baseline <- paste0(
+      lista_servicos_financeiros,
+      "_Baseline"
+    )
+    
+    colunas_endline <- paste0(
+      lista_servicos_financeiros,
+      "_Endline"
+    )
+    
+    # Garantir que todas as colunas existem
+    for (col in c(colunas_baseline, colunas_endline)) {
+      
+      if (!col %in% names(binarios_servicos)) {
+        binarios_servicos[[col]] <- NA_integer_
+      }
+      
+    }
+    
+    
+    # ============================================================
+    # 6. SELECCIONAR PARTICIPANTES COMPARÁVEIS
+    #
+    # Exige informação para os seis serviços em ambas
+    # as avaliações.
+    # ============================================================
+    
+    participantes_validos <- binarios_servicos |>
+      dplyr::filter(
+        dplyr::if_all(
+          dplyr::all_of(
+            c(colunas_baseline, colunas_endline)
+          ),
+          ~ !is.na(.x)
+        )
+      )
+    
+    
+    # ============================================================
+    # 7. CALCULAR OS NOVOS SERVIÇOS FINANCEIROS
+    # ============================================================
+    
+    if (nrow(participantes_validos) > 0) {
+      
+      matriz_baseline <- as.matrix(
+        participantes_validos[
+          ,
+          colunas_baseline,
+          drop = FALSE
+        ]
+      )
+      
+      matriz_endline <- as.matrix(
+        participantes_validos[
+          ,
+          colunas_endline,
+          drop = FALSE
+        ]
+      )
+      
+      # Serviços que não utilizava no Baseline,
+      # mas passou a utilizar no Endline
+      matriz_novos_servicos <-
+        matriz_baseline == 0 &
+        matriz_endline == 1
+      
+      # Serviços que deixou de utilizar
+      matriz_servicos_deixados <-
+        matriz_baseline == 1 &
+        matriz_endline == 0
+      
+      participantes_validos$Novos_Servicos <- as.integer(
+        rowSums(matriz_novos_servicos)
+      )
+      
+      participantes_validos$Servicos_Deixou_Usar <- as.integer(
+        rowSums(matriz_servicos_deixados)
+      )
+      
+      # Indicador individual:
+      # Sim = passou a utilizar pelo menos um serviço novo
+      participantes_validos$Aumentou_Uso <- ifelse(
+        participantes_validos$Novos_Servicos >= 1,
+        "Sim",
+        "Não"
+      )
+      
+    } else {
+      
+      participantes_validos$Novos_Servicos <- integer(0)
+      
+      participantes_validos$Servicos_Deixou_Usar <- integer(0)
+      
+      participantes_validos$Aumentou_Uso <- character(0)
+      
+    }
+    
+    
+    # ============================================================
+    # 8. CRIAR A TABELA FINAL DO INDICADOR
+    # ============================================================
+    
+    tabela_servicos_financeiros <- participantes_validos |>
+      dplyr::select(
+        ID_Participante,
+        dplyr::all_of(colunas_baseline),
+        dplyr::all_of(colunas_endline),
+        Novos_Servicos,
+        Servicos_Deixou_Usar,
+        Aumentou_Uso
+      )
+    
+    
+    # ============================================================
+    # 9. CALCULAR O INDICADOR AGREGADO
+    # ============================================================
+    
+    servicos_financeiros_total_validos <- nrow(
+      tabela_servicos_financeiros
+    )
+    
+    servicos_financeiros_total_sim <- sum(
+      tabela_servicos_financeiros$Aumentou_Uso == "Sim",
+      na.rm = TRUE
+    )
+    
+    servicos_financeiros_percentual_EL <- if (
+      servicos_financeiros_total_validos > 0
+    ) {
+      
+      servicos_financeiros_total_sim /
+        servicos_financeiros_total_validos * 100
+      
+    } else {
+      
+      NA_real_
+      
+    }
+    
+    
+    # ============================================================
+    # 10. RESULTADO E DIAGNÓSTICO
+    # ============================================================
+    
+    cat("\n")
+    cat("====================================================\n")
+    cat("PAM VERDE — BEIRA | CICLO 1\n")
+    cat("INDICADOR iPAM_RI.7.3\n")
+    cat("Novos serviços financeiros\n")
+    cat("====================================================\n")
+    
+    cat(
+      "Participantes com comparação válida: ",
+      servicos_financeiros_total_validos,
+      "\n",
+      sep = ""
+    )
+    
+    cat(
+      "Participantes que utilizaram novos serviços: ",
+      servicos_financeiros_total_sim,
+      "\n",
+      sep = ""
+    )
+    
+    cat(
+      "Meta 2026: 40%\n"
+    )
+    
+    cat(
+      "Resultado: ",
+      if (
+        is.na(servicos_financeiros_percentual_EL)
+      ) {
+        "Sem dados suficientes"
+      } else {
+        paste0(
+          round(servicos_financeiros_percentual_EL, 1),
+          "%"
+        )
+      },
+      "\n",
+      sep = ""
+    )
+    
+    cat("====================================================\n")
+    
+    
+    # ============================================================
+    # 11. LIGAR O RESULTADO À MATRIZ TOC
+    #
+    # Usar estes valores no indicador iPAM_RI.7.3
+    # ============================================================
+    
+    # Endline
+    # servicos_financeiros_percentual_EL
+    #
+    # Numerador
+    # servicos_financeiros_total_sim
+    #
+    # Denominador
+    # servicos_financeiros_total_validos
+    #
+    # Meta
+    # 40
+    
     
     # ==========================================================
     # 16. INDICADORES FINANCEIROS
@@ -27889,23 +27757,133 @@ if (!table) {
     )
     
     # ==========================================================
-    # 21. TABELA FINAL
+    # 21. TABELA FINAL — CÉLULAS EM FORMATO DE BOTÃO
+    # Roxo mais escuro = valor mais elevado (100% ou mais)
+    # Roxo mais claro = valor percentual mais baixo
+    # Travessão cinzento = sem medição
     # ==========================================================
     
-    tabela_final <- data.frame(
+    botao_percentual <- function(valor, unidade = "%", texto = NULL) {
       
+      if (is.null(texto)) {
+        texto <- formatar_indicador(valor, unidade)
+      }
+      
+      if (is.na(valor) || !is.finite(valor)) {
+        return(
+          '<span class="toc-sem-medicao">—</span>'
+        )
+      }
+      
+      # Os indicadores percentuais usam uma escala de 0 a 100%.
+      # Valores iguais ou superiores a 100% recebem o roxo mais escuro.
+      if (unidade == "%") {
+        intensidade <- max(0, min(100, valor)) / 100
+        
+        # Interpolação entre lilás claro e roxo escuro.
+        claro <- c(235, 224, 242)
+        escuro <- c(66, 43, 79)
+        rgb <- round(claro + (escuro - claro) * intensidade)
+        
+        fundo <- sprintf("#%02X%02X%02X", rgb[1], rgb[2], rgb[3])
+        cor_texto <- if (intensidade >= 0.62) "#FFFFFF" else "#4B315B"
+        
+        return(sprintf(
+          paste0(
+            '<span class="toc-valor-botao" ',
+            'style="background-color:%s;color:%s;" ',
+            'title="%s">%s</span>'
+          ),
+          fundo,
+          cor_texto,
+          htmltools::htmlEscape(texto),
+          htmltools::htmlEscape(texto)
+        ))
+      }
+      
+      # Indicadores financeiros em MT não são tratados como percentagens.
+      sprintf(
+        '<span class="toc-valor-neutro">%s</span>',
+        htmltools::htmlEscape(texto)
+      )
+    }
+    
+    botao_estado <- function(estado) {
+      if (is.na(estado) || estado == "") {
+        return('<span class="toc-sem-medicao">—</span>')
+      }
+      
+      estilos <- switch(
+        estado,
+        "Meta alcançada" = "background:#422B4F;color:#FFFFFF;",
+        "Abaixo da meta" = "background:#E9DDF0;color:#4B315B;",
+        "Sem dados" = "background:#F5F3F4;color:#666666;",
+        "Sem meta" = "background:#EEEEEE;color:#666666;",
+        "background:#EEEEEE;color:#666666;"
+      )
+      
+      sprintf(
+        '<span class="toc-valor-botao" style="%s">%s</span>',
+        estilos,
+        htmltools::htmlEscape(estado)
+      )
+    }
+    
+    tabela_final <- data.frame(
       ID_Indicador = indicadores_toc$ID_Indicador,
       Indicador = indicadores_toc$Indicador,
-      Baseline = indicadores_toc$Baseline_Exibicao,
-      Endline = indicadores_toc$Endline_Exibicao,
-      Variação = indicadores_toc$Variacao_Exibicao,
-      `Meta 2026` = indicadores_toc$Meta_Exibicao,
-      `Alcance da Meta` = indicadores_toc$Alcance_Exibicao,
-      Estado = indicadores_toc$Estado,
       
-      check.names = FALSE
+      Baseline = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(
+          indicadores_toc$Baseline[i],
+          indicadores_toc$Unidade[i],
+          indicadores_toc$Baseline_Exibicao[i]
+        )
+      }, character(1)),
+      
+      Endline = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(
+          indicadores_toc$Endline[i],
+          indicadores_toc$Unidade[i],
+          indicadores_toc$Endline_Exibicao[i]
+        )
+      }, character(1)),
+      
+      Variação = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        valor <- indicadores_toc$Variação[i]
+        texto <- indicadores_toc$Variacao_Exibicao[i]
+        
+        if (is.na(valor) || !is.finite(valor)) {
+          return('<span class="toc-sem-medicao">—</span>')
+        }
+        
+        # A variação é apresentada como botão, com intensidade baseada
+        # no valor final do indicador, sem confundir p.p. com percentagem.
+        botao_percentual(
+          indicadores_toc$Endline[i],
+          indicadores_toc$Unidade[i],
+          texto
+        )
+      }, character(1)),
+      
+      `Meta 2026` = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        botao_percentual(
+          indicadores_toc$Meta_2026[i],
+          indicadores_toc$Unidade[i],
+          indicadores_toc$Meta_Exibicao[i]
+        )
+      }, character(1)),
+      
+      `Alcance da Meta` = vapply(seq_len(nrow(indicadores_toc)), function(i) {
+        valor <- indicadores_toc$Alcance_Numerico[i]
+        texto <- indicadores_toc$Alcance_Exibicao[i]
+        botao_percentual(valor, "%", texto)
+      }, character(1)),
+      
+      Estado = vapply(indicadores_toc$Estado, botao_estado, character(1)),
+      check.names = FALSE,
+      stringsAsFactors = FALSE
     )
-    
     
     # ==========================================================
     # 22. DATATABLE INTERACTIVA — BEIRA CICLO 1
@@ -27995,49 +27973,8 @@ if (!table) {
       ),
       
       class = "display compact stripe hover",
-      escape = TRUE
+      escape = FALSE
       
-    ) |>
-      
-      # --------------------------------------------------------
-    # 23. CORES DO ESTADO
-    # --------------------------------------------------------
-    
-    DT::formatStyle(
-      "Estado",
-      target = "cell",
-      
-      backgroundColor = DT::styleEqual(
-        c(
-          "Meta alcançada",
-          "Abaixo da meta",
-          "Sem dados",
-          "Sem meta"
-        ),
-        c(
-          "#d4edda",
-          "#fff3cd",
-          "#f5f3f4",
-          "#eeeeee"
-        )
-      ),
-      
-      color = DT::styleEqual(
-        c(
-          "Meta alcançada",
-          "Abaixo da meta",
-          "Sem dados",
-          "Sem meta"
-        ),
-        c(
-          "#155724",
-          "#856404",
-          "#666666",
-          "#666666"
-        )
-      ),
-      
-      fontWeight = "bold"
     ) |>
       
       # --------------------------------------------------------
@@ -28059,6 +27996,24 @@ if (!table) {
     htmlwidgets::onRender(
       htmlwidgets::JS("
         function(el, x) {
+
+          // Estilo dos botões de valores e da legenda da matriz.
+          if (!document.getElementById('toc-matriz-botoes-css')) {
+            var style = document.createElement('style');
+            style.id = 'toc-matriz-botoes-css';
+            style.textContent =
+              '.toc-valor-botao{' +
+              'display:inline-block;min-width:76px;padding:8px 10px;' +
+              'border-radius:5px;text-align:center;font-weight:700;' +
+              'font-size:12px;white-space:nowrap;box-sizing:border-box;}' +
+              '.toc-sem-medicao{' +
+              'display:inline-block;min-width:76px;padding:8px 10px;' +
+              'border-radius:5px;text-align:center;background:#F5F3F4;' +
+              'color:#777;font-weight:600;box-sizing:border-box;}' +
+              '.toc-valor-neutro{display:inline-block;padding:8px 10px;' +
+              'color:#4B315B;font-weight:600;white-space:nowrap;}';
+            document.head.appendChild(style);
+          }
 
           var container = el.parentElement;
 
@@ -28100,7 +28055,48 @@ if (!table) {
 
           toolbar.appendChild(pngButton);
           toolbar.appendChild(fullButton);
+
+          // Inserir a barra no DOM. Antes, os botões eram criados,
+          // mas a barra nunca era adicionada à página.
           container.insertBefore(toolbar, el);
+
+          var legenda = document.createElement('div');
+          legenda.style.cssText =
+            'display:flex;align-items:center;gap:8px;flex-wrap:wrap;' +
+            'margin:0 0 12px 0;font-size:12px;color:#555;';
+
+          var textoMenos = document.createElement('span');
+          textoMenos.textContent = 'Menos cumprida';
+          legenda.appendChild(textoMenos);
+
+          var escala = document.createElement('div');
+          escala.style.cssText = 'display:flex;gap:3px;align-items:center;';
+          ['#EBE0F2','#CDB8DB','#A98ABD','#805F96','#422B4F']
+            .forEach(function(cor) {
+              var quadrado = document.createElement('span');
+              quadrado.style.cssText =
+                'display:inline-block;width:22px;height:12px;' +
+                'border-radius:2px;background:' + cor + ';';
+              escala.appendChild(quadrado);
+            });
+          legenda.appendChild(escala);
+
+          var textoMais = document.createElement('span');
+          textoMais.textContent = 'Mais cumprida';
+          legenda.appendChild(textoMais);
+
+          var semMedicao = document.createElement('span');
+          semMedicao.style.cssText =
+            'display:inline-block;width:18px;height:12px;' +
+            'border-radius:2px;background:#F5F3F4;margin-left:8px;';
+          legenda.appendChild(semMedicao);
+
+          var textoSemMedicao = document.createElement('span');
+          textoSemMedicao.textContent = 'Sem medição';
+          legenda.appendChild(textoSemMedicao);
+
+          container.insertBefore(toolbar, el);
+          container.insertBefore(legenda, el);
 
           // --------------------------------------------------
           // ECRÃ INTEIRO

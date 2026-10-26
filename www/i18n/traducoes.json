@@ -33,6 +33,10 @@
    "Avaliação das Empreendedoras – Nampula e Beira",
    "Evaluation of the Entrepreneurs – Nampula and Beira"
   ],
+  ["Menos cumprida", "Less achieved"],
+  ["Mais cumprida", "More achieved"],
+  ["Sem medição", "Not measured"],
+  ["Fora de 2026", "Outside 2026"],
   [
    "A avaliação contempla as empreendedoras participantes do programa nas cidades de Nampula e Beira, considerando os dados recolhidos no Baseline e no Endline.",
    "The evaluation covers the entrepreneurs participating in the programme in the cities of Nampula and Beira, based on the data collected at Baseline and at Endline."
@@ -85,10 +89,26 @@
    "O que mudou para as participantes",
    "What changed for the participants"
   ],
-  [
-   "Resultados de duas perguntas feitas às 30 participantes",
-   "Results of two questions asked to the 30 participants"
-  ],
+ [
+  "Resultados de duas perguntas feitas às 60 participantes que concluíram o ciclo: em que medida as actividades ajudaram a compreender as desigualdades entre homens e mulheres, e o que colocaram em prática depois dessas actividades.",
+  "Results from two questions asked of the 60 participants who completed the cycle: to what extent the activities helped them understand inequalities between men and women, and what they put into practice after those activities."
+],
+[
+  "Descrever uma nova prática",
+  "Describe a new practice"
+],
+[
+  "40 das 60 participantes deram uma resposta aberta",
+  "40 of the 60 participants provided an open-ended response"
+],
+[
+  "Participantes com resposta aberta",
+  "Participants who provided an open-ended response"
+],
+[
+  "Ciclo 1 Beira e Ciclo 3 Nampula · Endline",
+  "Cycle 1 Beira and Cycle 3 Nampula · Endline"
+],
   [
    "que concluíram o ciclo: em que medida as actividades",
    "who completed the cycle: to what extent the activities"
@@ -1404,6 +1424,10 @@
    "· mudaram a sua compreensão",
    "· changed their understanding"
   ],
+  [
+  "Indicou que as actividades ajudaram bastante ou mudaram a sua compreensão.",
+  "Reported that the activities helped significantly or changed their understanding."
+],
   [
    "Descrevem uma prática nova",
    "Describe a new practice"
