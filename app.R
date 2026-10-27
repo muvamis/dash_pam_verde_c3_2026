@@ -25719,8 +25719,6 @@ server <- function(input, output, session) {
   
   ################### MATRIZ DOS INDICADORES
   
-  
-  
   # ============================================================
   # PAM VERDE — NAMPULA CICLO 3
   # MATRIZ TOC — 17 INDICADORES
@@ -26469,7 +26467,7 @@ server <- function(input, output, session) {
       if (unidade == "%") {
         intensidade <- max(0, min(100, valor)) / 100
         claro <- c(235, 224, 242)
-        escuro <- c(66, 43, 79)
+        escuro <- c(128, 84, 162)
         rgb_cor <- round(claro + (escuro - claro) * intensidade)
         fundo <- sprintf("#%02X%02X%02X", rgb_cor[1], rgb_cor[2], rgb_cor[3])
         cor_texto <- if (intensidade >= 0.62) "#FFFFFF" else "#4B315B"
@@ -26486,7 +26484,7 @@ server <- function(input, output, session) {
       if (is.na(estado) || estado == "") return('<span class="toc-sem-medicao">—</span>')
       estilos <- switch(
         estado,
-        "Meta alcançada" = "background:#422B4F;color:#FFFFFF;",
+        "Meta alcançada" = "background:#8054A2;color:#FFFFFF;",
         "Próximo da meta" = "background:#D9C6E5;color:#4B315B;",
         "Em progresso" = "background:#CDB8DB;color:#4B315B;",
         "Abaixo da meta" = "background:#E9DDF0;color:#4B315B;",
@@ -26604,7 +26602,7 @@ server <- function(input, output, session) {
           return btn;
         }
 
-        var pngButton = criarBotao('📷 Guardar tabela completa em PNG', '#9442d4');
+        var pngButton = criarBotao('📷 Guardar tabela completa em PNG', '#8054A2');
         var fullButton = criarBotao('⛶ Ecrã inteiro', '#F37238');
         toolbar.appendChild(pngButton);
         toolbar.appendChild(fullButton);
@@ -26613,7 +26611,7 @@ server <- function(input, output, session) {
         legenda.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px 0;font-size:12px;color:#555;';
         var menos = document.createElement('span'); menos.textContent = 'Menos cumprida'; legenda.appendChild(menos);
         var escala = document.createElement('div'); escala.style.cssText = 'display:flex;gap:3px;align-items:center;';
-        ['#EBE0F2','#CDB8DB','#A98ABD','#805F96','#422B4F'].forEach(function(cor) {
+        ['#EBE0F2','#D6C4E2','#B99ACF','#9B75B9','#8054A2'].forEach(function(cor) {
           var q = document.createElement('span');
           q.style.cssText = 'display:inline-block;width:22px;height:12px;border-radius:2px;background:' + cor + ';';
           escala.appendChild(q);
@@ -27685,6 +27683,8 @@ server <- function(input, output, session) {
           is.na(Endline) ~ "Sem dados",
           is.na(Meta_2026) ~ "Sem meta",
           Endline >= Meta_2026 ~ "Meta alcançada",
+          Endline >= Meta_2026 * 0.8 ~ "Próximo da meta",
+          Endline >= Meta_2026 * 0.5 ~ "Em progresso",
           TRUE ~ "Abaixo da meta"
         )
       )
@@ -27782,7 +27782,7 @@ server <- function(input, output, session) {
         
         # Interpolação entre lilás claro e roxo escuro.
         claro <- c(235, 224, 242)
-        escuro <- c(66, 43, 79)
+        escuro <- c(128, 84, 162)
         rgb <- round(claro + (escuro - claro) * intensidade)
         
         fundo <- sprintf("#%02X%02X%02X", rgb[1], rgb[2], rgb[3])
@@ -27815,8 +27815,10 @@ server <- function(input, output, session) {
       
       estilos <- switch(
         estado,
-        "Meta alcançada" = "background:#422B4F;color:#FFFFFF;",
-        "Abaixo da meta" = "background:#E9DDF0;color:#4B315B;",
+        "Meta alcançada" = "background:#8054A2;color:#FFFFFF;",
+        "Próximo da meta" = "background:#D6C4E2;color:#4B315B;",
+        "Em progresso" = "background:#B99ACF;color:#4B315B;",
+        "Abaixo da meta" = "background:#EBE0F2;color:#4B315B;",
         "Sem dados" = "background:#F5F3F4;color:#666666;",
         "Sem meta" = "background:#EEEEEE;color:#666666;",
         "background:#EEEEEE;color:#666666;"
@@ -28045,7 +28047,7 @@ server <- function(input, output, session) {
 
           var pngButton = criarBotao(
             '📷 Guardar tabela completa em PNG',
-            '#9442d4'
+            '#8054A2'
           );
 
           var fullButton = criarBotao(
@@ -28071,7 +28073,7 @@ server <- function(input, output, session) {
 
           var escala = document.createElement('div');
           escala.style.cssText = 'display:flex;gap:3px;align-items:center;';
-          ['#EBE0F2','#CDB8DB','#A98ABD','#805F96','#422B4F']
+          ['#EBE0F2','#D6C4E2','#B99ACF','#9B75B9','#8054A2']
             .forEach(function(cor) {
               var quadrado = document.createElement('span');
               quadrado.style.cssText =
@@ -28313,6 +28315,7 @@ server <- function(input, output, session) {
     
     
   }, server = TRUE)
+  
   
   
   
