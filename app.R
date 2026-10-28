@@ -739,126 +739,20 @@ ui <- navbarPage(
                       fluidRow(
                         column(
                           width = 4,
-                          div(
-                            style = "
-              background-color:#ffffff;
-              padding:12px;
-              border-radius:6px;
-              min-height:75px;
-            ",
-                            tags$h3(
-                              style = "
-                margin:0;
-                color:#8054A2;
-                font-size:25px;
-                font-weight:700;
-              ",
-                              "60"
-                            ),
-                            tags$p(
-                              style = "
-                margin:3px 0 0 0;
-                color:#555555;
-                font-size:12px;
-              ",
-                              "Participantes avaliadas"
-                            )
-                          )
+                          uiOutput("contexto_participantes_genero")
                         ),
-                        
                         column(
                           width = 4,
-                          div(
-                            style = "
-              background-color:#ffffff;
-              padding:12px;
-              border-radius:6px;
-              min-height:75px;
-            ",
-                            tags$h3(
-                              style = "
-                margin:0;
-                color:#8054A2;
-                font-size:25px;
-                font-weight:700;
-              ",
-                              "2"
-                            ),
-                            tags$p(
-                              style = "
-                margin:3px 0 0 0;
-                color:#555555;
-                font-size:12px;
-              ",
-                              "Perguntas analisadas"
-                            )
-                          )
+                          uiOutput("contexto_perguntas_genero")
                         ),
-                        
                         column(
                           width = 4,
-                          div(
-                            style = "
-              background-color:#ffffff;
-              padding:12px;
-              border-radius:6px;
-              min-height:75px;
-            ",
-                            tags$h3(
-                              style = "
-                margin:0;
-                color:#8054A2;
-                font-size:15px;
-                font-weight:700;
-                padding-top:5px;
-              ",
-                              "Ciclo  1 Beira e Ciclo 3 Nampula · Endline"
-                            ),
-                            tags$p(
-                              style = "
-                margin:3px 0 0 0;
-                color:#555555;
-                font-size:12px;
-              ",
-                              "Avaliação após as actividades"
-                            )
-                          )
-                        )
-                      ),
-                      
-                      tags$hr(
-                        style = "
-          border-top:1px solid #d8dfea;
-          margin-top:18px;
-          margin-bottom:15px;
-        "
-                      ),
-                      
-                      tags$p(
-                        style = "
-          color:#555555;
-          font-size:13px;
-          line-height:1.6;
-          margin-bottom:0;
-        ",
-                        tags$strong("Actividades abordadas: "),
-                        "Triângulo do Poder · Jogo das 24h · Seja homem, seja mulher"
-                      ),
-                      
-                      tags$p(
-                        style = "
-          color:#777777;
-          font-size:12px;
-          margin-top:8px;
-          margin-bottom:0;
-        ",
-                        tags$em(
-                          "Nota: a análise considera as participantes com avaliação Endline concluída."
+                          uiOutput("contexto_filtros_genero")
                         )
                       )
-                    )
-                  )
-                ),
+                    )  
+                  )     
+                ),       
                 
                 # ==========================================================
                 # RESUMO DA ANÁLISE QUALITATIVA
@@ -977,7 +871,8 @@ ui <- navbarPage(
                           "Negociar e fixar preços",
                           "Relações de poder",
                           "Estereótipos ocupacionais",
-                          "Tensões"
+                          "Tensões",
+                          "Tempo"
                         ),
                         selected = "Todos",
                         justified = FALSE,
@@ -2894,12 +2789,12 @@ tabPanel(
   # BIBLIOTECA PARA CAPTURA DA TABELA EM PNG
   # ==========================================================
   
-  tags$head(
-    tags$script(
-      src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-    )
-  ),
-  
+  # tags$head(
+  #   tags$script(
+  #     src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+  #   )
+  # ),
+  # 
   fluidPage(
         DTOutput("toc_matriz_indicadores_beira")
     
@@ -7912,27 +7807,17 @@ server <- function(input, output, session) {
     # 9. REORDENAR AS CATEGORIAS
     # ============================================================
     
+    # Definir uma única ordem com base no Endline e aplicá-la aos dois momentos.
     ordem_decisao <- df_resumo %>%
-      
-      group_by(
-        Quem_Toma_Decisoes_Negocio
-      ) %>%
-      
-      summarise(
-        
-        total = sum(
-          Percentagem,
-          na.rm = TRUE
-        ),
-        
-        .groups = "drop"
-      ) %>%
-      
-      arrange(total) %>%
-      
-      pull(
-        Quem_Toma_Decisoes_Negocio
-      )
+      filter(Tipo_Avaliacao == "Endline") %>%
+      arrange(Percentagem) %>%
+      pull(Quem_Toma_Decisoes_Negocio) %>%
+      as.character()
+    
+    ordem_decisao <- unique(c(
+      ordem_decisao,
+      as.character(df_resumo$Quem_Toma_Decisoes_Negocio)
+    ))
     
     
     df_resumo <- df_resumo %>%
@@ -8171,7 +8056,7 @@ server <- function(input, output, session) {
           
           xanchor = "center",
           
-          y = -0.25
+          y = -0.30
         ),
         
         
@@ -8187,7 +8072,7 @@ server <- function(input, output, session) {
           
           t = 20,
           
-          b = 130
+          b = 160
         ),
         
         
@@ -8652,18 +8537,17 @@ server <- function(input, output, session) {
     # ORDEM DAS CATEGORIAS
     # ============================================================
     
+    # Definir a ordem com base no Endline e mantê-la nos dois momentos.
     ordem_negociacao <- df_resumo %>%
-      group_by(
-        Praticou_negociação_nos_últimos_3meses
-      ) %>%
-      summarise(
-        total = sum(Percent, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      arrange(total) %>%
-      pull(
-        Praticou_negociação_nos_últimos_3meses
-      )
+      filter(Tipo_Avaliacao == "Endline") %>%
+      arrange(Percent) %>%
+      pull(Praticou_negociação_nos_últimos_3meses) %>%
+      as.character()
+    
+    ordem_negociacao <- unique(c(
+      ordem_negociacao,
+      as.character(df_resumo$Praticou_negociação_nos_últimos_3meses)
+    ))
     
     
     df_resumo <- df_resumo %>%
@@ -9106,27 +8990,18 @@ server <- function(input, output, session) {
     # ORDEM DAS CATEGORIAS
     # ==========================================================
     
+    # Ordenar as respostas pela percentagem do Endline.
+    # A mesma ordem será aplicada a Baseline e Endline.
     ordem <- df_resumo %>%
-      
-      group_by(
-        .data[[variavel]]
-      ) %>%
-      
-      summarise(
-        
-        total = sum(
-          Percent,
-          na.rm = TRUE
-        ),
-        
-        .groups = "drop"
-      ) %>%
-      
-      arrange(total) %>%
-      
-      pull(
-        .data[[variavel]]
-      )
+      filter(Tipo_Avaliacao == "Endline") %>%
+      arrange(Percent) %>%
+      pull(.data[[variavel]]) %>%
+      as.character()
+    
+    ordem <- unique(c(
+      ordem,
+      as.character(df_resumo[[variavel]])
+    ))
     
     
     df_resumo <- df_resumo %>%
@@ -9257,14 +9132,14 @@ server <- function(input, output, session) {
           orientation = "h",
           x = 0.5,
           xanchor = "center",
-          y = -0.25
+          y = -0.30
         ),
         
         margin = list(
           l = 70,
           r = 20,
           t = 20,
-          b = 130
+          b = 160
         ),
         
         paper_bgcolor = "#f5f3f4",
@@ -9798,7 +9673,7 @@ server <- function(input, output, session) {
         "A comparação entre o Baseline e o Endline permite observar a evolução da confiança e capacidade de negociação nas relações com as pessoas com quem os participantes trabalham."
     )
   })
-
+  
   # ##----------------------------------------------------------- 
   # ###################                  3 PAGINA Habilidades e Processos
   # ##-----------------------------------------------------------------------------  
@@ -10822,206 +10697,170 @@ server <- function(input, output, session) {
     )
     
     # ------------------------------------------------------------
-    # Filtrar Baseline e Endline
+    # ESTRUTURA PADRÃO PARA TODOS OS INDICADORES
+    # Ordem fixa das avaliações e das categorias de resposta
     # ------------------------------------------------------------
     
+    ordem_avaliacao <- c("Baseline", "Endline")
+    ordem_categorias <- c("Discordo", "Depende", "Concordo")
+    
+    # Filtrar avaliações e respostas válidas
     df <- df %>%
-      filter(
-        Tipo_Avaliacao %in% c("Baseline", "Endline"),
+      dplyr::filter(
+        Tipo_Avaliacao %in% ordem_avaliacao,
         !is.na(Tipo_Avaliacao),
         !is.na(.data[[variavel]]),
-        .data[[variavel]] != ""
+        trimws(as.character(.data[[variavel]])) != ""
+      ) %>%
+      dplyr::mutate(
+        Tipo_Avaliacao = as.character(Tipo_Avaliacao),
+        categoria = trimws(as.character(.data[[variavel]]))
       )
     
     if (nrow(df) == 0) {
-      return(plotly_empty())
+      return(
+        plotly_empty() %>%
+          layout(
+            annotations = list(
+              list(
+                text = "Não existem dados disponíveis para este indicador.",
+                x = 0.5, y = 0.5,
+                xref = "paper", yref = "paper",
+                showarrow = FALSE,
+                font = list(size = 14, color = "#666666")
+              )
+            ),
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
+      )
     }
     
-    
-    # ------------------------------------------------------------
-    # Frequência e percentagem
-    # ------------------------------------------------------------
-    
-    freq_data <- df %>%
-      group_by(
-        Tipo_Avaliacao,
-        .data[[variavel]]
-      ) %>%
-      summarise(
-        n = n(),
-        .groups = "drop"
-      ) %>%
-      group_by(Tipo_Avaliacao) %>%
-      mutate(
-        pct = round(
-          n / sum(n) * 100,
-          1
-        )
-      ) %>%
-      ungroup()
-    
-    
-    # ------------------------------------------------------------
-    # Garantir todas as categorias nos dois momentos
-    # ------------------------------------------------------------
-    
-    categorias <- unique(
-      freq_data[[variavel]]
+    # Manter as três categorias padronizadas primeiro.
+    # Caso existam outras respostas na base, elas não são eliminadas:
+    # aparecem depois das três categorias principais.
+    categorias_extra <- setdiff(
+      unique(df$categoria),
+      ordem_categorias
+    )
+    ordem_final_categorias <- c(
+      ordem_categorias,
+      sort(categorias_extra)
     )
     
-    freq_data <- freq_data %>%
-      tidyr::complete(
-        Tipo_Avaliacao = c(
-          "Baseline",
-          "Endline"
-        ),
-        !!rlang::sym(variavel) := categorias,
-        fill = list(
-          n = 0,
-          pct = 0
-        )
+    # Frequências observadas
+    freq_observada <- df %>%
+      dplyr::count(
+        Tipo_Avaliacao,
+        categoria,
+        name = "n"
       )
     
-    
-    # ------------------------------------------------------------
-    # Ordenar categorias pela percentagem
-    # ------------------------------------------------------------
-    
-    ordem <- freq_data %>%
-      group_by(.data[[variavel]]) %>%
-      summarise(
-        total = sum(pct, na.rm = TRUE),
-        .groups = "drop"
+    # Criar todas as combinações Baseline/Endline x categorias.
+    # Categorias ausentes recebem n = 0.
+    freq_data <- tidyr::expand_grid(
+      Tipo_Avaliacao = ordem_avaliacao,
+      categoria = ordem_final_categorias
+    ) %>%
+      dplyr::left_join(
+        freq_observada,
+        by = c("Tipo_Avaliacao", "categoria")
       ) %>%
-      arrange(total) %>%
-      pull(.data[[variavel]])
-    
-    
-    # ------------------------------------------------------------
-    # Factor
-    # ------------------------------------------------------------
-    
-    freq_data <- freq_data %>%
-      mutate(
+      dplyr::mutate(
+        n = tidyr::replace_na(n, 0L)
+      ) %>%
+      dplyr::group_by(Tipo_Avaliacao) %>%
+      dplyr::mutate(
+        total_avaliacao = sum(n),
+        pct = dplyr::if_else(
+          total_avaliacao > 0,
+          round(n / total_avaliacao * 100, 1),
+          0
+        )
+      ) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(
         Tipo_Avaliacao = factor(
           Tipo_Avaliacao,
-          levels = c(
-            "Baseline",
-            "Endline"
-          )
+          levels = ordem_avaliacao
         ),
-        
         categoria = factor(
-          .data[[variavel]],
-          levels = ordem
-        )
-      )
-    
-    
-    # ------------------------------------------------------------
-    # Texto dentro das barras
-    # n (percentagem)
-    # ------------------------------------------------------------
-    
-    freq_data <- freq_data %>%
-      mutate(
-        label = ifelse(
+          categoria,
+          levels = ordem_final_categorias
+        ),
+        label = dplyr::if_else(
           pct > 0,
           paste0(
             n,
             " (",
-            format(
-              pct,
-              decimal.mark = ",",
-              nsmall = 1
-            ),
+            format(pct, decimal.mark = ",", nsmall = 1),
             "%)"
           ),
           ""
         )
       )
     
+    # Aplicar as cores fixas. Categorias extra recebem uma cor neutra.
+    cores_usadas <- cores
+    cores_extra <- setdiff(ordem_final_categorias, names(cores_usadas))
+    if (length(cores_extra) > 0) {
+      cores_usadas <- c(
+        cores_usadas,
+        stats::setNames(rep("#999999", length(cores_extra)), cores_extra)
+      )
+    }
+    cores_usadas <- cores_usadas[ordem_final_categorias]
     
-    # ------------------------------------------------------------
-    # Gráfico
-    # ------------------------------------------------------------
-    
-    plot_ly(
+    plotly::plot_ly(
       data = freq_data,
-      
       x = ~Tipo_Avaliacao,
       y = ~pct,
-      
       color = ~categoria,
-      colors = cores,
-      
+      colors = unname(cores_usadas),
       type = "bar",
-      
       text = ~label,
       texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
-      
-      textfont = list(
-        color = "#ffffff",
-        size = 11
-      ),
-      
+      textfont = list(color = "#ffffff", size = 11),
       customdata = ~n,
-      
       hovertemplate = paste0(
         "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
         "Participantes: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
       )
-      
     ) %>%
-      
-      layout(
-        
+      plotly::layout(
         barmode = "stack",
-        
+        barnorm = "",
         xaxis = list(
           title = "",
+          type = "category",
           categoryorder = "array",
-          categoryarray = c(
-            "Baseline",
-            "Endline"
-          ),
+          categoryarray = ordem_avaliacao,
           tickfont = list(size = 12)
         ),
-        
         yaxis = list(
           title = "Percentagem (%)",
           range = c(0, 100),
           tickmode = "array",
           tickvals = seq(0, 100, 20),
-          ticktext = paste0(
-            seq(0, 100, 20),
-            "%"
-          )
+          ticktext = paste0(seq(0, 100, 20), "%")
         ),
-        
         legend = list(
+          title = list(text = "Resposta"),
           orientation = "h",
           x = 0.5,
           xanchor = "center",
-          y = -0.28
+          y = -0.28,
+          traceorder = "normal"
         ),
-        
-        margin = list(
-          l = 70,
-          r = 20,
-          t = 20,
-          b = 140
-        ),
-        
+        margin = list(l = 70, r = 20, t = 20, b = 140),
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4"
       ) %>%
-      
-      config(
+      plotly::config(
         displayModeBar = TRUE,
         displaylogo = FALSE,
         responsive = TRUE,
@@ -11039,27 +10878,27 @@ server <- function(input, output, session) {
   # ============================================================
   
   cores_percepcao_genero <- c(
-    "Concordo" = "#F77333",
+    "Discordo" = "#69C7BE",
     "Depende" = "#ffc107",
-    "Discordo" = "#69C7BE"
+    "Concordo" = "#F77333"
   )
   
   output$grafico_H_Financeiro_Faci <- renderPlotly({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     # Filtro cidade
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     # Filtro ciclo
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_grafico_percepcao(
       df = df,
       variavel = "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .",
@@ -11069,21 +10908,21 @@ server <- function(input, output, session) {
   })
   
   output$grafico_H_Serios <- renderPlotly({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     # Filtro cidade
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     # Filtro ciclo
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_grafico_percepcao(
       df = df,
       variavel = "Os homens são levados mais a sério como empreendedores.",
@@ -11091,23 +10930,23 @@ server <- function(input, output, session) {
       nome_download = "homens_levados_a_serio"
     )
   })
-
+  
   output$grafico_H_Capazes <- renderPlotly({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     # Filtro cidade
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     # Filtro ciclo
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_grafico_percepcao(
       df = df,
       variavel = "Homens são mais capazes de negociar do que as mulheres.",
@@ -11115,23 +10954,23 @@ server <- function(input, output, session) {
       nome_download = "homens_capacidade_negociacao"
     )
   })
-
+  
   output$grafico_Obrigacoes_Domesticas <- renderPlotly({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     # Filtro cidade
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     # Filtro ciclo
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_grafico_percepcao(
       df = df,
       variavel = "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.",
@@ -11139,23 +10978,23 @@ server <- function(input, output, session) {
       nome_download = "responsabilidades_domesticas"
     )
   })
-
+  
   output$grafico_M_Gerir <- renderPlotly({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     # Filtro cidade
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     # Filtro ciclo
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_grafico_percepcao(
       df = df,
       variavel = "Não se espera que as mulheres sejam capazes de gerir um negócio.",
@@ -11168,24 +11007,24 @@ server <- function(input, output, session) {
   # ============================================================
   # FUNÇÃO — TEXTO COMPARATIVO BASELINE VS ENDLINE
   # ============================================================
-
+  
   gerar_texto_percepcao <- function(
     df,
     variavel,
     titulo,
     introducao
   ) {
-
+    
     req(
       "Tipo_Avaliacao" %in% names(df),
       variavel %in% names(df)
     )
-
-
+    
+    
     # ------------------------------------------------------------
     # Filtrar dados
     # ------------------------------------------------------------
-
+    
     df <- df %>%
       filter(
         Tipo_Avaliacao %in% c(
@@ -11196,10 +11035,10 @@ server <- function(input, output, session) {
         !is.na(.data[[variavel]]),
         .data[[variavel]] != ""
       )
-
-
+    
+    
     if (nrow(df) == 0) {
-
+      
       return(
         tags$p(
           style = "margin:0;text-align:justify;",
@@ -11207,12 +11046,12 @@ server <- function(input, output, session) {
         )
       )
     }
-
-
+    
+    
     # ------------------------------------------------------------
     # Frequência
     # ------------------------------------------------------------
-
+    
     resumo <- df %>%
       group_by(
         Tipo_Avaliacao,
@@ -11227,12 +11066,12 @@ server <- function(input, output, session) {
         perc = n / sum(n) * 100
       ) %>%
       ungroup()
-
-
+    
+    
     # ------------------------------------------------------------
     # Baseline
     # ------------------------------------------------------------
-
+    
     baseline <- resumo %>%
       filter(
         Tipo_Avaliacao == "Baseline"
@@ -11242,12 +11081,12 @@ server <- function(input, output, session) {
         n_baseline = n,
         perc_baseline = perc
       )
-
-
+    
+    
     # ------------------------------------------------------------
     # Endline
     # ------------------------------------------------------------
-
+    
     endline <- resumo %>%
       filter(
         Tipo_Avaliacao == "Endline"
@@ -11257,12 +11096,12 @@ server <- function(input, output, session) {
         n_endline = n,
         perc_endline = perc
       )
-
-
+    
+    
     # ------------------------------------------------------------
     # Comparação
     # ------------------------------------------------------------
-
+    
     comparacao <- full_join(
       baseline,
       endline,
@@ -11273,54 +11112,54 @@ server <- function(input, output, session) {
           n_baseline,
           0
         ),
-
+        
         n_endline = tidyr::replace_na(
           n_endline,
           0
         ),
-
+        
         perc_baseline = tidyr::replace_na(
           perc_baseline,
           0
         ),
-
+        
         perc_endline = tidyr::replace_na(
           perc_endline,
           0
         ),
-
+        
         variacao = perc_endline - perc_baseline
       )
-
-
+    
+    
     # ------------------------------------------------------------
     # Criar texto de cada categoria
     # ------------------------------------------------------------
-
+    
     texto_categorias <- lapply(
       seq_len(nrow(comparacao)),
       function(i) {
-
+        
         categoria <- comparacao$resposta[i]
-
+        
         base <- round(
           comparacao$perc_baseline[i],
           1
         )
-
+        
         end <- round(
           comparacao$perc_endline[i],
           1
         )
-
+        
         variacao <- round(
           comparacao$variacao[i],
           1
         )
-
-
+        
+        
         if (variacao > 0) {
-
+          
           paste0(
             categoria,
             " aumentou de ",
@@ -11343,9 +11182,9 @@ server <- function(input, output, session) {
             ),
             " p.p.)"
           )
-
+          
         } else if (variacao < 0) {
-
+          
           paste0(
             categoria,
             " reduziu de ",
@@ -11368,9 +11207,9 @@ server <- function(input, output, session) {
             ),
             " p.p.)"
           )
-
+          
         } else {
-
+          
           paste0(
             categoria,
             " manteve-se em ",
@@ -11384,48 +11223,48 @@ server <- function(input, output, session) {
         }
       }
     )
-
-
+    
+    
     # ------------------------------------------------------------
     # Resultado
     # ------------------------------------------------------------
-
+    
     tags$p(
       style = "margin:0;text-align:justify;",
-
+      
       tags$b(
         paste0(
           titulo,
           ". "
         )
       ),
-
+      
       introducao,
-
+      
       " ",
-
+      
       paste(
         texto_categorias,
         collapse = "; "
       ),
-
+      
       "."
     )
   }
   output$texto_H_Financeiros <- renderUI({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_texto_percepcao(
       df = df,
       variavel = "Os homens tem mais facilidade em acessar produtos financeiros, redes ou novos mercados .",
@@ -11438,21 +11277,21 @@ server <- function(input, output, session) {
       )
     )
   })
-
+  
   output$texto_H_Serios <- renderUI({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_texto_percepcao(
       df = df,
       variavel = "Os homens são levados mais a sério como empreendedores.",
@@ -11464,21 +11303,21 @@ server <- function(input, output, session) {
       )
     )
   })
-
+  
   output$texto_H_Capazes <- renderUI({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_texto_percepcao(
       df = df,
       variavel = "Homens são mais capazes de negociar do que as mulheres.",
@@ -11490,21 +11329,21 @@ server <- function(input, output, session) {
       )
     )
   })
-
+  
   output$texto_Obrigacoes_Domesticas <- renderUI({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_texto_percepcao(
       df = df,
       variavel = "Todas as responsabilidades domésticas são obrigação da mulher e, por isso, tem menos tempo para o negócio que homens.",
@@ -11517,21 +11356,26 @@ server <- function(input, output, session) {
       )
     )
   })
-
+  
+  
+  # ============================================================
+  # TEXTO — CAPACIDADE DAS MULHERES PARA GERIR UM NEGÓCIO
+  # ============================================================
+  
   output$texto_M_Gerir <- renderUI({
-
+    
     df <- Pam_Verde_Indicadores
-
+    
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
         filter(Cidade == input$filtro_cidade)
     }
-
+    
     if (input$filtro_ciclo != "Todos") {
       df <- df %>%
         filter(Ciclo == input$filtro_ciclo)
     }
-
+    
     gerar_texto_percepcao(
       df = df,
       variavel = "Não se espera que as mulheres sejam capazes de gerir um negócio.",
@@ -11543,15 +11387,32 @@ server <- function(input, output, session) {
       )
     )
   })
-
+  
+  
+  # ============================================================
+  # CORES — PERCEÇÕES DE GÉNERO
+  # MESMO PADRÃO DOS GRÁFICOS ANTERIORES
+  # ============================================================
+  
+  cores_genero_extra <- c(
+    "Ajudaram bastante / mudaram a minha compreensão" = "#F77333",
+    "Ajudaram moderadamente" = "#FFC107",
+    "Ajudaram um pouco" = "#69C7BE"
+  )
+  
+  
+  # ============================================================
+  # GRÁFICO — COMPREENSÃO DAS DESIGUALDADES DE GÉNERO
+  # APENAS ENDLINE
+  # ============================================================
   
   output$grafico_sa <- renderPlotly({
     
     df <- Pam_Verde_Indicadores
     
-    # ============================================================
+    # ----------------------------------------------------------
     # FILTROS
-    # ============================================================
+    # ----------------------------------------------------------
     
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
@@ -11563,48 +11424,55 @@ server <- function(input, output, session) {
         filter(Ciclo == input$filtro_ciclo)
     }
     
-    # ============================================================
+    # ----------------------------------------------------------
     # VARIÁVEL
-    # ============================================================
+    # ----------------------------------------------------------
     
-    variavel <- "Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?"
+    variavel <- paste0(
+      "Até que ponto as actividades ligadas à questão de género ",
+      "ajudaram a compreender as desigualdades entre homens e mulheres?"
+    )
     
-    req(variavel %in% names(df))
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
     
-    # ============================================================
-    # APENAS ENDLINE
-    # ============================================================
+    # ----------------------------------------------------------
+    # FILTRAR ENDLINE
+    # ----------------------------------------------------------
     
     df <- df %>%
       filter(
         Tipo_Avaliacao == "Endline",
         !is.na(.data[[variavel]]),
-        .data[[variavel]] != ""
+        trimws(as.character(.data[[variavel]])) != ""
       )
     
     if (nrow(df) == 0) {
       return(
-        plotly_empty()
+        plotly_empty() %>%
+          layout(
+            annotations = list(
+              list(
+                text = "Não existem dados disponíveis para apresentar.",
+                x = 0.5,
+                y = 0.5,
+                xref = "paper",
+                yref = "paper",
+                showarrow = FALSE,
+                font = list(size = 14, color = "#555555")
+              )
+            ),
+            paper_bgcolor = "#f5f3f4",
+            plot_bgcolor = "#f5f3f4"
+          )
       )
     }
     
-    # ============================================================
-    # RESUMO
-    # ============================================================
-    
-    df_resumo <- df %>%
-      group_by(.data[[variavel]]) %>%
-      summarise(
-        Total = n(),
-        .groups = "drop"
-      ) %>%
-      mutate(
-        Percent = Total / sum(Total) * 100
-      )
-    
-    # ============================================================
-    # ORDEM DAS CATEGORIAS
-    # ============================================================
+    # ----------------------------------------------------------
+    # ORDEM FIXA DAS CATEGORIAS
+    # ----------------------------------------------------------
     
     ordem <- c(
       "Ajudaram um pouco",
@@ -11612,9 +11480,18 @@ server <- function(input, output, session) {
       "Ajudaram bastante / mudaram a minha compreensão"
     )
     
-    # Garantir categorias mesmo que alguma não exista
-    df_resumo <- df_resumo %>%
-      rename(categoria = .data[[variavel]]) %>%
+    # ----------------------------------------------------------
+    # FREQUÊNCIAS E PERCENTAGENS
+    # ----------------------------------------------------------
+    
+    df_resumo <- df %>%
+      count(
+        categoria = .data[[variavel]],
+        name = "Total"
+      ) %>%
+      mutate(
+        Percent = Total / sum(Total) * 100
+      ) %>%
       tidyr::complete(
         categoria = ordem,
         fill = list(
@@ -11626,15 +11503,11 @@ server <- function(input, output, session) {
         categoria = factor(
           categoria,
           levels = ordem
-        )
-      )
-    
-    # ============================================================
-    # TEXTO DENTRO DA BARRA
-    # ============================================================
-    
-    df_resumo <- df_resumo %>%
-      mutate(
+        ),
+        momento = factor(
+          "Endline",
+          levels = "Endline"
+        ),
         texto = ifelse(
           Percent > 0,
           paste0(
@@ -11649,44 +11522,31 @@ server <- function(input, output, session) {
           ),
           ""
         )
-      )
+      ) %>%
+      arrange(categoria)
     
-    # ============================================================
-    # CORES
-    # ============================================================
-    
-    cores_genero_extra <- c(
-      "Ajudaram bastante / mudaram a minha compreensão" = "#F77333",
-      "Ajudaram moderadamente" = "#ffc107",
-      "Ajudaram um pouco" = "#69C7BE"
-    )
-   
-    # ============================================================
+    # ----------------------------------------------------------
     # GRÁFICO
-    # ============================================================
+    # ----------------------------------------------------------
     
     plot_ly(
       data = df_resumo,
-      x = "Endline",
+      x = ~momento,
       y = ~Percent,
       color = ~categoria,
       colors = cores_genero_extra,
       type = "bar",
-      
       text = ~texto,
       texttemplate = "%{text}",
       textposition = "inside",
       insidetextanchor = "middle",
-      
       textfont = list(
         color = "#ffffff",
         size = 11
       ),
-      
       customdata = ~Total,
-      
       hovertemplate = paste0(
-        "<b>Endline</b><br>",
+        "<b>%{x}</b><br>",
         "%{fullData.name}<br>",
         "Participantes: %{customdata}<br>",
         "Percentagem: %{y:.1f}%<extra></extra>"
@@ -11695,12 +11555,15 @@ server <- function(input, output, session) {
       
       layout(
         barmode = "stack",
+        barnorm = "percent",
         
         xaxis = list(
           title = "",
           categoryorder = "array",
           categoryarray = "Endline",
-          tickfont = list(size = 12)
+          tickfont = list(size = 12),
+          showgrid = FALSE,
+          zeroline = FALSE
         ),
         
         yaxis = list(
@@ -11708,24 +11571,26 @@ server <- function(input, output, session) {
           range = c(0, 100),
           tickmode = "array",
           tickvals = seq(0, 100, 20),
-          ticktext = paste0(
-            seq(0, 100, 20),
-            "%"
-          )
+          ticktext = paste0(seq(0, 100, 20), "%"),
+          showgrid = TRUE,
+          gridcolor = "#e0dce0",
+          zeroline = FALSE
         ),
         
         legend = list(
           orientation = "h",
           x = 0.5,
           xanchor = "center",
-          y = -0.30
+          y = -0.28,
+          font = list(size = 11),
+          traceorder = "normal"
         ),
         
         margin = list(
           l = 70,
           r = 20,
           t = 20,
-          b = 150
+          b = 140
         ),
         
         paper_bgcolor = "#f5f3f4",
@@ -11736,7 +11601,6 @@ server <- function(input, output, session) {
         displayModeBar = TRUE,
         displaylogo = FALSE,
         responsive = TRUE,
-        
         toImageButtonOptions = list(
           format = "png",
           filename = "compreensao_desigualdades_genero_endline",
@@ -11747,13 +11611,19 @@ server <- function(input, output, session) {
       )
   })
   
+  
+  # ============================================================
+  # TEXTO — COMPREENSÃO DAS DESIGUALDADES DE GÉNERO
+  # APENAS ENDLINE
+  # ============================================================
+  
   output$texto_genero_extra <- renderUI({
     
     df <- Pam_Verde_Indicadores
     
-    # ============================================================
+    # ----------------------------------------------------------
     # FILTROS
-    # ============================================================
+    # ----------------------------------------------------------
     
     if (input$filtro_cidade != "Todas") {
       df <- df %>%
@@ -11765,23 +11635,29 @@ server <- function(input, output, session) {
         filter(Ciclo == input$filtro_ciclo)
     }
     
-    # ============================================================
+    # ----------------------------------------------------------
     # VARIÁVEL
-    # ============================================================
+    # ----------------------------------------------------------
     
-    variavel <- "Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?"
+    variavel <- paste0(
+      "Até que ponto as actividades ligadas à questão de género ",
+      "ajudaram a compreender as desigualdades entre homens e mulheres?"
+    )
     
-    req(variavel %in% names(df))
+    req(
+      "Tipo_Avaliacao" %in% names(df),
+      variavel %in% names(df)
+    )
     
-    # ============================================================
-    # APENAS ENDLINE
-    # ============================================================
+    # ----------------------------------------------------------
+    # FILTRAR ENDLINE
+    # ----------------------------------------------------------
     
     df <- df %>%
       filter(
         Tipo_Avaliacao == "Endline",
         !is.na(.data[[variavel]]),
-        .data[[variavel]] != ""
+        trimws(as.character(.data[[variavel]])) != ""
       )
     
     if (nrow(df) == 0) {
@@ -11793,9 +11669,9 @@ server <- function(input, output, session) {
       )
     }
     
-    # ============================================================
+    # ----------------------------------------------------------
     # RESUMO
-    # ============================================================
+    # ----------------------------------------------------------
     
     resumo <- df %>%
       count(
@@ -11806,19 +11682,17 @@ server <- function(input, output, session) {
         percentagem = n / sum(n) * 100
       )
     
-    # Função para obter valores
+    # ----------------------------------------------------------
+    # FUNÇÃO PARA OBTER VALORES
+    # ----------------------------------------------------------
+    
     obter_valor <- function(nome) {
       
       linha <- resumo %>%
         filter(resposta == nome)
       
       if (nrow(linha) == 0) {
-        return(
-          list(
-            n = 0,
-            pct = 0
-          )
-        )
+        return(list(n = 0, pct = 0))
       }
       
       list(
@@ -11839,88 +11713,1542 @@ server <- function(input, output, session) {
       "Ajudaram um pouco"
     )
     
-    # ============================================================
-    # TEXTO
-    # ============================================================
+    formatar_resultado <- function(valor) {
+      paste0(
+        valor$n,
+        " (",
+        format(
+          round(valor$pct, 1),
+          decimal.mark = ",",
+          nsmall = 1
+        ),
+        "%)"
+      )
+    }
+    
+    # ----------------------------------------------------------
+    # TEXTO ANALÍTICO
+    # ----------------------------------------------------------
     
     tags$p(
       style = "margin:0;text-align:justify;",
       
       tags$b(
-        "Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres? "
-      ),
-      
-      "No Endline, os participantes avaliaram até que ponto as actividades ligadas à questão de género contribuíram para a compreensão das desigualdades entre homens e mulheres. ",
-      
-      "A maioria, ",
-      tags$b(
         paste0(
-          bastante$n,
-          " (",
-          format(
-            round(bastante$pct, 1),
-            decimal.mark = ",",
-            nsmall = 1
-          ),
-          "%)"
+          "Até que ponto as actividades ligadas à questão de género ",
+          "ajudaram a compreender as desigualdades entre homens e mulheres? "
         )
       ),
-      ", indicou que as actividades ajudaram bastante ou mudaram a sua compreensão. ",
       
-      tags$b(
-        paste0(
-          moderadamente$n,
-          " (",
-          format(
-            round(moderadamente$pct, 1),
-            decimal.mark = ",",
-            nsmall = 1
-          ),
-          "%)"
-        )
+      paste0(
+        "No Endline, ",
+        nrow(df),
+        " participantes avaliaram a contribuição das actividades ",
+        "ligadas à questão de género para a compreensão das ",
+        "desigualdades entre homens e mulheres. "
       ),
+      
+      "A resposta mais frequente foi ",
+      
+      tags$b(formatar_resultado(bastante)),
+      ", que indicaram que as actividades ajudaram bastante ou mudaram a sua compreensão. ",
+      
+      tags$b(formatar_resultado(moderadamente)),
       " indicaram que ajudaram moderadamente, enquanto ",
-      tags$b(
-        paste0(
-          pouco$n,
-          " (",
-          format(
-            round(pouco$pct, 1),
-            decimal.mark = ",",
-            nsmall = 1
-          ),
-          "%)"
-        )
-      ),
+      
+      tags$b(formatar_resultado(pouco)),
       " indicaram que ajudaram um pouco."
     )
   })
+  
   ################################## QUALITATIVO #################################
   
   
-  # ==========================================================
-  # AVALIAÇÃO DE GÉNERO — CICLOS 1 E 3 / ENDLINE
-  # PAM VERDE | META: 60 EMPREENDEDORAS
-  #
-  # Inclui:
-  # 1. Preparação e validação da base
-  # 2. Indicadores de respostas abertas e fechadas
-  # 3. Resumo qualitativo
-  # 4. Quatro cartões KPI
-  # 5. Gráfico de compreensão das desigualdades
-  # 6. Gráfico de práticas e esferas de mudança
-  # 7. Classificação temática dos depoimentos
-  # 8. Cartões individuais de depoimentos
-  #
-  # NOTA:
-  # Os resultados são calculados a partir dos dados disponíveis.
-  # A meta de 60 não é utilizada como denominador artificial.
-  # ==========================================================
+  # # ==========================================================
+  # # AVALIAÇÃO DE GÉNERO — CICLOS 1 E 3 / ENDLINE
+  # # PAM VERDE | META: 60 EMPREENDEDORAS
+  # #
+  # # Inclui:
+  # # 1. Preparação e validação da base
+  # # 2. Indicadores de respostas abertas e fechadas
+  # # 3. Resumo qualitativo
+  # # 4. Quatro cartões KPI
+  # # 5. Gráfico de compreensão das desigualdades
+  # # 6. Gráfico de práticas e esferas de mudança
+  # # 7. Classificação temática dos depoimentos
+  # # 8. Cartões individuais de depoimentos
+  # #
+  # # NOTA:
+  # # Os resultados são calculados a partir dos dados disponíveis.
+  # # A meta de 60 não é utilizada como denominador artificial.
+  # # ==========================================================
+  # 
+  # 
+  # # ==========================================================
+  # # 0. PERGUNTAS DA AVALIAÇÃO
+  # # ==========================================================
+  # 
+  # pergunta_fechada <- paste0(
+  #   "Até que ponto as actividades ligadas à questão de género ",
+  #   "ajudaram a compreender as desigualdades entre homens e mulheres?"
+  # )
+  # 
+  # pergunta_aberta <- paste0(
+  #   "Podes dizer algo que colocaste em prática ",
+  #   "depois de ter tido essas actividades?"
+  # )
+  # 
+  # pergunta_praticas <-
+  #   "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
+  # 
+  # meta_empreendedoras <- 60
+  # 
+  # 
+  # # ==========================================================
+  # # 1. IDENTIFICAR A COLUNA DE ID
+  # # ==========================================================
+  # 
+  # colunas_id_possiveis <- c(
+  #   "ID_Participante",
+  #   "id_participante",
+  #   "ID_participante",
+  #   "ID",
+  #   "id",
+  #   "Codigo_Participante",
+  #   "Código_Participante",
+  #   "ID_MUVA"
+  # )
+  # 
+  # coluna_id_encontrada <- intersect(
+  #   colunas_id_possiveis,
+  #   names(Pam_Verde_Indicadores)
+  # )
+  # 
+  # if (length(coluna_id_encontrada) == 0) {
+  #   stop(
+  #     paste0(
+  #       "Não foi encontrada uma coluna de identificação em ",
+  #       "Pam_Verde_Indicadores. Verifica names(Pam_Verde_Indicadores) ",
+  #       "e actualiza colunas_id_possiveis."
+  #     )
+  #   )
+  # }
+  # 
+  # coluna_id_encontrada <- coluna_id_encontrada[1]
+  # 
+  # 
+  # # ==========================================================
+  # # 2. VALIDAR AS COLUNAS OBRIGATÓRIAS
+  # # ==========================================================
+  # 
+  # colunas_obrigatorias <- c(
+  #   "Ciclo",
+  #   "Tipo_Avaliacao",
+  #   pergunta_fechada,
+  #   pergunta_aberta
+  # )
+  # 
+  # colunas_em_falta <- setdiff(
+  #   colunas_obrigatorias,
+  #   names(Pam_Verde_Indicadores)
+  # )
+  # 
+  # if (length(colunas_em_falta) > 0) {
+  #   stop(
+  #     paste0(
+  #       "Faltam as seguintes colunas na base: ",
+  #       paste(colunas_em_falta, collapse = "; ")
+  #     )
+  #   )
+  # }
+  # 
+  # 
+  # # ==========================================================
+  # # 3. FILTRAR CICLOS 1 E 3 — ENDLINE
+  # # ==========================================================
+  # 
+  # dados_genero_c3 <- Pam_Verde_Indicadores %>%
+  #   dplyr::mutate(
+  #     ID_Participante = stringr::str_squish(
+  #       as.character(.data[[coluna_id_encontrada]])
+  #     ),
+  #     Ciclo_texto = stringr::str_squish(
+  #       as.character(Ciclo)
+  #     ),
+  #     Tipo_Avaliacao_texto = stringr::str_squish(
+  #       as.character(Tipo_Avaliacao)
+  #     )
+  #   ) %>%
+  #   dplyr::filter(
+  #     stringr::str_detect(
+  #       Ciclo_texto,
+  #       stringr::regex(
+  #         "^Ciclo\\s*(1|3)\\b",
+  #         ignore_case = TRUE
+  #       )
+  #     ),
+  #     stringr::str_detect(
+  #       Tipo_Avaliacao_texto,
+  #       stringr::regex(
+  #         "^Endline$",
+  #         ignore_case = TRUE
+  #       )
+  #     ),
+  #     !is.na(ID_Participante),
+  #     ID_Participante != ""
+  #   )
+  # 
+  # 
+  # # ==========================================================
+  # # 4. BASE ÚNICA POR EMPREENDEDORA
+  # # ==========================================================
+  # # Para os indicadores de participantes, cada ID conta uma vez.
+  # # Se houver vários registos por participante, conserva-se o
+  # # primeiro registo disponível após o filtro.
+  # #
+  # # Confirma que a base tem uma única resposta Endline por ID.
+  # # Se existirem várias respostas legítimas por ID, é necessário
+  # # definir uma regra específica para consolidá-las.
+  # 
+  # dados_genero_unicos <- dados_genero_c3 %>%
+  #   dplyr::distinct(
+  #     ID_Participante,
+  #     .keep_all = TRUE
+  #   )
+  # 
+  # total_empreendedoras <- dplyr::n_distinct(
+  #   dados_genero_unicos$ID_Participante
+  # )
+  # 
+  # total_ciclo_1 <- dados_genero_unicos %>%
+  #   dplyr::filter(
+  #     stringr::str_detect(
+  #       Ciclo_texto,
+  #       stringr::regex("^Ciclo\\s*1\\b", ignore_case = TRUE)
+  #     )
+  #   ) %>%
+  #   dplyr::summarise(N = dplyr::n_distinct(ID_Participante)) %>%
+  #   dplyr::pull(N)
+  # 
+  # total_ciclo_3 <- dados_genero_unicos %>%
+  #   dplyr::filter(
+  #     stringr::str_detect(
+  #       Ciclo_texto,
+  #       stringr::regex("^Ciclo\\s*3\\b", ignore_case = TRUE)
+  #     )
+  #   ) %>%
+  #   dplyr::summarise(N = dplyr::n_distinct(ID_Participante)) %>%
+  #   dplyr::pull(N)
+  # 
+  # message("========================================")
+  # message("AVALIAÇÃO DE GÉNERO — ENDLINE")
+  # message("Ciclo 1: ", total_ciclo_1)
+  # message("Ciclo 3: ", total_ciclo_3)
+  # message("Total de empreendedoras únicas: ", total_empreendedoras)
+  # message("Meta de participantes: ", meta_empreendedoras)
+  # message("========================================")
+  # 
+  # if (total_empreendedoras != meta_empreendedoras) {
+  #   warning(
+  #     paste0(
+  #       "A base contém ", total_empreendedoras,
+  #       " empreendedoras únicas, em vez da meta de ",
+  #       meta_empreendedoras,
+  #       ". Os indicadores serão calculados com base nos dados reais."
+  #     )
+  #   )
+  # }
+  # 
+  # 
+  # # ==========================================================
+  # # 5. PREPARAR RESPOSTAS ABERTAS
+  # # ==========================================================
+  # 
+  # respostas_genero <- dados_genero_unicos %>%
+  #   dplyr::mutate(
+  #     resposta_aberta = stringr::str_squish(
+  #       as.character(.data[[pergunta_aberta]])
+  #     ),
+  #     resposta_fechada = stringr::str_squish(
+  #       as.character(.data[[pergunta_fechada]])
+  #     )
+  #   ) %>%
+  #   dplyr::filter(
+  #     !is.na(resposta_aberta),
+  #     resposta_aberta != ""
+  #   ) %>%
+  #   dplyr::mutate(
+  #     texto_busca = stringr::str_to_lower(resposta_aberta),
+  #     
+  #     menciona_pratica = stringr::str_detect(
+  #       texto_busca,
+  #       paste(
+  #         "passei a",
+  #         "comecei",
+  #         "agora",
+  #         "conversei",
+  #         "converso",
+  #         "dialoguei",
+  #         "divido",
+  #         "partilho",
+  #         "negociei",
+  #         "negocio",
+  #         "negociar",
+  #         "apliquei",
+  #         "pratico",
+  #         "mudei",
+  #         "decidi",
+  #         "falo com",
+  #         "expliquei",
+  #         "ajudo",
+  #         "participo",
+  #         "coloquei em prática",
+  #         "coloquei em pratica",
+  #         "implement",
+  #         "repart",
+  #         sep = "|"
+  #       )
+  #     ),
+  #     
+  #     menciona_casa = stringr::str_detect(
+  #       texto_busca,
+  #       paste(
+  #         "em casa",
+  #         "tarefas domésticas",
+  #         "tarefas domesticas",
+  #         "trabalho doméstico",
+  #         "trabalho domestico",
+  #         "divisão das tarefas",
+  #         "divisao das tarefas",
+  #         "responsabilidades domésticas",
+  #         "responsabilidades domesticas",
+  #         "marido",
+  #         "esposo",
+  #         "parceiro",
+  #         "companheiro",
+  #         "família",
+  #         "familia",
+  #         "filhos",
+  #         "ajudar nas tarefas",
+  #         "partilhar as tarefas",
+  #         "dividir as tarefas",
+  #         sep = "|"
+  #       )
+  #     ),
+  #     
+  #     menciona_autoconfianca = stringr::str_detect(
+  #       texto_busca,
+  #       paste(
+  #         "confiança",
+  #         "confianca",
+  #         "confiante",
+  #         "acredito em mim",
+  #         "acreditar em mim",
+  #         "autonomia",
+  #         "independente",
+  #         "tomar decisões",
+  #         "tomar decisoes",
+  #         "decidir por mim",
+  #         "direitos",
+  #         "minha opinião",
+  #         "minha opiniao",
+  #         "minha voz",
+  #         "expressar",
+  #         "negociar",
+  #         "negociei",
+  #         "defender",
+  #         "poder de decisão",
+  #         "poder de decisao",
+  #         "triângulo do poder",
+  #         "triangulo do poder",
+  #         sep = "|"
+  #       )
+  #     )
+  #   )
+  # 
+  # 
+  # # ==========================================================
+  # # 6. INDICADORES DAS RESPOSTAS ABERTAS
+  # # ==========================================================
+  # 
+  # n_participantes <- dplyr::n_distinct(
+  #   respostas_genero$ID_Participante
+  # )
+  # 
+  # n_praticas <- sum(
+  #   respostas_genero$menciona_pratica,
+  #   na.rm = TRUE
+  # )
+  # 
+  # n_casa <- sum(
+  #   respostas_genero$menciona_casa,
+  #   na.rm = TRUE
+  # )
+  # 
+  # n_autoconfianca <- sum(
+  #   respostas_genero$menciona_autoconfianca,
+  #   na.rm = TRUE
+  # )
+  # 
+  # 
+  # # ==========================================================
+  # # 7. RESUMO DA PERGUNTA FECHADA
+  # # ==========================================================
+  # 
+  # dados_fechada <- dados_genero_unicos %>%
+  #   dplyr::mutate(
+  #     resposta = stringr::str_squish(
+  #       as.character(.data[[pergunta_fechada]])
+  #     )
+  #   ) %>%
+  #   dplyr::filter(
+  #     !is.na(resposta),
+  #     resposta != ""
+  #   )
+  # 
+  # resumo_fechada <- dados_fechada %>%
+  #   dplyr::count(
+  #     resposta,
+  #     name = "N"
+  #   ) %>%
+  #   dplyr::mutate(
+  #     Percentagem = if (sum(N) > 0) {
+  #       N / sum(N) * 100
+  #     } else {
+  #       0
+  #     }
+  #   )
+  # 
+  # n_fechadas <- sum(
+  #   resumo_fechada$N,
+  #   na.rm = TRUE
+  # )
+  # 
+  # n_bastante <- resumo_fechada %>%
+  #   dplyr::filter(
+  #     resposta == "Ajudaram bastante / mudaram a minha compreensão"
+  #   ) %>%
+  #   dplyr::summarise(
+  #     total = sum(N, na.rm = TRUE)
+  #   ) %>%
+  #   dplyr::pull(total)
+  # 
+  # if (length(n_bastante) == 0 || is.na(n_bastante)) {
+  #   n_bastante <- 0
+  # }
+  # 
+  # pct_bastante <- if (n_fechadas > 0) {
+  #   round(n_bastante / n_fechadas * 100, 1)
+  # } else {
+  #   0
+  # }
+  # 
+  # 
+  # # ==========================================================
+  # # 8. RESUMO QUALITATIVO
+  # # ==========================================================
+  # 
+  # output$texto_resumo_qualitativo <- renderUI({
+  #   
+  #   if (n_participantes == 0) {
+  #     return(
+  #       tags$p(
+  #         style = "color:#777777;",
+  #         paste(
+  #           "Não existem respostas abertas válidas",
+  #           "para analisar nos Ciclos 1 e 3 — Endline."
+  #         )
+  #       )
+  #     )
+  #   }
+  #   
+  #   tags$div(
+  #     
+  #     tags$p(
+  #       style = "font-size:15px; line-height:1.8; color:#444444;",
+  #       tags$strong("Compreensão das desigualdades. "),
+  #       paste0(
+  #         "Entre as participantes com resposta válida à pergunta fechada, ",
+  #         n_bastante,
+  #         " de ",
+  #         n_fechadas,
+  #         " (",
+  #         format(pct_bastante, nsmall = 1, decimal.mark = ","),
+  #         "%) afirmaram que as actividades ajudaram bastante ou mudaram ",
+  #         "a sua compreensão das desigualdades entre homens e mulheres."
+  #       )
+  #     ),
+  #     
+  #     tags$p(
+  #       style = "font-size:15px; line-height:1.8; color:#444444;",
+  #       tags$strong("Aplicação prática. "),
+  #       paste0(
+  #         "Foram identificadas ",
+  #         n_praticas,
+  #         " respostas com palavras ou expressões associadas à aplicação ",
+  #         "de mudanças no quotidiano. A classificação é automática e ",
+  #         "deve ser validada através da leitura dos depoimentos."
+  #       )
+  #     ),
+  #     
+  #     tags$p(
+  #       style = "font-size:15px; line-height:1.8; color:#444444;",
+  #       tags$strong("Relações familiares e domésticas. "),
+  #       paste0(
+  #         n_casa,
+  #         " respostas mencionam expressões relacionadas com a família, ",
+  #         "o parceiro ou a divisão das tarefas domésticas."
+  #       )
+  #     ),
+  #     
+  #     tags$p(
+  #       style = "font-size:15px; line-height:1.8; color:#444444;",
+  #       tags$strong("Autoconfiança e autonomia. "),
+  #       paste0(
+  #         n_autoconfianca,
+  #         " respostas incluem referências associadas à confiança, ",
+  #         "à autonomia, à expressão de opinião ou à negociação."
+  #       )
+  #     ),
+  #     
+  #     tags$hr(
+  #       style = "border-top:1px solid #ded8e3; margin:18px 0;"
+  #     ),
+  #     
+  #     tags$p(
+  #       style = "font-size:12px; color:#777777; line-height:1.6;",
+  #       tags$em(
+  #         paste0(
+  #           "Universo: empreendedoras com avaliação Endline nos Ciclos 1 e 3. ",
+  #           "Enquadramento: Triângulo do Poder, Jogo das 24h e ",
+  #           "Seja homem, seja mulher. A classificação temática é ",
+  #           "automática, baseada em palavras-chave, e requer validação ",
+  #           "qualitativa das respostas originais."
+  #         )
+  #       )
+  #     )
+  #   )
+  # })
+  # 
+  # 
+  # # ==========================================================
+  # # 9. KPI 1 — AVALIAÇÃO POSITIVA
+  # # ==========================================================
+  # 
+  # output$box_avaliacao_positiva <- renderUI({
+  #   
+  #   n_positivas <- resumo_fechada %>%
+  #     dplyr::filter(
+  #       resposta %in% c(
+  #         "Ajudaram bastante / mudaram a minha compreensão",
+  #         "Ajudaram moderadamente"
+  #       )
+  #     ) %>%
+  #     dplyr::summarise(
+  #       total = sum(N, na.rm = TRUE)
+  #     ) %>%
+  #     dplyr::pull(total)
+  #   
+  #   if (length(n_positivas) == 0 || is.na(n_positivas)) {
+  #     n_positivas <- 0
+  #   }
+  #   
+  #   total_respostas <- sum(
+  #     resumo_fechada$N,
+  #     na.rm = TRUE
+  #   )
+  #   
+  #   pct_positiva <- if (total_respostas > 0) {
+  #     round(n_positivas / total_respostas * 100, 1)
+  #   } else {
+  #     0
+  #   }
+  #   
+  #   div(
+  #     class = "value-box blue",
+  #     
+  #     div(
+  #       class = "kpi-icon",
+  #       style = "font-size:30px;",
+  #       icon("check-circle")
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-value",
+  #       style = "font-size:30px;font-weight:200;line-height:1.1;",
+  #       paste0(
+  #         format(pct_positiva, nsmall = 1, decimal.mark = ","),
+  #         "%"
+  #       )
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-title",
+  #       style = "font-size:16px;",
+  #       "Avaliação positiva"
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-detail",
+  #       style = "font-size:14px;",
+  #       paste0(
+  #         n_positivas, " de ", total_respostas,
+  #         " · Bastante + Moderadamente"
+  #       )
+  #     )
+  #   )
+  # })
+  # 
+  # 
+  # # ==========================================================
+  # # 10. KPI 2 — AJUDARAM BASTANTE
+  # # ==========================================================
+  # 
+  # output$box_praticas <- renderUI({
+  #   
+  #   total_bastante <- resumo_fechada %>%
+  #     dplyr::filter(
+  #       resposta == "Ajudaram bastante / mudaram a minha compreensão"
+  #     ) %>%
+  #     dplyr::summarise(
+  #       total = sum(N, na.rm = TRUE)
+  #     ) %>%
+  #     dplyr::pull(total)
+  #   
+  #   if (length(total_bastante) == 0 || is.na(total_bastante)) {
+  #     total_bastante <- 0
+  #   }
+  #   
+  #   total_respostas <- sum(
+  #     resumo_fechada$N,
+  #     na.rm = TRUE
+  #   )
+  #   
+  #   pct_bastante_kpi <- if (total_respostas > 0) {
+  #     round(total_bastante / total_respostas * 100, 1)
+  #   } else {
+  #     0
+  #   }
+  #   
+  #   div(
+  #     class = "value-box green",
+  #     
+  #     div(
+  #       class = "kpi-icon",
+  #       style = "font-size:30px;",
+  #       icon("lightbulb")
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-value",
+  #       style = "font-size:30px;font-weight:500;line-height:1.1;",
+  #       paste0(
+  #         format(pct_bastante_kpi, nsmall = 1, decimal.mark = ","),
+  #         "%"
+  #       )
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-title",
+  #       style = "font-size:16px;",
+  #       "Ajudaram bastante"
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-detail",
+  #       style = "font-size:14px;",
+  #       paste0(
+  #         total_bastante, " de ", total_respostas,
+  #         " · Mudaram a sua compreensão"
+  #       )
+  #     )
+  #   )
+  # })
+  # 
+  # 
+  # # ==========================================================
+  # # 11. KPI 3 — PRÁTICA NOVA
+  # # ==========================================================
+  # 
+  # output$box_casa <- renderUI({
+  #   
+  #   total_praticas <- n_praticas
+  #   total_participantes <- n_participantes
+  #   
+  #   pct_praticas <- if (total_participantes > 0) {
+  #     round(total_praticas / total_participantes * 100, 1)
+  #   } else {
+  #     0
+  #   }
+  #   
+  #   div(
+  #     class = "value-box orange",
+  #     
+  #     div(
+  #       class = "kpi-icon",
+  #       style = "font-size:30px;",
+  #       icon("check-square")
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-value",
+  #       style = "font-size:30px;font-weight:500;line-height:1.1;",
+  #       paste0(
+  #         format(pct_praticas, nsmall = 1, decimal.mark = ","),
+  #         "%"
+  #       )
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-title",
+  #       style = "font-size:16px;",
+  #       "Descrevem uma prática nova"
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-detail",
+  #       style = "font-size:14px;",
+  #       paste0(
+  #         total_praticas, " de ", total_participantes,
+  #         " participantes com resposta aberta"
+  #       )
+  #     )
+  #   )
+  # })
+  # 
+  # 
+  # # ==========================================================
+  # # 12. KPI 4 — FAMÍLIA E TAREFAS DOMÉSTICAS
+  # # ==========================================================
+  # 
+  # output$box_autoconfianca <- renderUI({
+  #   
+  #   total_referencias <- n_casa
+  #   total_participantes <- n_participantes
+  #   
+  #   pct_casa <- if (total_participantes > 0) {
+  #     round(total_referencias / total_participantes * 100, 1)
+  #   } else {
+  #     0
+  #   }
+  #   
+  #   div(
+  #     class = "value-box purple",
+  #     
+  #     div(
+  #       class = "kpi-icon",
+  #       style = "font-size:30px;",
+  #       icon("home")
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-value",
+  #       style = "font-size:30px;font-weight:500;line-height:1.1;",
+  #       paste0(
+  #         format(pct_casa, nsmall = 1, decimal.mark = ","),
+  #         "%"
+  #       )
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-title",
+  #       style = "font-size:15px;line-height:1.4;",
+  #       "Referências à família e às tarefas domésticas"
+  #     ),
+  #     
+  #     div(
+  #       class = "kpi-detail",
+  #       style = "font-size:14px;",
+  #       paste0(
+  #         total_referencias, " de ", total_participantes,
+  #         " participantes com resposta aberta"
+  #       )
+  #     )
+  #   )
+  # })
+  # 
+  # 
+  # # ==========================================================
+  # # 13. GRÁFICO — COMPREENSÃO DAS DESIGUALDADES
+  # # CICLOS 1 E 3 · ENDLINE
+  # # ==========================================================
+  # 
+  # output$grafico_esferas_mudanca <- renderPlotly({
+  #   
+  #   cor_fundo <- "#e9e3ed"
+  #   
+  #   ordem_respostas <- c(
+  #     "Ajudaram bastante",
+  #     "Ajudaram moderadamente",
+  #     "Ajudaram um pouco",
+  #     "Não ajudaram"
+  #   )
+  #   
+  #   dados_observados <- resumo_fechada %>%
+  #     dplyr::mutate(
+  #       Resposta_plot = dplyr::case_when(
+  #         resposta ==
+  #           "Ajudaram bastante / mudaram a minha compreensão" ~
+  #           "Ajudaram bastante",
+  #         TRUE ~ resposta
+  #       )
+  #     ) %>%
+  #     dplyr::group_by(Resposta_plot) %>%
+  #     dplyr::summarise(
+  #       N = sum(N, na.rm = TRUE),
+  #       .groups = "drop"
+  #     )
+  #   
+  #   dados_grafico <- tibble::tibble(
+  #     Resposta_plot = ordem_respostas
+  #   ) %>%
+  #     dplyr::left_join(
+  #       dados_observados,
+  #       by = "Resposta_plot"
+  #     ) %>%
+  #     dplyr::mutate(
+  #       N = dplyr::coalesce(N, 0)
+  #     )
+  #   
+  #   total_respostas <- sum(
+  #     dados_grafico$N,
+  #     na.rm = TRUE
+  #   )
+  #   
+  #   dados_grafico <- dados_grafico %>%
+  #     dplyr::mutate(
+  #       Percentagem = if (total_respostas > 0) {
+  #         N / total_respostas * 100
+  #       } else {
+  #         0
+  #       },
+  #       
+  #       Cor = dplyr::case_when(
+  #         Resposta_plot == "Ajudaram bastante" ~ "#6A1B9A",
+  #         Resposta_plot == "Ajudaram moderadamente" ~ "#7E3FB2",
+  #         Resposta_plot == "Ajudaram um pouco" ~ "#A56BCB",
+  #         Resposta_plot == "Não ajudaram" ~ "#D8C4E8",
+  #         TRUE ~ "#D8C4E8"
+  #       ),
+  #       
+  #       label_direita = paste0(
+  #         format(
+  #           round(Percentagem, 1),
+  #           nsmall = 1,
+  #           decimal.mark = ","
+  #         ),
+  #         "%"
+  #       ),
+  #       
+  #       tooltip_txt = paste0(
+  #         "<b>", Resposta_plot, "</b>",
+  #         "<br>Participantes: ", N,
+  #         "<br>Percentagem: ", label_direita
+  #       ),
+  #       
+  #       posicao_label = pmin(
+  #         Percentagem + 2,
+  #         103
+  #       ),
+  #       
+  #       Resposta_plot = factor(
+  #         Resposta_plot,
+  #         levels = rev(ordem_respostas)
+  #       )
+  #     ) %>%
+  #     dplyr::arrange(Resposta_plot)
+  #   
+  #   plot_ly() %>%
+  #     
+  #     add_bars(
+  #       data = dados_grafico,
+  #       x = rep(100, nrow(dados_grafico)),
+  #       y = ~Resposta_plot,
+  #       orientation = "h",
+  #       marker = list(
+  #         color = cor_fundo,
+  #         line = list(width = 0)
+  #       ),
+  #       width = 0.48,
+  #       hoverinfo = "skip",
+  #       showlegend = FALSE,
+  #       name = "Fundo"
+  #     ) %>%
+  #     
+  #     add_bars(
+  #       data = dados_grafico,
+  #       x = ~Percentagem,
+  #       y = ~Resposta_plot,
+  #       orientation = "h",
+  #       marker = list(
+  #         color = ~Cor,
+  #         line = list(width = 0)
+  #       ),
+  #       width = 0.48,
+  #       hoverinfo = "text",
+  #       hovertext = ~tooltip_txt,
+  #       showlegend = FALSE,
+  #       name = "Respostas"
+  #     ) %>%
+  #     
+  #     add_trace(
+  #       data = dados_grafico,
+  #       x = ~posicao_label,
+  #       y = ~Resposta_plot,
+  #       type = "scatter",
+  #       mode = "text",
+  #       text = ~label_direita,
+  #       textposition = "middle right",
+  #       textfont = list(
+  #         color = "#333333",
+  #         size = 13,
+  #         family = "Arial"
+  #       ),
+  #       hoverinfo = "skip",
+  #       showlegend = FALSE,
+  #       inherit = FALSE
+  #     ) %>%
+  #     
+  #     layout(
+  #       barmode = "overlay",
+  #       paper_bgcolor = "#f5f3f4",
+  #       plot_bgcolor = "#f5f3f4",
+  #       
+  #       margin = list(
+  #         l = 155,
+  #         r = 65,
+  #         t = 20,
+  #         b = 25
+  #       ),
+  #       
+  #       bargap = 0.38,
+  #       
+  #       xaxis = list(
+  #         visible = FALSE,
+  #         range = c(0, 115),
+  #         fixedrange = TRUE,
+  #         zeroline = FALSE,
+  #         showgrid = FALSE
+  #       ),
+  #       
+  #       yaxis = list(
+  #         tickfont = list(
+  #           color = "#333333",
+  #           size = 12,
+  #           family = "Arial"
+  #         ),
+  #         showgrid = FALSE,
+  #         zeroline = FALSE,
+  #         categoryorder = "array",
+  #         categoryarray = rev(ordem_respostas),
+  #         automargin = TRUE,
+  #         fixedrange = TRUE
+  #       ),
+  #       
+  #       font = list(
+  #         color = "#333333",
+  #         family = "Arial"
+  #       ),
+  #       
+  #       hoverlabel = list(
+  #         bgcolor = "#ffffff",
+  #         bordercolor = "#9442d4",
+  #         font = list(
+  #           color = "#333333",
+  #           size = 12
+  #         )
+  #       )
+  #     ) %>%
+  #     
+  #     config(
+  #       displayModeBar = FALSE,
+  #       responsive = TRUE
+  #     )
+  # })
+  # 
+  # 
+  # # ==========================================================
+  # # 14. GRÁFICO — PRÁTICAS COLOCADAS EM PRÁTICA
+  # # CICLOS 1 E 3 · ENDLINE
+  # # ==========================================================
+  # 
+  # output$grafico_praticas_genero <- renderPlotly({
+  #   
+  #   cor_fundo <- "#e9e3ed"
+  #   
+  #   respostas <- dados_genero_unicos %>%
+  #     dplyr::transmute(
+  #       ID_Participante,
+  #       depoimento = stringr::str_squish(
+  #         as.character(.data[[pergunta_praticas]])
+  #       )
+  #     ) %>%
+  #     dplyr::filter(
+  #       !is.na(depoimento),
+  #       depoimento != ""
+  #     ) %>%
+  #     dplyr::distinct(ID_Participante, .keep_all = TRUE) %>%
+  #     dplyr::mutate(
+  #       texto = stringi::stri_trans_general(
+  #         stringr::str_to_lower(depoimento),
+  #         "Latin-ASCII"
+  #       )
+  #     )
+  #   
+  #   total_participantes <- dplyr::n_distinct(
+  #     respostas$ID_Participante
+  #   )
+  #   
+  #   padrao_casa <- paste(
+  #     "casa", "familia", "marido", "esposo", "parceiro",
+  #     "companheiro", "filhos", "tarefas domesticas",
+  #     "trabalho domestico", "dividir as tarefas",
+  #     "partilhar as tarefas", "redistribu", "responsabilidades",
+  #     "ajudar nas tarefas", "divisao das tarefas",
+  #     "conversar com a familia",
+  #     sep = "|"
+  #   )
+  #   
+  #   padrao_eu <- paste(
+  #     "confianca", "confiante", "perder o medo",
+  #     "perdi o medo", "sem medo", "coragem",
+  #     "acredito em mim", "acreditar em mim",
+  #     "capaz", "autonomia", "independente",
+  #     "tomar decisoes", "decidir por mim",
+  #     "direitos", "minha opiniao", "minha voz",
+  #     "expressar", "defender-me", "valorizar-me",
+  #     "valorizar a mim", "autoestima",
+  #     sep = "|"
+  #   )
+  #   
+  #   padrao_negocio <- paste(
+  #     "negocio", "negociar", "negociei", "negocio com",
+  #     "preco", "precos", "precificar", "fixar precos",
+  #     "clientes", "vender", "vendas", "lucro", "investir",
+  #     "investimento", "capital", "poupanca",
+  #     "formalizar", "formalizacao", "empreender",
+  #     "comprar mercadoria", "gestao", "contabilidade",
+  #     "calcular custos", "aumentar os rendimentos",
+  #     sep = "|"
+  #   )
+  #   
+  #   padrao_tempo <- paste(
+  #     "tempo", "conciliar", "organizacao do tempo",
+  #     "gerir o tempo", "gestao do tempo",
+  #     "organizar o meu dia", "organizar o dia",
+  #     "horario", "rotina", "equilibrar",
+  #     "conciliacao", "dividir o tempo",
+  #     "tempo para a familia", "tempo para o negocio",
+  #     "planear o dia", "planeamento",
+  #     sep = "|"
+  #   )
+  #   
+  #   respostas_classificadas <- respostas %>%
+  #     dplyr::mutate(
+  #       Casa_familia = stringr::str_detect(texto, padrao_casa),
+  #       Eu = stringr::str_detect(texto, padrao_eu),
+  #       Negocio = stringr::str_detect(texto, padrao_negocio),
+  #       Tempo = stringr::str_detect(texto, padrao_tempo)
+  #     )
+  #   
+  #   dados_praticas <- tibble::tibble(
+  #     Esfera = c(
+  #       "Casa e família",
+  #       "Eu",
+  #       "Negócio",
+  #       "Tempo"
+  #     ),
+  #     
+  #     Descricao = c(
+  #       "Redistribuir tarefas, negociar com parceiro ou família",
+  #       "Autoconfiança, perder o medo, sentir-se capaz",
+  #       "Negociar, fixar preços, investir, formalizar",
+  #       "Conciliar o negócio e a família"
+  #     ),
+  #     
+  #     N = c(
+  #       sum(respostas_classificadas$Casa_familia, na.rm = TRUE),
+  #       sum(respostas_classificadas$Eu, na.rm = TRUE),
+  #       sum(respostas_classificadas$Negocio, na.rm = TRUE),
+  #       sum(respostas_classificadas$Tempo, na.rm = TRUE)
+  #     ),
+  #     
+  #     Cor = c(
+  #       "#6A1B9A",
+  #       "#7E3FB2",
+  #       "#A56BCB",
+  #       "#D8C4E8"
+  #     )
+  #   ) %>%
+  #     dplyr::mutate(
+  #       Percentagem = if (total_participantes > 0) {
+  #         N / total_participantes * 100
+  #       } else {
+  #         0
+  #       },
+  #       
+  #       Rotulo = paste0(
+  #         N, " de ", total_participantes
+  #       ),
+  #       
+  #       Tooltip = paste0(
+  #         "<b>", Esfera, "</b>",
+  #         "<br>", Descricao,
+  #         "<br>Depoimentos identificados: ", N,
+  #         "<br>Participantes com resposta aberta: ",
+  #         total_participantes,
+  #         "<br>Percentagem: ",
+  #         format(
+  #           round(Percentagem, 1),
+  #           nsmall = 1,
+  #           decimal.mark = ","
+  #         ),
+  #         "%"
+  #       ),
+  #       
+  #       Esfera = factor(
+  #         Esfera,
+  #         levels = rev(c(
+  #           "Casa e família",
+  #           "Eu",
+  #           "Negócio",
+  #           "Tempo"
+  #         ))
+  #       )
+  #     ) %>%
+  #     dplyr::arrange(Esfera)
+  #   
+  #   plot_ly() %>%
+  #     
+  #     add_bars(
+  #       data = dados_praticas,
+  #       x = rep(total_participantes, nrow(dados_praticas)),
+  #       y = ~Esfera,
+  #       orientation = "h",
+  #       marker = list(
+  #         color = cor_fundo,
+  #         line = list(width = 0)
+  #       ),
+  #       width = 0.48,
+  #       hoverinfo = "skip",
+  #       showlegend = FALSE,
+  #       name = "Total de participantes"
+  #     ) %>%
+  #     
+  #     add_bars(
+  #       data = dados_praticas,
+  #       x = ~N,
+  #       y = ~Esfera,
+  #       orientation = "h",
+  #       marker = list(
+  #         color = ~Cor,
+  #         line = list(width = 0)
+  #       ),
+  #       width = 0.48,
+  #       hoverinfo = "text",
+  #       hovertext = ~Tooltip,
+  #       showlegend = FALSE,
+  #       name = "Esferas identificadas"
+  #     ) %>%
+  #     
+  #     add_trace(
+  #       data = dados_praticas,
+  #       x = ~pmin(N + 0.7, total_participantes + 1),
+  #       y = ~Esfera,
+  #       type = "scatter",
+  #       mode = "text",
+  #       text = ~Rotulo,
+  #       textposition = "middle right",
+  #       textfont = list(
+  #         color = "#333333",
+  #         size = 12,
+  #         family = "Arial"
+  #       ),
+  #       hoverinfo = "skip",
+  #       showlegend = FALSE,
+  #       inherit = FALSE
+  #     ) %>%
+  #     
+  #     layout(
+  #       barmode = "overlay",
+  #       paper_bgcolor = "#f5f3f4",
+  #       plot_bgcolor = "#f5f3f4",
+  #       
+  #       margin = list(
+  #         l = 110,
+  #         r = 75,
+  #         t = 20,
+  #         b = 25
+  #       ),
+  #       
+  #       bargap = 0.38,
+  #       
+  #       xaxis = list(
+  #         visible = FALSE,
+  #         range = c(
+  #           0,
+  #           max(total_participantes + 5, 10)
+  #         ),
+  #         fixedrange = TRUE,
+  #         zeroline = FALSE,
+  #         showgrid = FALSE
+  #       ),
+  #       
+  #       yaxis = list(
+  #         title = "",
+  #         tickfont = list(
+  #           color = "#333333",
+  #           size = 12,
+  #           family = "Arial"
+  #         ),
+  #         showgrid = FALSE,
+  #         zeroline = FALSE,
+  #         categoryorder = "array",
+  #         categoryarray = rev(c(
+  #           "Casa e família",
+  #           "Eu",
+  #           "Negócio",
+  #           "Tempo"
+  #         )),
+  #         automargin = TRUE,
+  #         fixedrange = TRUE
+  #       ),
+  #       
+  #       font = list(
+  #         color = "#333333",
+  #         family = "Arial"
+  #       ),
+  #       
+  #       hoverlabel = list(
+  #         bgcolor = "#ffffff",
+  #         bordercolor = "#9442d4",
+  #         font = list(
+  #           color = "#333333",
+  #           size = 12
+  #         )
+  #       )
+  #     ) %>%
+  #     
+  #     config(
+  #       displayModeBar = FALSE,
+  #       responsive = TRUE
+  #     )
+  # })
+  # 
+  # 
+  # # ============================================================
+  # # 15. CLASSIFICAÇÃO TEMÁTICA DOS DEPOIMENTOS
+  # # ============================================================
+  # 
+  # classificar_tema_genero <- function(texto) {
+  #   
+  #   if (
+  #     length(texto) == 0 ||
+  #     is.na(texto) ||
+  #     !nzchar(stringr::str_squish(texto))
+  #   ) {
+  #     return("Tema não classificado")
+  #   }
+  #   
+  #   texto_limpo <- stringi::stri_trans_general(
+  #     stringr::str_to_lower(texto),
+  #     "Latin-ASCII"
+  #   )
+  #   
+  #   regras_temas <- list(
+  #     
+  #     "Trabalho doméstico" = paste(
+  #       "tarefas domesticas", "trabalho domestico",
+  #       "casa", "familia", "filhos", "cozinhar",
+  #       "limpar", "lavar", "dividir tarefas",
+  #       "redistribuir", "responsabilidades domesticas",
+  #       "marido", "esposo", "parceiro", "companheiro",
+  #       sep = "|"
+  #     ),
+  #     
+  #     "Poder interior" = paste(
+  #       "confianca", "autoconfianca", "autoestima",
+  #       "perder o medo", "coragem", "sentir-me capaz",
+  #       "acreditar em mim", "acredito em mim",
+  #       "me tornei capaz", "autonomia", "independencia",
+  #       "tomar decisoes", "minha voz", "minha opiniao",
+  #       "direitos",
+  #       sep = "|"
+  #     ),
+  #     
+  #     "Negociar e fixar preços" = paste(
+  #       "negociar", "negociei", "negociacao",
+  #       "fixar precos", "preco", "precos",
+  #       "clientes", "vendas", "vender", "lucro",
+  #       "investir", "capital", "formalizar", "formalizacao",
+  #       sep = "|"
+  #     ),
+  #     
+  #     "Relações de poder" = paste(
+  #       "poder de decisao", "tomada de decisao",
+  #       "decisao conjunta", "igualdade", "desigualdade",
+  #       "respeito", "direitos", "voz na familia",
+  #       "ser ouvida", "participar nas decisoes",
+  #       "relacao de poder",
+  #       sep = "|"
+  #     ),
+  #     
+  #     "Estereótipos ocupacionais" = paste(
+  #       "trabalho de homem", "trabalho de mulher",
+  #       "profissao de homem", "profissao de mulher",
+  #       "actividade de homem", "actividade de mulher",
+  #       "atividade de homem", "atividade de mulher",
+  #       "homens podem", "mulheres podem",
+  #       "mulher nao pode", "homem nao pode",
+  #       "estereotipo", "discriminacao no trabalho",
+  #       sep = "|"
+  #     ),
+  #     
+  #     "Tensões" = paste(
+  #       "conflito", "discussao", "discutir",
+  #       "problema", "dificuldade", "discordancia",
+  #       "rejeicao", "resistencia", "oposicao",
+  #       "nao aceitou", "nao aceitaram",
+  #       "briga", "tensao",
+  #       sep = "|"
+  #     )
+  #   )
+  #   
+  #   temas_encontrados <- names(regras_temas)[
+  #     vapply(
+  #       regras_temas,
+  #       function(padrao) {
+  #         stringr::str_detect(texto_limpo, padrao)
+  #       },
+  #       logical(1)
+  #     )
+  #   ]
+  #   
+  #   if (length(temas_encontrados) == 0) {
+  #     return("Tema não classificado")
+  #   }
+  #   
+  #   # Mantém o primeiro tema encontrado, tal como na lógica original.
+  #   temas_encontrados[1]
+  # }
+  # 
+  # 
+  # # ============================================================
+  # # 16. PREPARAR OS DEPOIMENTOS POR ID
+  # # ============================================================
+  # 
+  # dados_depoimentos_genero <- dados_genero_unicos %>%
+  #   dplyr::transmute(
+  #     ID_Participante = as.character(ID_Participante),
+  #     Texto_original = as.character(.data[[pergunta_praticas]])
+  #   ) %>%
+  #   dplyr::mutate(
+  #     ID_Participante = stringr::str_squish(ID_Participante),
+  #     texto_verificacao = stringr::str_squish(Texto_original)
+  #   ) %>%
+  #   dplyr::filter(
+  #     !is.na(ID_Participante),
+  #     ID_Participante != "",
+  #     !is.na(Texto_original),
+  #     texto_verificacao != ""
+  #   ) %>%
+  #   dplyr::distinct(
+  #     ID_Participante,
+  #     .keep_all = TRUE
+  #   ) %>%
+  #   dplyr::mutate(
+  #     Depoimento = Texto_original,
+  #     Tema = vapply(
+  #       Depoimento,
+  #       classificar_tema_genero,
+  #       character(1)
+  #     )
+  #   ) %>%
+  #   dplyr::select(
+  #     ID_Participante,
+  #     Texto_original,
+  #     Depoimento,
+  #     Tema
+  #   )
+  # 
+  # 
+  # # ============================================================
+  # # 17. CARTÕES INDIVIDUAIS — VOZES DAS PARTICIPANTES
+  # # ============================================================
+  # 
+  # output$depoimentos_genero <- renderUI({
+  #   
+  #   dados <- dados_depoimentos_genero
+  #   
+  #   tema_selecionado <- input$filtro_tema_qualitativo
+  #   
+  #   if (
+  #     is.null(tema_selecionado) ||
+  #     length(tema_selecionado) == 0 ||
+  #     tema_selecionado == ""
+  #   ) {
+  #     tema_selecionado <- "Todos"
+  #   }
+  #   
+  #   if (tema_selecionado != "Todos") {
+  #     dados <- dados %>%
+  #       dplyr::filter(Tema == tema_selecionado)
+  #   }
+  #   
+  #   if (nrow(dados) == 0) {
+  #     return(
+  #       div(
+  #         style = paste(
+  #           "background-color:#ffffff;",
+  #           "padding:20px;",
+  #           "border-radius:8px;",
+  #           "text-align:center;",
+  #           "color:#777777;"
+  #         ),
+  #         icon("info-circle"),
+  #         p("Não existem depoimentos para o tema seleccionado.")
+  #       )
+  #     )
+  #   }
+  #   
+  #   cores_temas <- c(
+  #     "Trabalho doméstico" = "#6A1B9A",
+  #     "Poder interior" = "#7E3FB2",
+  #     "Negociar e fixar preços" = "#A56BCB",
+  #     "Relações de poder" = "#9442D4",
+  #     "Estereótipos ocupacionais" = "#F77333",
+  #     "Tensões" = "#42A5F5",
+  #     "Tema não classificado" = "#999999"
+  #   )
+  #   
+  #   div(
+  #     class = "depoimentos-genero-container",
+  #     
+  #     div(
+  #       style = paste(
+  #         "display:flex;",
+  #         "justify-content:space-between;",
+  #         "align-items:center;",
+  #         "flex-wrap:wrap;",
+  #         "gap:8px;",
+  #         "margin-bottom:15px;"
+  #       ),
+  #       
+  #       tags$strong(
+  #         paste(
+  #           nrow(dados),
+  #           if (nrow(dados) == 1) {
+  #             "depoimento encontrado"
+  #           } else {
+  #             "depoimentos encontrados"
+  #           }
+  #         ),
+  #         style = "color:#444444;"
+  #       ),
+  #       
+  #       span(
+  #         style = "font-size:12px;color:#777777;",
+  #         tema_selecionado
+  #       )
+  #     ),
+  #     
+  #     fluidRow(
+  #       lapply(seq_len(nrow(dados)), function(i) {
+  #         
+  #         registo <- dados[i, ]
+  #         
+  #         tema <- registo$Tema[[1]]
+  #         cor_tema <- unname(cores_temas[tema])
+  #         
+  #         if (
+  #           length(cor_tema) == 0 ||
+  #           is.na(cor_tema)
+  #         ) {
+  #           cor_tema <- "#999999"
+  #         }
+  #         
+  #         column(
+  #           width = 6,
+  #           
+  #           div(
+  #             style = paste0(
+  #               "background-color:#ffffff;",
+  #               "border-left:5px solid ", cor_tema, ";",
+  #               "border-radius:8px;",
+  #               "padding:16px;",
+  #               "margin-bottom:16px;",
+  #               "box-shadow:0 2px 6px rgba(0,0,0,0.06);",
+  #               "height:auto;"
+  #             ),
+  #             
+  #             span(
+  #               style = paste0(
+  #                 "display:inline-block;",
+  #                 "background-color:", cor_tema, "18;",
+  #                 "color:", cor_tema, ";",
+  #                 "padding:5px 9px;",
+  #                 "border-radius:12px;",
+  #                 "font-size:11px;",
+  #                 "font-weight:600;",
+  #                 "margin-bottom:10px;"
+  #               ),
+  #               tema
+  #             ),
+  #             
+  #             tags$blockquote(
+  #               style = paste(
+  #                 "border-left:0;",
+  #                 "padding:0;",
+  #                 "margin:0 0 14px 0;",
+  #                 "font-size:14px;",
+  #                 "line-height:1.6;",
+  #                 "color:#333333;",
+  #                 "font-style:italic;",
+  #                 "white-space:pre-wrap;",
+  #                 "overflow-wrap:anywhere;"
+  #               ),
+  #               registo$Depoimento[[1]]
+  #             ),
+  #             
+  #             div(
+  #               style = paste(
+  #                 "border-top:1px solid #eeeeee;",
+  #                 "padding-top:8px;",
+  #                 "font-size:11px;",
+  #                 "color:#777777;"
+  #               ),
+  #               
+  #               icon("user"),
+  #               
+  #               span(
+  #                 style = "margin-left:5px;",
+  #                 paste(
+  #                   "ID:",
+  #                   registo$ID_Participante[[1]]
+  #                 )
+  #               )
+  #             )
+  #           )
+  #         )
+  #       })
+  #     )
+  #   )
+  # })
+  # 
   
   
-  # ==========================================================
-  # 0. PERGUNTAS DA AVALIAÇÃO
-  # ==========================================================
+  # ============================================================
+  # PAM VERDE — AVALIAÇÃO DE GÉNERO
+  # FILTROS | INDICADORES | GRÁFICOS | DEPOIMENTOS
+  # ============================================================
+  
+  # Dependências:
+  # shiny, dplyr, tidyr, tibble, stringr, stringi, plotly
+  
+  # ------------------------------------------------------------
+  # 1. PERGUNTAS
+  # Definir uma única vez antes de server()
+  # ------------------------------------------------------------
   
   pergunta_fechada <- paste0(
     "Até que ponto as actividades ligadas à questão de género ",
@@ -11932,831 +13260,775 @@ server <- function(input, output, session) {
     "depois de ter tido essas actividades?"
   )
   
-  pergunta_praticas <-
-    "Podes dizer algo que colocaste em prática depois de ter tido essas actividades?"
   
-  meta_empreendedoras <- 60
+  # ============================================================
+  # 2. FUNÇÕES AUXILIARES
+  # ============================================================
   
-  
-  # ==========================================================
-  # 1. IDENTIFICAR A COLUNA DE ID
-  # ==========================================================
-  
-  colunas_id_possiveis <- c(
-    "ID_Participante",
-    "id_participante",
-    "ID_participante",
-    "ID",
-    "id",
-    "Codigo_Participante",
-    "Código_Participante",
-    "ID_MUVA"
-  )
-  
-  coluna_id_encontrada <- intersect(
-    colunas_id_possiveis,
-    names(Pam_Verde_Indicadores)
-  )
-  
-  if (length(coluna_id_encontrada) == 0) {
-    stop(
-      paste0(
-        "Não foi encontrada uma coluna de identificação em ",
-        "Pam_Verde_Indicadores. Verifica names(Pam_Verde_Indicadores) ",
-        "e actualiza colunas_id_possiveis."
-      )
-    )
-  }
-  
-  coluna_id_encontrada <- coluna_id_encontrada[1]
-  
-  
-  # ==========================================================
-  # 2. VALIDAR AS COLUNAS OBRIGATÓRIAS
-  # ==========================================================
-  
-  colunas_obrigatorias <- c(
-    "Ciclo",
-    "Tipo_Avaliacao",
-    pergunta_fechada,
-    pergunta_aberta
-  )
-  
-  colunas_em_falta <- setdiff(
-    colunas_obrigatorias,
-    names(Pam_Verde_Indicadores)
-  )
-  
-  if (length(colunas_em_falta) > 0) {
-    stop(
-      paste0(
-        "Faltam as seguintes colunas na base: ",
-        paste(colunas_em_falta, collapse = "; ")
-      )
-    )
+  normalizar_texto_genero <- function(x) {
+    x <- as.character(x)
+    x[is.na(x)] <- ""
+    
+    x <- stringi::stri_trans_general(x, "Latin-ASCII")
+    x <- tolower(x)
+    x <- gsub("[^[:alnum:]]+", " ", x)
+    x <- gsub("\\s+", " ", x)
+    
+    trimws(x)
   }
   
   
-  # ==========================================================
-  # 3. FILTRAR CICLOS 1 E 3 — ENDLINE
-  # ==========================================================
-  
-  dados_genero_c3 <- Pam_Verde_Indicadores %>%
-    dplyr::mutate(
-      ID_Participante = stringr::str_squish(
-        as.character(.data[[coluna_id_encontrada]])
-      ),
-      Ciclo_texto = stringr::str_squish(
-        as.character(Ciclo)
-      ),
-      Tipo_Avaliacao_texto = stringr::str_squish(
-        as.character(Tipo_Avaliacao)
-      )
-    ) %>%
-    dplyr::filter(
-      stringr::str_detect(
-        Ciclo_texto,
-        stringr::regex(
-          "^Ciclo\\s*(1|3)\\b",
-          ignore_case = TRUE
-        )
-      ),
-      stringr::str_detect(
-        Tipo_Avaliacao_texto,
-        stringr::regex(
-          "^Endline$",
-          ignore_case = TRUE
-        )
-      ),
-      !is.na(ID_Participante),
-      ID_Participante != ""
+  detectar_coluna_id_genero <- function(df) {
+    
+    candidatos <- c(
+      "ID_Participante",
+      "id_participante",
+      "ID_participante",
+      "ID",
+      "id",
+      "Codigo_Participante",
+      "Código_Participante",
+      "ID_MUVA"
     )
-  
-  
-  # ==========================================================
-  # 4. BASE ÚNICA POR EMPREENDEDORA
-  # ==========================================================
-  # Para os indicadores de participantes, cada ID conta uma vez.
-  # Se houver vários registos por participante, conserva-se o
-  # primeiro registo disponível após o filtro.
-  #
-  # Confirma que a base tem uma única resposta Endline por ID.
-  # Se existirem várias respostas legítimas por ID, é necessário
-  # definir uma regra específica para consolidá-las.
-  
-  dados_genero_unicos <- dados_genero_c3 %>%
-    dplyr::distinct(
-      ID_Participante,
-      .keep_all = TRUE
-    )
-  
-  total_empreendedoras <- dplyr::n_distinct(
-    dados_genero_unicos$ID_Participante
-  )
-  
-  total_ciclo_1 <- dados_genero_unicos %>%
-    dplyr::filter(
-      stringr::str_detect(
-        Ciclo_texto,
-        stringr::regex("^Ciclo\\s*1\\b", ignore_case = TRUE)
+    
+    encontrada <- candidatos[candidatos %in% names(df)]
+    
+    if (length(encontrada) == 0) {
+      stop(
+        "Não foi encontrada uma coluna de identificação das participantes."
       )
-    ) %>%
-    dplyr::summarise(N = dplyr::n_distinct(ID_Participante)) %>%
-    dplyr::pull(N)
-  
-  total_ciclo_3 <- dados_genero_unicos %>%
-    dplyr::filter(
-      stringr::str_detect(
-        Ciclo_texto,
-        stringr::regex("^Ciclo\\s*3\\b", ignore_case = TRUE)
-      )
-    ) %>%
-    dplyr::summarise(N = dplyr::n_distinct(ID_Participante)) %>%
-    dplyr::pull(N)
-  
-  message("========================================")
-  message("AVALIAÇÃO DE GÉNERO — ENDLINE")
-  message("Ciclo 1: ", total_ciclo_1)
-  message("Ciclo 3: ", total_ciclo_3)
-  message("Total de empreendedoras únicas: ", total_empreendedoras)
-  message("Meta de participantes: ", meta_empreendedoras)
-  message("========================================")
-  
-  if (total_empreendedoras != meta_empreendedoras) {
-    warning(
-      paste0(
-        "A base contém ", total_empreendedoras,
-        " empreendedoras únicas, em vez da meta de ",
-        meta_empreendedoras,
-        ". Os indicadores serão calculados com base nos dados reais."
-      )
-    )
+    }
+    
+    encontrada[1]
   }
   
   
-  # ==========================================================
-  # 5. PREPARAR RESPOSTAS ABERTAS
-  # ==========================================================
+  # ============================================================
+  # 3. CLASSIFICAÇÃO DOS DEPOIMENTOS
+  # ============================================================
   
-  respostas_genero <- dados_genero_unicos %>%
-    dplyr::mutate(
-      resposta_aberta = stringr::str_squish(
-        as.character(.data[[pergunta_aberta]])
-      ),
-      resposta_fechada = stringr::str_squish(
-        as.character(.data[[pergunta_fechada]])
-      )
-    ) %>%
-    dplyr::filter(
-      !is.na(resposta_aberta),
-      resposta_aberta != ""
-    ) %>%
-    dplyr::mutate(
-      texto_busca = stringr::str_to_lower(resposta_aberta),
+  classificar_tema_genero <- function(texto) {
+    
+    texto <- normalizar_texto_genero(texto)
+    
+    if (length(texto) == 0 || is.na(texto[1]) || texto[1] == "") {
+      return("Tema não classificado")
+    }
+    
+    texto <- texto[1]
+    
+    regras <- list(
       
-      menciona_pratica = stringr::str_detect(
-        texto_busca,
-        paste(
-          "passei a",
-          "comecei",
-          "agora",
-          "conversei",
-          "converso",
-          "dialoguei",
-          "divido",
-          "partilho",
-          "negociei",
-          "negocio",
-          "negociar",
-          "apliquei",
-          "pratico",
-          "mudei",
-          "decidi",
-          "falo com",
-          "expliquei",
-          "ajudo",
-          "participo",
-          "coloquei em prática",
-          "coloquei em pratica",
-          "implement",
-          "repart",
-          sep = "|"
-        )
+      # 1. Trabalho doméstico
+      "Trabalho doméstico" = paste(
+        "tarefa(s)? domestica(s)?",
+        "trabalho domestico",
+        "trabalho de casa",
+        "dividir.*tarefas",
+        "dividimos tarefas",
+        "tarefas de casa",
+        "dividir trabalhos",
+        "escala de actividade",
+        "varre o",
+        "partilhar.*tarefas",
+        "repartir.*tarefas",
+        "redistribuir",
+        "divisao das tarefas",
+        "responsabilidades da casa",
+        "ajudar nas tarefas",
+        "cuidado dos filhos",
+        "cuidar dos filhos",
+        "sobrecarregadas",
+        "sub carregadas",
+        "marido.*tarefas",
+        "companheiro.*tarefas",
+        "familia.*tarefas",
+        sep = "|"
       ),
       
-      menciona_casa = stringr::str_detect(
-        texto_busca,
-        paste(
-          "em casa",
-          "tarefas domésticas",
-          "tarefas domesticas",
-          "trabalho doméstico",
-          "trabalho domestico",
-          "divisão das tarefas",
-          "divisao das tarefas",
-          "responsabilidades domésticas",
-          "responsabilidades domesticas",
-          "marido",
-          "esposo",
-          "parceiro",
-          "companheiro",
-          "família",
-          "familia",
-          "filhos",
-          "ajudar nas tarefas",
-          "partilhar as tarefas",
-          "dividir as tarefas",
-          sep = "|"
-        )
+      # 2. Poder interior
+      "Poder interior" = paste(
+        "confianca",
+        "confiante",
+        "autoestima",
+        "acredito em mim",
+        "acreditar em mim",
+        "sentir me capaz",
+        "sinto me capaz",
+        "ser capaz",
+        "autonomia",
+        "independente",
+        "perder o medo",
+        "responsabilidades emocionais",
+        "coragem",
+        "sentia capaz",
+        "defender.*posicao",
+        "defender.*direitos",
+        "expressar.*opiniao",
+        "dar.*opiniao",
+        "valorizar me",
+        "conhecer os meus direitos",
+        sep = "|"
       ),
       
-      menciona_autoconfianca = stringr::str_detect(
-        texto_busca,
-        paste(
-          "confiança",
-          "confianca",
-          "confiante",
-          "acredito em mim",
-          "acreditar em mim",
-          "autonomia",
-          "independente",
-          "tomar decisões",
-          "tomar decisoes",
-          "decidir por mim",
-          "direitos",
-          "minha opinião",
-          "minha opiniao",
-          "minha voz",
-          "expressar",
-          "negociar",
-          "negociei",
-          "defender",
-          "poder de decisão",
-          "poder de decisao",
-          "triângulo do poder",
-          "triangulo do poder",
-          sep = "|"
-        )
+      # 3. Negociar e fixar preços
+      "Negociar e fixar preços" = paste(
+        "negociar",
+        "negociacao",
+        "fixar.*preco",
+        "definir.*preco",
+        "preco(s)?",
+        "vender",
+        "vendas",
+        "cliente(s)?",
+        "lucro",
+        "calcular.*custo",
+        "custo(s)?",
+        "investir",
+        "investimento",
+        "capital",
+        "poupanca",
+        "formalizar",
+        "formalizacao",
+        "empreender",
+        "negocio",
+        sep = "|"
+      ),
+      
+      # 4. Relações de poder
+      "Relações de poder" = paste(
+        "relacao de poder",
+        "relacoes de poder",
+        "tomar.*decis",
+        "decis.*familia",
+        "decis.*casal",
+        "decis.*marido",
+        "decis.*companheiro",
+        "poder de decis",
+        "igualdade entre homens e mulheres",
+        "igualdade de genero",
+        "ser respeitada",
+        "respeito.*marido",
+        "respeito.*mulher",
+        "participar.*decis",
+        "controlo.*marido",
+        "controlo.*companheiro",
+        "voz.*familia",
+        sep = "|"
+      ),
+      
+      # 5. Estereótipos ocupacionais
+      "Estereótipos ocupacionais" = paste(
+        "profissao.*de homem",
+        "profissao.*de mulher",
+        "trabalho.*de homem",
+        "trabalho.*de mulher",
+        "negocio.*de homem",
+        "negocio.*de mulher",
+        "actividade.*de homem",
+        "actividade.*de mulher",
+        "atividade.*de homem",
+        "atividade.*de mulher",
+        "trabalho masculino",
+        "trabalho feminino",
+        "homens podem",
+        "mulheres podem",
+        "mulher também pode ser capaz",
+        "homem.*nao pode",
+        "mulher.*nao pode",
+        sep = "|"
+      ),
+      
+      # 6. Tensões
+      "Tensões" = paste(
+        "conflito",
+        "discussao",
+        "discutir",
+        "desacordo",
+        "discordancia",
+        "resistencia",
+        "resistiu",
+        "nao aceita",
+        "nao aceitou",
+        "dificuldade.*marido",
+        "dificuldade.*familia",
+        "oposicao.*familia",
+        "oposicao.*marido",
+        "problema.*familia",
+        "problema.*marido",
+        "zanga",
+        "tensao",
+        sep = "|"
+      ),
+      
+      # 7. Tempo
+      "Tempo" = paste(
+        "gestao do tempo",
+        "organizar.*tempo",
+        "organizar.*dia",
+        "organizar.*horario",
+        "gestao.*horario",
+        "horario",
+        "rotina",
+        "planear.*dia",
+        "planeamento",
+        "conciliar",
+        "conciliacao",
+        "equilibrar.*tempo",
+        "dividir.*tempo",
+        "tempo com a familia",
+        "tempo com o negocio",
+        "tempo para a familia",
+        "tempo para o negocio",
+        "administrar.*tempo",
+        "gerir.*tempo",
+        "organizar.*actividades",
+        "organizar.*atividades",
+        "equilibrio entre.*familia.*negocio",
+        sep = "|"
       )
     )
-  
-  
-  # ==========================================================
-  # 6. INDICADORES DAS RESPOSTAS ABERTAS
-  # ==========================================================
-  
-  n_participantes <- dplyr::n_distinct(
-    respostas_genero$ID_Participante
-  )
-  
-  n_praticas <- sum(
-    respostas_genero$menciona_pratica,
-    na.rm = TRUE
-  )
-  
-  n_casa <- sum(
-    respostas_genero$menciona_casa,
-    na.rm = TRUE
-  )
-  
-  n_autoconfianca <- sum(
-    respostas_genero$menciona_autoconfianca,
-    na.rm = TRUE
-  )
-  
-  
-  # ==========================================================
-  # 7. RESUMO DA PERGUNTA FECHADA
-  # ==========================================================
-  
-  dados_fechada <- dados_genero_unicos %>%
-    dplyr::mutate(
-      resposta = stringr::str_squish(
-        as.character(.data[[pergunta_fechada]])
-      )
-    ) %>%
-    dplyr::filter(
-      !is.na(resposta),
-      resposta != ""
-    )
-  
-  resumo_fechada <- dados_fechada %>%
-    dplyr::count(
-      resposta,
-      name = "N"
-    ) %>%
-    dplyr::mutate(
-      Percentagem = if (sum(N) > 0) {
-        N / sum(N) * 100
-      } else {
-        0
+    
+    # A primeira regra que corresponde ao texto determina o tema.
+    for (tema in names(regras)) {
+      
+      if (grepl(
+        regras[[tema]],
+        texto,
+        perl = TRUE
+      )) {
+        return(tema)
       }
-    )
-  
-  n_fechadas <- sum(
-    resumo_fechada$N,
-    na.rm = TRUE
-  )
-  
-  n_bastante <- resumo_fechada %>%
-    dplyr::filter(
-      resposta == "Ajudaram bastante / mudaram a minha compreensão"
-    ) %>%
-    dplyr::summarise(
-      total = sum(N, na.rm = TRUE)
-    ) %>%
-    dplyr::pull(total)
-  
-  if (length(n_bastante) == 0 || is.na(n_bastante)) {
-    n_bastante <- 0
-  }
-  
-  pct_bastante <- if (n_fechadas > 0) {
-    round(n_bastante / n_fechadas * 100, 1)
-  } else {
-    0
-  }
-  
-  
-  # ==========================================================
-  # 8. RESUMO QUALITATIVO
-  # ==========================================================
-  
-  output$texto_resumo_qualitativo <- renderUI({
+    }
     
-    if (n_participantes == 0) {
+    "Tema não classificado"
+  }
+  
+  
+  # ============================================================
+  # 4. CÓDIGO DENTRO DO SERVER EXISTENTE
+  # Não criar um segundo server()
+  # ============================================================
+  
+  # ------------------------------------------------------------
+  # 4.1. Base filtrada por Cidade, Ciclo e Endline
+  # ------------------------------------------------------------
+  
+  dados_genero_filtrados <- shiny::reactive({
+    
+    shiny::req(
+      input$filtro_cidade,
+      input$filtro_ciclo
+    )
+    
+    df <- Pam_Verde_Indicadores
+    
+    obrigatorias <- c(
+      "Cidade",
+      "Ciclo",
+      "Tipo_Avaliacao"
+    )
+    
+    em_falta <- setdiff(obrigatorias, names(df))
+    
+    shiny::validate(
+      shiny::need(
+        length(em_falta) == 0,
+        paste(
+          "Colunas em falta:",
+          paste(em_falta, collapse = ", ")
+        )
+      )
+    )
+    
+    coluna_id <- detectar_coluna_id_genero(df)
+    
+    shiny::validate(
+      shiny::need(
+        pergunta_fechada %in% names(df),
+        "A pergunta fechada não foi encontrada na base."
+      ),
+      shiny::need(
+        pergunta_aberta %in% names(df),
+        "A pergunta aberta não foi encontrada na base."
+      )
+    )
+    
+    df <- df %>%
+      dplyr::mutate(
+        ID_Participante = trimws(
+          as.character(.data[[coluna_id]])
+        ),
+        Cidade_filtro = trimws(as.character(Cidade)),
+        Ciclo_filtro = trimws(as.character(Ciclo)),
+        Tipo_Avaliacao_texto = normalizar_texto_genero(
+          Tipo_Avaliacao
+        )
+      )
+    
+    # Cidade
+    if (!input$filtro_cidade %in% c(
+      "Todas", "Todos", "Todas as cidades", ""
+    )) {
+      
+      df <- df %>%
+        dplyr::filter(
+          Cidade_filtro == input$filtro_cidade
+        )
+    }
+    
+    # Ciclo
+    if (!input$filtro_ciclo %in% c(
+      "Todos", "Todas", "Todos os ciclos", ""
+    )) {
+      
+      df <- df %>%
+        dplyr::filter(
+          normalizar_texto_genero(Ciclo_filtro) ==
+            normalizar_texto_genero(input$filtro_ciclo)
+        )
+    }
+    
+    # Endline exclusivamente
+    df <- df %>%
+      dplyr::filter(
+        Tipo_Avaliacao_texto == "endline",
+        !is.na(ID_Participante),
+        ID_Participante != ""
+      ) %>%
+      dplyr::distinct()
+    
+    df
+  })
+  
+  
+  # ------------------------------------------------------------
+  # 4.2. Respostas abertas e fechadas
+  # ------------------------------------------------------------
+  
+  respostas_genero <- shiny::reactive({
+    
+    dados_genero_filtrados() %>%
+      dplyr::mutate(
+        resposta_aberta = trimws(
+          as.character(.data[[pergunta_aberta]])
+        ),
+        resposta_fechada = trimws(
+          as.character(.data[[pergunta_fechada]])
+        )
+      )
+  })
+  
+  
+  dados_fechada_genero <- shiny::reactive({
+    
+    respostas_genero() %>%
+      dplyr::filter(
+        !is.na(resposta_fechada),
+        resposta_fechada != "",
+        !tolower(resposta_fechada) %in% c("na", "n/a")
+      ) %>%
+      dplyr::distinct(
+        ID_Participante,
+        .keep_all = TRUE
+      )
+  })
+  
+  
+  dados_abertos_genero <- shiny::reactive({
+    
+    respostas_genero() %>%
+      dplyr::filter(
+        !is.na(resposta_aberta),
+        resposta_aberta != "",
+        !tolower(resposta_aberta) %in% c("na", "n/a")
+      ) %>%
+      dplyr::mutate(
+        texto_norm = normalizar_texto_genero(resposta_aberta)
+      ) %>%
+      dplyr::filter(texto_norm != "") %>%
+      dplyr::distinct(
+        ID_Participante,
+        .keep_all = TRUE
+      )
+  })
+  
+  
+  # ============================================================
+  # 5. DETECÇÃO DAS DUAS BOXES
+  # ============================================================
+  
+  resumo_boxes_praticas_genero <- shiny::reactive({
+    
+    df <- dados_abertos_genero()
+    
+    total <- dplyr::n_distinct(df$ID_Participante)
+    
+    if (nrow(df) == 0 || total == 0) {
+      
       return(
-        tags$p(
-          style = "color:#777777;",
-          paste(
-            "Não existem respostas abertas válidas",
-            "para analisar nos Ciclos 1 e 3 — Endline."
-          )
+        tibble::tibble(
+          Indicador = c("pratica_nova", "familia_tarefas"),
+          Total = c(total, total),
+          N = c(0L, 0L),
+          Percentagem = c(NA_real_, NA_real_)
         )
       )
     }
     
-    tags$div(
-      
-      tags$p(
-        style = "font-size:15px; line-height:1.8; color:#444444;",
-        tags$strong("Compreensão das desigualdades. "),
-        paste0(
-          "Entre as participantes com resposta válida à pergunta fechada, ",
-          n_bastante,
-          " de ",
-          n_fechadas,
-          " (",
-          format(pct_bastante, nsmall = 1, decimal.mark = ","),
-          "%) afirmaram que as actividades ajudaram bastante ou mudaram ",
-          "a sua compreensão das desigualdades entre homens e mulheres."
-        )
-      ),
-      
-      tags$p(
-        style = "font-size:15px; line-height:1.8; color:#444444;",
-        tags$strong("Aplicação prática. "),
-        paste0(
-          "Foram identificadas ",
-          n_praticas,
-          " respostas com palavras ou expressões associadas à aplicação ",
-          "de mudanças no quotidiano. A classificação é automática e ",
-          "deve ser validada através da leitura dos depoimentos."
-        )
-      ),
-      
-      tags$p(
-        style = "font-size:15px; line-height:1.8; color:#444444;",
-        tags$strong("Relações familiares e domésticas. "),
-        paste0(
-          n_casa,
-          " respostas mencionam expressões relacionadas com a família, ",
-          "o parceiro ou a divisão das tarefas domésticas."
-        )
-      ),
-      
-      tags$p(
-        style = "font-size:15px; line-height:1.8; color:#444444;",
-        tags$strong("Autoconfiança e autonomia. "),
-        paste0(
-          n_autoconfianca,
-          " respostas incluem referências associadas à confiança, ",
-          "à autonomia, à expressão de opinião ou à negociação."
-        )
-      ),
-      
-      tags$hr(
-        style = "border-top:1px solid #ded8e3; margin:18px 0;"
-      ),
-      
-      tags$p(
-        style = "font-size:12px; color:#777777; line-height:1.6;",
-        tags$em(
-          paste0(
-            "Universo: empreendedoras com avaliação Endline nos Ciclos 1 e 3. ",
-            "Enquadramento: Triângulo do Poder, Jogo das 24h e ",
-            "Seja homem, seja mulher. A classificação temática é ",
-            "automática, baseada em palavras-chave, e requer validação ",
-            "qualitativa das respostas originais."
-          )
-        )
+    texto <- df$texto_norm
+    
+    # ----------------------------------------------------------
+    # BOX 1 — PRÁTICA NOVA
+    #
+    # Inclui verbos de mudança, aplicação, organização,
+    # negociação e acções concretas descritas pelas participantes.
+    # ----------------------------------------------------------
+    
+    padrao_pratica <- paste(
+      "\\bcomecei\\b",
+      "\\bpassei a\\b",
+      "\\bagora faco\\b",
+      "\\bcoloquei em pratica\\b",
+      "\\bpus em pratica\\b",
+      "\\bpratiquei\\b",
+      "\\bmudei\\b",
+      "\\bmudanca(s)?\\b",
+      "\\baprendi a\\b",
+      "\\bdecidi\\b",
+      "\\bimplementei\\b",
+      "\\bapliquei\\b",
+      "\\badoptei\\b",
+      "\\badotei\\b",
+      "\\bja consigo\\b",
+      "\\bconverso com\\b",
+      "\\bfalo com\\b",
+      "\\bnegocio com\\b",
+      "\\borganizo\\b",
+      "\\bcontrolo\\b",
+      "\\bpartilho\\b",
+      "\\bdivido\\b",
+      "\\bajudo\\b",
+      "\\bplaneio\\b",
+      "\\bplanifico\\b",
+      "\\bgerir melhor\\b",
+      "\\bgestao do tempo\\b",
+      "\\bfixar preco\\b",
+      "\\bdefinir preco\\b",
+      "\\bcontrolo o dinheiro\\b",
+      "\\bseparo o dinheiro\\b",
+      "\\banoto as despesas\\b",
+      "\\bregisto as despesas\\b",
+      sep = "|"
+    )
+    
+    menciona_pratica <- grepl(
+      padrao_pratica,
+      texto,
+      perl = TRUE
+    )
+    
+    # ----------------------------------------------------------
+    # BOX 2 — FAMÍLIA E TAREFAS DOMÉSTICAS
+    #
+    # A pesquisa é feita no texto sem acentos.
+    # Inclui referências à família, casa, parceiro e tarefas.
+    # ----------------------------------------------------------
+    
+    padrao_familia <- paste(
+      "\\bfamilia\\b",
+      "\\bem casa\\b",
+      "\\bmarido\\b",
+      "\\besposo\\b",
+      "\\bcompanheiro\\b",
+      "\\bparceiro\\b",
+      "\\bfilhos\\b",
+      "\\bcriancas\\b",
+      "\\btarefa(s)? domestica(s)?\\b",
+      "\\btrabalho domestico\\b",
+      "\\btrabalho de casa\\b",
+      "\\bservico(s)? domestico(s)?\\b",
+      "\\bdividir.*tarefas\\b",
+      "\\bpartilhar.*tarefas\\b",
+      "\\brepartir.*tarefas\\b",
+      "\\bdivisao das tarefas\\b",
+      "\\bresponsabilidades domesticas\\b",
+      "\\bresponsabilidades da casa\\b",
+      "\\bajudar em casa\\b",
+      "\\bajuda em casa\\b",
+      "\\bajudar nas tarefas\\b",
+      "\\bcuidar dos filhos\\b",
+      "\\bcuidado dos filhos\\b",
+      "\\btomar conta dos filhos\\b",
+      "\\blimpar a casa\\b",
+      "\\bcozinhar\\b",
+      "\\blavar a roupa\\b",
+      "\\bbuscar agua\\b",
+      "\\bconversar com o marido\\b",
+      "\\bconversar com a familia\\b",
+      "\\bpartilhar as responsabilidades\\b",
+      "\\bdividir as responsabilidades\\b",
+      sep = "|"
+    )
+    
+    menciona_familia <- grepl(
+      padrao_familia,
+      texto,
+      perl = TRUE
+    )
+    
+    n_praticas <- sum(menciona_pratica, na.rm = TRUE)
+    n_familia <- sum(menciona_familia, na.rm = TRUE)
+    
+    tibble::tibble(
+      Indicador = c("pratica_nova", "familia_tarefas"),
+      Total = c(total, total),
+      N = c(n_praticas, n_familia),
+      Percentagem = c(
+        n_praticas / total * 100,
+        n_familia / total * 100
       )
     )
   })
   
   
-  # ==========================================================
-  # 9. KPI 1 — AVALIAÇÃO POSITIVA
-  # ==========================================================
+  # ============================================================
+  # 6. INDICADORES GERAIS
+  # ============================================================
   
-  output$box_avaliacao_positiva <- renderUI({
+  resumo_fechada_genero <- shiny::reactive({
     
-    n_positivas <- resumo_fechada %>%
-      dplyr::filter(
-        resposta %in% c(
-          "Ajudaram bastante / mudaram a minha compreensão",
-          "Ajudaram moderadamente"
-        )
+    df <- dados_fechada_genero()
+    
+    shiny::validate(
+      shiny::need(
+        nrow(df) > 0,
+        "Não existem respostas fechadas válidas para os filtros seleccionados."
+      )
+    )
+    
+    df %>%
+      dplyr::count(
+        resposta_fechada,
+        name = "N"
       ) %>%
-      dplyr::summarise(
-        total = sum(N, na.rm = TRUE)
-      ) %>%
-      dplyr::pull(total)
+      dplyr::mutate(
+        Percentagem = N / sum(N) * 100
+      )
+  })
+  
+  
+  indicadores_genero <- shiny::reactive({
     
-    if (length(n_positivas) == 0 || is.na(n_positivas)) {
-      n_positivas <- 0
-    }
+    df <- dados_genero_filtrados()
+    fechadas <- dados_fechada_genero()
+    abertas <- dados_abertos_genero()
+    boxes <- resumo_boxes_praticas_genero()
     
-    total_respostas <- sum(
-      resumo_fechada$N,
+    n_participantes <- dplyr::n_distinct(df$ID_Participante)
+    n_fechadas <- nrow(fechadas)
+    n_abertas <- nrow(abertas)
+    
+    bastante <- sum(
+      grepl(
+        "^Ajudaram bastante",
+        fechadas$resposta_fechada,
+        ignore.case = TRUE
+      ),
       na.rm = TRUE
     )
     
-    pct_positiva <- if (total_respostas > 0) {
-      round(n_positivas / total_respostas * 100, 1)
-    } else {
-      0
-    }
-    
-    div(
-      class = "value-box blue",
-      
-      div(
-        class = "kpi-icon",
-        style = "font-size:30px;",
-        icon("check-circle")
+    moderadamente <- sum(
+      grepl(
+        "^Ajudaram moderadamente",
+        fechadas$resposta_fechada,
+        ignore.case = TRUE
       ),
-      
-      div(
-        class = "kpi-value",
-        style = "font-size:30px;font-weight:200;line-height:1.1;",
-        paste0(
-          format(pct_positiva, nsmall = 1, decimal.mark = ","),
-          "%"
-        )
-      ),
-      
-      div(
-        class = "kpi-title",
-        style = "font-size:16px;",
-        "Avaliação positiva"
-      ),
-      
-      div(
-        class = "kpi-detail",
-        style = "font-size:14px;",
-        paste0(
-          n_positivas, " de ", total_respostas,
-          " · Bastante + Moderadamente"
-        )
-      )
-    )
-  })
-  
-  
-  # ==========================================================
-  # 10. KPI 2 — AJUDARAM BASTANTE
-  # ==========================================================
-  
-  output$box_praticas <- renderUI({
-    
-    total_bastante <- resumo_fechada %>%
-      dplyr::filter(
-        resposta == "Ajudaram bastante / mudaram a minha compreensão"
-      ) %>%
-      dplyr::summarise(
-        total = sum(N, na.rm = TRUE)
-      ) %>%
-      dplyr::pull(total)
-    
-    if (length(total_bastante) == 0 || is.na(total_bastante)) {
-      total_bastante <- 0
-    }
-    
-    total_respostas <- sum(
-      resumo_fechada$N,
       na.rm = TRUE
     )
     
-    pct_bastante_kpi <- if (total_respostas > 0) {
-      round(total_bastante / total_respostas * 100, 1)
+    positivas <- bastante + moderadamente
+    
+    n_praticas <- boxes$N[boxes$Indicador == "pratica_nova"][1]
+    n_casa <- boxes$N[boxes$Indicador == "familia_tarefas"][1]
+    
+    pct_bastante <- if (n_fechadas > 0) {
+      bastante / n_fechadas * 100
     } else {
-      0
+      NA_real_
     }
     
-    div(
-      class = "value-box green",
-      
-      div(
-        class = "kpi-icon",
-        style = "font-size:30px;",
-        icon("lightbulb")
-      ),
-      
-      div(
-        class = "kpi-value",
-        style = "font-size:30px;font-weight:500;line-height:1.1;",
-        paste0(
-          format(pct_bastante_kpi, nsmall = 1, decimal.mark = ","),
-          "%"
-        )
-      ),
-      
-      div(
-        class = "kpi-title",
-        style = "font-size:16px;",
-        "Ajudaram bastante"
-      ),
-      
-      div(
-        class = "kpi-detail",
-        style = "font-size:14px;",
-        paste0(
-          total_bastante, " de ", total_respostas,
-          " · Mudaram a sua compreensão"
-        )
-      )
+    pct_positivas <- if (n_fechadas > 0) {
+      positivas / n_fechadas * 100
+    } else {
+      NA_real_
+    }
+    
+    pct_praticas <- if (nrow(abertas) > 0) {
+      n_praticas / nrow(abertas) * 100
+    } else {
+      NA_real_
+    }
+    
+    pct_casa <- if (nrow(abertas) > 0) {
+      n_casa / nrow(abertas) * 100
+    } else {
+      NA_real_
+    }
+    
+    list(
+      participantes = n_participantes,
+      respostas_fechadas = n_fechadas,
+      respostas_abertas = n_abertas,
+      bastante = bastante,
+      moderadamente = moderadamente,
+      positivas = positivas,
+      participantes_praticas = n_praticas,
+      participantes_casa = n_casa,
+      pct_bastante = pct_bastante,
+      pct_positivas = pct_positivas,
+      pct_praticas = pct_praticas,
+      pct_casa = pct_casa
     )
   })
   
   
-  # ==========================================================
-  # 11. KPI 3 — PRÁTICA NOVA
-  # ==========================================================
+  # ============================================================
+  # 7. CLASSIFICAR OS DEPOIMENTOS
+  # ============================================================
   
-  output$box_casa <- renderUI({
+  dados_depoimentos_genero <- shiny::reactive({
     
-    total_praticas <- n_praticas
-    total_participantes <- n_participantes
-    
-    pct_praticas <- if (total_participantes > 0) {
-      round(total_praticas / total_participantes * 100, 1)
-    } else {
-      0
-    }
-    
-    div(
-      class = "value-box orange",
-      
-      div(
-        class = "kpi-icon",
-        style = "font-size:30px;",
-        icon("check-square")
-      ),
-      
-      div(
-        class = "kpi-value",
-        style = "font-size:30px;font-weight:500;line-height:1.1;",
-        paste0(
-          format(pct_praticas, nsmall = 1, decimal.mark = ","),
-          "%"
-        )
-      ),
-      
-      div(
-        class = "kpi-title",
-        style = "font-size:16px;",
-        "Descrevem uma prática nova"
-      ),
-      
-      div(
-        class = "kpi-detail",
-        style = "font-size:14px;",
-        paste0(
-          total_praticas, " de ", total_participantes,
-          " participantes com resposta aberta"
+    dados_abertos_genero() %>%
+      dplyr::transmute(
+        ID_Participante = as.character(ID_Participante),
+        Depoimento = as.character(resposta_aberta)
+      ) %>%
+      dplyr::filter(
+        !is.na(Depoimento),
+        trimws(Depoimento) != ""
+      ) %>%
+      dplyr::distinct(
+        ID_Participante,
+        .keep_all = TRUE
+      ) %>%
+      dplyr::mutate(
+        Tema = vapply(
+          Depoimento,
+          classificar_tema_genero,
+          FUN.VALUE = character(1),
+          USE.NAMES = FALSE
         )
       )
-    )
   })
   
   
-  # ==========================================================
-  # 12. KPI 4 — FAMÍLIA E TAREFAS DOMÉSTICAS
-  # ==========================================================
+  # ============================================================
+  # 8. GRÁFICO 1 — COMPREENSÃO DAS DESIGUALDADES
+  # ============================================================
   
-  output$box_autoconfianca <- renderUI({
+  output$grafico_esferas_mudanca <- plotly::renderPlotly({
     
-    total_referencias <- n_casa
-    total_participantes <- n_participantes
+    resumo <- resumo_fechada_genero()
     
-    pct_casa <- if (total_participantes > 0) {
-      round(total_referencias / total_participantes * 100, 1)
-    } else {
-      0
-    }
-    
-    div(
-      class = "value-box purple",
-      
-      div(
-        class = "kpi-icon",
-        style = "font-size:30px;",
-        icon("home")
-      ),
-      
-      div(
-        class = "kpi-value",
-        style = "font-size:30px;font-weight:500;line-height:1.1;",
-        paste0(
-          format(pct_casa, nsmall = 1, decimal.mark = ","),
-          "%"
-        )
-      ),
-      
-      div(
-        class = "kpi-title",
-        style = "font-size:15px;line-height:1.4;",
-        "Referências à família e às tarefas domésticas"
-      ),
-      
-      div(
-        class = "kpi-detail",
-        style = "font-size:14px;",
-        paste0(
-          total_referencias, " de ", total_participantes,
-          " participantes com resposta aberta"
-        )
-      )
-    )
-  })
-  
-  
-  # ==========================================================
-  # 13. GRÁFICO — COMPREENSÃO DAS DESIGUALDADES
-  # CICLOS 1 E 3 · ENDLINE
-  # ==========================================================
-  
-  output$grafico_esferas_mudanca <- renderPlotly({
-    
-    cor_fundo <- "#e9e3ed"
-    
-    ordem_respostas <- c(
+    ordem <- c(
       "Ajudaram bastante",
       "Ajudaram moderadamente",
       "Ajudaram um pouco",
       "Não ajudaram"
     )
     
-    dados_observados <- resumo_fechada %>%
+    observados <- resumo %>%
       dplyr::mutate(
         Resposta_plot = dplyr::case_when(
-          resposta ==
-            "Ajudaram bastante / mudaram a minha compreensão" ~
-            "Ajudaram bastante",
-          TRUE ~ resposta
+          grepl("^Ajudaram bastante", resposta_fechada,
+                ignore.case = TRUE) ~ "Ajudaram bastante",
+          grepl("^Ajudaram moderadamente", resposta_fechada,
+                ignore.case = TRUE) ~ "Ajudaram moderadamente",
+          grepl("^Ajudaram um pouco", resposta_fechada,
+                ignore.case = TRUE) ~ "Ajudaram um pouco",
+          grepl("^N[aã]o ajudaram", resposta_fechada,
+                ignore.case = TRUE) ~ "Não ajudaram",
+          TRUE ~ NA_character_
         )
       ) %>%
+      dplyr::filter(!is.na(Resposta_plot)) %>%
       dplyr::group_by(Resposta_plot) %>%
-      dplyr::summarise(
-        N = sum(N, na.rm = TRUE),
-        .groups = "drop"
-      )
+      dplyr::summarise(N = sum(N), .groups = "drop")
     
-    dados_grafico <- tibble::tibble(
-      Resposta_plot = ordem_respostas
-    ) %>%
-      dplyr::left_join(
-        dados_observados,
-        by = "Resposta_plot"
-      ) %>%
-      dplyr::mutate(
-        N = dplyr::coalesce(N, 0)
-      )
+    total <- sum(observados$N)
     
-    total_respostas <- sum(
-      dados_grafico$N,
-      na.rm = TRUE
+    shiny::validate(
+      shiny::need(total > 0, "Não existem respostas reconhecidas.")
     )
     
-    dados_grafico <- dados_grafico %>%
+    grafico <- tibble::tibble(
+      Resposta_plot = ordem
+    ) %>%
+      dplyr::left_join(observados, by = "Resposta_plot") %>%
       dplyr::mutate(
-        Percentagem = if (total_respostas > 0) {
-          N / total_respostas * 100
-        } else {
-          0
-        },
-        
+        N = tidyr::replace_na(N, 0),
+        Percentagem = N / total * 100,
         Cor = dplyr::case_when(
           Resposta_plot == "Ajudaram bastante" ~ "#6A1B9A",
           Resposta_plot == "Ajudaram moderadamente" ~ "#7E3FB2",
           Resposta_plot == "Ajudaram um pouco" ~ "#A56BCB",
-          Resposta_plot == "Não ajudaram" ~ "#D8C4E8",
           TRUE ~ "#D8C4E8"
         ),
-        
-        label_direita = paste0(
-          format(
-            round(Percentagem, 1),
-            nsmall = 1,
-            decimal.mark = ","
-          ),
-          "%"
+        Rotulo = paste0(format(round(Percentagem, 1), nsmall = 1), "%"),
+        Tooltip = paste0(
+          Resposta_plot,
+          "<br>Respostas: ", N,
+          "<br>Percentagem: ", Rotulo
         ),
-        
-        tooltip_txt = paste0(
-          "<b>", Resposta_plot, "</b>",
-          "<br>Participantes: ", N,
-          "<br>Percentagem: ", label_direita
-        ),
-        
-        posicao_label = pmin(
-          Percentagem + 2,
-          103
-        ),
-        
+        Posicao = pmin(Percentagem + 2, 108),
         Resposta_plot = factor(
           Resposta_plot,
-          levels = rev(ordem_respostas)
+          levels = rev(ordem)
         )
-      ) %>%
-      dplyr::arrange(Resposta_plot)
+      )
     
-    plot_ly() %>%
-      
-      add_bars(
-        data = dados_grafico,
-        x = rep(100, nrow(dados_grafico)),
+    plotly::plot_ly() %>%
+      plotly::add_bars(
+        data = grafico,
+        x = rep(100, nrow(grafico)),
         y = ~Resposta_plot,
         orientation = "h",
-        marker = list(
-          color = cor_fundo,
-          line = list(width = 0)
-        ),
+        marker = list(color = "#e9e3ed", line = list(width = 0)),
         width = 0.48,
         hoverinfo = "skip",
-        showlegend = FALSE,
-        name = "Fundo"
+        showlegend = FALSE
       ) %>%
-      
-      add_bars(
-        data = dados_grafico,
+      plotly::add_bars(
+        data = grafico,
         x = ~Percentagem,
         y = ~Resposta_plot,
         orientation = "h",
-        marker = list(
-          color = ~Cor,
-          line = list(width = 0)
-        ),
+        marker = list(color = ~Cor, line = list(width = 0)),
         width = 0.48,
         hoverinfo = "text",
-        hovertext = ~tooltip_txt,
-        showlegend = FALSE,
-        name = "Respostas"
+        hovertext = ~Tooltip,
+        showlegend = FALSE
       ) %>%
-      
-      add_trace(
-        data = dados_grafico,
-        x = ~posicao_label,
+      plotly::add_trace(
+        data = grafico,
+        x = ~Posicao,
         y = ~Resposta_plot,
         type = "scatter",
         mode = "text",
-        text = ~label_direita,
+        text = ~Rotulo,
         textposition = "middle right",
-        textfont = list(
-          color = "#333333",
-          size = 13,
-          family = "Arial"
-        ),
+        textfont = list(color = "#333333", size = 13, family = "Arial"),
         hoverinfo = "skip",
         showlegend = FALSE,
         inherit = FALSE
       ) %>%
-      
-      layout(
+      plotly::layout(
         barmode = "overlay",
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4",
-        
-        margin = list(
-          l = 155,
-          r = 65,
-          t = 20,
-          b = 25
-        ),
-        
+        margin = list(l = 155, r = 65, t = 20, b = 25),
         bargap = 0.38,
-        
         xaxis = list(
           visible = FALSE,
           range = c(0, 115),
@@ -12764,511 +14036,388 @@ server <- function(input, output, session) {
           zeroline = FALSE,
           showgrid = FALSE
         ),
-        
         yaxis = list(
-          tickfont = list(
-            color = "#333333",
-            size = 12,
-            family = "Arial"
-          ),
-          showgrid = FALSE,
-          zeroline = FALSE,
+          title = "",
+          tickfont = list(color = "#333333", size = 12, family = "Arial"),
           categoryorder = "array",
-          categoryarray = rev(ordem_respostas),
+          categoryarray = rev(ordem),
           automargin = TRUE,
-          fixedrange = TRUE
+          fixedrange = TRUE,
+          showgrid = FALSE,
+          zeroline = FALSE
         ),
-        
-        font = list(
-          color = "#333333",
-          family = "Arial"
-        ),
-        
+        font = list(color = "#333333", family = "Arial"),
         hoverlabel = list(
           bgcolor = "#ffffff",
           bordercolor = "#9442d4",
-          font = list(
-            color = "#333333",
-            size = 12
-          )
+          font = list(color = "#333333", size = 12)
         )
       ) %>%
-      
-      config(
-        displayModeBar = FALSE,
-        responsive = TRUE
-      )
+      plotly::config(displayModeBar = FALSE, responsive = TRUE)
   })
   
   
-  # ==========================================================
-  # 14. GRÁFICO — PRÁTICAS COLOCADAS EM PRÁTICA
-  # CICLOS 1 E 3 · ENDLINE
-  # ==========================================================
+  # ============================================================
+  # 9. GRÁFICO 2 — PRÁTICAS APLICADAS
+  # ============================================================
   
-  output$grafico_praticas_genero <- renderPlotly({
+  output$grafico_praticas_genero <- plotly::renderPlotly({
     
-    cor_fundo <- "#e9e3ed"
+    df <- dados_abertos_genero()
     
-    respostas <- dados_genero_unicos %>%
-      dplyr::transmute(
-        ID_Participante,
-        depoimento = stringr::str_squish(
-          as.character(.data[[pergunta_praticas]])
-        )
-      ) %>%
-      dplyr::filter(
-        !is.na(depoimento),
-        depoimento != ""
-      ) %>%
-      dplyr::distinct(ID_Participante, .keep_all = TRUE) %>%
-      dplyr::mutate(
-        texto = stringi::stri_trans_general(
-          stringr::str_to_lower(depoimento),
-          "Latin-ASCII"
-        )
-      )
+    total <- dplyr::n_distinct(df$ID_Participante)
     
-    total_participantes <- dplyr::n_distinct(
-      respostas$ID_Participante
+    shiny::validate(
+      shiny::need(total > 0, "Não existem respostas abertas para os filtros.")
     )
     
+    texto <- df$texto_norm
+    
     padrao_casa <- paste(
-      "casa", "familia", "marido", "esposo", "parceiro",
-      "companheiro", "filhos", "tarefas domesticas",
-      "trabalho domestico", "dividir as tarefas",
-      "partilhar as tarefas", "redistribu", "responsabilidades",
-      "ajudar nas tarefas", "divisao das tarefas",
-      "conversar com a familia",
+      "familia", "casa", "marido", "esposo", "parceiro",
+      "companheiro", "filhos", "criancas", "tarefas domesticas",
+      "trabalho domestico", "dividir.*tarefas", "partilhar.*tarefas",
+      "responsabilidades", "cuidar dos filhos",
       sep = "|"
     )
     
     padrao_eu <- paste(
-      "confianca", "confiante", "perder o medo",
-      "perdi o medo", "sem medo", "coragem",
-      "acredito em mim", "acreditar em mim",
-      "capaz", "autonomia", "independente",
-      "tomar decisoes", "decidir por mim",
-      "direitos", "minha opiniao", "minha voz",
-      "expressar", "defender-me", "valorizar-me",
-      "valorizar a mim", "autoestima",
+      "confianca", "confiante", "medo", "coragem",
+      "acredito em mim", "capaz", "autonomia", "independente",
+      "decisoes", "direitos", "opiniao", "voz", "expressar",
+      "defender", "autoestima",
       sep = "|"
     )
     
     padrao_negocio <- paste(
-      "negocio", "negociar", "negociei", "negocio com",
-      "preco", "precos", "precificar", "fixar precos",
-      "clientes", "vender", "vendas", "lucro", "investir",
-      "investimento", "capital", "poupanca",
-      "formalizar", "formalizacao", "empreender",
-      "comprar mercadoria", "gestao", "contabilidade",
-      "calcular custos", "aumentar os rendimentos",
+      "negocio", "negociar", "preco", "clientes", "vender",
+      "vendas", "lucro", "investir", "capital", "poupanca",
+      "formalizar", "empreender", "gestao", "custos",
+      "rendimentos",
       sep = "|"
     )
     
     padrao_tempo <- paste(
-      "tempo", "conciliar", "organizacao do tempo",
-      "gerir o tempo", "gestao do tempo",
-      "organizar o meu dia", "organizar o dia",
-      "horario", "rotina", "equilibrar",
-      "conciliacao", "dividir o tempo",
-      "tempo para a familia", "tempo para o negocio",
-      "planear o dia", "planeamento",
+      "tempo", "conciliar", "horario", "rotina", "equilibrar",
+      "planeamento", "planear", "organizar.*dia", "gestao do tempo",
       sep = "|"
     )
     
-    respostas_classificadas <- respostas %>%
-      dplyr::mutate(
-        Casa_familia = stringr::str_detect(texto, padrao_casa),
-        Eu = stringr::str_detect(texto, padrao_eu),
-        Negocio = stringr::str_detect(texto, padrao_negocio),
-        Tempo = stringr::str_detect(texto, padrao_tempo)
-      )
-    
     dados_praticas <- tibble::tibble(
-      Esfera = c(
-        "Casa e família",
-        "Eu",
-        "Negócio",
-        "Tempo"
-      ),
-      
+      Esfera = c("Casa e família", "Eu", "Negócio", "Tempo"),
       Descricao = c(
-        "Redistribuir tarefas, negociar com parceiro ou família",
-        "Autoconfiança, perder o medo, sentir-se capaz",
-        "Negociar, fixar preços, investir, formalizar",
-        "Conciliar o negócio e a família"
+        "Tarefas domésticas e responsabilidades familiares",
+        "Autoconfiança, autonomia e direitos",
+        "Negociação, preços e gestão do negócio",
+        "Organização do tempo e conciliação"
       ),
-      
       N = c(
-        sum(respostas_classificadas$Casa_familia, na.rm = TRUE),
-        sum(respostas_classificadas$Eu, na.rm = TRUE),
-        sum(respostas_classificadas$Negocio, na.rm = TRUE),
-        sum(respostas_classificadas$Tempo, na.rm = TRUE)
+        sum(grepl(padrao_casa, texto, perl = TRUE)),
+        sum(grepl(padrao_eu, texto, perl = TRUE)),
+        sum(grepl(padrao_negocio, texto, perl = TRUE)),
+        sum(grepl(padrao_tempo, texto, perl = TRUE))
       ),
-      
-      Cor = c(
-        "#6A1B9A",
-        "#7E3FB2",
-        "#A56BCB",
-        "#D8C4E8"
-      )
+      Cor = c("#6A1B9A", "#7E3FB2", "#A56BCB", "#D8C4E8")
     ) %>%
       dplyr::mutate(
-        Percentagem = if (total_participantes > 0) {
-          N / total_participantes * 100
-        } else {
-          0
-        },
-        
-        Rotulo = paste0(
-          N, " de ", total_participantes
-        ),
-        
+        Percentagem = N / total * 100,
+        Rotulo = paste0(N, " de ", total),
         Tooltip = paste0(
-          "<b>", Esfera, "</b>",
-          "<br>", Descricao,
-          "<br>Depoimentos identificados: ", N,
-          "<br>Participantes com resposta aberta: ",
-          total_participantes,
-          "<br>Percentagem: ",
-          format(
-            round(Percentagem, 1),
-            nsmall = 1,
-            decimal.mark = ","
-          ),
-          "%"
+          Esfera, "<br>", Descricao,
+          "<br>Participantes: ", N,
+          "<br>Total com resposta aberta: ", total,
+          "<br>Percentagem: ", round(Percentagem, 1), "%"
         ),
-        
+        Posicao = pmin(N + 0.7, total + 1),
         Esfera = factor(
           Esfera,
-          levels = rev(c(
-            "Casa e família",
-            "Eu",
-            "Negócio",
-            "Tempo"
-          ))
+          levels = rev(c("Casa e família", "Eu", "Negócio", "Tempo"))
         )
-      ) %>%
-      dplyr::arrange(Esfera)
+      )
     
-    plot_ly() %>%
-      
-      add_bars(
+    plotly::plot_ly() %>%
+      plotly::add_bars(
         data = dados_praticas,
-        x = rep(total_participantes, nrow(dados_praticas)),
+        x = rep(total, nrow(dados_praticas)),
         y = ~Esfera,
         orientation = "h",
-        marker = list(
-          color = cor_fundo,
-          line = list(width = 0)
-        ),
+        marker = list(color = "#e9e3ed", line = list(width = 0)),
         width = 0.48,
         hoverinfo = "skip",
-        showlegend = FALSE,
-        name = "Total de participantes"
+        showlegend = FALSE
       ) %>%
-      
-      add_bars(
+      plotly::add_bars(
         data = dados_praticas,
         x = ~N,
         y = ~Esfera,
         orientation = "h",
-        marker = list(
-          color = ~Cor,
-          line = list(width = 0)
-        ),
+        marker = list(color = ~Cor, line = list(width = 0)),
         width = 0.48,
         hoverinfo = "text",
         hovertext = ~Tooltip,
-        showlegend = FALSE,
-        name = "Esferas identificadas"
+        showlegend = FALSE
       ) %>%
-      
-      add_trace(
+      plotly::add_trace(
         data = dados_praticas,
-        x = ~pmin(N + 0.7, total_participantes + 1),
+        x = ~Posicao,
         y = ~Esfera,
         type = "scatter",
         mode = "text",
         text = ~Rotulo,
         textposition = "middle right",
-        textfont = list(
-          color = "#333333",
-          size = 12,
-          family = "Arial"
-        ),
+        textfont = list(color = "#333333", size = 12, family = "Arial"),
         hoverinfo = "skip",
         showlegend = FALSE,
         inherit = FALSE
       ) %>%
-      
-      layout(
+      plotly::layout(
         barmode = "overlay",
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4",
-        
-        margin = list(
-          l = 110,
-          r = 75,
-          t = 20,
-          b = 25
-        ),
-        
+        margin = list(l = 110, r = 75, t = 20, b = 25),
         bargap = 0.38,
-        
         xaxis = list(
           visible = FALSE,
-          range = c(
-            0,
-            max(total_participantes + 5, 10)
-          ),
+          range = c(0, max(total + 5, 10)),
           fixedrange = TRUE,
           zeroline = FALSE,
           showgrid = FALSE
         ),
-        
         yaxis = list(
           title = "",
-          tickfont = list(
-            color = "#333333",
-            size = 12,
-            family = "Arial"
-          ),
-          showgrid = FALSE,
-          zeroline = FALSE,
+          tickfont = list(color = "#333333", size = 12, family = "Arial"),
           categoryorder = "array",
-          categoryarray = rev(c(
-            "Casa e família",
-            "Eu",
-            "Negócio",
-            "Tempo"
-          )),
+          categoryarray = rev(c("Casa e família", "Eu", "Negócio", "Tempo")),
           automargin = TRUE,
-          fixedrange = TRUE
+          fixedrange = TRUE,
+          showgrid = FALSE,
+          zeroline = FALSE
         ),
-        
-        font = list(
-          color = "#333333",
-          family = "Arial"
-        ),
-        
+        font = list(color = "#333333", family = "Arial"),
         hoverlabel = list(
           bgcolor = "#ffffff",
           bordercolor = "#9442d4",
-          font = list(
-            color = "#333333",
-            size = 12
-          )
+          font = list(color = "#333333", size = 12)
         )
       ) %>%
-      
-      config(
-        displayModeBar = FALSE,
-        responsive = TRUE
-      )
+      plotly::config(displayModeBar = FALSE, responsive = TRUE)
   })
   
   
   # ============================================================
-  # 15. CLASSIFICAÇÃO TEMÁTICA DOS DEPOIMENTOS
+  # 10. FUNÇÃO PARA CARTÕES KPI
   # ============================================================
   
-  classificar_tema_genero <- function(texto) {
+  criar_kpi_genero <- function(
+    valor, titulo, detalhe, icone, cor_classe
+  ) {
     
-    if (
-      length(texto) == 0 ||
-      is.na(texto) ||
-      !nzchar(stringr::str_squish(texto))
-    ) {
-      return("Tema não classificado")
-    }
-    
-    texto_limpo <- stringi::stri_trans_general(
-      stringr::str_to_lower(texto),
-      "Latin-ASCII"
-    )
-    
-    regras_temas <- list(
-      
-      "Trabalho doméstico" = paste(
-        "tarefas domesticas", "trabalho domestico",
-        "casa", "familia", "filhos", "cozinhar",
-        "limpar", "lavar", "dividir tarefas",
-        "redistribuir", "responsabilidades domesticas",
-        "marido", "esposo", "parceiro", "companheiro",
-        sep = "|"
+    shiny::div(
+      class = paste("value-box", cor_classe),
+      shiny::div(
+        class = "kpi-icon",
+        style = "font-size:30px;",
+        shiny::icon(icone)
       ),
-      
-      "Poder interior" = paste(
-        "confianca", "autoconfianca", "autoestima",
-        "perder o medo", "coragem", "sentir-me capaz",
-        "acreditar em mim", "acredito em mim",
-        "me tornei capaz", "autonomia", "independencia",
-        "tomar decisoes", "minha voz", "minha opiniao",
-        "direitos",
-        sep = "|"
+      shiny::div(
+        class = "kpi-value",
+        style = "font-size:30px;font-weight:500;line-height:1.2;",
+        valor
       ),
-      
-      "Negociar e fixar preços" = paste(
-        "negociar", "negociei", "negociacao",
-        "fixar precos", "preco", "precos",
-        "clientes", "vendas", "vender", "lucro",
-        "investir", "capital", "formalizar", "formalizacao",
-        sep = "|"
+      shiny::div(
+        class = "kpi-title",
+        style = "font-size:15px;",
+        titulo
       ),
-      
-      "Relações de poder" = paste(
-        "poder de decisao", "tomada de decisao",
-        "decisao conjunta", "igualdade", "desigualdade",
-        "respeito", "direitos", "voz na familia",
-        "ser ouvida", "participar nas decisoes",
-        "relacao de poder",
-        sep = "|"
-      ),
-      
-      "Estereótipos ocupacionais" = paste(
-        "trabalho de homem", "trabalho de mulher",
-        "profissao de homem", "profissao de mulher",
-        "actividade de homem", "actividade de mulher",
-        "atividade de homem", "atividade de mulher",
-        "homens podem", "mulheres podem",
-        "mulher nao pode", "homem nao pode",
-        "estereotipo", "discriminacao no trabalho",
-        sep = "|"
-      ),
-      
-      "Tensões" = paste(
-        "conflito", "discussao", "discutir",
-        "problema", "dificuldade", "discordancia",
-        "rejeicao", "resistencia", "oposicao",
-        "nao aceitou", "nao aceitaram",
-        "briga", "tensao",
-        sep = "|"
+      shiny::div(
+        class = "kpi-detail",
+        style = "font-size:13px;",
+        detalhe
       )
     )
-    
-    temas_encontrados <- names(regras_temas)[
-      vapply(
-        regras_temas,
-        function(padrao) {
-          stringr::str_detect(texto_limpo, padrao)
-        },
-        logical(1)
-      )
-    ]
-    
-    if (length(temas_encontrados) == 0) {
-      return("Tema não classificado")
-    }
-    
-    # Mantém o primeiro tema encontrado, tal como na lógica original.
-    temas_encontrados[1]
   }
   
   
   # ============================================================
-  # 16. PREPARAR OS DEPOIMENTOS POR ID
+  # 11. KPI — AVALIAÇÃO POSITIVA
   # ============================================================
   
-  dados_depoimentos_genero <- dados_genero_unicos %>%
-    dplyr::transmute(
-      ID_Participante = as.character(ID_Participante),
-      Texto_original = as.character(.data[[pergunta_praticas]])
-    ) %>%
-    dplyr::mutate(
-      ID_Participante = stringr::str_squish(ID_Participante),
-      texto_verificacao = stringr::str_squish(Texto_original)
-    ) %>%
-    dplyr::filter(
-      !is.na(ID_Participante),
-      ID_Participante != "",
-      !is.na(Texto_original),
-      texto_verificacao != ""
-    ) %>%
-    dplyr::distinct(
-      ID_Participante,
-      .keep_all = TRUE
-    ) %>%
-    dplyr::mutate(
-      Depoimento = Texto_original,
-      Tema = vapply(
-        Depoimento,
-        classificar_tema_genero,
-        character(1)
+  output$box_avaliacao_positiva <- shiny::renderUI({
+    
+    ind <- indicadores_genero()
+    
+    valor <- if (is.na(ind$pct_positivas)) {
+      "Sem dados"
+    } else {
+      paste0(
+        format(round(ind$pct_positivas, 1), nsmall = 1,
+               decimal.mark = ","),
+        "%"
       )
-    ) %>%
-    dplyr::select(
-      ID_Participante,
-      Texto_original,
-      Depoimento,
-      Tema
-    )
-  
-  
-  # ============================================================
-  # 17. CARTÕES INDIVIDUAIS — VOZES DAS PARTICIPANTES
-  # ============================================================
-  
-  output$depoimentos_genero <- renderUI({
-    
-    dados <- dados_depoimentos_genero
-    
-    tema_selecionado <- input$filtro_tema_qualitativo
-    
-    if (
-      is.null(tema_selecionado) ||
-      length(tema_selecionado) == 0 ||
-      tema_selecionado == ""
-    ) {
-      tema_selecionado <- "Todos"
     }
     
-    if (tema_selecionado != "Todos") {
+    criar_kpi_genero(
+      valor,
+      "Avaliação positiva",
+      paste0(
+        ind$positivas, " de ", ind$respostas_fechadas,
+        " respostas · Bastante + Moderadamente"
+      ),
+      "check-circle",
+      "blue"
+    )
+  })
+  
+  
+  # ============================================================
+  # 12. KPI — AJUDARAM BASTANTE
+  # ============================================================
+  
+  output$box_praticas <- shiny::renderUI({
+    
+    ind <- indicadores_genero()
+    
+    valor <- if (is.na(ind$pct_bastante)) {
+      "Sem dados"
+    } else {
+      paste0(
+        format(round(ind$pct_bastante, 1), nsmall = 1,
+               decimal.mark = ","),
+        "%"
+      )
+    }
+    
+    criar_kpi_genero(
+      valor,
+      "Ajudaram bastante",
+      paste0(
+        ind$bastante, " de ", ind$respostas_fechadas,
+        " respostas válidas"
+      ),
+      "lightbulb",
+      "green"
+    )
+  })
+  
+  
+  # ============================================================
+  # 13. KPI — DESCREVEM UMA PRÁTICA NOVA
+  # Mantém o ID output$box_casa da aplicação existente
+  # ============================================================
+  
+  output$box_casa <- shiny::renderUI({
+    
+    boxes <- resumo_boxes_praticas_genero()
+    ind <- boxes[boxes$Indicador == "pratica_nova", ]
+    
+    n <- ind$N[1]
+    total <- ind$Total[1]
+    pct <- ind$Percentagem[1]
+    
+    valor <- if (is.na(pct)) {
+      "Sem dados"
+    } else {
+      paste0(
+        format(round(pct, 1), nsmall = 1, decimal.mark = ","),
+        "%"
+      )
+    }
+    
+    criar_kpi_genero(
+      valor,
+      "Descrevem uma prática nova",
+      paste0(
+        n, " participantes com menções detectadas de ",
+        total, " com resposta aberta"
+      ),
+      "check-square",
+      "orange"
+    )
+  })
+  
+  
+  # ============================================================
+  # 14. KPI — FAMÍLIA E TAREFAS DOMÉSTICAS
+  # Mantém o ID output$box_autoconfianca existente
+  # ============================================================
+  
+  output$box_autoconfianca <- shiny::renderUI({
+    
+    boxes <- resumo_boxes_praticas_genero()
+    ind <- boxes[boxes$Indicador == "familia_tarefas", ]
+    
+    n <- ind$N[1]
+    total <- ind$Total[1]
+    pct <- ind$Percentagem[1]
+    
+    valor <- if (is.na(pct)) {
+      "Sem dados"
+    } else {
+      paste0(
+        format(round(pct, 1), nsmall = 1, decimal.mark = ","),
+        "%"
+      )
+    }
+    
+    criar_kpi_genero(
+      valor,
+      "Família e tarefas domésticas",
+      paste0(
+        n, " participantes com menções detectadas de ",
+        total, " com resposta aberta"
+      ),
+      "home",
+      "purple"
+    )
+  })
+  
+  
+  # ============================================================
+  # 15. DEPOIMENTOS — CARTÕES POR TEMA
+  # ============================================================
+  
+  output$depoimentos_genero <- shiny::renderUI({
+    
+    dados <- dados_depoimentos_genero()
+    
+    tema <- input$filtro_tema_qualitativo
+    
+    if (is.null(tema) || length(tema) == 0) {
+      tema <- "Todos"
+    }
+    
+    if (tema[1] != "Todos") {
       dados <- dados %>%
-        dplyr::filter(Tema == tema_selecionado)
+        dplyr::filter(Tema == tema[1])
     }
     
     if (nrow(dados) == 0) {
       return(
-        div(
+        shiny::div(
           style = paste(
-            "background-color:#ffffff;",
-            "padding:20px;",
-            "border-radius:8px;",
-            "text-align:center;",
-            "color:#777777;"
+            "background:#f5f3f4;padding:20px;",
+            "border-radius:8px;color:#666666;"
           ),
-          icon("info-circle"),
-          p("Não existem depoimentos para o tema seleccionado.")
+          "Não existem depoimentos para os filtros seleccionados."
         )
       )
     }
     
     cores_temas <- c(
-      "Trabalho doméstico" = "#6A1B9A",
-      "Poder interior" = "#7E3FB2",
-      "Negociar e fixar preços" = "#A56BCB",
+      "Trabalho doméstico" = "#8054A2",
+      "Poder interior" = "#946AB0",
+      "Negociar e fixar preços" = "#B49AC8",
       "Relações de poder" = "#9442D4",
       "Estereótipos ocupacionais" = "#F77333",
       "Tensões" = "#42A5F5",
+      "Tempo" = "#5E3370",
       "Tema não classificado" = "#999999"
     )
     
-    div(
-      class = "depoimentos-genero-container",
-      
-      div(
-        style = paste(
-          "display:flex;",
-          "justify-content:space-between;",
-          "align-items:center;",
-          "flex-wrap:wrap;",
-          "gap:8px;",
-          "margin-bottom:15px;"
-        ),
-        
-        tags$strong(
+    shiny::tagList(
+      shiny::div(
+        style = "margin-bottom:15px;color:#444444;",
+        shiny::tags$strong(
           paste(
             nrow(dados),
             if (nrow(dados) == 1) {
@@ -13276,90 +14425,62 @@ server <- function(input, output, session) {
             } else {
               "depoimentos encontrados"
             }
-          ),
-          style = "color:#444444;"
-        ),
-        
-        span(
-          style = "font-size:12px;color:#777777;",
-          tema_selecionado
+          )
         )
       ),
       
-      fluidRow(
+      shiny::fluidRow(
         lapply(seq_len(nrow(dados)), function(i) {
           
           registo <- dados[i, ]
           
-          tema <- registo$Tema[[1]]
-          cor_tema <- unname(cores_temas[tema])
+          tema_atual <- as.character(registo$Tema)
+          cor_tema <- unname(cores_temas[tema_atual])
           
-          if (
-            length(cor_tema) == 0 ||
-            is.na(cor_tema)
-          ) {
+          if (length(cor_tema) == 0 || is.na(cor_tema)) {
             cor_tema <- "#999999"
           }
           
-          column(
+          shiny::column(
             width = 6,
             
-            div(
+            shiny::div(
               style = paste0(
-                "background-color:#ffffff;",
+                "background:#ffffff;",
                 "border-left:5px solid ", cor_tema, ";",
-                "border-radius:8px;",
-                "padding:16px;",
+                "border-radius:8px;padding:16px;",
                 "margin-bottom:16px;",
-                "box-shadow:0 2px 6px rgba(0,0,0,0.06);",
-                "height:auto;"
+                "box-shadow:0 2px 6px rgba(0,0,0,0.06);"
               ),
               
-              span(
+              shiny::tags$span(
                 style = paste0(
-                  "display:inline-block;",
-                  "background-color:", cor_tema, "18;",
-                  "color:", cor_tema, ";",
-                  "padding:5px 9px;",
-                  "border-radius:12px;",
-                  "font-size:11px;",
-                  "font-weight:600;",
+                  "display:inline-block;color:", cor_tema, ";",
+                  "font-size:12px;font-weight:600;",
                   "margin-bottom:10px;"
                 ),
-                tema
+                tema_atual
               ),
               
-              tags$blockquote(
+              shiny::tags$blockquote(
                 style = paste(
-                  "border-left:0;",
-                  "padding:0;",
-                  "margin:0 0 14px 0;",
-                  "font-size:14px;",
-                  "line-height:1.6;",
-                  "color:#333333;",
-                  "font-style:italic;",
-                  "white-space:pre-wrap;",
-                  "overflow-wrap:anywhere;"
+                  "border-left:0;padding:0;margin:0 0 14px 0;",
+                  "font-size:14px;line-height:1.6;",
+                  "color:#333333;font-style:italic;",
+                  "white-space:pre-wrap;overflow-wrap:anywhere;"
                 ),
-                registo$Depoimento[[1]]
+                as.character(registo$Depoimento)
               ),
               
-              div(
+              shiny::div(
                 style = paste(
                   "border-top:1px solid #eeeeee;",
-                  "padding-top:8px;",
-                  "font-size:11px;",
-                  "color:#777777;"
+                  "padding-top:8px;font-size:11px;color:#777777;"
                 ),
-                
-                icon("user"),
-                
-                span(
+                shiny::icon("user"),
+                shiny::span(
                   style = "margin-left:5px;",
-                  paste(
-                    "ID:",
-                    registo$ID_Participante[[1]]
-                  )
+                  paste("ID:", as.character(registo$ID_Participante))
                 )
               )
             )
@@ -13370,27 +14491,29 @@ server <- function(input, output, session) {
   })
   
   
+  # ============================================================
+  # FIM DA SECÇÃO DE AVALIAÇÃO DE GÉNERO
+  # ============================================================
+  
   # ##########################     CONSCIENCIA AMBIENTAL ######################
   # 
   # # ####################Pontuacões##############
   
   
+  # ============================================================
+  # GRÁFICO: PONTUAÇÃO DA PEGADA DE CARBONO — NAMPULA
+  # ============================================================
+  
   output$graficoPontuacaoNampula <- renderPlotly({
     
-    # =========================
     # DADOS BASE
-    # =========================
     df <- Pegada_Carbono
     
-    # =========================
     # FILTRO CIDADE
-    # =========================
     df <- df %>%
       filter(Cidade == "Nampula")
     
-    # =========================
     # FILTRO ANO
-    # =========================
     if (!is.null(input$ano_pegada) &&
         input$ano_pegada != "Todos") {
       
@@ -13398,9 +14521,7 @@ server <- function(input, output, session) {
         filter(Ano_Projeto == as.character(input$ano_pegada))
     }
     
-    # =========================
     # FILTRO CICLO
-    # =========================
     if (!is.null(input$ciclo_pegada) &&
         input$ciclo_pegada != "Todos") {
       
@@ -13410,33 +14531,26 @@ server <- function(input, output, session) {
     
     req(nrow(df) > 0)
     
-    # =========================
-    # RESUMO
-    # =========================
+    # RESUMO DOS DADOS
     dados_contagem <- df %>%
       filter(
         !is.na(Status_Pegada),
         !is.na(Tipo_Avaliacao)
       ) %>%
-      
       group_by(
         Tipo_Avaliacao,
         Status_Pegada
       ) %>%
-      
       summarise(
         num_participantes = n(),
         .groups = "drop"
       ) %>%
-      
       group_by(Tipo_Avaliacao) %>%
-      
       mutate(
         Percentagem = round(
           num_participantes / sum(num_participantes) * 100,
           1
         ),
-        
         label = paste0(
           num_participantes,
           " (",
@@ -13444,12 +14558,9 @@ server <- function(input, output, session) {
           "%)"
         )
       ) %>%
-      
       ungroup()
     
-    # =========================
-    # ORDEM
-    # =========================
+    # ORDEM DAS CATEGORIAS
     dados_contagem$Status_Pegada <- factor(
       dados_contagem$Status_Pegada,
       levels = c(
@@ -13459,18 +14570,14 @@ server <- function(input, output, session) {
       )
     )
     
-    # =========================
     # CORES
-    # =========================
     cores_pegada <- c(
       "PEGADA BAIXA" = "#8054A2",
       "PEGADA MÉDIA" = "#f39c12",
       "PEGADA ALTA"  = "#F77333"
     )
     
-    # =========================
     # GRÁFICO
-    # =========================
     p <- ggplot(
       dados_contagem,
       aes(
@@ -13479,23 +14586,14 @@ server <- function(input, output, session) {
         fill = Status_Pegada,
         text = paste0(
           "<b>Cidade:</b> Nampula",
-          "<br><b>Status:</b> ",
-          Status_Pegada,
-          "<br><b>Participantes:</b> ",
-          num_participantes,
-          "<br><b>Percentagem:</b> ",
-          Percentagem,
-          "%",
-          "<br><b>Avaliação:</b> ",
-          Tipo_Avaliacao
+          "<br><b>Status:</b> ", Status_Pegada,
+          "<br><b>Participantes:</b> ", num_participantes,
+          "<br><b>Percentagem:</b> ", Percentagem, "%",
+          "<br><b>Avaliação:</b> ", Tipo_Avaliacao
         )
       )
     ) +
-      
-      geom_col(
-        width = 0.65
-      ) +
-      
+      geom_col(width = 0.65) +
       geom_text(
         aes(label = label),
         position = position_stack(vjust = 0.5),
@@ -13503,27 +14601,19 @@ server <- function(input, output, session) {
         size = 4,
         fontface = "bold"
       ) +
-      
-      facet_wrap(
-        ~ Tipo_Avaliacao
-      ) +
-      
+      facet_wrap(~ Tipo_Avaliacao) +
       scale_fill_manual(
         values = cores_pegada,
         drop = FALSE
       ) +
-      
       labs(
         title = "Pegada de Carbono — Nampula",
         x = NULL,
         y = "Número de Participantes"
       ) +
-      
       theme_minimal(base_size = 12) +
-      
       theme(
         legend.position = "none",
-        
         panel.grid = element_blank(),
         
         plot.title = element_text(
@@ -13541,9 +14631,7 @@ server <- function(input, output, session) {
           face = "bold"
         ),
         
-        axis.text.y = element_text(
-          size = 11
-        ),
+        axis.text.y = element_text(size = 11),
         
         panel.border = element_rect(
           color = "black",
@@ -13551,49 +14639,47 @@ server <- function(input, output, session) {
           linewidth = 0.4
         ),
         
-        panel.spacing = unit(
-          1,
-          "lines"
-        )
+        panel.spacing = unit(1, "lines")
       )
     
-    # =========================
-    # PLOTLY
-    # =========================
+    # CONVERTER PARA PLOTLY E RODAR AS CATEGORIAS DO EIXO X
     ggplotly(
       p,
       tooltip = "text"
     ) %>%
-      
       layout(
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4",
+        
+        xaxis = list(
+          tickangle = -45,
+          automargin = TRUE
+        ),
         
         margin = list(
           l = 60,
           r = 20,
           t = 60,
-          b = 80
+          b = 110
         )
       )
   })
   
+  
+  # ============================================================
+  # GRÁFICO: PONTUAÇÃO DA PEGADA DE CARBONO — BEIRA
+  # ============================================================
+  
   output$graficoPontuacaoBeira <- renderPlotly({
     
-    # =========================
     # DADOS BASE
-    # =========================
     df <- Pegada_Carbono
     
-    # =========================
     # FILTRO CIDADE
-    # =========================
     df <- df %>%
       filter(Cidade == "Beira")
     
-    # =========================
     # FILTRO ANO
-    # =========================
     if (!is.null(input$ano_pegada) &&
         input$ano_pegada != "Todos") {
       
@@ -13601,9 +14687,7 @@ server <- function(input, output, session) {
         filter(Ano_Projeto == as.character(input$ano_pegada))
     }
     
-    # =========================
     # FILTRO CICLO
-    # =========================
     if (!is.null(input$ciclo_pegada) &&
         input$ciclo_pegada != "Todos") {
       
@@ -13613,33 +14697,26 @@ server <- function(input, output, session) {
     
     req(nrow(df) > 0)
     
-    # =========================
-    # RESUMO
-    # =========================
+    # RESUMO DOS DADOS
     dados_contagem <- df %>%
       filter(
         !is.na(Status_Pegada),
         !is.na(Tipo_Avaliacao)
       ) %>%
-      
       group_by(
         Tipo_Avaliacao,
         Status_Pegada
       ) %>%
-      
       summarise(
         num_participantes = n(),
         .groups = "drop"
       ) %>%
-      
       group_by(Tipo_Avaliacao) %>%
-      
       mutate(
         Percentagem = round(
           num_participantes / sum(num_participantes) * 100,
           1
         ),
-        
         label = paste0(
           num_participantes,
           " (",
@@ -13647,12 +14724,9 @@ server <- function(input, output, session) {
           "%)"
         )
       ) %>%
-      
       ungroup()
     
-    # =========================
-    # ORDEM
-    # =========================
+    # ORDEM DAS CATEGORIAS
     dados_contagem$Status_Pegada <- factor(
       dados_contagem$Status_Pegada,
       levels = c(
@@ -13662,18 +14736,14 @@ server <- function(input, output, session) {
       )
     )
     
-    # =========================
     # CORES
-    # =========================
     cores_pegada <- c(
       "PEGADA BAIXA" = "#8054A2",
       "PEGADA MÉDIA" = "#f39c12",
       "PEGADA ALTA"  = "#F77333"
     )
     
-    # =========================
     # GRÁFICO
-    # =========================
     p <- ggplot(
       dados_contagem,
       aes(
@@ -13682,23 +14752,14 @@ server <- function(input, output, session) {
         fill = Status_Pegada,
         text = paste0(
           "<b>Cidade:</b> Beira",
-          "<br><b>Status:</b> ",
-          Status_Pegada,
-          "<br><b>Participantes:</b> ",
-          num_participantes,
-          "<br><b>Percentagem:</b> ",
-          Percentagem,
-          "%",
-          "<br><b>Avaliação:</b> ",
-          Tipo_Avaliacao
+          "<br><b>Status:</b> ", Status_Pegada,
+          "<br><b>Participantes:</b> ", num_participantes,
+          "<br><b>Percentagem:</b> ", Percentagem, "%",
+          "<br><b>Avaliação:</b> ", Tipo_Avaliacao
         )
       )
     ) +
-      
-      geom_col(
-        width = 0.65
-      ) +
-      
+      geom_col(width = 0.65) +
       geom_text(
         aes(label = label),
         position = position_stack(vjust = 0.5),
@@ -13706,27 +14767,19 @@ server <- function(input, output, session) {
         size = 4,
         fontface = "bold"
       ) +
-      
-      facet_wrap(
-        ~ Tipo_Avaliacao
-      ) +
-      
+      facet_wrap(~ Tipo_Avaliacao) +
       scale_fill_manual(
         values = cores_pegada,
         drop = FALSE
       ) +
-      
       labs(
         title = "Pegada de Carbono — Beira",
         x = NULL,
         y = "Número de Participantes"
       ) +
-      
       theme_minimal(base_size = 12) +
-      
       theme(
         legend.position = "none",
-        
         panel.grid = element_blank(),
         
         plot.title = element_text(
@@ -13744,9 +14797,7 @@ server <- function(input, output, session) {
           face = "bold"
         ),
         
-        axis.text.y = element_text(
-          size = 11
-        ),
+        axis.text.y = element_text(size = 11),
         
         panel.border = element_rect(
           color = "black",
@@ -13754,33 +14805,32 @@ server <- function(input, output, session) {
           linewidth = 0.4
         ),
         
-        panel.spacing = unit(
-          1,
-          "lines"
-        )
+        panel.spacing = unit(1, "lines")
       )
     
-    # =========================
-    # PLOTLY
-    # =========================
+    # CONVERTER PARA PLOTLY E RODAR AS CATEGORIAS DO EIXO X
     ggplotly(
       p,
       tooltip = "text"
     ) %>%
-      
       layout(
         paper_bgcolor = "#f5f3f4",
         plot_bgcolor = "#f5f3f4",
+        
+        xaxis = list(
+          tickangle = -45,
+          automargin = TRUE
+        ),
         
         margin = list(
           l = 60,
           r = 20,
           t = 60,
-          b = 80
+          b = 110
         )
       )
   })
- 
+  
   # ============================================================
   # FUNÇÃO - GRÁFICO 100% EMPILHADO
   # ============================================================

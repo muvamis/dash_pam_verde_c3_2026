@@ -144,7 +144,7 @@ Pam_Verde_Indicadores <- PAM_VERDE_BASELINE_2026 %>%
 Pam_Verde_Indicadores <- Pam_Verde_Indicadores %>%
   filter(Ciclo %in% c("Ciclo 3", "Ciclo 1"))
 
-table(Pam_Verde_Indicadores$`B3 — Adaptação`)
+table(Pam_Verde_Indicadores$`Até que ponto as actividades ligadas à questão de género ajudaram a compreender as desigualdades entre homens e mulheres?`)
 
 
 ############## PEGADA DE CARBONO
