@@ -657,6 +657,16 @@
       "Total Nampula"
     ],
     [
+  "Variação do Lucro (MT)",
+  "Profit Variation (MT)",
+  "Variation du bénéfice (MT)"
+],
+[
+  "Variação do Lucro (%)",
+  "Profit Variation (%)",
+  "Variation du bénéfice (%)"
+],
+    [
       "<b>%{label}</b><br>Total: %{value}<br>Percentagem: %{percent}<extra></extra>",
       "<b>%{label}</b><br>Total: %{value}<br>Percentage: %{percent}<extra></extra>",
       "<b>%{label}</b><br>Total : %{value}<br>Pourcentage : %{percent}<extra></extra>"

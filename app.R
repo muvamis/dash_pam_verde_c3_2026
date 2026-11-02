@@ -2340,7 +2340,9 @@ ui <- navbarPage(
                 fluidRow(
                   box(
                     width = 12,
-                    title =  "Controlo de Evolução do Lucro Mensal",
+                    title = "Controlo da Evolução do Lucro Mensal",
+                    status = "primary",
+                    solidHeader = TRUE,
                     DTOutput("tabela_controle_lucro")
                   )
                 )
@@ -2812,7 +2814,7 @@ tabPanel(
   ),
   
   fluidPage(
-    # uiOutput("admin_ui")
+    uiOutput("admin_ui")
   )
 )
 
@@ -22768,19 +22770,28 @@ server <- function(input, output, session) {
     )
   })
  
+  
+  
+  # ============================================================
+  # CONTROLO DA EVOLUÇÃO DO LUCRO MENSAL
+  # Comparações originais + variação do 1.º ao 3.º mês
+  # Exportação Excel / CSV
+  # ============================================================
+  
   output$tabela_controle_lucro <- renderDT({
     
     # =========================
-    # BASE COM FILTROS
+    # 1. BASE COM FILTROS
     # =========================
+    
     df <- df_financeiro()
     
     req(nrow(df) > 0)
     
+    # =========================
+    # 2. AGREGAR POR PARTICIPANTE E MÊS
+    # =========================
     
-    # =========================
-    # AGREGAR POR PARTICIPANTE E MÊS
-    # =========================
     df <- df %>%
       group_by(
         Pesquisadores,
@@ -22793,8 +22804,9 @@ server <- function(input, output, session) {
       ) %>%
       
       # =========================
-    # ORGANIZAR MESES
+    # 3. ORGANIZAR MESES
     # =========================
+    
     mutate(
       Periodo = factor(
         Periodo,
@@ -22811,10 +22823,10 @@ server <- function(input, output, session) {
         Periodo
       )
     
+    # =========================
+    # 4. TRANSFORMAR MESES EM COLUNAS
+    # =========================
     
-    # =========================
-    # TRANSFORMAR MESES EM COLUNAS
-    # =========================
     tabela <- df %>%
       tidyr::pivot_wider(
         names_from = Periodo,
@@ -22822,10 +22834,10 @@ server <- function(input, output, session) {
         values_fill = 0
       )
     
+    # =========================
+    # 5. GARANTIR TODAS AS COLUNAS
+    # =========================
     
-    # =========================
-    # GARANTIR QUE TODAS AS COLUNAS EXISTEM
-    # =========================
     for (coluna in c(
       "Primeiro Mês",
       "Segundo Mês",
@@ -22835,12 +22847,13 @@ server <- function(input, output, session) {
       if (!coluna %in% names(tabela)) {
         tabela[[coluna]] <- 0
       }
+      
     }
     
+    # =========================
+    # 6. MÉDIA DE LUCRO POR PARTICIPANTE
+    # =========================
     
-    # =========================
-    # MÉDIA DE LUCRO POR PARTICIPANTE
-    # =========================
     tabela <- tabela %>%
       mutate(
         `Média por Participante` = rowMeans(
@@ -22853,10 +22866,10 @@ server <- function(input, output, session) {
         )
       )
     
+    # =========================
+    # 7. COMPARAÇÕES ORIGINAIS
+    # =========================
     
-    # =========================
-    # COMPARAÇÃO
-    # =========================
     tabela <- tabela %>%
       mutate(
         
@@ -22870,18 +22883,57 @@ server <- function(input, output, session) {
           `Terceiro Mês` > `Segundo Mês` ~ "Aumentou",
           `Terceiro Mês` == `Segundo Mês` ~ "Manteve",
           TRUE ~ "Reduziu"
-        ),
+        )
+        
+      )
+    
+    # =========================
+    # 8. VARIAÇÃO DO LUCRO
+    # PRIMEIRO AO TERCEIRO MÊS
+    # =========================
+    
+    tabela <- tabela %>%
+      mutate(
+        
+        # Variação absoluta em MT
+        `Variação do Lucro (MT)` =
+          `Terceiro Mês` - `Primeiro Mês`,
+        
+        # Variação percentual
+        # Utiliza o valor absoluto do lucro inicial
+        `Variação do Lucro (%)` = case_when(
+          
+          `Primeiro Mês` != 0 ~
+            (`Terceiro Mês` - `Primeiro Mês`) /
+            abs(`Primeiro Mês`),
+          
+          `Primeiro Mês` == 0 &
+            `Terceiro Mês` == 0 ~ 0,
+          
+          TRUE ~ NA_real_
+        )
+        
+      )
+    
+    # =========================
+    # 9. PRIORIDADE ORIGINAL
+    # =========================
+    
+    tabela <- tabela %>%
+      mutate(
         
         Prioridade = case_when(
           `2º para 3º Mês` == "Reduziu" ~ 1,
           `2º para 3º Mês` == "Manteve" ~ 2,
           TRUE ~ 3
         )
+        
       ) %>%
       
       # =========================
-    # ORGANIZAR COLUNAS
+    # 10. ORGANIZAR COLUNAS
     # =========================
+    
     select(
       Pesquisadores,
       Nome_Empreendedora,
@@ -22891,6 +22943,8 @@ server <- function(input, output, session) {
       `Média por Participante`,
       `1º para 2º Mês`,
       `2º para 3º Mês`,
+      `Variação do Lucro (MT)`,
+      `Variação do Lucro (%)`,
       Prioridade
     ) %>%
       
@@ -22898,37 +22952,118 @@ server <- function(input, output, session) {
       
       select(-Prioridade)
     
+    # =========================
+    # 11. CRIAR TABELA DT
+    # =========================
     
-    # =========================
-    # TABELA
-    # =========================
     datatable(
+      
       tabela,
+      
       rownames = FALSE,
+      
+      extensions = "Buttons",
+      
+      filter = "top",
+      
       options = list(
+        
+        # Mostrar até 100 participantes
         pageLength = 15,
-        scrollX = TRUE
+        
+        lengthMenu = list(
+          c(15, 30, 50, 100),
+          c("15", "30", "50", "100")
+        ),
+        
+        scrollX = TRUE,
+        
+        autoWidth = TRUE,
+        
+        dom = "Bfrtip",
+        
+        buttons = list(
+          
+          list(
+            extend = "copy",
+            text = "Copiar"
+          ),
+          
+          list(
+            extend = "csv",
+            text = "Baixar CSV",
+            filename = "Controlo_Evolucao_Lucro"
+          ),
+          
+          list(
+            extend = "excel",
+            text = "Baixar Excel",
+            filename = "Controlo_Evolucao_Lucro"
+          )
+          
+        ),
+        
+        language = list(
+          
+          search = "Pesquisar:",
+          
+          lengthMenu = "Mostrar _MENU_ registos",
+          
+          info = "A mostrar _START_ a _END_ de _TOTAL_ participantes",
+          
+          infoEmpty = "Sem registos disponíveis",
+          
+          zeroRecords = "Nenhum resultado encontrado",
+          
+          paginate = list(
+            previous = "Anterior",
+            `next` = "Seguinte"
+          )
+          
+        )
+        
       )
+      
     ) %>%
       
       # =========================
-    # FORMATAR VALORES MONETÁRIOS
+    # 12. FORMATAR VALORES MONETÁRIOS
     # =========================
+    
     formatRound(
+      
       columns = c(
         "Primeiro Mês",
         "Segundo Mês",
         "Terceiro Mês",
-        "Média por Participante"
+        "Média por Participante",
+        "Variação do Lucro (MT)"
       ),
+      
       digits = 2
+      
     ) %>%
       
       # =========================
-    # COR 1º → 2º
+    # 13. FORMATAR VARIAÇÃO PERCENTUAL
     # =========================
+    
+    formatPercentage(
+      
+      columns = "Variação do Lucro (%)",
+      
+      digits = 1
+      
+    ) %>%
+      
+      # =========================
+    # 14. COR 1º PARA 2º MÊS
+    # =========================
+    
     formatStyle(
+      
       "1º para 2º Mês",
+      
       backgroundColor = styleEqual(
         c(
           "Aumentou",
@@ -22940,14 +23075,33 @@ server <- function(input, output, session) {
           "#f9a825",
           "#69C7BE"
         )
-      )
+      ),
+      
+      color = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#ffffff",
+          "#333333",
+          "#333333"
+        )
+      ),
+      
+      fontWeight = "bold"
+      
     ) %>%
       
       # =========================
-    # COR 2º → 3º
+    # 15. COR 2º PARA 3º MÊS
     # =========================
+    
     formatStyle(
+      
       "2º para 3º Mês",
+      
       backgroundColor = styleEqual(
         c(
           "Aumentou",
@@ -22959,9 +23113,28 @@ server <- function(input, output, session) {
           "#f9a825",
           "#69C7BE"
         )
-      )
+      ),
+      
+      color = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#ffffff",
+          "#333333",
+          "#333333"
+        )
+      ),
+      
+      fontWeight = "bold"
+      
     )
+    
   })
+  
+
   
 
   #################################### MONITORIA BEIRA
@@ -26317,23 +26490,24 @@ server <- function(input, output, session) {
   
   output$tabela_controle_lucro_beira <- renderDT({
     
+    # ==========================================================
+    # 1. BASE FINANCEIRA BEIRA
+    # ==========================================================
+    
     df <- df_financeiro_beira()
     
     req(nrow(df) > 0)
     
-    
-    # ----------------------------------------------------------
-    # Agregar lucro por empreendedora e mês
-    # ----------------------------------------------------------
+    # ==========================================================
+    # 2. AGREGAR LUCRO POR PESQUISADOR E EMPREENDEDORA
+    # ==========================================================
     
     df <- df %>%
-      
       group_by(
         Nome_do_pesquisador,
         Nome_Empreendedora,
         Periodo
       ) %>%
-      
       summarise(
         Lucro_Mensal = sum(
           Lucro_Semanal,
@@ -26342,13 +26516,11 @@ server <- function(input, output, session) {
         .groups = "drop"
       )
     
-    
-    # ----------------------------------------------------------
-    # Transformar meses em colunas
-    # ----------------------------------------------------------
+    # ==========================================================
+    # 3. TRANSFORMAR MESES EM COLUNAS
+    # ==========================================================
     
     tabela <- df %>%
-      
       mutate(
         Periodo = factor(
           Periodo,
@@ -26359,37 +26531,33 @@ server <- function(input, output, session) {
           )
         )
       ) %>%
-      
       tidyr::pivot_wider(
         names_from = Periodo,
         values_from = Lucro_Mensal,
         values_fill = 0
       )
     
+    # ==========================================================
+    # 4. GARANTIR EXISTÊNCIA DAS COLUNAS
+    # ==========================================================
     
-    # ----------------------------------------------------------
-    # Garantir existência das colunas
-    # ----------------------------------------------------------
-    
-    if (!"Primeiro Mês" %in% names(tabela)) {
-      tabela$`Primeiro Mês` <- 0
+    for (coluna in c(
+      "Primeiro Mês",
+      "Segundo Mês",
+      "Terceiro Mês"
+    )) {
+      
+      if (!coluna %in% names(tabela)) {
+        tabela[[coluna]] <- 0
+      }
+      
     }
     
-    if (!"Segundo Mês" %in% names(tabela)) {
-      tabela$`Segundo Mês` <- 0
-    }
-    
-    if (!"Terceiro Mês" %in% names(tabela)) {
-      tabela$`Terceiro Mês` <- 0
-    }
-    
-    
-    # ----------------------------------------------------------
-    # Média dos três meses
-    # ----------------------------------------------------------
+    # ==========================================================
+    # 5. MÉDIA DOS TRÊS MESES
+    # ==========================================================
     
     tabela <- tabela %>%
-      
       mutate(
         `Média por Participante` = rowMeans(
           cbind(
@@ -26401,13 +26569,11 @@ server <- function(input, output, session) {
         )
       )
     
-    
-    # ----------------------------------------------------------
-    # Comparações
-    # ----------------------------------------------------------
+    # ==========================================================
+    # 6. COMPARAÇÕES ORIGINAIS
+    # ==========================================================
     
     tabela <- tabela %>%
-      
       mutate(
         
         `1º para 2º Mês` = case_when(
@@ -26420,8 +26586,45 @@ server <- function(input, output, session) {
           `Terceiro Mês` > `Segundo Mês` ~ "Aumentou",
           `Terceiro Mês` == `Segundo Mês` ~ "Manteve",
           TRUE ~ "Reduziu"
-        ),
+        )
         
+      )
+    
+    # ==========================================================
+    # 7. VARIAÇÃO DO LUCRO
+    # PRIMEIRO AO TERCEIRO MÊS
+    # ==========================================================
+    
+    tabela <- tabela %>%
+      mutate(
+        
+        # Variação absoluta em MT
+        `Variação do Lucro (MT)` =
+          `Terceiro Mês` - `Primeiro Mês`,
+        
+        # Variação percentual
+        # Inclui situações de prejuízo inicial
+        
+        `Variação do Lucro (%)` = case_when(
+          
+          `Primeiro Mês` != 0 ~
+            (`Terceiro Mês` - `Primeiro Mês`) /
+            abs(`Primeiro Mês`),
+          
+          `Primeiro Mês` == 0 &
+            `Terceiro Mês` == 0 ~ 0,
+          
+          TRUE ~ NA_real_
+        )
+        
+      )
+    
+    # ==========================================================
+    # 8. PRIORIDADE ORIGINAL
+    # ==========================================================
+    
+    tabela <- tabela %>%
+      mutate(
         Prioridade = case_when(
           `2º para 3º Mês` == "Reduziu" ~ 1,
           `2º para 3º Mês` == "Manteve" ~ 2,
@@ -26431,69 +26634,205 @@ server <- function(input, output, session) {
       
       arrange(Prioridade) %>%
       
+      select(-Prioridade)
+    
+    # ==========================================================
+    # 9. ORGANIZAR COLUNAS
+    # ==========================================================
+    
+    tabela <- tabela %>%
       select(
-        -Prioridade
+        Nome_do_pesquisador,
+        Nome_Empreendedora,
+        `Primeiro Mês`,
+        `Segundo Mês`,
+        `Terceiro Mês`,
+        `Média por Participante`,
+        `1º para 2º Mês`,
+        `2º para 3º Mês`,
+        `Variação do Lucro (MT)`,
+        `Variação do Lucro (%)`
       )
     
-    
-    # ----------------------------------------------------------
-    # Tabela
-    # ----------------------------------------------------------
+    # ==========================================================
+    # 10. TABELA DT E EXPORTAÇÃO
+    # ==========================================================
     
     datatable(
+      
       tabela,
+      
       rownames = FALSE,
+      
+      extensions = "Buttons",
+      
+      filter = "top",
+      
       options = list(
+        
         pageLength = 15,
-        scrollX = TRUE
+        
+        lengthMenu = list(
+          c(15, 30, 50, 100),
+          c("15", "30", "50", "100")
+        ),
+        
+        scrollX = TRUE,
+        
+        autoWidth = TRUE,
+        
+        dom = "Bfrtip",
+        
+        buttons = list(
+          
+          list(
+            extend = "copy",
+            text = "Copiar"
+          ),
+          
+          list(
+            extend = "csv",
+            text = "Baixar CSV",
+            filename = "Controlo_Evolucao_Lucro_Beira"
+          ),
+          
+          list(
+            extend = "excel",
+            text = "Baixar Excel",
+            filename = "Controlo_Evolucao_Lucro_Beira"
+          )
+          
+        ),
+        
+        language = list(
+          
+          search = "Pesquisar:",
+          
+          lengthMenu = "Mostrar _MENU_ registos",
+          
+          info = "A mostrar _START_ a _END_ de _TOTAL_ participantes",
+          
+          infoEmpty = "Sem registos disponíveis",
+          
+          zeroRecords = "Nenhum resultado encontrado",
+          
+          paginate = list(
+            previous = "Anterior",
+            `next` = "Seguinte"
+          )
+          
+        )
+        
       )
+      
     ) %>%
       
-      formatRound(
-        columns = c(
-          "Primeiro Mês",
-          "Segundo Mês",
-          "Terceiro Mês",
-          "Média por Participante"
-        ),
-        digits = 2
-      ) %>%
+      # ========================================================
+    # 11. FORMATAR VALORES MONETÁRIOS
+    # ========================================================
+    
+    formatRound(
       
-      formatStyle(
-        "1º para 2º Mês",
-        backgroundColor = styleEqual(
-          c(
-            "Aumentou",
-            "Manteve",
-            "Reduziu"
-          ),
-          c(
-            "#8054A2",
-            "#f9a825",
-            "#69C7BE"
-          )
-        ),
-        color = "white",
-        fontWeight = "bold"
-      ) %>%
+      columns = c(
+        "Primeiro Mês",
+        "Segundo Mês",
+        "Terceiro Mês",
+        "Média por Participante",
+        "Variação do Lucro (MT)"
+      ),
       
-      formatStyle(
-        "2º para 3º Mês",
-        backgroundColor = styleEqual(
-          c(
-            "Aumentou",
-            "Manteve",
-            "Reduziu"
-          ),
-          c(
-            "#8054A2",
-            "#f9a825",
-            "#69C7BE"
-          )
+      digits = 2
+      
+    ) %>%
+      
+      # ========================================================
+    # 12. FORMATAR VARIAÇÃO PERCENTUAL
+    # ========================================================
+    
+    formatPercentage(
+      
+      columns = "Variação do Lucro (%)",
+      
+      digits = 1
+      
+    ) %>%
+      
+      # ========================================================
+    # 13. CORES 1º PARA 2º MÊS
+    # ========================================================
+    
+    formatStyle(
+      
+      "1º para 2º Mês",
+      
+      backgroundColor = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
         ),
-        color = "white",
-        fontWeight = "bold"
-      )
+        c(
+          "#8054A2",
+          "#f9a825",
+          "#69C7BE"
+        )
+      ),
+      
+      color = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#ffffff",
+          "#333333",
+          "#333333"
+        )
+      ),
+      
+      fontWeight = "bold"
+      
+    ) %>%
+      
+      # ========================================================
+    # 14. CORES 2º PARA 3º MÊS
+    # ========================================================
+    
+    formatStyle(
+      
+      "2º para 3º Mês",
+      
+      backgroundColor = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#8054A2",
+          "#f9a825",
+          "#69C7BE"
+        )
+      ),
+      
+      color = styleEqual(
+        c(
+          "Aumentou",
+          "Manteve",
+          "Reduziu"
+        ),
+        c(
+          "#ffffff",
+          "#333333",
+          "#333333"
+        )
+      ),
+      
+      fontWeight = "bold"
+      
+    )
+    
   })
   
   
@@ -29371,18 +29710,18 @@ server <- function(input, output, session) {
   
   ########### BOTAO
   # 
-  # output$admin_ui <- renderUI({
-  #   sidebarLayout(
-  #     sidebarPanel(
-  #       actionButton("botao_atualizar", "📥 Carregar/Actualizar Dados", class = "btn btn-warning")
-  #     ),
-  #     mainPanel(
-  #       tags$h5("Clique no botão à esquerda para actualizar os dados do sistema."),
-  #       verbatimTextOutput("status_atualizacao")
-  #     )
-  #   )
-  # })
-  # 
+  output$admin_ui <- renderUI({
+    sidebarLayout(
+      sidebarPanel(
+        actionButton("botao_atualizar", "📥 Carregar/Actualizar Dados", class = "btn btn-warning")
+      ),
+      mainPanel(
+        tags$h5("Clique no botão à esquerda para actualizar os dados do sistema."),
+        verbatimTextOutput("status_atualizacao")
+      )
+    )
+  })
+
   # # Função principal de atualização
   # atualiza_dados <- function() {
   #   tryCatch({
@@ -29409,7 +29748,7 @@ server <- function(input, output, session) {
   #     #   "associacaomuva", "monitoria", "Presen_as_Individuais_PAM_Report", access_token
   #     # ) %>%
   #     #   data.frame()
-  #     # 
+  #     #
   #     # write_xlsx(Presencas_Individuais, "Presencas_Individuais.xlsx")
   # 
   #     ## 3. Dados Financeiros
@@ -29424,8 +29763,8 @@ server <- function(input, output, session) {
   #     #   "associacaomuva", "app-empreendedorismo", "RH_Empreendedoras_Report", access_token
   #     # ) %>%
   #     #   data.frame()
-  #     # 
-  #     # 
+  #     #
+  #     #
   #     # write_xlsx(RH_Empreendedoras, "RH_Empreendedoras.xlsx")
   # 
   #     ## Retornar os objetos (opcional)
@@ -29482,7 +29821,7 @@ server <- function(input, output, session) {
   #     "⏳ Aguardando actualização..."
   #   }
   # })
-  # 
+
 }
 
 
