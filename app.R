@@ -22867,7 +22867,7 @@ server <- function(input, output, session) {
       )
     
     # =========================
-    # 7. COMPARAÇÕES ORIGINAIS
+    # 7. COMPARAÇÕES ENTRE MESES
     # =========================
     
     tabela <- tabela %>%
@@ -22895,12 +22895,9 @@ server <- function(input, output, session) {
     tabela <- tabela %>%
       mutate(
         
-        # Variação absoluta em MT
         `Variação do Lucro (MT)` =
           `Terceiro Mês` - `Primeiro Mês`,
         
-        # Variação percentual
-        # Utiliza o valor absoluto do lucro inicial
         `Variação do Lucro (%)` = case_when(
           
           `Primeiro Mês` != 0 ~
@@ -22916,7 +22913,7 @@ server <- function(input, output, session) {
       )
     
     # =========================
-    # 9. PRIORIDADE ORIGINAL
+    # 9. PRIORIDADE DE ORGANIZAÇÃO
     # =========================
     
     tabela <- tabela %>%
@@ -22929,6 +22926,8 @@ server <- function(input, output, session) {
         )
         
       ) %>%
+      
+      arrange(Prioridade) %>%
       
       # =========================
     # 10. ORGANIZAR COLUNAS
@@ -22944,13 +22943,8 @@ server <- function(input, output, session) {
       `1º para 2º Mês`,
       `2º para 3º Mês`,
       `Variação do Lucro (MT)`,
-      `Variação do Lucro (%)`,
-      Prioridade
-    ) %>%
-      
-      arrange(Prioridade) %>%
-      
-      select(-Prioridade)
+      `Variação do Lucro (%)`
+    )
     
     # =========================
     # 11. CRIAR TABELA DT
@@ -22968,19 +22962,23 @@ server <- function(input, output, session) {
       
       options = list(
         
-        # Mostrar até 100 participantes
+        # Quantidade inicial
         pageLength = 15,
         
+        # Opções de visualização
         lengthMenu = list(
           c(15, 30, 50, 100),
           c("15", "30", "50", "100")
         ),
         
+        paging = TRUE,
+        
         scrollX = TRUE,
         
         autoWidth = TRUE,
         
-        dom = "Bfrtip",
+        # IMPORTANTE: a letra "l" apresenta o menu de registos
+        dom = "Bfltip",
         
         buttons = list(
           
@@ -23065,29 +23063,13 @@ server <- function(input, output, session) {
       "1º para 2º Mês",
       
       backgroundColor = styleEqual(
-        c(
-          "Aumentou",
-          "Manteve",
-          "Reduziu"
-        ),
-        c(
-          "#8054A2",
-          "#f9a825",
-          "#69C7BE"
-        )
+        c("Aumentou", "Manteve", "Reduziu"),
+        c("#8054A2", "#f9a825", "#69C7BE")
       ),
       
       color = styleEqual(
-        c(
-          "Aumentou",
-          "Manteve",
-          "Reduziu"
-        ),
-        c(
-          "#ffffff",
-          "#333333",
-          "#333333"
-        )
+        c("Aumentou", "Manteve", "Reduziu"),
+        c("#ffffff", "#333333", "#333333")
       ),
       
       fontWeight = "bold"
@@ -23103,29 +23085,13 @@ server <- function(input, output, session) {
       "2º para 3º Mês",
       
       backgroundColor = styleEqual(
-        c(
-          "Aumentou",
-          "Manteve",
-          "Reduziu"
-        ),
-        c(
-          "#8054A2",
-          "#f9a825",
-          "#69C7BE"
-        )
+        c("Aumentou", "Manteve", "Reduziu"),
+        c("#8054A2", "#f9a825", "#69C7BE")
       ),
       
       color = styleEqual(
-        c(
-          "Aumentou",
-          "Manteve",
-          "Reduziu"
-        ),
-        c(
-          "#ffffff",
-          "#333333",
-          "#333333"
-        )
+        c("Aumentou", "Manteve", "Reduziu"),
+        c("#ffffff", "#333333", "#333333")
       ),
       
       fontWeight = "bold"
@@ -26654,9 +26620,9 @@ server <- function(input, output, session) {
         `Variação do Lucro (%)`
       )
     
-    # ==========================================================
+    # ============================================================
     # 10. TABELA DT E EXPORTAÇÃO
-    # ==========================================================
+    # ============================================================
     
     datatable(
       
@@ -26677,11 +26643,17 @@ server <- function(input, output, session) {
           c("15", "30", "50", "100")
         ),
         
+        paging = TRUE,
+        
+        searching = TRUE,
+        
+        ordering = TRUE,
+        
         scrollX = TRUE,
         
         autoWidth = TRUE,
         
-        dom = "Bfrtip",
+        dom = "Bfltip",
         
         buttons = list(
           
@@ -26714,6 +26686,8 @@ server <- function(input, output, session) {
           
           infoEmpty = "Sem registos disponíveis",
           
+          infoFiltered = "(filtrado de _MAX_ participantes)",
+          
           zeroRecords = "Nenhum resultado encontrado",
           
           paginate = list(
@@ -26727,73 +26701,53 @@ server <- function(input, output, session) {
       
     ) %>%
       
-      # ========================================================
-    # 11. FORMATAR VALORES MONETÁRIOS
-    # ========================================================
-    
-    formatRound(
-      
-      columns = c(
-        "Primeiro Mês",
-        "Segundo Mês",
-        "Terceiro Mês",
-        "Média por Participante",
-        "Variação do Lucro (MT)"
-      ),
-      
-      digits = 2
-      
-    ) %>%
-      
-      # ========================================================
-    # 12. FORMATAR VARIAÇÃO PERCENTUAL
-    # ========================================================
-    
-    formatPercentage(
-      
-      columns = "Variação do Lucro (%)",
-      
-      digits = 1
-      
-    ) %>%
-      
-      # ========================================================
-    # 13. CORES 1º PARA 2º MÊS
-    # ========================================================
-    
-    formatStyle(
-      
-      "1º para 2º Mês",
-      
-      backgroundColor = styleEqual(
-        c(
-          "Aumentou",
-          "Manteve",
-          "Reduziu"
+      formatRound(
+        columns = c(
+          "Primeiro Mês",
+          "Segundo Mês",
+          "Terceiro Mês",
+          "Média por Participante",
+          "Variação do Lucro (MT)"
         ),
-        c(
-          "#8054A2",
-          "#f9a825",
-          "#69C7BE"
-        )
-      ),
+        digits = 2
+      ) %>%
       
-      color = styleEqual(
-        c(
-          "Aumentou",
-          "Manteve",
-          "Reduziu"
+      formatPercentage(
+        columns = "Variação do Lucro (%)",
+        digits = 1
+      ) %>%
+      
+      formatStyle(
+        "1º para 2º Mês",
+        
+        backgroundColor = styleEqual(
+          c("Aumentou", "Manteve", "Reduziu"),
+          c("#8054A2", "#f9a825", "#69C7BE")
         ),
-        c(
-          "#ffffff",
-          "#333333",
-          "#333333"
-        )
-      ),
+        
+        color = styleEqual(
+          c("Aumentou", "Manteve", "Reduziu"),
+          c("#ffffff", "#333333", "#333333")
+        ),
+        
+        fontWeight = "bold"
+      ) %>%
       
-      fontWeight = "bold"
-      
-    ) %>%
+      formatStyle(
+        "2º para 3º Mês",
+        
+        backgroundColor = styleEqual(
+          c("Aumentou", "Manteve", "Reduziu"),
+          c("#8054A2", "#f9a825", "#69C7BE")
+        ),
+        
+        color = styleEqual(
+          c("Aumentou", "Manteve", "Reduziu"),
+          c("#ffffff", "#333333", "#333333")
+        ),
+        
+        fontWeight = "bold"
+      ) %>%
       
       # ========================================================
     # 14. CORES 2º PARA 3º MÊS
@@ -29723,16 +29677,16 @@ server <- function(input, output, session) {
   })
 
   # # Função principal de atualização
-  # atualiza_dados <- function() {
-  #   tryCatch({
-  #     # Autenticação com Zoho
-  #     client_id <- Sys.getenv("CLIENT_ID")
-  #     client_secret <- Sys.getenv("CLIENT_SECRET")
-  #     refresh_token <- Sys.getenv("REFRESH_TOKEN")
-  # 
-  #     access_token <- RZohoCreator::refresh_access_token(
-  #       client_id, client_secret, refresh_token
-  #     )$access_token
+  atualiza_dados <- function() {
+    tryCatch({
+      # Autenticação com Zoho
+      client_id <- Sys.getenv("CLIENT_ID")
+      client_secret <- Sys.getenv("CLIENT_SECRET")
+      refresh_token <- Sys.getenv("REFRESH_TOKEN")
+
+      access_token <- RZohoCreator::refresh_access_token(
+        client_id, client_secret, refresh_token
+      )$access_token
   # 
   #     ## 1. Presenças Coletivas
   #     Presencas_colectivas <- RZohoCreator::get_records(
@@ -29751,76 +29705,76 @@ server <- function(input, output, session) {
   #     #
   #     # write_xlsx(Presencas_Individuais, "Presencas_Individuais.xlsx")
   # 
-  #     ## 3. Dados Financeiros
-  #     Financeiro_Report <- RZohoCreator::get_records(
-  #       "associacaomuva", "app-empreendedorismo", "Dados_Financeiros_Report", access_token
-  #     )
+      ## 3. Dados Financeiros
+      Financeiro_Report_teste <- RZohoCreator::get_records(
+        "associacaomuva", "app-empreendedorismo", "Dados_Financeiros_Report", access_token
+      )
+
+      write_xlsx(Financeiro_Report_teste, "Financeiro_Report_teste.xlsx")
   # 
-  #     write_xlsx(Financeiro_Report, "Financeiro_Report.xlsx")
-  # 
-  #     # # ## 4. Recursos Humanos
-  #     # RH_Empreendedoras <- RZohoCreator::get_records(
-  #     #   "associacaomuva", "app-empreendedorismo", "RH_Empreendedoras_Report", access_token
-  #     # ) %>%
-  #     #   data.frame()
-  #     #
-  #     #
-  #     # write_xlsx(RH_Empreendedoras, "RH_Empreendedoras.xlsx")
-  # 
-  #     ## Retornar os objetos (opcional)
-  #     return(list(
-  #       # dados = dados,
-  #       # Presencas_Individuais = Presencas_Individuais,
-  #       Financeiro_Report = Financeiro_Report
-  #       # RH_Empreendedoras = RH_Empreendedoras
-  #     ))
-  #   }, error = function(e) {
-  #     message("Erro ao atualizar dados: ", e$message)
-  #     return(NULL)
-  #   })
-  # }
-  # #
-  # # # Evento ao clicar no botão
-  # dados_atualizados <- eventReactive(input$botao_atualizar, {
-  #   # Criar log da ação
-  #   log_entry <- data.frame(
-  #     usuario = "admin",  # como não há mais login, colocar fixo
-  #     acao = "Atualizou os dados",
-  #     hora = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
-  #     stringsAsFactors = FALSE
-  #   )
-  # 
-  #   # Ler e combinar com logs antigos
-  #   if (file.exists("log_acoes.xlsx")) {
-  #     log_existente <- readxl::read_excel("log_acoes.xlsx")
-  #     log_total <- dplyr::bind_rows(log_existente, log_entry)
-  #   } else {
-  #     log_total <- log_entry
-  #   }
-  # 
-  #   # Salvar o novo log
-  #   writexl::write_xlsx(log_total, path = "log_acoes.xlsx")
-  # 
-  #   # Rodar atualização
-  #   atualiza_dados()
-  # })
-  # 
-  # # Mensagem de status
-  # output$status_atualizacao <- renderText({
-  #   if (input$botao_atualizar > 0) {
-  #     if (!is.null(dados_atualizados())) {
-  #       paste0(
-  #         "✅ Dados actualizados com sucesso em ",
-  #         format(Sys.time(), "%d/%m/%Y %H:%M:%S"),
-  #         ". Por favor, actualize (refresh) a página no navegador para ver as mudanças."
-  #       )
-  #     } else {
-  #       "⚠️ Erro ao actualizar os dados. Verifique o log."
-  #     }
-  #   } else {
-  #     "⏳ Aguardando actualização..."
-  #   }
-  # })
+      # # ## 4. Recursos Humanos
+      # RH_Empreendedoras <- RZohoCreator::get_records(
+      #   "associacaomuva", "app-empreendedorismo", "RH_Empreendedoras_Report", access_token
+      # ) %>%
+      #   data.frame()
+      # 
+      # 
+      # write_xlsx(RH_Empreendedoras, "RH_Empreendedoras.xlsx")
+
+      ## Retornar os objetos (opcional)
+      return(list(
+        # dados = dados,
+        # Presencas_Individuais = Presencas_Individuais,
+        Financeiro_Report_teste = Financeiro_Report_teste
+         # RH_Empreendedoras = RH_Empreendedoras
+      ))
+    }, error = function(e) {
+      message("Erro ao atualizar dados: ", e$message)
+      return(NULL)
+    })
+  }
+  #
+  # # Evento ao clicar no botão
+  dados_atualizados <- eventReactive(input$botao_atualizar, {
+    # Criar log da ação
+    log_entry <- data.frame(
+      usuario = "admin",  # como não há mais login, colocar fixo
+      acao = "Atualizou os dados",
+      hora = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+      stringsAsFactors = FALSE
+    )
+
+    # Ler e combinar com logs antigos
+    if (file.exists("log_acoes.xlsx")) {
+      log_existente <- readxl::read_excel("log_acoes.xlsx")
+      log_total <- dplyr::bind_rows(log_existente, log_entry)
+    } else {
+      log_total <- log_entry
+    }
+
+    # Salvar o novo log
+    writexl::write_xlsx(log_total, path = "log_acoes.xlsx")
+
+    # Rodar atualização
+    atualiza_dados()
+  })
+
+  # Mensagem de status
+  output$status_atualizacao <- renderText({
+    if (input$botao_atualizar > 0) {
+      if (!is.null(dados_atualizados())) {
+        paste0(
+          "✅ Dados actualizados com sucesso em ",
+          format(Sys.time(), "%d/%m/%Y %H:%M:%S"),
+          ". Por favor, actualize (refresh) a página no navegador para ver as mudanças."
+        )
+      } else {
+        "⚠️ Erro ao actualizar os dados. Verifique o log."
+      }
+    } else {
+      "⏳ Aguardando actualização..."
+    }
+  })
 
 }
 
