@@ -23473,13 +23473,18 @@ server <- function(input, output, session) {
   
   
   
+  
   output$grafico2_beira <- renderPlotly({
     
     idioma <- input$idioma %||% "pt"
     
     dados <- dados_geral_beira()
     
-    total_activas <- sum(
+    # ============================================================
+    # 1. CALCULAR TOTAIS
+    # ============================================================
+    
+    total_concluiu <- sum(
       dados$Status == "Activa",
       na.rm = TRUE
     )
@@ -23489,7 +23494,11 @@ server <- function(input, output, session) {
       na.rm = TRUE
     )
     
-    total_iniciaram <- total_activas + total_desistentes
+    total_iniciaram <- total_concluiu + total_desistentes
+    
+    # ============================================================
+    # 2. VERIFICAR DISPONIBILIDADE DE DADOS
+    # ============================================================
     
     if (total_iniciaram == 0) {
       return(
@@ -23507,20 +23516,31 @@ server <- function(input, output, session) {
       )
     }
     
+    # ============================================================
+    # 3. CATEGORIAS E TRADUÇÕES
+    # ============================================================
+    
     categorias_pt <- c(
-      "Activas",
+      "Concluiu a Formação",
       "Desistentes"
     )
     
     categorias <- i18n_tr(categorias_pt, idioma)
     
+    # ============================================================
+    # 4. CONSTRUIR TABELA DE RESUMO
+    # ============================================================
+    
     resumo <- data.frame(
       Categoria = categorias,
       Total = c(
-        total_activas,
+        total_concluiu,
         total_desistentes
       ),
-      Cor = c("#8054A2", "#69C7BE")
+      Cor = c(
+        "#8054A2",
+        "#69C7BE"
+      )
     ) %>%
       dplyr::mutate(
         Percentagem = Total / total_iniciaram * 100,
@@ -23532,6 +23552,10 @@ server <- function(input, output, session) {
         )
       )
     
+    # ============================================================
+    # 5. TÍTULOS E TEXTOS
+    # ============================================================
+    
     titulo <- i18n_tr(
       "Estado das Empreendedoras que Iniciaram a Formação",
       idioma
@@ -23542,7 +23566,14 @@ server <- function(input, output, session) {
       idioma
     )
     
-    texto_total <- i18n_tr("Total", idioma)
+    texto_total <- i18n_tr(
+      "Total",
+      idioma
+    )
+    
+    # ============================================================
+    # 6. CONSTRUIR GRÁFICO
+    # ============================================================
     
     plotly::plot_ly(
       data = resumo,
@@ -23567,33 +23598,49 @@ server <- function(input, output, session) {
         eixo_y, ": %{y:.1f}%<extra></extra>"
       )
     ) %>%
-      plotly::layout(
-        title = list(
-          text = titulo,
-          font = list(size = 18)
-        ),
-        xaxis = list(
-          title = "",
-          tickfont = list(size = 14)
-        ),
-        yaxis = list(
-          title = eixo_y,
-          ticksuffix = "%",
-          range = c(0, 105),
-          dtick = 20
-        ),
-        showlegend = FALSE,
-        bargap = 0.4,
-        paper_bgcolor = "#f5f3f4",
-        plot_bgcolor = "#f5f3f4",
-        margin = list(t = 75, b = 75, l = 80, r = 25)
-      ) %>%
-      plotly::config(
-        displaylogo = FALSE,
-        responsive = TRUE
+      
+      # ==========================================================
+    # 7. CONFIGURAÇÃO DO LAYOUT
+    # ==========================================================
+    
+    plotly::layout(
+      title = list(
+        text = titulo,
+        font = list(size = 18)
+      ),
+      xaxis = list(
+        title = "",
+        tickfont = list(size = 14)
+      ),
+      yaxis = list(
+        title = eixo_y,
+        ticksuffix = "%",
+        range = c(0, 105),
+        dtick = 20
+      ),
+      showlegend = FALSE,
+      bargap = 0.4,
+      paper_bgcolor = "#f5f3f4",
+      plot_bgcolor = "#f5f3f4",
+      margin = list(
+        t = 75,
+        b = 75,
+        l = 80,
+        r = 25
       )
+    ) %>%
+      
+      # ==========================================================
+    # 8. CONFIGURAÇÕES PLOTLY
+    # ==========================================================
+    
+    plotly::config(
+      displaylogo = FALSE,
+      responsive = TRUE
+    )
     
   })
+  
   
 
   ########################## PRESENCAS BEIRA
@@ -29777,9 +29824,6 @@ server <- function(input, output, session) {
   })
 
 }
-
-
-
 
 # ==========================================================
 # RODAR APP
