@@ -1,237 +1,409 @@
 
+# ============================================================
+# PAM VERDE — INTERFACE GLOBAL ACTUALIZADA
+# Layout inspirado no Abrindo Oportunidades IV
+# ============================================================
 
 ui <- navbarPage(
-  title = "PAM_VERDE",
   
+  title = "PAM VERDE",
   
-  # ------------------ Estilo e Tema ------------------
+  # ==========================================================
+  # TEMA BOOTSTRAP 5
+  # ==========================================================
+  
+  theme = bslib::bs_theme(
+    version = 5,
+    bootswatch = "flatly",
+    primary = "#8054A2",
+    secondary = "#F77333",
+    success = "#69C7BE",
+    bg = "#F5F3F4",
+    fg = "#333333"
+  ),
+  
+  # ==========================================================
+  # CABEÇALHO E ESTILOS
+  # ==========================================================
+  
   header = tags$head(
-    tags$head(
-  tags$style(HTML("
-    #filtro_tema_qualitativo .btn {
-      border-color: #8054A2 !important;
-      color: #8054A2 !important;
-      background-color: #ffffff !important;
-      margin: 3px;
-      border-radius: 6px !important;
-    }
-
-    #filtro_tema_qualitativo .btn.active,
-    #filtro_tema_qualitativo .btn:active {
-      background-color: #8054A2 !important;
-      border-color: #8054A2 !important;
-      color: #ffffff !important;
-    }
-
-    #filtro_tema_qualitativo .btn:hover {
-      background-color: #9442d4 !important;
-      border-color: #9442d4 !important;
-      color: #ffffff !important;
-    }
-  "))
-),
-
-    # Biblioteca para guardar tabelas como imagem PNG
+    
+    # Biblioteca para exportação de tabelas em PNG
     tags$script(
       src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
     ),
     
-    # Estilos da dashboard
+    # ========================================================
+    # CSS GLOBAL
+    # ========================================================
+    
     tags$style(HTML("
-
-      /* =========================
-         NAVBAR
-      ========================== */
+      
+      /* =====================================================
+         1. CORES GLOBAIS
+      ====================================================== */
+      
+      :root {
+        --cor-roxo: #8054A2;
+        --cor-laranja: #F77333;
+        --cor-turquesa: #69C7BE;
+        --cor-amarelo: #F9A825;
+        --cor-azul: #004C91;
+        --cor-fundo: #F5F3F4;
+      }
+      
+      body {
+        background: var(--cor-fundo) !important;
+        color: #333333;
+        font-family: Arial, sans-serif;
+      }
+      
+      /* =====================================================
+         2. NAVBAR PRINCIPAL
+      ====================================================== */
+      
       .navbar {
-        background-color: #9442d4;
+        background-color: var(--cor-roxo) !important;
+        border: none !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+        padding: 8px 15px;
       }
-
-      .navbar-default .navbar-nav > li > a {
-        color: white;
-        font-weight: bold;
+      
+      .navbar .navbar-brand,
+      .navbar .nav-link {
+        color: #FFFFFF !important;
+        font-weight: 700;
       }
-
-      .navbar-default .navbar-brand {
-        color: white;
-        font-weight: bold;
+      
+      .navbar .navbar-brand {
+        font-size: 19px;
+        letter-spacing: 0.4px;
       }
-
+      
+      .navbar .nav-link {
+        border-radius: 7px;
+        margin: 2px;
+        transition: all 0.2s ease;
+      }
+      
+      .navbar .nav-link:hover {
+        background-color: rgba(255,255,255,0.15) !important;
+        color: #FFFFFF !important;
+      }
+      
+      .navbar .nav-link.active,
+      .navbar .nav-item.show .nav-link {
+        background-color: #FFFFFF !important;
+        color: var(--cor-roxo) !important;
+      }
+      
+      .navbar-toggler {
+        border-color: rgba(255,255,255,0.6) !important;
+      }
+      
+      .navbar-toggler-icon {
+        filter: brightness(0) invert(1);
+      }
+      
+      /* =====================================================
+         3. CONTEÚDO PRINCIPAL
+      ====================================================== */
+      
       .tab-content {
-        background: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
+        background: #FFFFFF;
+        padding: 20px;
+        margin-top: 12px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
       }
-
-      .nav-tabs > li > a {
-        color: #6a1b9a;
-        font-weight: bold;
+      
+      .tab-pane {
+        padding-top: 8px;
       }
-
-      .nav-tabs > li.active > a,
-      .nav-tabs > li.active > a:focus,
-      .nav-tabs > li.active > a:hover {
-        background-color: #9442d4 !important;
-        color: white !important;
+      
+      /* =====================================================
+         4. PAINÉIS E CARTÕES
+      ====================================================== */
+      
+      .painel {
+        background: #FFFFFF;
+        padding: 18px;
+        border-radius: 12px;
+        margin-bottom: 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        border: 1px solid #EEEEEE;
       }
-
-      /* =========================
-         VALUE BOXES (KPIs)
-      ========================== */
+      
+      .subtitulo {
+        color: var(--cor-roxo);
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      
+      /* =====================================================
+         5. VALUE BOXES / KPIs
+      ====================================================== */
+      
       .value-box-container {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         align-items: stretch;
         gap: 15px;
-        margin-top: 10px;
+        margin-top: 12px;
+        margin-bottom: 18px;
       }
-
+      
       .value-box {
         flex: 1 1 180px;
-        max-width: 220px;
+        max-width: 240px;
         min-width: 160px;
-        padding: 16px;
+        min-height: 110px;
+        padding: 18px;
         border-radius: 14px;
-        color: white;
-        font-weight: bold;
+        color: #FFFFFF;
+        font-weight: 700;
         text-align: center;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.12);
         transition: all 0.25s ease-in-out;
       }
-
+      
       .value-box:hover {
         transform: translateY(-4px);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        box-shadow: 0 7px 18px rgba(0,0,0,0.20);
       }
-
-      /* =========================
-         CORES
-      ========================== */
-      .blue   { background-color: #6a1b9a; }
-      .green  { background-color: #5cd6c7; }
-      .orange { background-color: #f77333; }
-      .yellow { background-color: #f9a825; color: #000; }
-      .purple { background-color: #004c91; }
-
-      /* =========================
-         TEXTO DOS KPI
-      ========================== */
+      
+      /* Cores dos KPIs */
+      
+      .blue {
+        background-color: var(--cor-roxo);
+      }
+      
+      .green {
+        background-color: var(--cor-turquesa);
+        color: #173F3A;
+      }
+      
+      .orange {
+        background-color: var(--cor-laranja);
+      }
+      
+      .yellow {
+        background-color: var(--cor-amarelo);
+        color: #333333;
+      }
+      
+      .purple {
+        background-color: var(--cor-azul);
+      }
+      
       .value-title {
         font-size: 13px;
-        margin-top: 6px;
+        margin-top: 7px;
         opacity: 0.95;
       }
-
+      
       .value-number {
-        font-size: 22px;
+        font-size: 25px;
         font-weight: 800;
+        line-height: 1.3;
       }
-
-      /* =========================
-         TABELAS TOC
-      ========================== */
+      
+      /* =====================================================
+         6. FILTROS
+      ====================================================== */
+      
+      .form-control,
+      .selectize-input {
+        border-radius: 8px !important;
+        border: 1px solid #D8D2DC !important;
+        min-height: 38px;
+      }
+      
+      .form-control:focus,
+      .selectize-input.focus {
+        border-color: var(--cor-roxo) !important;
+        box-shadow: 0 0 0 0.15rem rgba(128,84,162,0.15) !important;
+      }
+      
+      .control-label {
+        color: #444444;
+        font-weight: 600;
+      }
+      
+      .sidebar {
+        background: #FFFFFF;
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+      
+      /* =====================================================
+         7. BOTÕES
+      ====================================================== */
+      
+      .btn-primary {
+        background-color: var(--cor-roxo) !important;
+        border-color: var(--cor-roxo) !important;
+        color: #FFFFFF !important;
+        border-radius: 7px !important;
+        font-weight: 600;
+      }
+      
+      .btn-primary:hover {
+        background-color: #684184 !important;
+        border-color: #684184 !important;
+      }
+      
+      .btn-default,
+      .btn-secondary {
+        border-radius: 7px !important;
+      }
+      
+      /* =====================================================
+         8. FILTRO QUALITATIVO
+      ====================================================== */
+      
+      #filtro_tema_qualitativo .btn {
+        border-color: var(--cor-roxo) !important;
+        color: var(--cor-roxo) !important;
+        background-color: #FFFFFF !important;
+        margin: 3px;
+        border-radius: 7px !important;
+      }
+      
+      #filtro_tema_qualitativo .btn.active,
+      #filtro_tema_qualitativo .btn:active,
+      #filtro_tema_qualitativo .btn:hover {
+        background-color: var(--cor-roxo) !important;
+        border-color: var(--cor-roxo) !important;
+        color: #FFFFFF !important;
+      }
+      
+      /* =====================================================
+         9. TABELAS DATATABLES
+      ====================================================== */
+      
+      .dataTables_wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 12px;
+      }
+      
       table.dataTable {
-        font-size: 10px !important;
+        width: 100% !important;
         border-collapse: collapse !important;
       }
-
+      
       table.dataTable thead th {
-        font-size: 10px !important;
-        padding: 5px 4px !important;
-        white-space: normal !important;
-        overflow-wrap: break-word !important;
+        background-color: #F2EDF5 !important;
+        color: var(--cor-roxo) !important;
+        font-weight: 700 !important;
         text-align: center !important;
         vertical-align: middle !important;
-        line-height: 1.2 !important;
+        padding: 9px 6px !important;
       }
-
+      
       table.dataTable tbody td {
-        font-size: 10px !important;
-        padding: 4px 5px !important;
+        padding: 7px 6px !important;
         vertical-align: middle !important;
-        line-height: 1.25 !important;
-        white-space: normal !important;
-        overflow-wrap: break-word !important;
       }
-
-      /* Indicador: texto dentro da própria coluna */
-      table.dataTable thead th:nth-child(2),
-      table.dataTable tbody td:nth-child(2) {
-        text-align: left !important;
-        white-space: normal !important;
-        overflow-wrap: anywhere !important;
-        word-break: normal !important;
-        font-size: 14px !important;
-        line-height: 1.25 !important;
+      
+      table.dataTable tbody tr:hover {
+        background-color: #F8F5FA !important;
       }
-
-      /* Valores numéricos */
-      table.dataTable thead th:nth-child(n+3),
-      table.dataTable tbody td:nth-child(n+3) {
-        text-align: center !important;
-        font-size: 12px !important;
-        font-variant-numeric: tabular-nums;
-      }
-
-      /* Estado */
-      table.dataTable tbody td:last-child {
-        white-space: normal !important;
-        overflow-wrap: break-word !important;
-        text-align: center !important;
-      }
-
-      /* Pesquisa, paginação e controlos */
+      
       .dataTables_wrapper .dataTables_filter,
       .dataTables_wrapper .dataTables_length,
       .dataTables_wrapper .dataTables_info,
       .dataTables_wrapper .dataTables_paginate {
-        font-size: 10px !important;
+        font-size: 11px !important;
       }
-
-      .dataTables_wrapper {
-        width: 100% !important;
-        max-width: 100% !important;
+      
+      /* =====================================================
+         10. BOTÕES DE EXPORTAÇÃO
+      ====================================================== */
+      
+      .dt-buttons .dt-button,
+      .toc-botoes-personalizados button {
+        background: var(--cor-roxo) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 7px 12px !important;
+        margin: 3px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
       }
-
-      /* =========================
-         BOTÕES PNG E FULL SCREEN
-      ========================== */
+      
+      .dt-buttons .dt-button:hover,
+      .toc-botoes-personalizados button:hover {
+        background: #684184 !important;
+      }
+      
       .toc-botoes-personalizados {
         display: flex !important;
         gap: 8px !important;
         flex-wrap: wrap !important;
         margin: 10px 0 !important;
       }
-
-      .toc-botoes-personalizados button {
-        font-size: 12px !important;
-        font-weight: bold !important;
-        padding: 8px 12px !important;
-        border: none !important;
-        border-radius: 6px !important;
-        cursor: pointer !important;
+      
+      /* =====================================================
+         11. GRÁFICOS
+      ====================================================== */
+      
+      .plotly,
+      .plot-container {
+        max-width: 100% !important;
       }
-
-      /* =========================
-         RESPONSIVO
-      ========================== */
+      
+      /* =====================================================
+         12. RESPONSIVIDADE
+      ====================================================== */
+      
       @media (max-width: 768px) {
+        
+        .tab-content {
+          padding: 10px;
+        }
+        
         .value-box {
           flex: 1 1 45%;
+          min-width: 135px;
         }
+        
+        .navbar .navbar-brand {
+          font-size: 16px;
+        }
+        
       }
-
+      
       @media (max-width: 480px) {
+        
         .value-box {
           flex: 1 1 100%;
+          max-width: 100%;
         }
+        
       }
-
+      
     ")),
     
-    # Alternância de idioma PT/EN
+    # ========================================================
+    # TRADUÇÃO PT / EN / FR
+    # ========================================================
+    
     tags$script(src = "i18n/i18n.js")
+    
   ),
+  
+  # ==========================================================
+  # MANTER AQUI TODOS OS tabPanel() ORIGINAIS DO PAM VERDE
+  # ==========================================================
+  
+  # O primeiro tabPanel original começa aqui.
   
   
   
